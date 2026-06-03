@@ -16,6 +16,16 @@ uv run pytest
 uv run uvicorn hannah_montana_ai.main:app --reload
 ```
 
+## 학습 파이프라인
+```bash
+uv run python scripts/collect_training_data.py --reuse-existing-raw
+uv run python scripts/build_augmented_training_data.py
+uv run python scripts/train_ml_model.py
+uv run python scripts/evaluate_ml_model.py
+```
+
+로컬 외부 API 키는 커밋하지 않는 `secrets.local.env`에서만 읽는다.
+
 AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
 
 ## 주요 엔드포인트

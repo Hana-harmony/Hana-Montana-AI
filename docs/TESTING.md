@@ -12,6 +12,8 @@ uv run pytest
 - 분석 API 정상 응답
 - health endpoint 정상 응답
 - 분석 API의 종목 매핑, 감성, 이벤트 태그 응답
+- 수집·증강 데이터 기반 ML artifact 생성
+- 평가 데이터셋 기준 이벤트, 감성, 중요도, 종목 매핑 지표
 
 ## 추가 예정
 - 모델 artifact 누락 시 실패 처리

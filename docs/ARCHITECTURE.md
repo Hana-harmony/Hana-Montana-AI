@@ -2,7 +2,7 @@
 
 ## 목적
 - Hana-OmniLens-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
-- ChatGPT API에 의존하지 않고 자체 Rule Engine과 자체 금융 NLP 기준 모델을 사용한다.
+- ChatGPT API에 의존하지 않고 자체 학습한 금융 NLP ML 모델을 사용한다.
 
 ## 서비스 구성
 - `api`: 분석 API route
@@ -19,7 +19,7 @@
 
 ## 현재 구현 상태
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
-- 이벤트 태그는 `financial_nlp_baseline.json`의 학습 키워드와 입력 텍스트를 비교한다.
-- 감성은 긍정/부정 금융 키워드 점수 차이로 분류한다.
-- 중요도는 위험 키워드, 공시 여부, 주요 이벤트 키워드 순서로 분류한다.
+- 이벤트 태그는 `financial_nlp_ml.joblib`의 One-vs-Rest multilabel classifier로 예측한다.
+- 감성은 TF-IDF char n-gram + Logistic Regression 모델로 분류한다.
+- 중요도는 source type을 포함한 텍스트 feature로 Logistic Regression 모델이 분류한다.
 - 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
