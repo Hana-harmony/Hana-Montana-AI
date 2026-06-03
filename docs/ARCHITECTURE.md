@@ -22,4 +22,4 @@
 - 이벤트 태그는 `financial_nlp_ml.joblib`의 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
 - 감성은 TF-IDF char n-gram + Logistic Regression 모델로 분류한다.
 - 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.
-- 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
+- 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 canonical title을 SHA-256으로 해시한다.

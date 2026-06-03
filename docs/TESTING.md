@@ -26,6 +26,7 @@ uv run python scripts/evaluate_ml_model.py
 - 수집 실패 시 기존 raw 코퍼스 축소 덮어쓰기 방지
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
+- Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 12,372건 학습 샘플 중 2,475건 holdout 검증 결과를 기록한다.
@@ -36,6 +37,5 @@ uv run python scripts/evaluate_ml_model.py
 - 현재 benchmark 결과는 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0이다.
 
 ## 추가 예정
-- Hana-OmniLens-API 연동 contract test
 - 배포 네트워크에서 외부 접근 차단 확인
 - 사람이 검수한 실데이터 gold evaluation set 추가 구축

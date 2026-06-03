@@ -92,6 +92,12 @@
 - source type과 종목코드는 해시 입력에 유지해 뉴스·공시 경계와 종목 경계가 섞이지 않게 한다.
 - 테스트로 라벨·꼬리표 제거, source type 경계, 종목 경계를 검증한다.
 
+## 2026-06-04 Hana-OmniLens-API 연동 계약 테스트
+- Spring `HannahAiAnalysisRequest`, `HannahAiStockCandidate`, `HannahAiAnalysisResponse` record의 JSON 필드명을 AI schema 테스트로 고정했다.
+- `POST /api/v1/alerts/analyze`가 별도 `X-HANNAH-AI-SERVICE-TOKEN` 없이 내부 호출 payload를 처리하는지 검증한다.
+- 계약 샘플은 공시 기반 공급계약 문장과 `stock_universe` alias를 포함한다.
+- 응답 필드 전체, 종목 매핑, `CONTRACT` 이벤트 태그, related stocks, boolean target flag, SHA-256 duplicate key, model version을 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
