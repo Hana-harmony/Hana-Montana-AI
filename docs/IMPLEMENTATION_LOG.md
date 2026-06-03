@@ -78,6 +78,13 @@
 - 분석 API는 모델 artifact 오류를 `503 Service Unavailable`과 고정 메시지로 변환해 내부 stack trace를 노출하지 않는다.
 - 테스트로 누락 artifact, invalid artifact, 분석 API 503 응답 계약을 검증한다.
 
+## 2026-06-04 라벨별 golden quality gate
+- 768건 gold benchmark 평가셋에 이벤트 라벨별 precision, recall, F1, support 하한선을 추가했다.
+- `CAPITAL_ACTION`, `CONTRACT`, `CORPORATE_ACTION`, `DISCLOSURE`, `EARNINGS`, `GENERAL_MARKET`, `MACRO`, `RISK` 전 라벨을 개별 gate로 검증한다.
+- 감성은 `NEGATIVE`, `NEUTRAL`, `POSITIVE`별 정답 confusion count를 검증한다.
+- 중요도는 `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`별 정답 confusion count를 검증한다.
+- 평균 지표가 통과해도 특정 이벤트나 중요도 라벨이 무너지는 회귀를 CI에서 차단한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.

@@ -20,6 +20,8 @@ uv run python scripts/evaluate_ml_model.py
 - 학습 단계의 80:20 holdout 검증 리포트 생성
 - 768건 benchmark 평가셋 기준 이벤트 recall, 이벤트 macro F1, 감성, 중요도, 종목 매핑 지표
 - 이벤트 라벨별 precision, recall, F1 리포트 생성
+- 이벤트 라벨별 golden quality gate
+- 감성·중요도 라벨별 golden confusion matrix gate
 - 감성·중요도 confusion matrix 리포트 생성
 - 수집 실패 시 기존 raw 코퍼스 축소 덮어쓰기 방지
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
@@ -33,7 +35,6 @@ uv run python scripts/evaluate_ml_model.py
 - 현재 benchmark 결과는 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0이다.
 
 ## 추가 예정
-- 라벨별 golden dataset 테스트
 - 중복 제거 키 안정성 테스트
 - Hana-OmniLens-API 연동 contract test
 - 배포 네트워크에서 외부 접근 차단 확인
