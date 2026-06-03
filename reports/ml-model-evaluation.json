@@ -2,6 +2,77 @@
   "sample_count": 18,
   "event_tag_recall": 1.0,
   "sentiment_accuracy": 1.0,
-  "importance_accuracy": 1.0,
-  "stock_accuracy": 1.0
+  "importance_accuracy": 0.9444444444444444,
+  "stock_accuracy": 1.0,
+  "event_macro_f1": 0.9403096903096902,
+  "event_label_metrics": {
+    "CAPITAL_ACTION": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 2
+    },
+    "CONTRACT": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 3
+    },
+    "CORPORATE_ACTION": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 2
+    },
+    "DISCLOSURE": {
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "f1": 0.923076923076923,
+      "support": 6
+    },
+    "EARNINGS": {
+      "precision": 0.6,
+      "recall": 1.0,
+      "f1": 0.7499999999999999,
+      "support": 3
+    },
+    "MACRO": {
+      "precision": 0.8333333333333334,
+      "recall": 1.0,
+      "f1": 0.9090909090909091,
+      "support": 5
+    },
+    "RISK": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 3
+    }
+  },
+  "sentiment_confusion_matrix": {
+    "NEGATIVE": {
+      "NEGATIVE": 5
+    },
+    "NEUTRAL": {
+      "NEUTRAL": 6
+    },
+    "POSITIVE": {
+      "POSITIVE": 7
+    }
+  },
+  "importance_confusion_matrix": {
+    "CRITICAL": {
+      "CRITICAL": 3
+    },
+    "HIGH": {
+      "HIGH": 9,
+      "MEDIUM": 1
+    },
+    "LOW": {
+      "LOW": 2
+    },
+    "MEDIUM": {
+      "MEDIUM": 3
+    }
+  }
 }

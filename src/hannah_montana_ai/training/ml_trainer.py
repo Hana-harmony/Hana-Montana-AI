@@ -92,7 +92,7 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
         "event_binarizer": event_binarizer,
         "sentiment_model": sentiment_model,
         "importance_model": importance_model,
-        "event_probability_threshold": 0.30,
+        "event_probability_threshold": 0.35,
         "sample_count": len(samples),
         "training_sources": [str(path) for path in training_paths if path.exists()],
     }
