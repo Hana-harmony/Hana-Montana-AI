@@ -4,3 +4,15 @@
 {"text":"NAVER 유상증자 결정 주요사항보고서 제출","tags":["CAPITAL_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"035420","stock_name":"NAVER"}
 {"text":"대한항공 합병 승인 절차 마무리","tags":["CORPORATE_ACTION"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"003490","stock_name":"대한항공"}
 {"text":"금리와 환율 변동으로 코스피 변동성 확대","tags":["MACRO"],"sentiment":"NEUTRAL","importance":"MEDIUM","source_type":"NEWS"}
+{"text":"삼성전자 대규모 자사주 매입과 배당 확대 발표","tags":["CAPITAL_ACTION"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005930","stock_name":"삼성전자"}
+{"text":"SK하이닉스 메모리 업황 부진으로 실적 하향 전망","tags":["EARNINGS","MACRO"],"sentiment":"NEGATIVE","importance":"HIGH","source_type":"NEWS","stock_code":"000660","stock_name":"SK하이닉스"}
+{"text":"카카오 정기보고서 제출 일정 안내","tags":["DISCLOSURE"],"sentiment":"NEUTRAL","importance":"LOW","source_type":"DISCLOSURE","stock_code":"035720","stock_name":"카카오"}
+{"text":"현대차 해외 공급계약 체결로 수출 증가 기대","tags":["CONTRACT","MACRO"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005380","stock_name":"현대차"}
+{"text":"테스트기업 횡령 혐의 발생으로 거래정지 우려","tags":["RISK"],"sentiment":"NEGATIVE","importance":"CRITICAL","source_type":"DISCLOSURE","stock_code":"654321","stock_name":"테스트기업"}
+{"text":"NAVER 플랫폼 부문 분할 검토 공시","tags":["CORPORATE_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"035420","stock_name":"NAVER"}
+{"text":"삼성바이오로직스 바이오 의약품 장기 공급계약 수주","tags":["CONTRACT"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"207940","stock_name":"삼성바이오로직스"}
+{"text":"원화 약세와 수출 둔화로 자동차 업종 투자심리 위축","tags":["MACRO"],"sentiment":"NEGATIVE","importance":"MEDIUM","source_type":"NEWS"}
+{"text":"카카오 임원 주요주주 소유상황 보고서 제출","tags":["DISCLOSURE"],"sentiment":"NEUTRAL","importance":"LOW","source_type":"DISCLOSURE","stock_code":"035720","stock_name":"카카오"}
+{"text":"삼성전자 반도체 수요 개선으로 순이익 증가 전망","tags":["EARNINGS"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005930","stock_name":"삼성전자"}
+{"text":"위험기업 불성실공시법인 지정 예고","tags":["RISK","DISCLOSURE"],"sentiment":"NEGATIVE","importance":"CRITICAL","source_type":"DISCLOSURE","stock_code":"123456","stock_name":"위험기업"}
+{"text":"코스닥 변동성 확대에 외국인 수급 관망세","tags":["MACRO"],"sentiment":"NEUTRAL","importance":"MEDIUM","source_type":"NEWS"}

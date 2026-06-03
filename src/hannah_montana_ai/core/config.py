@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class Settings(BaseModel):
-    model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_baseline.json")
+    model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
 
 
 @lru_cache

@@ -1,0 +1,31 @@
+{
+  "version": "financial-ml-tfidf-logreg-20260603172845",
+  "trained_at": "2026-06-03T17:28:45.012521+00:00",
+  "sample_count": 10764,
+  "training_sources": [
+    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/training/financial_alert_corpus.jsonl",
+    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/training/financial_alert_augmented.jsonl",
+    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/processed/weak_labeled_alerts.jsonl"
+  ],
+  "event_label_distribution": {
+    "EARNINGS": 1545,
+    "CONTRACT": 299,
+    "RISK": 256,
+    "CAPITAL_ACTION": 658,
+    "DISCLOSURE": 7505,
+    "CORPORATE_ACTION": 504,
+    "MACRO": 348,
+    "GENERAL_MARKET": 2294
+  },
+  "sentiment_label_distribution": {
+    "POSITIVE": 826,
+    "NEGATIVE": 205,
+    "NEUTRAL": 9733
+  },
+  "importance_label_distribution": {
+    "HIGH": 10425,
+    "CRITICAL": 119,
+    "LOW": 37,
+    "MEDIUM": 183
+  }
+}

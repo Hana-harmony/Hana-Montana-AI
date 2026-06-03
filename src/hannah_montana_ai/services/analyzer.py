@@ -7,7 +7,7 @@ from hannah_montana_ai.domain.schemas import (
     AlertAnalysisResponse,
     StockCandidate,
 )
-from hannah_montana_ai.services.model import KeywordFinancialNlpModel
+from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 
 
@@ -15,7 +15,7 @@ class AlertAnalyzer:
     def __init__(self) -> None:
         settings = get_settings()
         self.rule_engine = FinancialRuleEngine()
-        self.model = KeywordFinancialNlpModel(settings.model_path)
+        self.model = MachineLearningFinancialNlpModel(settings.model_path)
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         text = f"{request.title} {request.snippet}"

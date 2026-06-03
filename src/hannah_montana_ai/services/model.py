@@ -1,53 +1,39 @@
-import json
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
+
+import joblib
 
 from hannah_montana_ai.domain.schemas import Importance, Sentiment
+from hannah_montana_ai.training.ml_trainer import _importance_text
 
 
-class KeywordFinancialNlpModel:
+class MachineLearningFinancialNlpModel:
     def __init__(self, model_path: Path) -> None:
-        with model_path.open(encoding="utf-8") as file:
-            payload = json.load(file)
-        self.version: str = payload["version"]
-        self.event_keywords: dict[str, list[str]] = payload["event_keywords"]
-        self.sentiment_keywords: dict[str, list[str]] = payload["sentiment_keywords"]
-        self.importance_keywords: dict[str, list[str]] = payload["importance_keywords"]
+        payload: dict[str, Any] = joblib.load(model_path)
+        self.version = str(payload["version"])
+        self.event_model = payload["event_model"]
+        self.event_binarizer = payload["event_binarizer"]
+        self.sentiment_model = payload["sentiment_model"]
+        self.importance_model = payload["importance_model"]
+        self.event_probability_threshold = float(payload.get("event_probability_threshold", 0.5))
 
     def predict_event_tags(self, text: str) -> list[str]:
+        probabilities = self.event_model.predict_proba([text])[0]
+        classes = list(self.event_binarizer.classes_)
         tags = [
-            tag
-            for tag, keywords in self.event_keywords.items()
-            if self._score(text, keywords) > 0
+            str(label)
+            for label, probability in zip(classes, probabilities, strict=True)
+            if probability >= self.event_probability_threshold
         ]
-        return tags or ["GENERAL_MARKET"]
+        if tags:
+            return sorted(tags)
+
+        top_index = int(max(range(len(probabilities)), key=lambda index: probabilities[index]))
+        return [str(classes[top_index])] if classes else ["GENERAL_MARKET"]
 
     def classify_sentiment(self, text: str) -> Sentiment:
-        scores = {
-            label: self._score(text, keywords)
-            for label, keywords in self.sentiment_keywords.items()
-            if label in {"POSITIVE", "NEUTRAL", "NEGATIVE"}
-        }
-        top_label, top_score = max(scores.items(), key=lambda item: item[1])
-        if top_score == 0:
-            return "NEUTRAL"
-        return cast(Sentiment, top_label)
+        return cast(Sentiment, self.sentiment_model.predict([text])[0])
 
     def classify_importance(self, text: str, source_type: str) -> Importance:
-        if self._score(text, self.importance_keywords.get("CRITICAL", [])) > 0:
-            return "CRITICAL"
-        if source_type == "DISCLOSURE":
-            return "HIGH"
-
-        scores = {
-            label: self._score(text, keywords)
-            for label, keywords in self.importance_keywords.items()
-            if label in {"LOW", "MEDIUM", "HIGH"}
-        }
-        top_label, top_score = max(scores.items(), key=lambda item: item[1])
-        if top_score == 0:
-            return "MEDIUM" if len(text) > 80 else "LOW"
-        return cast(Importance, top_label)
-
-    def _score(self, text: str, keywords: list[str]) -> int:
-        return sum(1 for keyword in keywords if keyword in text)
+        prediction = self.importance_model.predict([_importance_text(text, source_type)])[0]
+        return cast(Importance, prediction)
