@@ -14,6 +14,17 @@ from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
 
+GOLD_EVENT_LABEL_QUALITY_GATES = {
+    "CAPITAL_ACTION": {"precision": 0.90, "recall": 0.70, "f1": 0.80, "support": 70},
+    "CONTRACT": {"precision": 0.70, "recall": 0.95, "f1": 0.80, "support": 70},
+    "CORPORATE_ACTION": {"precision": 0.90, "recall": 0.95, "f1": 0.90, "support": 90},
+    "DISCLOSURE": {"precision": 0.85, "recall": 0.80, "f1": 0.80, "support": 300},
+    "EARNINGS": {"precision": 0.70, "recall": 0.95, "f1": 0.80, "support": 100},
+    "GENERAL_MARKET": {"precision": 0.95, "recall": 0.95, "f1": 0.95, "support": 70},
+    "MACRO": {"precision": 0.70, "recall": 0.90, "f1": 0.80, "support": 140},
+    "RISK": {"precision": 0.95, "recall": 0.80, "f1": 0.85, "support": 160},
+}
+
 
 def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     model_path = tmp_path / "financial_nlp_ml.joblib"
@@ -78,6 +89,26 @@ def test_ml_model_passes_evaluation_dataset() -> None:
     assert result.event_label_metrics["GENERAL_MARKET"].f1 >= 0.9
     assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 200
     assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 70
+
+
+def test_ml_model_passes_label_level_golden_quality_gates() -> None:
+    samples = load_labeled_alerts(Path("data/evaluation/financial_alert_eval.jsonl"))
+    result = evaluate_alert_analyzer(samples, AlertAnalyzer())
+
+    for label, gates in GOLD_EVENT_LABEL_QUALITY_GATES.items():
+        metric = result.event_label_metrics[label]
+        assert metric.precision >= gates["precision"], label
+        assert metric.recall >= gates["recall"], label
+        assert metric.f1 >= gates["f1"], label
+        assert metric.support >= gates["support"], label
+
+    assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 200
+    assert result.sentiment_confusion_matrix["POSITIVE"]["POSITIVE"] >= 230
+    assert result.sentiment_confusion_matrix["NEUTRAL"]["NEUTRAL"] >= 230
+    assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 80
+    assert result.importance_confusion_matrix["HIGH"]["HIGH"] >= 290
+    assert result.importance_confusion_matrix["MEDIUM"]["MEDIUM"] >= 230
+    assert result.importance_confusion_matrix["LOW"]["LOW"] >= 20
 
 
 def test_collection_guard_prevents_dataset_shrink() -> None:
