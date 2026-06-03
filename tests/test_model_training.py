@@ -1,6 +1,14 @@
 from pathlib import Path
 
+import joblib
+import pytest
+
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.model import (
+    MachineLearningFinancialNlpModel,
+    ModelArtifactInvalidError,
+    ModelArtifactNotFoundError,
+)
 from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
@@ -41,6 +49,19 @@ def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() 
     assert "공급계약" in tokens
     assert "finance:잠정실적" in tokens
     assert "finance:공급계약" in tokens
+
+
+def test_missing_model_artifact_raises_explicit_error(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        MachineLearningFinancialNlpModel(tmp_path / "missing.joblib")
+
+
+def test_invalid_model_artifact_requires_expected_payload_keys(tmp_path: Path) -> None:
+    model_path = tmp_path / "invalid.joblib"
+    joblib.dump({"version": "broken"}, model_path)
+
+    with pytest.raises(ModelArtifactInvalidError):
+        MachineLearningFinancialNlpModel(model_path)
 
 
 def test_ml_model_passes_evaluation_dataset() -> None:

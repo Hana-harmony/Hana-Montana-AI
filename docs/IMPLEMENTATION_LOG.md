@@ -72,11 +72,18 @@
 - 768건 benchmark 기준 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0을 기록했다.
 - 단위 테스트로 금융 tokenizer의 복합어 추출과 학습 artifact 생성을 검증한다.
 
+## 2026-06-04 모델 artifact fail-closed 처리
+- 모델 artifact 경로가 없으면 `ModelArtifactNotFoundError`를 발생시킨다.
+- artifact 파일이 손상되었거나 필수 payload key가 없으면 `ModelArtifactInvalidError`를 발생시킨다.
+- 분석 API는 모델 artifact 오류를 `503 Service Unavailable`과 고정 메시지로 변환해 내부 stack trace를 노출하지 않는다.
+- 테스트로 누락 artifact, invalid artifact, 분석 API 503 응답 계약을 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
 - 감성은 char n-gram 기반 학습된 다중 클래스 ML 모델이 분류한다.
 - 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
+- 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
 - 모델은 Naver 뉴스와 OpenDART 공시에서 수집한 제목·snippet·링크 기반 코퍼스와 사람이 작성한 curated·증강 corpus로 학습된다.
 - 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
 
