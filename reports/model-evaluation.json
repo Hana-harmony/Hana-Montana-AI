@@ -1,0 +1,7 @@
+{
+  "sample_count": 6,
+  "event_tag_recall": 1.0,
+  "sentiment_accuracy": 1.0,
+  "importance_accuracy": 1.0,
+  "stock_accuracy": 1.0
+}

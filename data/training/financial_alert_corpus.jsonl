@@ -1,5 +1,18 @@
-{"text":"삼성전자 2분기 영업이익 증가 실적 호조","tags":["EARNINGS"],"sentiment":"POSITIVE","importance":"HIGH"}
-{"text":"SK하이닉스 대규모 공급계약 체결","tags":["CONTRACT"],"sentiment":"POSITIVE","importance":"HIGH"}
-{"text":"상장폐지 사유 발생 거래정지 안내","tags":["RISK"],"sentiment":"NEGATIVE","importance":"CRITICAL"}
-{"text":"유상증자 결정 공시 제출","tags":["CAPITAL_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH"}
-{"text":"회사분할 및 합병 관련 주요사항보고서","tags":["CORPORATE_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH"}
+{"text":"삼성전자 2분기 영업이익 증가 실적 호조","tags":["EARNINGS"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005930","stock_name":"삼성전자"}
+{"text":"SK하이닉스 대규모 공급계약 체결과 양산 확대","tags":["CONTRACT"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"000660","stock_name":"SK하이닉스"}
+{"text":"위험기업 상장폐지 사유 발생 거래정지 안내","tags":["RISK"],"sentiment":"NEGATIVE","importance":"CRITICAL","source_type":"DISCLOSURE","stock_code":"123456","stock_name":"위험기업"}
+{"text":"유상증자 결정 공시 제출","tags":["CAPITAL_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"035420","stock_name":"NAVER"}
+{"text":"회사분할 및 합병 관련 주요사항보고서","tags":["CORPORATE_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"051910","stock_name":"LG화학"}
+{"text":"현대차 자사주 매입 결정 주주환원 확대","tags":["CAPITAL_ACTION"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005380","stock_name":"현대차"}
+{"text":"카카오 매출 감소와 영업이익 부진 전망","tags":["EARNINGS"],"sentiment":"NEGATIVE","importance":"HIGH","source_type":"NEWS","stock_code":"035720","stock_name":"카카오"}
+{"text":"셀트리온 바이오시밀러 공급계약 수주","tags":["CONTRACT"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"068270","stock_name":"셀트리온"}
+{"text":"포스코홀딩스 배당 기준일 변경 안내","tags":["CAPITAL_ACTION"],"sentiment":"NEUTRAL","importance":"LOW","source_type":"DISCLOSURE","stock_code":"005490","stock_name":"POSCO홀딩스"}
+{"text":"LG에너지솔루션 리콜 비용 증가로 손실 확대","tags":["EARNINGS","RISK"],"sentiment":"NEGATIVE","importance":"HIGH","source_type":"NEWS","stock_code":"373220","stock_name":"LG에너지솔루션"}
+{"text":"대한항공 아시아나 인수 절차 승인","tags":["CORPORATE_ACTION"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"003490","stock_name":"대한항공"}
+{"text":"엔씨소프트 신작 부진으로 목표주가 하향","tags":["EARNINGS"],"sentiment":"NEGATIVE","importance":"MEDIUM","source_type":"NEWS","stock_code":"036570","stock_name":"엔씨소프트"}
+{"text":"금리 인하 기대감에 코스피 상승","tags":["MACRO"],"sentiment":"POSITIVE","importance":"MEDIUM","source_type":"NEWS"}
+{"text":"환율 급등으로 수출주 변동성 확대","tags":["MACRO"],"sentiment":"NEUTRAL","importance":"MEDIUM","source_type":"NEWS"}
+{"text":"감사의견 거절로 거래정지 가능성 확대","tags":["RISK"],"sentiment":"NEGATIVE","importance":"CRITICAL","source_type":"DISCLOSURE","stock_code":"654321","stock_name":"감사의견기업"}
+{"text":"삼성바이오로직스 위탁생산 계약 납품 확대","tags":["CONTRACT"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"207940","stock_name":"삼성바이오로직스"}
+{"text":"LG화학 최대주주 지분 변동 보고서 제출","tags":["CORPORATE_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"051910","stock_name":"LG화학"}
+{"text":"한국전력 적자 폭 감소와 실적 개선","tags":["EARNINGS"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"015760","stock_name":"한국전력"}

@@ -1,0 +1,6 @@
+{"text":"삼성전자 영업이익 증가로 실적 개선","tags":["EARNINGS"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"005930","stock_name":"삼성전자"}
+{"text":"SK하이닉스 공급계약 수주 공시","tags":["CONTRACT","DISCLOSURE"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"000660","stock_name":"SK하이닉스"}
+{"text":"위험기업 감사의견 거절로 상장폐지 위험 발생","tags":["RISK"],"sentiment":"NEGATIVE","importance":"CRITICAL","source_type":"DISCLOSURE","stock_code":"123456","stock_name":"위험기업"}
+{"text":"NAVER 유상증자 결정 주요사항보고서 제출","tags":["CAPITAL_ACTION","DISCLOSURE"],"sentiment":"NEUTRAL","importance":"HIGH","source_type":"DISCLOSURE","stock_code":"035420","stock_name":"NAVER"}
+{"text":"대한항공 합병 승인 절차 마무리","tags":["CORPORATE_ACTION"],"sentiment":"POSITIVE","importance":"HIGH","source_type":"NEWS","stock_code":"003490","stock_name":"대한항공"}
+{"text":"금리와 환율 변동으로 코스피 변동성 확대","tags":["MACRO"],"sentiment":"NEUTRAL","importance":"MEDIUM","source_type":"NEWS"}

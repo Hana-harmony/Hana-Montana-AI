@@ -1,7 +1,7 @@
 # 금융 NLP 기준 모델 카드
 
 ## 모델명
-`financial-keyword-baseline-2026-06-03`
+`financial-keyword-baseline-2026-06-04`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 빠르게 분류한다.
@@ -23,13 +23,21 @@
 ## 학습 데이터
 - 위치: `data/training/financial_alert_corpus.jsonl`
 - 형식: JSONL
-- 현재 샘플 수: 5
-- 라벨: `EARNINGS`, `DISCLOSURE`, `CAPITAL_ACTION`, `CORPORATE_ACTION`, `CONTRACT`, `RISK`
+- 현재 샘플 수: 18
+- 라벨: `EARNINGS`, `DISCLOSURE`, `CAPITAL_ACTION`, `CORPORATE_ACTION`, `CONTRACT`, `RISK`, `MACRO`
 
 ## 학습 방식
 - 라벨 데이터의 태그를 기준으로 seed keyword를 집계한다.
 - 생성 결과는 `src/hannah_montana_ai/model_store/financial_nlp_baseline.json`에 저장한다.
 - 현재 방식은 설명 가능성과 구현 속도를 위한 기준 모델이다.
+
+## 평가 결과
+- 위치: `reports/model-evaluation.json`
+- 평가 샘플 수: 6
+- 이벤트 태그 recall: 1.0
+- 감성 accuracy: 1.0
+- 중요도 accuracy: 1.0
+- 종목 매핑 accuracy: 1.0
 
 ## 한계
 - 형태소 분석을 사용하지 않아 표현 변형에 취약하다.
