@@ -22,6 +22,7 @@ uv run python scripts/evaluate_ml_model.py
 - 이벤트 라벨별 precision, recall, F1 리포트 생성
 - 이벤트 라벨별 golden quality gate
 - 감성·중요도 라벨별 golden confusion matrix gate
+- 사람이 검수한 30건 OpenDART 실공시 gold evaluation gate
 - 감성·중요도 confusion matrix 리포트 생성
 - 수집 실패 시 기존 raw 코퍼스 축소 덮어쓰기 방지
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
@@ -29,13 +30,15 @@ uv run python scripts/evaluate_ml_model.py
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 
 ## 현재 ML 검증 기준
-- `reports/ml-training-report.json`은 12,372건 학습 샘플 중 2,475건 holdout 검증 결과를 기록한다.
+- `reports/ml-training-report.json`은 1,554건 학습 샘플 중 311건 holdout 검증 결과를 기록한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
-- 현재 holdout 결과는 이벤트 macro F1 0.9412, 감성 accuracy 0.9632, 중요도 accuracy 0.9689이다.
+- 현재 holdout 결과는 이벤트 macro F1 0.9970, 감성 accuracy 0.9936, 중요도 accuracy 1.0이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
 - benchmark 최소 기준은 이벤트 recall 0.8, 이벤트 macro F1 0.8, 감성 accuracy 0.85, 중요도 accuracy 0.8, 종목 accuracy 1.0이다.
-- 현재 benchmark 결과는 이벤트 recall 0.8633, 이벤트 macro F1 0.8942, 감성 accuracy 0.8854, 중요도 accuracy 0.8411, 종목 accuracy 1.0이다.
+- 현재 benchmark 결과는 이벤트 recall 0.9688, 이벤트 macro F1 0.9904, 감성 accuracy 0.9688, 중요도 accuracy 1.0, 종목 accuracy 1.0이다.
+- 실공시 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
+- 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 
 ## 추가 예정
 - 배포 네트워크에서 외부 접근 차단 확인
-- 사람이 검수한 실데이터 gold evaluation set 추가 구축
+- 사람이 검수한 뉴스 도메인 gold evaluation set 추가 구축

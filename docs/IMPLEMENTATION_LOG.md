@@ -98,13 +98,27 @@
 - 계약 샘플은 공시 기반 공급계약 문장과 `stock_universe` alias를 포함한다.
 - 응답 필드 전체, 종목 매핑, `CONTRACT` 이벤트 태그, related stocks, boolean target flag, SHA-256 duplicate key, model version을 검증한다.
 
+## 2026-06-04 OpenDART 실공시 gold set과 재학습
+- OpenDART에서 최근 1년 후보 10,399건을 로컬 키로 수집해 실공시 후보를 확인했다.
+- 사람이 검수한 30건 실공시 gold set을 `data/evaluation/financial_alert_real_disclosure_gold.jsonl`에 추가했다.
+- 초기 모델은 실공시 gold 기준 이벤트 recall 0.4333, macro F1 0.5496으로 낮아 실제 DART 제목체 보강이 필요했다.
+- 이벤트 모델 입력에 `source_type` feature를 추가해 공시 입력의 `DISCLOSURE` 라벨 누락을 줄였다.
+- tokenizer에 `타법인주식`, `자기주식처분`, `임원주요주주`, `주주총회`, `소송등`, `횡령배임` 등 DART 제목체 복합어를 추가했다.
+- 증강 corpus에 `단일판매ㆍ공급계약체결`, `타법인주식및출자증권취득결정`, `주권매매거래정지기간변경`, `임원ㆍ주요주주특정증권등소유상황보고서` 같은 실공시 문법을 추가했다.
+- 감성 모델도 한국어 금융 tokenizer feature를 사용하도록 바꿔 `상장폐지`, `소송`, `횡령ㆍ배임` 리스크 공시의 negative 분류를 개선했다.
+- 약지도 1.1만 건을 그대로 투입하면 neutral/high 편향으로 실공시 LOW·CRITICAL 품질이 떨어져, artifact 학습은 검수·균형 corpus 기준으로 고정했다.
+- 최종 학습 샘플은 1,554건이며 80:20 holdout 기준 이벤트 macro F1 0.9970, 감성 accuracy 0.9936, 중요도 accuracy 1.0을 기록했다.
+- 768건 benchmark 기준 이벤트 recall 0.9688, macro F1 0.9904, 감성 accuracy 0.9688, 중요도 accuracy 1.0, 종목 accuracy 1.0을 기록했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
-- 감성은 char n-gram 기반 학습된 다중 클래스 ML 모델이 분류한다.
+- 감성은 char n-gram과 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
-- 모델은 Naver 뉴스와 OpenDART 공시에서 수집한 제목·snippet·링크 기반 코퍼스와 사람이 작성한 curated·증강 corpus로 학습된다.
+- 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
+- Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 학습 후보 풀로 관리하며, 검수되지 않은 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
 ## 학습 방식
@@ -115,4 +129,4 @@
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
 - `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.
-- 이벤트·중요도 모델은 char n-gram과 한국어 금융 token n-gram을 함께 사용한다.
+- 이벤트·감성·중요도 모델은 char n-gram과 한국어 금융 token n-gram을 함께 사용한다.
