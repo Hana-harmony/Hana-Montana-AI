@@ -40,3 +40,32 @@ def test_health_endpoint_is_available() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_analyze_alert_detects_critical_disclosure_risk() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "DISCLOSURE",
+            "title": "위험기업 감사의견 거절로 상장폐지 위험 발생",
+            "original_url": "https://example.com/disclosure/1",
+            "stock_universe": [
+                {
+                    "stock_code": "123456",
+                    "stock_name": "위험기업",
+                    "stock_name_en": "Risk Company",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["stock_code"] == "123456"
+    assert payload["sentiment"] == "NEGATIVE"
+    assert payload["importance"] == "CRITICAL"
+    assert payload["holder_target"] is True
