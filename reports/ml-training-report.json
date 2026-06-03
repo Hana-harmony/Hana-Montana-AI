@@ -1,6 +1,6 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260603184019",
-  "trained_at": "2026-06-03T18:40:19.174775+00:00",
+  "version": "financial-ml-tfidf-logreg-20260603193801",
+  "trained_at": "2026-06-03T19:38:01.846302+00:00",
   "sample_count": 12372,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
@@ -31,57 +31,57 @@
   "validation": {
     "sample_count": 2475,
     "train_sample_count": 9897,
-    "event_subset_recall": 0.9858585858585859,
-    "event_macro_f1": 0.9024190469377846,
+    "event_subset_recall": 0.9862626262626263,
+    "event_macro_f1": 0.9412297050550945,
     "sentiment_accuracy": 0.9632323232323232,
-    "importance_accuracy": 0.9608080808080808,
+    "importance_accuracy": 0.9688888888888889,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
-        "precision": 0.8685446009389671,
+        "precision": 0.9585492227979274,
         "recall": 0.9893048128342246,
-        "f1": 0.925,
+        "f1": 0.9736842105263158,
         "support": 187
       },
       "CONTRACT": {
-        "precision": 0.723404255319149,
-        "recall": 0.9807692307692307,
-        "f1": 0.8326530612244898,
+        "precision": 0.8938053097345132,
+        "recall": 0.9711538461538461,
+        "f1": 0.9308755760368663,
         "support": 104
       },
       "CORPORATE_ACTION": {
-        "precision": 0.7840909090909091,
-        "recall": 0.965034965034965,
-        "f1": 0.8652037617554859,
+        "precision": 0.8375,
+        "recall": 0.9370629370629371,
+        "f1": 0.8844884488448846,
         "support": 143
       },
       "DISCLOSURE": {
-        "precision": 0.9943538268506901,
-        "recall": 0.9869240348692403,
-        "f1": 0.990625,
+        "precision": 0.9962523422860712,
+        "recall": 0.9931506849315068,
+        "f1": 0.9946990957280948,
         "support": 1606
       },
       "EARNINGS": {
-        "precision": 0.8407079646017699,
-        "recall": 0.9895833333333334,
-        "f1": 0.9090909090909092,
+        "precision": 0.90625,
+        "recall": 0.9817708333333334,
+        "f1": 0.9425,
         "support": 384
       },
       "GENERAL_MARKET": {
-        "precision": 0.8979206049149339,
+        "precision": 0.9405940594059405,
         "recall": 1.0,
-        "f1": 0.9462151394422311,
+        "f1": 0.9693877551020408,
         "support": 475
       },
       "MACRO": {
-        "precision": 0.6677631578947368,
-        "recall": 0.9806763285024155,
-        "f1": 0.7945205479452054,
+        "precision": 0.7372262773722628,
+        "recall": 0.9758454106280193,
+        "f1": 0.8399168399168399,
         "support": 207
       },
       "RISK": {
-        "precision": 0.9157894736842105,
+        "precision": 0.9886363636363636,
         "recall": 1.0,
-        "f1": 0.956043956043956,
+        "f1": 0.9942857142857142,
         "support": 87
       }
     },
@@ -106,9 +106,9 @@
         "HIGH": 3
       },
       "HIGH": {
-        "CRITICAL": 6,
-        "HIGH": 2152,
-        "MEDIUM": 80
+        "CRITICAL": 2,
+        "HIGH": 2173,
+        "MEDIUM": 63
       },
       "LOW": {
         "CRITICAL": 2,
@@ -116,9 +116,9 @@
         "MEDIUM": 2
       },
       "MEDIUM": {
-        "CRITICAL": 2,
+        "CRITICAL": 3,
         "LOW": 2,
-        "MEDIUM": 181
+        "MEDIUM": 180
       }
     }
   }

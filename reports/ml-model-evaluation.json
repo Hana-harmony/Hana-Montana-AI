@@ -1,57 +1,57 @@
 {
   "sample_count": 768,
-  "event_tag_recall": 0.8385416666666666,
+  "event_tag_recall": 0.86328125,
   "sentiment_accuracy": 0.8854166666666666,
-  "importance_accuracy": 0.8268229166666666,
+  "importance_accuracy": 0.8411458333333334,
   "stock_accuracy": 1.0,
-  "event_macro_f1": 0.8592101121358015,
+  "event_macro_f1": 0.8942150920266971,
   "event_label_metrics": {
     "CAPITAL_ACTION": {
-      "precision": 0.7272727272727273,
-      "recall": 0.6666666666666666,
-      "f1": 0.6956521739130435,
+      "precision": 0.9473684210526315,
+      "recall": 0.75,
+      "f1": 0.8372093023255814,
       "support": 72
     },
     "CONTRACT": {
-      "precision": 0.75,
+      "precision": 0.7422680412371134,
       "recall": 1.0,
-      "f1": 0.8571428571428571,
+      "f1": 0.8520710059171598,
       "support": 72
     },
     "CORPORATE_ACTION": {
-      "precision": 0.8648648648648649,
+      "precision": 0.9411764705882353,
       "recall": 1.0,
-      "f1": 0.927536231884058,
+      "f1": 0.9696969696969697,
       "support": 96
     },
     "DISCLOSURE": {
-      "precision": 0.909433962264151,
-      "recall": 0.7724358974358975,
-      "f1": 0.8353552859618719,
+      "precision": 0.9078014184397163,
+      "recall": 0.8205128205128205,
+      "f1": 0.8619528619528619,
       "support": 312
     },
     "EARNINGS": {
-      "precision": 0.7100591715976331,
+      "precision": 0.759493670886076,
       "recall": 1.0,
-      "f1": 0.8304498269896193,
+      "f1": 0.8633093525179857,
       "support": 120
     },
     "GENERAL_MARKET": {
-      "precision": 0.972972972972973,
+      "precision": 0.9863013698630136,
       "recall": 1.0,
-      "f1": 0.9863013698630138,
+      "f1": 0.993103448275862,
       "support": 72
     },
     "MACRO": {
-      "precision": 0.7277486910994765,
-      "recall": 0.9652777777777778,
-      "f1": 0.8298507462686567,
+      "precision": 0.7784090909090909,
+      "recall": 0.9513888888888888,
+      "f1": 0.8562500000000001,
       "support": 144
     },
     "RISK": {
-      "precision": 0.972972972972973,
+      "precision": 0.993103448275862,
       "recall": 0.8571428571428571,
-      "f1": 0.9113924050632912,
+      "f1": 0.9201277955271565,
       "support": 168
     }
   },
@@ -72,13 +72,12 @@
   },
   "importance_confusion_matrix": {
     "CRITICAL": {
-      "CRITICAL": 75,
-      "HIGH": 4,
-      "MEDIUM": 17
+      "CRITICAL": 81,
+      "MEDIUM": 15
     },
     "HIGH": {
-      "HIGH": 296,
-      "LOW": 6,
+      "HIGH": 301,
+      "LOW": 1,
       "MEDIUM": 82
     },
     "LOW": {
