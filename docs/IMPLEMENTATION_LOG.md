@@ -85,6 +85,13 @@
 - 중요도는 `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`별 정답 confusion count를 검증한다.
 - 평균 지표가 통과해도 특정 이벤트나 중요도 라벨이 무너지는 회귀를 CI에서 차단한다.
 
+## 2026-06-04 중복 제거 키 정규화 개선
+- 중복 제거 키 생성 전에 뉴스 제목을 canonical title로 변환한다.
+- `[속보]`, `(종합)`, `특징주:` 같은 제목 라벨과 언론사·기자·이메일 꼬리표를 제거한다.
+- 같은 이벤트가 매체별 제목 포장 차이로 여러 알림이 되는 문제를 줄인다.
+- source type과 종목코드는 해시 입력에 유지해 뉴스·공시 경계와 종목 경계가 섞이지 않게 한다.
+- 테스트로 라벨·꼬리표 제거, source type 경계, 종목 경계를 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -92,7 +99,7 @@
 - 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
 - 모델은 Naver 뉴스와 OpenDART 공시에서 수집한 제목·snippet·링크 기반 코퍼스와 사람이 작성한 curated·증강 corpus로 학습된다.
-- 중복 제거 키는 source type, 종목코드, 정규화 제목을 SHA-256으로 해시한다.
+- 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
 ## 학습 방식
 - `data/training/financial_alert_corpus.jsonl`에 뉴스·공시 예시와 라벨을 기록한다.
