@@ -1,8 +1,10 @@
 from fastapi.testclient import TestClient
 
+from hannah_montana_ai.api import routes
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.main import app
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
 def test_analyze_alert_returns_financial_labels() -> None:
@@ -69,3 +71,26 @@ def test_analyze_alert_detects_critical_disclosure_risk() -> None:
     assert payload["sentiment"] == "NEGATIVE"
     assert payload["importance"] == "CRITICAL"
     assert payload["holder_target"] is True
+
+
+def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypatch) -> None:
+    get_analyzer.cache_clear()
+
+    def unavailable_analyzer():
+        raise ModelArtifactNotFoundError("missing artifact")
+
+    monkeypatch.setattr(routes, "get_analyzer", unavailable_analyzer)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "삼성전자 실적 개선",
+            "original_url": "https://example.com/news/model-missing",
+            "stock_universe": [],
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "ML model artifact is unavailable"}

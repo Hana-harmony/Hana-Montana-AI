@@ -1,9 +1,10 @@
 from functools import lru_cache
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
 from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, AlertAnalysisResponse
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.model import ModelArtifactError
 
 router = APIRouter(tags=["analysis"])
 
@@ -15,4 +16,11 @@ def get_analyzer() -> AlertAnalyzer:
 
 @router.post("/alerts/analyze", response_model=AlertAnalysisResponse)
 def analyze_alert(request: AlertAnalysisRequest) -> AlertAnalysisResponse:
-    return get_analyzer().analyze(request)
+    try:
+        analyzer = get_analyzer()
+    except ModelArtifactError as exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="ML model artifact is unavailable",
+        ) from exception
+    return analyzer.analyze(request)
