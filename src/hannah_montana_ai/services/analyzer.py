@@ -1,3 +1,4 @@
+import re
 from hashlib import sha256
 
 from hannah_montana_ai.core.config import get_settings
@@ -48,22 +49,44 @@ class AlertAnalyzer:
         text: str,
         stock_universe: list[StockCandidate],
     ) -> StockCandidate | None:
-        for stock in stock_universe:
-            if self._stock_in_text(text, stock):
-                return stock
-        return None
+        matches = self._stock_matches(text, stock_universe)
+        return matches[0][1] if matches else None
 
     def _match_related_stocks(self, text: str, stock_universe: list[StockCandidate]) -> list[str]:
-        return [stock.stock_code for stock in stock_universe if self._stock_in_text(text, stock)]
+        return [stock.stock_code for _, stock in self._stock_matches(text, stock_universe)]
 
-    def _stock_in_text(self, text: str, stock: StockCandidate) -> bool:
-        return (
-            stock.stock_code in text
-            or stock.stock_name in text
-            or stock.stock_name_en.lower() in text.lower()
-        )
+    def _stock_matches(
+        self,
+        text: str,
+        stock_universe: list[StockCandidate],
+    ) -> list[tuple[int, StockCandidate]]:
+        normalized_text = self._normalize_for_match(text)
+        matches: list[tuple[int, StockCandidate]] = []
+        seen_codes: set[str] = set()
+
+        for stock in stock_universe:
+            position = self._stock_match_position(normalized_text, stock)
+            if position is not None and stock.stock_code not in seen_codes:
+                matches.append((position, stock))
+                seen_codes.add(stock.stock_code)
+
+        return sorted(matches, key=lambda match: match[0])
+
+    def _stock_match_position(self, normalized_text: str, stock: StockCandidate) -> int | None:
+        candidates = [stock.stock_code, stock.stock_name, stock.stock_name_en, *stock.aliases]
+        positions = [
+            normalized_text.find(self._normalize_for_match(candidate))
+            for candidate in candidates
+            if candidate
+        ]
+        found_positions = [position for position in positions if position >= 0]
+        return min(found_positions) if found_positions else None
 
     def _duplicate_key(self, source_type: str, title: str, stock_code: str | None) -> str:
-        normalized = " ".join(title.lower().split())
+        normalized = self._normalize_for_match(title)
         raw_key = f"{source_type}:{stock_code or 'UNKNOWN'}:{normalized}"
         return sha256(raw_key.encode("utf-8")).hexdigest()
+
+    def _normalize_for_match(self, value: str) -> str:
+        lowered = value.lower()
+        return re.sub(r"[^0-9a-z가-힣]+", "", lowered)

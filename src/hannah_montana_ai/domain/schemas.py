@@ -11,6 +11,7 @@ class StockCandidate(BaseModel):
     stock_code: str = Field(pattern=r"^\d{6}$")
     stock_name: str = Field(min_length=1, max_length=80)
     stock_name_en: str = Field(min_length=1, max_length=120)
+    aliases: list[str] = Field(default_factory=list, max_length=20)
 
 
 class AlertAnalysisRequest(BaseModel):

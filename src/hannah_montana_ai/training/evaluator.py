@@ -62,6 +62,7 @@ def _request_from_sample(sample: LabeledAlert) -> AlertAnalysisRequest:
                 stock_code=sample.stock_code,
                 stock_name=sample.stock_name,
                 stock_name_en=sample.stock_name,
+                aliases=[],
             )
         )
 
