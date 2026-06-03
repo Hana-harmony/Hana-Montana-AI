@@ -111,6 +111,18 @@
 - 768건 benchmark 기준 이벤트 recall 0.9688, macro F1 0.9904, 감성 accuracy 0.9688, 중요도 accuracy 1.0, 종목 accuracy 1.0을 기록했다.
 - 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
 
+## 2026-06-04 Naver 실제 뉴스 gold set과 뉴스형 재학습
+- Naver News Search를 로컬 키로 재수집해 raw 후보를 14,169건으로 확장했다.
+- provider 리포트 기준 Naver News Search 1,202건, OpenDART 12,967건을 보존했다.
+- 실제 Naver 뉴스 제목·snippet 후보 중 사람이 검수한 학습 gold 25건과 평가 gold 36건을 분리해 추가했다.
+- 학습 gold와 평가 gold는 동일 문장이 겹치지 않도록 테스트로 검증한다.
+- `scripts/build_news_style_training_data.py`를 추가해 실제 뉴스 제목체를 반영한 저작권 안전 증강 corpus 1,872건을 생성한다.
+- `GENERAL_MARKET`, `MACRO`, `EARNINGS`, `CONTRACT`, `RISK`, `CAPITAL_ACTION` 뉴스 표현을 보강했다.
+- 최종 학습 샘플은 3,571건이며 80:20 holdout 기준 이벤트 macro F1 0.9941, 감성 accuracy 0.9958, 중요도 accuracy 0.9930을 기록했다.
+- 768건 benchmark 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9414, 종목 accuracy 1.0을 기록했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9333, 종목 accuracy 1.0을 기록했다.
+- 36건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9444, macro F1 0.9075, 감성 accuracy 0.9167, 중요도 accuracy 0.8889, 종목 accuracy 1.0을 기록했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -118,6 +130,7 @@
 - 중요도는 한국어 금융 tokenizer feature를 포함한 학습된 다중 클래스 ML 모델이 분류한다.
 - 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
 - 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
+- 실제 뉴스 gold와 뉴스 제목체 증강 corpus를 포함해 뉴스 도메인 표현도 함께 학습한다.
 - Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 학습 후보 풀로 관리하며, 검수되지 않은 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
@@ -127,6 +140,7 @@
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
+- `scripts/build_news_style_training_data.py`가 Naver 뉴스 제목체를 반영한 증강 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
 - `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.
 - 이벤트·감성·중요도 모델은 char n-gram과 한국어 금융 token n-gram을 함께 사용한다.

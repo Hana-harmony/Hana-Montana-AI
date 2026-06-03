@@ -11,10 +11,12 @@
 - 감성·중요도 분류 모델 분리 완료
 - 중복 제거 정밀도 개선 완료
 - 사람이 검수한 OpenDART 실공시 gold label set 추가 완료
-- 사람이 검수한 뉴스 도메인 gold label set 추가
+- 사람이 검수한 Naver 뉴스 도메인 gold label set 추가 완료
+- 뉴스 제목체 증강 corpus 기반 재학습 완료
 
 ## M3 운영 하드닝
 - 모델 버전별 성능 리포트
+- 뉴스 gold label set 종목·기간 확대
 - 추론 latency 모니터링
 - audit log
 - 배포 환경별 secret 관리

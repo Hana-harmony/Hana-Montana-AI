@@ -32,6 +32,8 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
         [
             Path("data/training/financial_alert_corpus.jsonl"),
             Path("data/training/financial_alert_augmented.jsonl"),
+            Path("data/training/financial_alert_news_style_augmented.jsonl"),
+            Path("data/training/financial_alert_real_news_gold.jsonl"),
         ],
         model_path,
     )
@@ -44,6 +46,8 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     assert report.training_sources == [
         "data/training/financial_alert_corpus.jsonl",
         "data/training/financial_alert_augmented.jsonl",
+        "data/training/financial_alert_news_style_augmented.jsonl",
+        "data/training/financial_alert_real_news_gold.jsonl",
     ]
     assert report.validation.sample_count >= 90
     assert report.validation.train_sample_count >= 300
@@ -54,12 +58,13 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
 
 
 def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:
-    tokens = financial_tokenize("삼성전자 잠정실적 공시와 대규모 공급계약 체결")
+    tokens = financial_tokenize("삼성전자 잠정실적 공시와 고환율 속 수주 턴어라운드")
 
     assert "잠정실적" in tokens
-    assert "공급계약" in tokens
+    assert "수주" in tokens
     assert "finance:잠정실적" in tokens
-    assert "finance:공급계약" in tokens
+    assert "finance:고환율" in tokens
+    assert "finance:턴어라운드" in tokens
 
 
 def test_missing_model_artifact_raises_explicit_error(tmp_path: Path) -> None:
@@ -127,6 +132,38 @@ def test_ml_model_passes_real_disclosure_gold_dataset() -> None:
     assert result.event_label_metrics["RISK"].recall >= 0.9
     assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 7
     assert result.importance_confusion_matrix["LOW"]["LOW"] >= 6
+
+
+def test_ml_model_passes_real_news_gold_dataset() -> None:
+    samples = load_labeled_alerts(Path("data/evaluation/financial_alert_real_news_gold.jsonl"))
+    result = evaluate_alert_analyzer(samples, AlertAnalyzer())
+
+    assert result.sample_count >= 30
+    assert result.event_tag_recall >= 0.85
+    assert result.event_macro_f1 >= 0.85
+    assert result.sentiment_accuracy >= 0.85
+    assert result.importance_accuracy >= 0.85
+    assert result.stock_accuracy >= 1.0
+    assert result.event_label_metrics["GENERAL_MARKET"].recall >= 0.85
+    assert result.event_label_metrics["MACRO"].recall >= 0.85
+    assert result.event_label_metrics["EARNINGS"].recall >= 0.85
+    assert result.event_label_metrics["RISK"].recall >= 0.75
+
+
+def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
+    training_samples = load_labeled_alerts(
+        Path("data/training/financial_alert_real_news_gold.jsonl")
+    )
+    evaluation_samples = load_labeled_alerts(
+        Path("data/evaluation/financial_alert_real_news_gold.jsonl")
+    )
+
+    training_texts = {sample.text for sample in training_samples}
+    evaluation_texts = {sample.text for sample in evaluation_samples}
+
+    assert len(training_samples) >= 20
+    assert len(evaluation_samples) >= 30
+    assert training_texts.isdisjoint(evaluation_texts)
 
 
 def test_collection_guard_prevents_dataset_shrink() -> None:

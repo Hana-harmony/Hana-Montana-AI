@@ -1,113 +1,121 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260603201944",
-  "trained_at": "2026-06-03T20:19:44.843960+00:00",
-  "sample_count": 1554,
+  "version": "financial-ml-tfidf-logreg-20260603215338",
+  "trained_at": "2026-06-03T21:53:38.915550+00:00",
+  "sample_count": 3571,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
-    "data/training/financial_alert_augmented.jsonl"
+    "data/training/financial_alert_augmented.jsonl",
+    "data/training/financial_alert_news_style_augmented.jsonl",
+    "data/training/financial_alert_real_news_gold.jsonl"
   ],
   "event_label_distribution": {
-    "EARNINGS": 197,
-    "CONTRACT": 123,
-    "RISK": 339,
-    "CAPITAL_ACTION": 195,
-    "DISCLOSURE": 747,
-    "CORPORATE_ACTION": 195,
-    "MACRO": 314,
-    "GENERAL_MARKET": 96
+    "EARNINGS": 712,
+    "CONTRACT": 419,
+    "RISK": 933,
+    "CAPITAL_ACTION": 421,
+    "DISCLOSURE": 843,
+    "CORPORATE_ACTION": 443,
+    "MACRO": 502,
+    "GENERAL_MARKET": 163
   },
   "sentiment_label_distribution": {
-    "POSITIVE": 368,
-    "NEGATIVE": 509,
-    "NEUTRAL": 677
+    "POSITIVE": 1296,
+    "NEGATIVE": 1222,
+    "NEUTRAL": 1053
   },
   "importance_label_distribution": {
-    "HIGH": 732,
-    "CRITICAL": 170,
-    "LOW": 241,
-    "MEDIUM": 411
+    "HIGH": 1561,
+    "CRITICAL": 362,
+    "LOW": 263,
+    "MEDIUM": 1385
   },
   "validation": {
-    "sample_count": 311,
-    "train_sample_count": 1243,
-    "event_subset_recall": 1.0,
-    "event_macro_f1": 0.9970438652256834,
-    "sentiment_accuracy": 0.9935691318327974,
-    "importance_accuracy": 1.0,
+    "sample_count": 715,
+    "train_sample_count": 2856,
+    "event_subset_recall": 0.9972027972027973,
+    "event_macro_f1": 0.9941252032277189,
+    "sentiment_accuracy": 0.9958041958041958,
+    "importance_accuracy": 0.993006993006993,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 39
+        "recall": 0.9882352941176471,
+        "f1": 0.9940828402366864,
+        "support": 85
       },
       "CONTRACT": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 25
+        "support": 84
       },
       "CORPORATE_ACTION": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 39
+        "recall": 0.9887640449438202,
+        "f1": 0.9943502824858756,
+        "support": 89
       },
       "DISCLOSURE": {
-        "precision": 1.0,
+        "precision": 0.9940119760479041,
         "recall": 1.0,
-        "f1": 1.0,
-        "support": 158
+        "f1": 0.996996996996997,
+        "support": 166
       },
       "EARNINGS": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 39
+        "support": 142
       },
       "GENERAL_MARKET": {
-        "precision": 1.0,
+        "precision": 0.9705882352941176,
         "recall": 1.0,
-        "f1": 1.0,
-        "support": 19
+        "f1": 0.9850746268656716,
+        "support": 33
       },
       "MACRO": {
-        "precision": 0.9836065573770492,
+        "precision": 0.970873786407767,
         "recall": 1.0,
-        "f1": 0.9917355371900827,
-        "support": 60
+        "f1": 0.9852216748768473,
+        "support": 100
       },
       "RISK": {
-        "precision": 0.9696969696969697,
+        "precision": 0.9945652173913043,
         "recall": 1.0,
-        "f1": 0.9846153846153847,
-        "support": 64
+        "f1": 0.9972752043596731,
+        "support": 183
       }
     },
     "sentiment_confusion_matrix": {
       "NEGATIVE": {
-        "NEGATIVE": 100
+        "NEGATIVE": 240,
+        "NEUTRAL": 1,
+        "POSITIVE": 1
       },
       "NEUTRAL": {
-        "NEUTRAL": 141
+        "NEUTRAL": 221
       },
       "POSITIVE": {
-        "NEGATIVE": 2,
-        "POSITIVE": 68
+        "NEGATIVE": 1,
+        "POSITIVE": 251
       }
     },
     "importance_confusion_matrix": {
       "CRITICAL": {
-        "CRITICAL": 39
+        "CRITICAL": 71
       },
       "HIGH": {
-        "HIGH": 145
+        "HIGH": 315,
+        "LOW": 1,
+        "MEDIUM": 2
       },
       "LOW": {
-        "LOW": 50
+        "LOW": 56,
+        "MEDIUM": 1
       },
       "MEDIUM": {
-        "MEDIUM": 77
+        "HIGH": 1,
+        "MEDIUM": 268
       }
     }
   }

@@ -57,6 +57,7 @@ TEMPLATES = [
     ("{name} 전환사채 발행 결정 공시", ["CAPITAL_ACTION", "DISCLOSURE"], "NEUTRAL", "HIGH"),
     ("{name} 계열사 합병 결정으로 사업 재편 본격화", ["CORPORATE_ACTION"], "NEUTRAL", "HIGH"),
     ("{name} 해외 법인 매각으로 현금흐름 개선 기대", ["CORPORATE_ACTION"], "POSITIVE", "MEDIUM"),
+    ("{name} 비핵심 자회사 매각으로 재무 여력 개선", ["CORPORATE_ACTION"], "POSITIVE", "MEDIUM"),
     ("{name} 물적분할 추진으로 지배구조 변화 예상", ["CORPORATE_ACTION"], "NEUTRAL", "HIGH"),
     (
         "{name} 최대주주 변경 관련 주식 양수도 계약 체결",
@@ -124,6 +125,10 @@ TEMPLATES = [
     ("{name} 감사보고서제출", ["DISCLOSURE"], "NEUTRAL", "LOW"),
     ("{name} 조회공시 요구 답변 제출", ["DISCLOSURE"], "NEUTRAL", "MEDIUM"),
     ("{name} 대규모 신규 투자계획 공시", ["DISCLOSURE"], "POSITIVE", "HIGH"),
+    ("{name} 대규모 투자 계획 공시로 중장기 성장성 부각", ["DISCLOSURE"], "POSITIVE", "HIGH"),
+    ("{name} 설비투자 확대 계획 공시로 미래 성장동력 강화", ["DISCLOSURE"], "POSITIVE", "HIGH"),
+    ("{name} 신사업 투자계획 공시 제출로 성장 기대 확대", ["DISCLOSURE"], "POSITIVE", "HIGH"),
+    ("{name} 투자계획 정정 공시에도 성장성 전망 유지", ["DISCLOSURE"], "POSITIVE", "MEDIUM"),
     ("환율 상승으로 {sector} 수출 기업 수익성 개선 기대", ["MACRO"], "POSITIVE", "MEDIUM"),
     ("원화 약세로 {sector} 수출주 실적 기대감 확대", ["MACRO"], "POSITIVE", "MEDIUM"),
     ("원화 약세 수혜로 {sector} 업종 매출 개선 전망", ["MACRO"], "POSITIVE", "MEDIUM"),

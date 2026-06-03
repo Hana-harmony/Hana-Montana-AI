@@ -1,10 +1,10 @@
 {
   "raw_write_status": "written",
-  "existing_raw_count": 12967,
-  "raw_count": 14101,
-  "weak_labeled_count": 14101,
+  "existing_raw_count": 14101,
+  "raw_count": 14169,
+  "weak_labeled_count": 14169,
   "providers": {
-    "naver-news": 1134,
+    "naver-news": 1202,
     "open-dart": 12967
   },
   "provider_statuses": [
@@ -14,7 +14,7 @@
       "successful_requests": 12,
       "rate_limited_requests": 0,
       "failed_requests": 0,
-      "collected_count": 1134,
+      "collected_count": 339,
       "completed": true,
       "errors": []
     }
