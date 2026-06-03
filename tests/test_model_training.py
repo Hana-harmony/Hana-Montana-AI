@@ -111,6 +111,24 @@ def test_ml_model_passes_label_level_golden_quality_gates() -> None:
     assert result.importance_confusion_matrix["LOW"]["LOW"] >= 20
 
 
+def test_ml_model_passes_real_disclosure_gold_dataset() -> None:
+    samples = load_labeled_alerts(
+        Path("data/evaluation/financial_alert_real_disclosure_gold.jsonl")
+    )
+    result = evaluate_alert_analyzer(samples, AlertAnalyzer())
+
+    assert result.sample_count >= 30
+    assert result.event_tag_recall >= 0.9
+    assert result.event_macro_f1 >= 0.9
+    assert result.sentiment_accuracy >= 0.9
+    assert result.importance_accuracy >= 0.9
+    assert result.stock_accuracy >= 1.0
+    assert result.event_label_metrics["DISCLOSURE"].f1 >= 0.95
+    assert result.event_label_metrics["RISK"].recall >= 0.9
+    assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 7
+    assert result.importance_confusion_matrix["LOW"]["LOW"] >= 6
+
+
 def test_collection_guard_prevents_dataset_shrink() -> None:
     assert should_write_raw_alerts(existing_count=1000, next_count=900) is False
     assert should_write_raw_alerts(existing_count=1000, next_count=1000) is True

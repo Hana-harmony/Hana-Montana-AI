@@ -4,7 +4,7 @@ from typing import Any, cast
 import joblib
 
 from hannah_montana_ai.domain.schemas import Importance, Sentiment
-from hannah_montana_ai.training.ml_trainer import _importance_text
+from hannah_montana_ai.training.ml_trainer import _event_text, _importance_text
 
 
 class ModelArtifactError(RuntimeError):
@@ -52,8 +52,8 @@ class MachineLearningFinancialNlpModel:
             message = f"ML model artifact is missing required keys: {joined_keys} ({model_path})"
             raise ModelArtifactInvalidError(message)
 
-    def predict_event_tags(self, text: str) -> list[str]:
-        probabilities = self.event_model.predict_proba([text])[0]
+    def predict_event_tags(self, text: str, source_type: str) -> list[str]:
+        probabilities = self.event_model.predict_proba([_event_text(text, source_type)])[0]
         classes = list(self.event_binarizer.classes_)
         tags = [
             str(label)

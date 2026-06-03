@@ -52,7 +52,7 @@ class AlertAnalyzer:
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         text = f"{request.title} {request.snippet}"
         primary_stock = self._match_primary_stock(text, request.stock_universe)
-        event_tags = self.model.predict_event_tags(text)
+        event_tags = self.model.predict_event_tags(text, request.source_type)
         sentiment = self.model.classify_sentiment(text)
         importance = self.model.classify_importance(text, request.source_type)
         related_stocks = self._match_related_stocks(text, request.stock_universe)

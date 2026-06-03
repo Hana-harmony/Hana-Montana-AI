@@ -9,7 +9,6 @@ REPORT_PATH = PROJECT_ROOT / "reports/ml-training-report.json"
 TRAINING_PATHS = [
     PROJECT_ROOT / "data/training/financial_alert_corpus.jsonl",
     PROJECT_ROOT / "data/training/financial_alert_augmented.jsonl",
-    PROJECT_ROOT / "data/processed/weak_labeled_alerts.jsonl",
 ]
 
 

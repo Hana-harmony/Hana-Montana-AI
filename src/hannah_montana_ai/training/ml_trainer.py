@@ -27,18 +27,30 @@ FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
     "공급계약",
     "공시",
     "금리",
+    "단일판매",
     "배당",
     "분기보고서",
+    "소송등",
     "상장폐지",
     "실적",
     "영업이익",
     "유상증자",
     "임상",
+    "임원주요주주",
     "자사주",
+    "자기주식",
+    "자기주식처분",
+    "자기주식취득",
     "잠정실적",
     "전환사채",
+    "주권매매거래정지",
+    "주요사항보고서",
     "주식분할",
+    "주주총회",
+    "출자증권",
+    "타법인주식",
     "증자",
+    "횡령배임",
     "합병",
     "환율",
     "흑자전환",
@@ -101,6 +113,7 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
         raise ValueError("ML training requires at least 30 labeled samples")
 
     validation = _validate_holdout(samples)
+    event_texts = [_event_text(sample.text, sample.source_type) for sample in samples]
     texts = [sample.text for sample in samples]
     importance_texts = [_importance_text(sample.text, sample.source_type) for sample in samples]
     event_targets = [sample.tags for sample in samples]
@@ -126,7 +139,7 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
     )
     sentiment_model = Pipeline(
         [
-            ("tfidf", _char_vectorizer()),
+            ("tfidf", _hybrid_vectorizer()),
             ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
         ]
     )
@@ -137,7 +150,7 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
         ]
     )
 
-    event_model.fit(texts, event_matrix)
+    event_model.fit(event_texts, event_matrix)
     sentiment_model.fit(texts, sentiment_targets)
     importance_model.fit(importance_texts, importance_targets)
 
@@ -253,6 +266,10 @@ def _importance_text(text: str, source_type: str) -> str:
     return f"source_type={source_type} {text}"
 
 
+def _event_text(text: str, source_type: str) -> str:
+    return f"source_type={source_type} {text}"
+
+
 def _event_distribution(samples: list[LabeledAlert]) -> dict[str, int]:
     counter: Counter[str] = Counter()
     for sample in samples:
@@ -276,7 +293,10 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     sentiment_model = _single_label_model()
     importance_model = _importance_model()
 
-    event_model.fit([sample.text for sample in train_samples], event_train_matrix)
+    event_model.fit(
+        [_event_text(sample.text, sample.source_type) for sample in train_samples],
+        event_train_matrix,
+    )
     sentiment_model.fit(
         [sample.text for sample in train_samples],
         [sample.sentiment for sample in train_samples],
@@ -286,7 +306,9 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
         [sample.importance for sample in train_samples],
     )
 
-    probabilities = event_model.predict_proba([sample.text for sample in validation_samples])
+    probabilities = event_model.predict_proba(
+        [_event_text(sample.text, sample.source_type) for sample in validation_samples]
+    )
     event_classes = list(event_binarizer.classes_)
     predicted_event_tags = [
         _event_tags_from_probabilities(event_classes, row, threshold=0.35)
@@ -340,7 +362,7 @@ def _event_model() -> Pipeline:
 def _single_label_model() -> Pipeline:
     return Pipeline(
         [
-            ("tfidf", _char_vectorizer()),
+            ("tfidf", _hybrid_vectorizer()),
             ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced")),
         ]
     )
