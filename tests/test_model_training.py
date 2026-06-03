@@ -22,6 +22,16 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     assert report.event_label_distribution["MACRO"] >= 40
     assert report.sentiment_label_distribution["NEGATIVE"] >= 100
     assert report.importance_label_distribution["CRITICAL"] >= 50
+    assert report.training_sources == [
+        "data/training/financial_alert_corpus.jsonl",
+        "data/training/financial_alert_augmented.jsonl",
+    ]
+    assert report.validation.sample_count >= 90
+    assert report.validation.train_sample_count >= 300
+    assert report.validation.event_macro_f1 >= 0.8
+    assert report.validation.sentiment_accuracy >= 0.8
+    assert report.validation.importance_accuracy >= 0.8
+    assert report.validation.event_label_metrics["DISCLOSURE"]["support"] >= 10
 
 
 def test_ml_model_passes_evaluation_dataset() -> None:

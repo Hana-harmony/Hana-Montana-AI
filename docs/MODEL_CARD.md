@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260603174418`
+`financial-ml-tfidf-logreg-20260603183133`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -43,9 +43,21 @@
 - 이벤트 태그는 One-vs-Rest multilabel classifier로 학습한다.
 - 감성과 중요도는 다중 클래스 Logistic Regression으로 학습한다.
 - 이벤트 태그 probability threshold는 평가셋 기준 과잉 태그를 줄이기 위해 0.35로 튜닝했다.
+- 학습 시 전체 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
 
-## 평가 결과
+## Holdout 검증 결과
+- 위치: `reports/ml-training-report.json`
+- 학습 split: 9,518건
+- 검증 split: 2,380건
+- 이벤트 subset recall: 0.9861344537815127
+- 이벤트 macro F1: 0.9011419537678622
+- 감성 accuracy: 0.954201680672269
+- 중요도 accuracy: 0.9626050420168067
+- 라벨별 F1: `DISCLOSURE` 0.9907, `GENERAL_MARKET` 0.9462, `CAPITAL_ACTION` 0.9462, `RISK` 0.9202, `EARNINGS` 0.9118, `CORPORATE_ACTION` 0.8446, `CONTRACT` 0.8372, `MACRO` 0.8121
+- 감성·중요도 confusion matrix를 함께 기록한다.
+
+## Gold 평가 결과
 - 위치: `reports/ml-model-evaluation.json`
 - 평가 샘플 수: 18
 - 이벤트 태그 recall: 1.0

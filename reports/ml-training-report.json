@@ -1,11 +1,11 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260603174418",
-  "trained_at": "2026-06-03T17:44:18.353282+00:00",
+  "version": "financial-ml-tfidf-logreg-20260603183133",
+  "trained_at": "2026-06-03T18:31:33.318518+00:00",
   "sample_count": 11898,
   "training_sources": [
-    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/training/financial_alert_corpus.jsonl",
-    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/training/financial_alert_augmented.jsonl",
-    "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/processed/weak_labeled_alerts.jsonl"
+    "data/training/financial_alert_corpus.jsonl",
+    "data/training/financial_alert_augmented.jsonl",
+    "data/processed/weak_labeled_alerts.jsonl"
   ],
   "event_label_distribution": {
     "EARNINGS": 1830,
@@ -27,5 +27,99 @@
     "CRITICAL": 192,
     "LOW": 75,
     "MEDIUM": 848
+  },
+  "validation": {
+    "sample_count": 2380,
+    "train_sample_count": 9518,
+    "event_subset_recall": 0.9861344537815127,
+    "event_macro_f1": 0.9011419537678622,
+    "sentiment_accuracy": 0.954201680672269,
+    "importance_accuracy": 0.9626050420168067,
+    "event_label_metrics": {
+      "CAPITAL_ACTION": {
+        "precision": 0.9072164948453608,
+        "recall": 0.9887640449438202,
+        "f1": 0.9462365591397849,
+        "support": 178
+      },
+      "CONTRACT": {
+        "precision": 0.7377049180327869,
+        "recall": 0.967741935483871,
+        "f1": 0.8372093023255814,
+        "support": 93
+      },
+      "CORPORATE_ACTION": {
+        "precision": 0.7440476190476191,
+        "recall": 0.9765625,
+        "f1": 0.8445945945945945,
+        "support": 128
+      },
+      "DISCLOSURE": {
+        "precision": 0.9923076923076923,
+        "recall": 0.9891373801916933,
+        "f1": 0.99072,
+        "support": 1565
+      },
+      "EARNINGS": {
+        "precision": 0.8418604651162791,
+        "recall": 0.9945054945054945,
+        "f1": 0.9118387909319899,
+        "support": 364
+      },
+      "GENERAL_MARKET": {
+        "precision": 0.9013806706114399,
+        "recall": 0.9956427015250545,
+        "f1": 0.9461697722567288,
+        "support": 459
+      },
+      "MACRO": {
+        "precision": 0.6955017301038062,
+        "recall": 0.9757281553398058,
+        "f1": 0.8121212121212121,
+        "support": 206
+      },
+      "RISK": {
+        "precision": 0.8522727272727273,
+        "recall": 1.0,
+        "f1": 0.9202453987730062,
+        "support": 75
+      }
+    },
+    "sentiment_confusion_matrix": {
+      "NEGATIVE": {
+        "NEGATIVE": 51,
+        "NEUTRAL": 2,
+        "POSITIVE": 7
+      },
+      "NEUTRAL": {
+        "NEGATIVE": 7,
+        "NEUTRAL": 1978,
+        "POSITIVE": 77
+      },
+      "POSITIVE": {
+        "NEGATIVE": 4,
+        "NEUTRAL": 12,
+        "POSITIVE": 242
+      }
+    },
+    "importance_confusion_matrix": {
+      "CRITICAL": {
+        "CRITICAL": 35,
+        "MEDIUM": 2
+      },
+      "HIGH": {
+        "CRITICAL": 8,
+        "HIGH": 2070,
+        "MEDIUM": 73
+      },
+      "LOW": {
+        "LOW": 14,
+        "MEDIUM": 2
+      },
+      "MEDIUM": {
+        "CRITICAL": 4,
+        "MEDIUM": 172
+      }
+    }
   }
 }

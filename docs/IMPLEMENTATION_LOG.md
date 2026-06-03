@@ -45,6 +45,15 @@
 - 평가 리포트에 이벤트 라벨별 precision, recall, F1과 감성·중요도 confusion matrix 추가
 - 18건 평가셋 기준 이벤트 recall 1.0, 이벤트 macro F1 0.9403, 감성 accuracy 1.0, 중요도 accuracy 0.9444, 종목 accuracy 1.0 기록
 
+## 2026-06-04 ML holdout 검증 리포트 추가
+- 학습 파이프라인이 전체 학습 샘플을 80:20으로 나눠 holdout 검증을 먼저 수행한다.
+- 검증 후 전체 11,898건 학습 샘플로 최종 artifact를 재학습한다.
+- 학습 리포트의 `training_sources`는 작업자 로컬 절대경로가 아니라 repo 기준 상대경로로 기록한다.
+- holdout split은 학습 9,518건, 검증 2,380건으로 구성된다.
+- holdout 기준 이벤트 subset recall 0.9861, 이벤트 macro F1 0.9011, 감성 accuracy 0.9542, 중요도 accuracy 0.9626을 기록했다.
+- holdout 리포트는 이벤트 라벨별 precision, recall, F1, support와 감성·중요도 confusion matrix를 포함한다.
+- 커밋 코퍼스만으로도 ML artifact 생성과 holdout 최소 성능 기준을 테스트한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 학습된 multilabel classifier가 산출한다.
@@ -59,4 +68,4 @@
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
-- `scripts/train_ml_model.py`가 학습 artifact를 생성한다.
+- `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.
