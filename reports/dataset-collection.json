@@ -1,20 +1,30 @@
 {
   "raw_write_status": "written",
-  "existing_raw_count": 14101,
-  "raw_count": 14169,
-  "weak_labeled_count": 14169,
+  "existing_raw_count": 14169,
+  "raw_count": 37278,
+  "weak_labeled_count": 37278,
   "providers": {
-    "naver-news": 1202,
-    "open-dart": 12967
+    "naver-news": 11312,
+    "open-dart": 25966
   },
   "provider_statuses": [
     {
       "provider": "naver-news",
-      "attempted_requests": 12,
-      "successful_requests": 12,
+      "attempted_requests": 120,
+      "successful_requests": 120,
       "rate_limited_requests": 0,
       "failed_requests": 0,
-      "collected_count": 339,
+      "collected_count": 11305,
+      "completed": true,
+      "errors": []
+    },
+    {
+      "provider": "open-dart",
+      "attempted_requests": 130,
+      "successful_requests": 130,
+      "rate_limited_requests": 0,
+      "failed_requests": 0,
+      "collected_count": 12999,
       "completed": true,
       "errors": []
     }

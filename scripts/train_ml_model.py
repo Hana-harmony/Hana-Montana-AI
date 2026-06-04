@@ -2,10 +2,7 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.training.ml_trainer import train_ml_model
-from hannah_montana_ai.training.weak_distiller import (
-    distill_weak_labeled_alerts,
-    write_weak_distillation_report,
-)
+from hannah_montana_ai.training.weak_distiller import write_weak_distillation_report
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"
@@ -21,21 +18,13 @@ TRAINING_PATHS = [
 
 
 def main() -> None:
-    distillation = distill_weak_labeled_alerts(WEAK_LABEL_PATH)
-    distillation_report = {
-        **distillation.report,
-        "promotion_status": "not_promoted_to_supervised_loss",
-        "promotion_reason": (
-            "distilled weak labels are tracked as candidates until gold quality gates "
-            "confirm they do not reduce benchmark or real-news performance"
-        ),
-    }
+    report = train_ml_model(TRAINING_PATHS, MODEL_PATH, pseudo_label_path=WEAK_LABEL_PATH)
+    distillation_report = report.pseudo_labeling
     write_weak_distillation_report(
         distillation_report,
         WEAK_DISTILLATION_REPORT_PATH,
     )
 
-    report = train_ml_model(TRAINING_PATHS, MODEL_PATH)
     REPORT_PATH.write_text(
         json.dumps(report.to_dict(), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import re
 from collections import Counter
-from dataclasses import dataclass
+from collections.abc import Sequence
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -15,7 +16,9 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import MultiLabelBinarizer
 
+from hannah_montana_ai.domain.schemas import Importance, Sentiment
 from hannah_montana_ai.training.dataset import LabeledAlert, load_labeled_alerts
+from hannah_montana_ai.training.weak_distiller import distill_weak_labeled_alerts
 
 _TOKEN_PATTERN = re.compile(r"[0-9]+(?:\.[0-9]+)?%?|[A-Za-z][A-Za-z0-9+.-]*|[가-힣]+")
 _NON_TOKEN_CHAR_PATTERN = re.compile(r"[^0-9a-z가-힣]+")
@@ -67,28 +70,45 @@ FINANCIAL_DOMAIN_TERMS: tuple[str, ...] = (
     "흑자전환",
 )
 
+PSEUDO_LABEL_QUOTAS = {
+    "RISK": 140,
+    "CONTRACT": 180,
+    "CAPITAL_ACTION": 0,
+    "CORPORATE_ACTION": 0,
+    "EARNINGS": 0,
+    "MACRO": 0,
+    "DISCLOSURE": 0,
+    "GENERAL_MARKET": 0,
+}
+
 
 @dataclass(frozen=True)
 class MlTrainingReport:
     version: str
     trained_at: str
     sample_count: int
+    supervised_sample_count: int
+    pseudo_labeled_sample_count: int
     training_sources: list[str]
     event_label_distribution: dict[str, int]
     sentiment_label_distribution: dict[str, int]
     importance_label_distribution: dict[str, int]
     validation: MlValidationReport
+    pseudo_labeling: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "version": self.version,
             "trained_at": self.trained_at,
             "sample_count": self.sample_count,
+            "supervised_sample_count": self.supervised_sample_count,
+            "pseudo_labeled_sample_count": self.pseudo_labeled_sample_count,
             "training_sources": self.training_sources,
             "event_label_distribution": self.event_label_distribution,
             "sentiment_label_distribution": self.sentiment_label_distribution,
             "importance_label_distribution": self.importance_label_distribution,
             "validation": self.validation.to_dict(),
+            "pseudo_labeling": self.pseudo_labeling,
         }
 
 
@@ -118,18 +138,33 @@ class MlValidationReport:
         }
 
 
-def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingReport:
-    samples = _load_samples(training_paths)
-    if len(samples) < 30:
+@dataclass(frozen=True)
+class PseudoLabelPromotionResult:
+    samples: list[LabeledAlert]
+    report: dict[str, Any]
+
+
+def train_ml_model(
+    training_paths: list[Path],
+    model_path: Path,
+    pseudo_label_path: Path | None = None,
+) -> MlTrainingReport:
+    supervised_samples = _load_samples(training_paths)
+    if len(supervised_samples) < 30:
         raise ValueError("ML training requires at least 30 labeled samples")
 
-    validation = _validate_holdout(samples)
+    validation = _validate_holdout(supervised_samples)
+    pseudo_label_result = _promote_pseudo_labels(supervised_samples, pseudo_label_path)
+    samples = [*supervised_samples, *pseudo_label_result.samples]
+
     event_texts = [_event_text(sample.text, sample.source_type) for sample in samples]
-    texts = [sample.text for sample in samples]
-    importance_texts = [_importance_text(sample.text, sample.source_type) for sample in samples]
+    supervised_texts = [sample.text for sample in supervised_samples]
+    supervised_importance_texts = [
+        _importance_text(sample.text, sample.source_type) for sample in supervised_samples
+    ]
     event_targets = [sample.tags for sample in samples]
-    sentiment_targets = [sample.sentiment for sample in samples]
-    importance_targets = [sample.importance for sample in samples]
+    supervised_sentiment_targets = [sample.sentiment for sample in supervised_samples]
+    supervised_importance_targets = [sample.importance for sample in supervised_samples]
 
     event_binarizer = MultiLabelBinarizer()
     event_matrix = event_binarizer.fit_transform(event_targets)
@@ -162,8 +197,8 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
     )
 
     event_model.fit(event_texts, event_matrix)
-    sentiment_model.fit(texts, sentiment_targets)
-    importance_model.fit(importance_texts, importance_targets)
+    sentiment_model.fit(supervised_texts, supervised_sentiment_targets)
+    importance_model.fit(supervised_importance_texts, supervised_importance_targets)
 
     trained_at = datetime.now(UTC).isoformat()
     version = f"financial-ml-tfidf-logreg-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
@@ -174,9 +209,12 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
         "event_binarizer": event_binarizer,
         "sentiment_model": sentiment_model,
         "importance_model": importance_model,
-        "event_probability_threshold": 0.35,
+        "event_probability_threshold": 0.30,
         "sample_count": len(samples),
+        "supervised_sample_count": len(supervised_samples),
+        "pseudo_labeled_sample_count": len(pseudo_label_result.samples),
         "training_sources": _training_source_paths(training_paths),
+        "pseudo_labeling": pseudo_label_result.report,
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(artifact, model_path)
@@ -185,11 +223,14 @@ def train_ml_model(training_paths: list[Path], model_path: Path) -> MlTrainingRe
         version=version,
         trained_at=trained_at,
         sample_count=len(samples),
+        supervised_sample_count=len(supervised_samples),
+        pseudo_labeled_sample_count=len(pseudo_label_result.samples),
         training_sources=artifact["training_sources"],
         event_label_distribution=_event_distribution(samples),
-        sentiment_label_distribution=dict(Counter(sentiment_targets)),
-        importance_label_distribution=dict(Counter(importance_targets)),
+        sentiment_label_distribution=dict(Counter(supervised_sentiment_targets)),
+        importance_label_distribution=dict(Counter(supervised_importance_targets)),
         validation=validation,
+        pseudo_labeling=pseudo_label_result.report,
     )
 
 
@@ -220,6 +261,190 @@ def _training_source_paths(paths: list[Path]) -> list[str]:
         except ValueError:
             sources.append(str(resolved_path))
     return sources
+
+
+def _promote_pseudo_labels(
+    supervised_samples: Sequence[LabeledAlert],
+    pseudo_label_path: Path | None,
+) -> PseudoLabelPromotionResult:
+    if pseudo_label_path is None:
+        return PseudoLabelPromotionResult(
+            samples=[],
+            report={"status": "not_configured", "accepted_count": 0},
+        )
+    if not pseudo_label_path.exists():
+        return PseudoLabelPromotionResult(
+            samples=[],
+            report={
+                "status": "source_missing",
+                "source_path": _report_path(pseudo_label_path),
+                "accepted_count": 0,
+            },
+        )
+
+    distillation = distill_weak_labeled_alerts(pseudo_label_path)
+    if not distillation.samples:
+        return PseudoLabelPromotionResult(
+            samples=[],
+            report={
+                **distillation.report,
+                "status": "no_distilled_candidates",
+                "accepted_count": 0,
+            },
+        )
+
+    teacher = _fit_teacher(supervised_samples)
+    accepted_by_label: dict[str, list[tuple[float, str, LabeledAlert]]] = {
+        label: [] for label in PSEUDO_LABEL_QUOTAS
+    }
+    rejected_reasons: Counter[str] = Counter()
+    seen_texts = {sample.text for sample in supervised_samples}
+
+    for weak_sample in distillation.samples:
+        if weak_sample.text in seen_texts:
+            rejected_reasons["duplicate_supervised_text"] += 1
+            continue
+
+        prediction = _teacher_predict(teacher, weak_sample)
+        if prediction is None:
+            rejected_reasons["low_teacher_confidence"] += 1
+            continue
+        pseudo_sample, score = prediction
+        if not set(weak_sample.tags).intersection(pseudo_sample.tags):
+            rejected_reasons["teacher_weak_event_disagreement"] += 1
+            continue
+
+        primary_label = _primary_label(pseudo_sample.tags)
+        tie_breaker = f"{primary_label}:{pseudo_sample.text}"
+        accepted_by_label[primary_label].append((score, tie_breaker, pseudo_sample))
+
+    promoted_samples: list[LabeledAlert] = []
+    accepted_count_by_primary_label: dict[str, int] = {}
+    for label, quota in PSEUDO_LABEL_QUOTAS.items():
+        rows = sorted(accepted_by_label[label], key=lambda item: (-item[0], item[1]))
+        selected = [sample for _, _, sample in rows[:quota]]
+        promoted_samples.extend(selected)
+        accepted_count_by_primary_label[label] = len(selected)
+
+    report = {
+        **distillation.report,
+        "status": "promoted_to_student_training",
+        "promotion_method": "supervised_teacher_confidence_filter",
+        "teacher_training_sample_count": len(supervised_samples),
+        "accepted_count": len(promoted_samples),
+        "accepted_count_by_primary_label": accepted_count_by_primary_label,
+        "rejected_count_by_teacher_reason": dict(sorted(rejected_reasons.items())),
+        "label_quotas": PSEUDO_LABEL_QUOTAS,
+        "pseudo_sample_influence_control": (
+            "confidence_threshold_and_label_quota_for_event_model_only"
+        ),
+        "event_probability_threshold": 0.42,
+        "minimum_event_confidence": 0.58,
+        "minimum_sentiment_confidence": 0.72,
+        "minimum_importance_confidence": 0.68,
+    }
+    return PseudoLabelPromotionResult(samples=promoted_samples, report=report)
+
+
+def _fit_teacher(samples: Sequence[LabeledAlert]) -> dict[str, Any]:
+    event_binarizer = MultiLabelBinarizer()
+    event_matrix = event_binarizer.fit_transform([sample.tags for sample in samples])
+
+    event_model = _event_model()
+    sentiment_model = _single_label_model()
+    importance_model = _importance_model()
+
+    event_model.fit(
+        [_event_text(sample.text, sample.source_type) for sample in samples],
+        event_matrix,
+    )
+    sentiment_model.fit(
+        [sample.text for sample in samples],
+        [sample.sentiment for sample in samples],
+    )
+    importance_model.fit(
+        [_importance_text(sample.text, sample.source_type) for sample in samples],
+        [sample.importance for sample in samples],
+    )
+    return {
+        "event_model": event_model,
+        "event_binarizer": event_binarizer,
+        "sentiment_model": sentiment_model,
+        "importance_model": importance_model,
+    }
+
+
+def _teacher_predict(
+    teacher: dict[str, Any],
+    sample: LabeledAlert,
+) -> tuple[LabeledAlert, float] | None:
+    event_probabilities = teacher["event_model"].predict_proba(
+        [_event_text(sample.text, sample.source_type)]
+    )[0]
+    event_classes = list(teacher["event_binarizer"].classes_)
+    event_tags = _event_tags_from_probabilities(event_classes, event_probabilities, threshold=0.42)
+    event_confidence = float(max(event_probabilities) if len(event_probabilities) else 0.0)
+    if event_confidence < 0.58:
+        return None
+
+    sentiment_probabilities = teacher["sentiment_model"].predict_proba([sample.text])[0]
+    sentiment_classes = list(teacher["sentiment_model"].classes_)
+    sentiment_index = int(
+        max(range(len(sentiment_probabilities)), key=sentiment_probabilities.__getitem__)
+    )
+    sentiment_confidence = float(sentiment_probabilities[sentiment_index])
+    if sentiment_confidence < 0.72:
+        return None
+
+    importance_probabilities = teacher["importance_model"].predict_proba(
+        [_importance_text(sample.text, sample.source_type)]
+    )[0]
+    importance_classes = list(teacher["importance_model"].classes_)
+    importance_index = int(
+        max(range(len(importance_probabilities)), key=importance_probabilities.__getitem__)
+    )
+    importance_confidence = float(importance_probabilities[importance_index])
+    if importance_confidence < 0.68:
+        return None
+
+    score = event_confidence + sentiment_confidence + importance_confidence
+    return (
+        LabeledAlert(
+            text=sample.text,
+            tags=sorted(event_tags),
+            sentiment=cast(Sentiment, sentiment_classes[sentiment_index]),
+            importance=cast(Importance, importance_classes[importance_index]),
+            source_type=sample.source_type,
+            stock_code=sample.stock_code,
+            stock_name=sample.stock_name,
+        ),
+        score,
+    )
+
+
+def _primary_label(tags: list[str]) -> str:
+    priority = (
+        "RISK",
+        "CONTRACT",
+        "CAPITAL_ACTION",
+        "CORPORATE_ACTION",
+        "EARNINGS",
+        "MACRO",
+        "DISCLOSURE",
+        "GENERAL_MARKET",
+    )
+    tag_set = set(tags)
+    for label in priority:
+        if label in tag_set:
+            return label
+    return "GENERAL_MARKET"
+
+
+def _report_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(path)
 
 
 def _char_vectorizer() -> TfidfVectorizer:
