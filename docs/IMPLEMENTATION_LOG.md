@@ -412,3 +412,14 @@
 - release gate는 holdout, 768건 benchmark, 30건 실공시 gold, 80건 실제 뉴스 gold에서 모두 `pass`를 유지했다.
 - 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9217, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
 - service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
+
+## 2026-06-05 추가 누락 종목 shard 수집과 재학습
+- 최신 `stock_collection_shard_plan`의 shard 0을 Naver News Search로 추가 수집해 512개 요청 모두 성공했고 rate limit은 0건이었다.
+- raw 후보는 43,269건에서 44,997건으로 늘었고, Naver 원천 데이터는 17,303건에서 19,031건으로 늘었다.
+- raw 종목 매칭은 2,666개에서 2,758개로 늘었고, 후보 큐는 8,291건/2,456종목에서 8,917건/2,567종목으로 확장됐다.
+- 누락 종목 shard plan은 1,507개/16개 shard에서 1,397개/14개 shard로 줄었다.
+- 새 모델 `financial-ml-tfidf-logreg-20260604215055`는 supervised 3,609건과 pseudo-label 940건을 합친 4,549건으로 학습했다.
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 580건, 580개 종목을 event-model-only pseudo-label로 제한 승격했다.
+- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9500, macro F1 0.9181, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
+- risk/contract per-stock 2 확장 profile은 실제 뉴스 gold macro F1 0.8958로 gate를 통과하지 못해 current release에는 반영하지 않았다.
+- service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
