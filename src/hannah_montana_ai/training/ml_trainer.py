@@ -122,8 +122,8 @@ EVENT_LABEL_THRESHOLDS = {
     "CONTRACT": 0.42,
     "CORPORATE_ACTION": 0.18,
     "EARNINGS": 0.36,
-    "GENERAL_MARKET": 0.34,
-    "MACRO": 0.38,
+    "GENERAL_MARKET": 0.32,
+    "MACRO": 0.36,
     "RISK": 0.50,
 }
 

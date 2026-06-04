@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 46585,
+  "raw_alert_count": 47963,
   "universe_count": 3967,
-  "candidate_count": 9434,
-  "candidate_stock_count": 2667,
-  "candidate_coverage_ratio": 0.6722964456768339,
+  "candidate_count": 9888,
+  "candidate_stock_count": 2739,
+  "candidate_coverage_ratio": 0.6904461809931939,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2667,
+    "actual_stock_count": 2739,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 1780,
-    "CONTRACT": 1407,
-    "CORPORATE_ACTION": 779,
-    "DISCLOSURE": 2659,
-    "EARNINGS": 1267,
-    "MACRO": 334,
-    "RISK": 1208
+    "CAPITAL_ACTION": 1883,
+    "CONTRACT": 1494,
+    "CORPORATE_ACTION": 832,
+    "DISCLOSURE": 2664,
+    "EARNINGS": 1331,
+    "MACRO": 348,
+    "RISK": 1336
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4525,
-    "NEWS": 4909
+    "DISCLOSURE": 4517,
+    "NEWS": 5371
   },
   "sentiment_distribution": {
-    "NEGATIVE": 303,
-    "NEUTRAL": 6265,
-    "POSITIVE": 2866
+    "NEGATIVE": 329,
+    "NEUTRAL": 6519,
+    "POSITIVE": 3040
   },
   "importance_distribution": {
-    "CRITICAL": 710,
-    "HIGH": 7390,
-    "LOW": 231,
-    "MEDIUM": 1103
+    "CRITICAL": 776,
+    "HIGH": 7668,
+    "LOW": 267,
+    "MEDIUM": 1177
   },
   "top_candidate_stocks": [
     {
@@ -127,26 +127,26 @@
       "candidate_count": 12
     },
     {
+      "stock_code": "001440",
+      "stock_name": "대한전선",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "001510",
+      "stock_name": "SK증권",
+      "candidate_count": 12
+    },
+    {
       "stock_code": "001750",
       "stock_name": "한양증권",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "002020",
-      "stock_name": "코오롱",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "003470",
-      "stock_name": "유안타증권",
       "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3717,
-    "low_signal": 3885,
-    "stock_not_matched": 18122
+    "general_market_not_stock_specific": 3773,
+    "low_signal": 4130,
+    "stock_not_matched": 18288
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
