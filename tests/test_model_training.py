@@ -150,6 +150,24 @@ def test_invalid_model_artifact_requires_expected_payload_keys(tmp_path: Path) -
         MachineLearningFinancialNlpModel(model_path)
 
 
+def test_ml_model_exposes_probabilities_for_review_assistance() -> None:
+    model = MachineLearningFinancialNlpModel(
+        Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
+    )
+    text = "삼성전자 대규모 공급계약 체결로 실적 개선 기대"
+
+    event_probabilities = model.event_tag_probabilities(text, "NEWS")
+    sentiment_probabilities = model.sentiment_probabilities(text)
+    importance_probabilities = model.importance_probabilities(text, "NEWS")
+
+    assert "CONTRACT" in event_probabilities
+    assert all(0.0 <= probability <= 1.0 for probability in event_probabilities.values())
+    assert set(sentiment_probabilities) == {"NEGATIVE", "NEUTRAL", "POSITIVE"}
+    assert set(importance_probabilities) == {"CRITICAL", "HIGH", "LOW", "MEDIUM"}
+    assert sum(sentiment_probabilities.values()) == pytest.approx(1.0)
+    assert sum(importance_probabilities.values()) == pytest.approx(1.0)
+
+
 def test_ml_model_passes_evaluation_dataset() -> None:
     samples = load_labeled_alerts(Path("data/evaluation/financial_alert_eval.jsonl"))
     result = evaluate_alert_analyzer(samples, AlertAnalyzer())

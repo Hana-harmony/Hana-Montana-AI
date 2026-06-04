@@ -42,6 +42,7 @@ uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/validate_stock_gold_review_batch.py
+uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
 ```
@@ -58,6 +59,7 @@ uv run python scripts/collect_training_data.py \
 - 검수 배치는 학습 300개 종목, 평가 100개 종목 목표로 생성하지만 `review_status=needs_human_review`인 동안 supervised/gold 정답셋으로 사용하지 않는다.
 - 사람이 승인한 row는 `review_status=human_review_approved`, `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`를 모두 채운 뒤 `scripts/promote_stock_gold_review_batch.py`를 실행한다.
 - `scripts/validate_stock_gold_review_batch.py`를 먼저 실행해 승인 가능한 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 확인한다.
+- `scripts/build_stock_gold_active_review_report.py`는 모델 제안 라벨과 불확실성으로 사람이 먼저 볼 row를 정렬한다.
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
@@ -72,6 +74,7 @@ uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/validate_stock_gold_review_batch.py
+uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
@@ -98,6 +101,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 - `reports/stock-gold-review-validation-report.json`은 현재 검수 배치에서 승격 가능한 승인 row가 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 기록한다.
+- `reports/stock-gold-active-review-report.json`은 모델 제안 라벨과 신뢰도 기반 검수 우선순위를 기록하지만, 사람 승인 없이 gold로 승격하지 않는다.
 - `reports/stock-gold-promotion-report.json`은 `human_review_approved` row 중 검수자 메타데이터와 최종 라벨이 모두 있는 row만 supervised/evaluation gold 출력으로 승격했는지 기록한다.
 - 승인 상태지만 필수 검수 필드가 빠진 row는 `rejected_approved_count_by_reason`에 사유별로 집계한다.
 

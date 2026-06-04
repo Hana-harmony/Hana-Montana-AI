@@ -323,3 +323,9 @@
 - `scripts/validate_stock_gold_review_batch.py`는 `reports/stock-gold-review-validation-report.json`을 생성한다.
 - 현재 검수 배치는 승인 가능 학습 0종목, 평가 0종목이라 `overall_status=fail`로 기록한다.
 - 승인 상태지만 필수 검수 필드가 빠진 row는 `blocked_approved_count_by_reason`에 집계한다.
+
+## 2026-06-05 gold active review report
+- ML 모델의 이벤트·감성·중요도 확률을 검수 보조 신호로 노출한다.
+- `scripts/build_stock_gold_active_review_report.py`는 학습·평가 검수 배치의 상위 50개 우선 검수 row를 `reports/stock-gold-active-review-report.json`에 기록한다.
+- 우선순위는 모델 제안과 약지도 라벨의 불일치, 이벤트 margin, 감성·중요도 confidence, signal score를 함께 사용한다.
+- 모델 제안은 사람이 검수할 때의 보조 정보일 뿐이며 `human_review_approved` 최종 라벨 없이 gold로 승격하지 않는다.

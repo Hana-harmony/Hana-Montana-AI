@@ -67,6 +67,7 @@
 - 평가 gold 검수 배치: `data/curation/stock_gold_evaluation_review_batch.jsonl`
 - gold 검수 배치 리포트: `reports/stock-gold-review-batch-report.json`
 - gold 검수 validation 리포트: `reports/stock-gold-review-validation-report.json`
+- gold active review 리포트: `reports/stock-gold-active-review-report.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
 - 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
 - gold 승격 리포트: `reports/stock-gold-promotion-report.json`
@@ -89,6 +90,7 @@
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
 - `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - validation 리포트는 승격 전 승인 가능 row가 학습 300개 종목과 평가 100개 종목 목표를 채우는지 검사한다.
+- active review 리포트는 모델 제안 라벨, 신뢰도, disagreement를 검수 보조 정보로 제공하며 자동 정답으로 쓰지 않는다.
 - 학습·평가 스크립트는 승인된 stock review gold 파일이 존재할 때만 포함한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
