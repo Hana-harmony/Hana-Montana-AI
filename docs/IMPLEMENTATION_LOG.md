@@ -336,3 +336,12 @@
 - 감성·중요도 calibration은 top-class confidence ECE, multiclass Brier score, 고신뢰 오답을 기록한다.
 - `scripts/build_model_confidence_calibration_report.py`는 benchmark, real disclosure gold, real news gold, stock review gold 기준 리포트를 `reports/model-confidence-calibration.json`으로 생성한다.
 - confidence 리포트는 release monitoring 신호이며 새 라벨을 만들거나 검수 후보를 gold로 승격하지 않는다.
+
+## 2026-06-05 stock candidate quota experiment
+- `StockCandidatePromotionConfig`를 추가해 release 기본값은 유지하면서 quota profile별 임시 재학습 실험을 할 수 있게 했다.
+- `scripts/build_stock_candidate_quota_experiment.py`는 previous release, current release, balanced event probe profile을 각각 임시 artifact로 학습하고 holdout·benchmark·실공시·실뉴스 gold gate를 평가한다.
+- previous release profile은 464건, 464개 종목으로 gate를 통과했다.
+- current release profile은 `RISK=500`, `CONTRACT=500`, per-stock quota 2 기준으로 644건, 470개 종목을 승격했고 release gate를 통과했다.
+- balanced event probe는 523건, 523개 종목을 승격했지만 실제 뉴스 gold event macro F1 0.8882로 gate fail이라 release 모델에 반영하지 않았다.
+- 새 release artifact는 supervised 3,609건과 pseudo-label 1,004건을 합친 4,613건으로 학습했다.
+- 새 release는 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9250, macro F1 0.9070, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.

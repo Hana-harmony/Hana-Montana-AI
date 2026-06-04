@@ -63,8 +63,8 @@ uv run python scripts/collect_training_data.py \
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 37,278건 수집 후보 중 weak-label 360건과 종목 후보 큐 464건을 이벤트 모델 학습에 반영했다.
-- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 464건이 464개 종목에 분산되도록 한다.
+- 현재 artifact는 37,278건 수집 후보 중 weak-label 360건과 종목 후보 큐 644건을 이벤트 모델 학습에 반영했다.
+- 종목 후보 큐 승격분은 per-stock quota 2건으로 제한해 644건이 470개 종목에 분산되도록 한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
 ## 모델 release report
@@ -79,27 +79,29 @@ uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_confidence_calibration_report.py
+uv run python scripts/build_stock_candidate_quota_experiment.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 ```
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
 - `reports/model-confidence-calibration.json`은 평가셋별 이벤트 확률 calibration, 감성·중요도 top confidence calibration, 고신뢰 오답을 기록한다.
+- `reports/stock-candidate-quota-experiment.json`은 stock candidate pseudo-label quota profile별 임시 재학습 결과와 gold gate 통과 여부를 기록한다.
 - `overall_status`는 모든 quality gate와 pseudo-label consistency check가 통과할 때만 `pass`가 된다.
 - release report는 `reports/ml-training-report.json`, `reports/ml-model-evaluation.json`, `reports/weak-distillation-report.json`에서 결정적으로 생성한다.
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,124건이 탈락하며 weak-label 360건과 종목 후보 464건만 student 이벤트 모델 학습에 승격된다.
-- `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 현재 effective quota가 채워진 active label이다.
+- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,124건이 탈락하며 weak-label 360건과 종목 후보 644건만 student 이벤트 모델 학습에 승격된다.
+- `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 현재 active label이며 `RISK`, `CONTRACT`는 quota 여유가 남아 추가 후보 품질을 모니터링한다.
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
 
 ## Coverage report 해석
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
-- 현재 event model pseudo training coverage는 464건, 464개 종목이며 supervised gold coverage로 간주하지 않는다.
-- 464종목 확장 모델의 실제 뉴스 gold event macro F1 margin은 0.0116이다. 추가 pseudo quota 확대 전 실제 뉴스 gold 보강 또는 threshold 재검증이 필요하다.
+- 현재 event model pseudo training coverage는 644건, 470개 종목이며 supervised gold coverage로 간주하지 않는다.
+- `reports/stock-candidate-quota-experiment.json`은 이전 release 464건/464종목 profile과 현재 release 644건/470종목 profile이 gate를 통과했고, balanced event probe는 실제 뉴스 gold macro F1 fail로 보류됐음을 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 - `reports/stock-gold-review-validation-report.json`은 현재 검수 배치에서 승격 가능한 승인 row가 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 기록한다.
