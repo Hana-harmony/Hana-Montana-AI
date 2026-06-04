@@ -329,3 +329,10 @@
 - `scripts/build_stock_gold_active_review_report.py`는 학습·평가 검수 배치의 상위 50개 우선 검수 row를 `reports/stock-gold-active-review-report.json`에 기록한다.
 - 우선순위는 모델 제안과 약지도 라벨의 불일치, 이벤트 margin, 감성·중요도 confidence, signal score를 함께 사용한다.
 - 모델 제안은 사람이 검수할 때의 보조 정보일 뿐이며 `human_review_approved` 최종 라벨 없이 gold로 승격하지 않는다.
+
+## 2026-06-05 model confidence calibration report
+- `calibration.py`를 추가해 이벤트 멀티라벨 확률, 감성 top confidence, 중요도 top confidence의 calibration을 평가셋별로 계산한다.
+- 이벤트 calibration은 label별 Brier score, expected calibration error, 고신뢰 false positive와 false negative를 기록한다.
+- 감성·중요도 calibration은 top-class confidence ECE, multiclass Brier score, 고신뢰 오답을 기록한다.
+- `scripts/build_model_confidence_calibration_report.py`는 benchmark, real disclosure gold, real news gold, stock review gold 기준 리포트를 `reports/model-confidence-calibration.json`으로 생성한다.
+- confidence 리포트는 release monitoring 신호이며 새 라벨을 만들거나 검수 후보를 gold로 승격하지 않는다.

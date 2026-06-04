@@ -12,6 +12,7 @@ uv run python scripts/build_augmented_training_data.py
 uv run python scripts/build_news_style_training_data.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
+uv run python scripts/build_model_confidence_calibration_report.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 uv run python scripts/sync_stock_universe.py
@@ -35,6 +36,7 @@ uv run python scripts/train_stock_linker_model.py
 - 한국어 금융 tokenizer 복합어 추출
 - 학습 단계의 80:20 holdout 검증 리포트 생성
 - 768건 benchmark 평가셋 기준 이벤트 recall, 이벤트 macro F1, 감성, 중요도, 종목 매핑 지표
+- benchmark·real gold 평가셋 기준 이벤트 확률, 감성·중요도 confidence calibration 리포트 생성
 - 이벤트 라벨별 precision, recall, F1 리포트 생성
 - 이벤트 라벨별 golden quality gate
 - 감성·중요도 라벨별 golden confusion matrix gate
@@ -62,6 +64,7 @@ uv run python scripts/train_stock_linker_model.py
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
 - 추적 파일에 로컬 secret 파일, key material, provider credential assignment가 포함되지 않는지 CI 검사
 - 모델 release report가 학습·평가·distillation 리포트와 동기화되어 있고 모든 gate가 통과하는지 검증
+- 모델 confidence calibration report가 평가셋별 확률 calibration과 고신뢰 오답을 결정적으로 기록하는지 검증
 - pseudo-label promotion monitoring report가 distillation·release 리포트와 동기화되어 있고 라벨별 확장 결정을 고정하는지 검증
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
@@ -74,6 +77,7 @@ uv run python scripts/train_stock_linker_model.py
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
 - benchmark 최소 기준은 이벤트 recall 0.8, 이벤트 macro F1 0.8, 감성 accuracy 0.85, 중요도 accuracy 0.8, 종목 accuracy 1.0이다.
 - 현재 benchmark 결과는 이벤트 recall 0.9948, 이벤트 macro F1 0.9979, 감성 accuracy 1.0, 중요도 accuracy 0.9375, 종목 accuracy 1.0이다.
+- `reports/model-confidence-calibration.json`은 benchmark 768건, 이벤트 멀티라벨 결정 6,144건의 calibration과 감성·중요도 고신뢰 오답을 기록한다.
 - 실공시 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 0.9846, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.

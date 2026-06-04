@@ -78,11 +78,13 @@ uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
+uv run python scripts/build_model_confidence_calibration_report.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 ```
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
+- `reports/model-confidence-calibration.json`은 평가셋별 이벤트 확률 calibration, 감성·중요도 top confidence calibration, 고신뢰 오답을 기록한다.
 - `overall_status`는 모든 quality gate와 pseudo-label consistency check가 통과할 때만 `pass`가 된다.
 - release report는 `reports/ml-training-report.json`, `reports/ml-model-evaluation.json`, `reports/weak-distillation-report.json`에서 결정적으로 생성한다.
 

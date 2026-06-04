@@ -68,6 +68,7 @@
 - gold 검수 배치 리포트: `reports/stock-gold-review-batch-report.json`
 - gold 검수 validation 리포트: `reports/stock-gold-review-validation-report.json`
 - gold active review 리포트: `reports/stock-gold-active-review-report.json`
+- confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
 - 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
 - gold 승격 리포트: `reports/stock-gold-promotion-report.json`
@@ -91,6 +92,7 @@
 - `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - validation 리포트는 승격 전 승인 가능 row가 학습 300개 종목과 평가 100개 종목 목표를 채우는지 검사한다.
 - active review 리포트는 모델 제안 라벨, 신뢰도, disagreement를 검수 보조 정보로 제공하며 자동 정답으로 쓰지 않는다.
+- confidence calibration 리포트는 평가셋별 확률 calibration과 고신뢰 오답을 release monitoring 신호로 기록하며 라벨을 생성하거나 승격하지 않는다.
 - 학습·평가 스크립트는 승인된 stock review gold 파일이 존재할 때만 포함한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
@@ -159,6 +161,17 @@
 - 감성 accuracy: 0.9125
 - 중요도 accuracy: 0.9250
 - 종목 매핑 accuracy: 1.0
+
+## Confidence calibration
+- 위치: `reports/model-confidence-calibration.json`
+- benchmark 샘플 수: 768
+- benchmark 이벤트 멀티라벨 결정 수: 6,144
+- benchmark 이벤트 expected calibration error: 0.069014
+- benchmark 이벤트 Brier score: 0.012871
+- benchmark 감성 top confidence ECE: 0.149164
+- benchmark 중요도 top confidence ECE: 0.118967
+- 실제 뉴스 gold 이벤트 expected calibration error: 0.107269
+- confidence 리포트는 고신뢰 오답을 따로 기록해 운영 알림 노출 전 threshold 재보정과 human review 우선순위 판단에 사용한다.
 
 ## Release gate
 - 위치: `reports/model-release-report.json`

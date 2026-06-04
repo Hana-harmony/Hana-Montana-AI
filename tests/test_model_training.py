@@ -11,6 +11,9 @@ from hannah_montana_ai.services.model import (
     ModelArtifactInvalidError,
     ModelArtifactNotFoundError,
 )
+from hannah_montana_ai.training.calibration import (
+    build_model_confidence_calibration_report,
+)
 from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
@@ -330,6 +333,36 @@ def test_model_release_report_matches_source_reports() -> None:
         release_report["data_lineage"]["committed_data_policy"]
         == "raw_and_processed_training_data_are_tracked"
     )
+
+
+def test_model_confidence_calibration_report_matches_source_data() -> None:
+    report = _read_json(Path("reports/model-confidence-calibration.json"))
+    expected = build_model_confidence_calibration_report(
+        {
+            "benchmark": Path("data/evaluation/financial_alert_eval.jsonl"),
+            "real_disclosure_gold": Path(
+                "data/evaluation/financial_alert_real_disclosure_gold.jsonl"
+            ),
+            "real_news_gold": Path(
+                "data/evaluation/financial_alert_real_news_gold.jsonl"
+            ),
+            "stock_review_gold": Path(
+                "data/evaluation/financial_alert_stock_review_gold.jsonl"
+            ),
+        },
+        Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"),
+    )
+    benchmark = report["datasets"]["benchmark"]
+
+    assert report == expected
+    assert report["schema_version"] == "model-confidence-calibration/v1"
+    assert benchmark["sample_count"] == 768
+    assert benchmark["event_tags"]["decision_count"] == 768 * 8
+    assert benchmark["event_tags"]["expected_calibration_error"] >= 0.0
+    assert benchmark["sentiment"]["top_confidence_ece"] >= 0.0
+    assert benchmark["importance"]["multiclass_brier_score"] >= 0.0
+    assert report["datasets"]["stock_review_gold"]["sample_count"] == 0
+    assert "do not create or promote labels" in report["calibration_policy"]
 
 
 def test_pseudo_label_monitoring_report_matches_source_reports() -> None:

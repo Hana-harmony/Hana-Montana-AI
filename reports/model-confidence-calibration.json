@@ -1,0 +1,341 @@
+{
+  "schema_version": "model-confidence-calibration/v1",
+  "model_version": "financial-ml-tfidf-logreg-20260604173957",
+  "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
+  "bin_count": 10,
+  "high_confidence_threshold": 0.85,
+  "datasets": {
+    "benchmark": {
+      "sample_count": 768,
+      "event_tags": {
+        "decision_count": 6144,
+        "brier_score": 0.012871,
+        "expected_calibration_error": 0.069014,
+        "labels": {
+          "CAPITAL_ACTION": {
+            "decision_count": 768,
+            "positive_count": 72,
+            "brier_score": 0.004898,
+            "expected_calibration_error": 0.055689,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CONTRACT": {
+            "decision_count": 768,
+            "positive_count": 72,
+            "brier_score": 0.006375,
+            "expected_calibration_error": 0.066998,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CORPORATE_ACTION": {
+            "decision_count": 768,
+            "positive_count": 96,
+            "brier_score": 0.027351,
+            "expected_calibration_error": 0.08651,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "DISCLOSURE": {
+            "decision_count": 768,
+            "positive_count": 312,
+            "brier_score": 0.003456,
+            "expected_calibration_error": 0.043306,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "EARNINGS": {
+            "decision_count": 768,
+            "positive_count": 120,
+            "brier_score": 0.021615,
+            "expected_calibration_error": 0.086799,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "GENERAL_MARKET": {
+            "decision_count": 768,
+            "positive_count": 72,
+            "brier_score": 0.003913,
+            "expected_calibration_error": 0.045826,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "MACRO": {
+            "decision_count": 768,
+            "positive_count": 144,
+            "brier_score": 0.010897,
+            "expected_calibration_error": 0.055238,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "RISK": {
+            "decision_count": 768,
+            "positive_count": 168,
+            "brier_score": 0.024466,
+            "expected_calibration_error": 0.126901,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          }
+        },
+        "high_confidence_errors": []
+      },
+      "sentiment": {
+        "sample_count": 768,
+        "accuracy": 1.0,
+        "average_top_confidence": 0.850836,
+        "top_confidence_ece": 0.149164,
+        "multiclass_brier_score": 0.057979,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      },
+      "importance": {
+        "sample_count": 768,
+        "accuracy": 0.9375,
+        "average_top_confidence": 0.818533,
+        "top_confidence_ece": 0.118967,
+        "multiclass_brier_score": 0.119391,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      }
+    },
+    "real_disclosure_gold": {
+      "sample_count": 30,
+      "event_tags": {
+        "decision_count": 240,
+        "brier_score": 0.003977,
+        "expected_calibration_error": 0.040179,
+        "labels": {
+          "CAPITAL_ACTION": {
+            "decision_count": 30,
+            "positive_count": 8,
+            "brier_score": 0.001996,
+            "expected_calibration_error": 0.037782,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CONTRACT": {
+            "decision_count": 30,
+            "positive_count": 3,
+            "brier_score": 0.003672,
+            "expected_calibration_error": 0.054739,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CORPORATE_ACTION": {
+            "decision_count": 30,
+            "positive_count": 6,
+            "brier_score": 0.005641,
+            "expected_calibration_error": 0.054346,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "DISCLOSURE": {
+            "decision_count": 30,
+            "positive_count": 30,
+            "brier_score": 0.000935,
+            "expected_calibration_error": 0.020814,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "EARNINGS": {
+            "decision_count": 30,
+            "positive_count": 0,
+            "brier_score": 0.000615,
+            "expected_calibration_error": 0.022973,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "GENERAL_MARKET": {
+            "decision_count": 30,
+            "positive_count": 0,
+            "brier_score": 0.000337,
+            "expected_calibration_error": 0.017201,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "MACRO": {
+            "decision_count": 30,
+            "positive_count": 0,
+            "brier_score": 0.000147,
+            "expected_calibration_error": 0.011159,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "RISK": {
+            "decision_count": 30,
+            "positive_count": 7,
+            "brier_score": 0.018474,
+            "expected_calibration_error": 0.10242,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          }
+        },
+        "high_confidence_errors": []
+      },
+      "sentiment": {
+        "sample_count": 30,
+        "accuracy": 1.0,
+        "average_top_confidence": 0.909539,
+        "top_confidence_ece": 0.090461,
+        "multiclass_brier_score": 0.03125,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      },
+      "importance": {
+        "sample_count": 30,
+        "accuracy": 0.966667,
+        "average_top_confidence": 0.90961,
+        "top_confidence_ece": 0.057057,
+        "multiclass_brier_score": 0.09308,
+        "high_confidence_error_count": 1,
+        "high_confidence_errors": [
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.91117,
+            "source_type": "DISCLOSURE",
+            "stock_code": "005680",
+            "stock_name": "삼영전자공업",
+            "text": "삼영전자공업 소송등의제기ㆍ신청(경영권분쟁소송)"
+          }
+        ]
+      }
+    },
+    "real_news_gold": {
+      "sample_count": 80,
+      "event_tags": {
+        "decision_count": 640,
+        "brier_score": 0.041644,
+        "expected_calibration_error": 0.107269,
+        "labels": {
+          "CAPITAL_ACTION": {
+            "decision_count": 80,
+            "positive_count": 15,
+            "brier_score": 0.020187,
+            "expected_calibration_error": 0.105217,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CONTRACT": {
+            "decision_count": 80,
+            "positive_count": 8,
+            "brier_score": 0.026417,
+            "expected_calibration_error": 0.142391,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "CORPORATE_ACTION": {
+            "decision_count": 80,
+            "positive_count": 10,
+            "brier_score": 0.044613,
+            "expected_calibration_error": 0.086507,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "DISCLOSURE": {
+            "decision_count": 80,
+            "positive_count": 0,
+            "brier_score": 0.002384,
+            "expected_calibration_error": 0.046402,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "EARNINGS": {
+            "decision_count": 80,
+            "positive_count": 20,
+            "brier_score": 0.074647,
+            "expected_calibration_error": 0.151268,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 1
+          },
+          "GENERAL_MARKET": {
+            "decision_count": 80,
+            "positive_count": 17,
+            "brier_score": 0.040797,
+            "expected_calibration_error": 0.115862,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "MACRO": {
+            "decision_count": 80,
+            "positive_count": 13,
+            "brier_score": 0.038217,
+            "expected_calibration_error": 0.096034,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          },
+          "RISK": {
+            "decision_count": 80,
+            "positive_count": 24,
+            "brier_score": 0.085893,
+            "expected_calibration_error": 0.228415,
+            "high_confidence_false_positive_count": 0,
+            "high_confidence_false_negative_count": 0
+          }
+        },
+        "high_confidence_errors": [
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.120539,
+            "expected_tags": [
+              "CORPORATE_ACTION",
+              "EARNINGS"
+            ],
+            "source_type": "NEWS",
+            "stock_code": "034730",
+            "stock_name": "SK",
+            "text": "SK 리밸런싱, 자산 효율화 넘어 AI 시대 성장 재편으로 확대"
+          }
+        ]
+      },
+      "sentiment": {
+        "sample_count": 80,
+        "accuracy": 0.9125,
+        "average_top_confidence": 0.651898,
+        "top_confidence_ece": 0.260602,
+        "multiclass_brier_score": 0.261411,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      },
+      "importance": {
+        "sample_count": 80,
+        "accuracy": 0.925,
+        "average_top_confidence": 0.712136,
+        "top_confidence_ece": 0.212864,
+        "multiclass_brier_score": 0.208929,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      }
+    },
+    "stock_review_gold": {
+      "sample_count": 0,
+      "event_tags": {
+        "decision_count": 0,
+        "brier_score": 0.0,
+        "expected_calibration_error": 0.0,
+        "labels": {},
+        "high_confidence_errors": []
+      },
+      "sentiment": {
+        "sample_count": 0,
+        "accuracy": 0.0,
+        "average_top_confidence": 0.0,
+        "top_confidence_ece": 0.0,
+        "multiclass_brier_score": 0.0,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      },
+      "importance": {
+        "sample_count": 0,
+        "accuracy": 0.0,
+        "average_top_confidence": 0.0,
+        "top_confidence_ece": 0.0,
+        "multiclass_brier_score": 0.0,
+        "high_confidence_error_count": 0,
+        "high_confidence_errors": []
+      }
+    }
+  },
+  "calibration_policy": "confidence metrics are release monitoring signals and do not create or promote labels"
+}
