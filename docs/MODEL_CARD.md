@@ -23,8 +23,8 @@
 - 모델 버전
 
 ## 학습 데이터
-- 수집 raw 위치: `data/raw/collected_alerts.jsonl` (gitignore)
-- 약지도 라벨 위치: `data/processed/weak_labeled_alerts.jsonl` (gitignore)
+- 수집 raw 위치: `data/raw/collected_alerts.jsonl`
+- 약지도 라벨 위치: `data/processed/weak_labeled_alerts.jsonl`
 - 약지도 distillation 리포트: `reports/weak-distillation-report.json`
 - 수동 curated corpus: `data/training/financial_alert_corpus.jsonl`
 - 합성 증강 corpus: `data/training/financial_alert_augmented.jsonl`
@@ -50,6 +50,7 @@
 - teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 360건
 - 수집기는 429 rate limit과 5xx 장애에 대해 재시도와 지수 백오프를 수행한다.
 - 수집 실패로 새 결과가 기존 raw 수보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
+- 수집 raw와 약지도 라벨은 학습 재현성 때문에 커밋하지만, 외부 API 키와 비공개 credential은 포함하지 않는다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.
