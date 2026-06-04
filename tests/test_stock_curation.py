@@ -1,7 +1,11 @@
 import json
 from pathlib import Path
 
-from hannah_montana_ai.training.active_review import build_stock_gold_active_review_report
+from hannah_montana_ai.training.active_review import (
+    build_stock_gold_active_review_report,
+    build_stock_gold_coverage_active_review_packet,
+    build_stock_gold_coverage_active_review_report,
+)
 from hannah_montana_ai.training.coverage_planner import build_stock_gold_coverage_plan
 from hannah_montana_ai.training.stock_curation import (
     build_stock_gold_review_batches,
@@ -235,6 +239,74 @@ def test_stock_gold_coverage_plan_expands_reviewable_stock_coverage() -> None:
     assert {row["review_status"] for row in rows} == {"needs_human_review"}
     assert all(row["reviewer_id"] == "" for row in rows)
     assert "human_review_approved" in report["review_policy"]
+
+
+def test_stock_gold_coverage_active_review_packet_enriches_all_plan_rows() -> None:
+    report = json.loads(
+        Path("reports/stock-gold-coverage-active-review-report.json").read_text()
+    )
+    packet_rows = _read_jsonl(
+        Path("data/curation/stock_gold_coverage_active_review_packet.jsonl")
+    )
+    training_rows = [
+        row for row in packet_rows if row["intended_split"] == "training"
+    ]
+    evaluation_rows = [
+        row for row in packet_rows if row["intended_split"] == "evaluation"
+    ]
+
+    assert report["schema_version"] == "stock-gold-coverage-active-review-report/v1"
+    assert len(packet_rows) == 2_000
+    assert len(training_rows) == 1_500
+    assert len(evaluation_rows) == 500
+    assert report["training_review"]["review_row_count"] == 1_500
+    assert report["training_review"]["review_wave_count"] == 13
+    assert report["evaluation_review"]["review_row_count"] == 500
+    assert report["evaluation_review"]["review_wave_count"] == 5
+    assert len(report["training_review"]["top_priority_rows"]) == 100
+    assert set(report["training_review"]["wave_priority_rows"]) == {
+        str(wave) for wave in range(13)
+    }
+    assert {row["review_status"] for row in packet_rows} == {"needs_human_review"}
+    assert all(row["suggested_tags"] for row in packet_rows)
+    assert all("review_priority_score" in row for row in packet_rows)
+    assert all(row["reviewer_id"] == "" for row in packet_rows)
+    assert "human_review_approved" in report["review_policy"]
+
+
+def test_build_stock_gold_coverage_active_review_packet_can_score_small_plan(
+    tmp_path: Path,
+) -> None:
+    coverage_plan_path = tmp_path / "coverage_plan.jsonl"
+    _write_jsonl(
+        coverage_plan_path,
+        [
+            _coverage_plan_row("000001", "학습후보", "CONTRACT", "training", 0),
+            _coverage_plan_row("000002", "평가후보", "RISK", "evaluation", 1),
+        ],
+    )
+
+    packet_rows = build_stock_gold_coverage_active_review_packet(
+        coverage_plan_path=coverage_plan_path,
+        model_path=Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"),
+    )
+    report = build_stock_gold_coverage_active_review_report(
+        coverage_plan_path=coverage_plan_path,
+        model_path=Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"),
+        top_n_per_split=1,
+        top_n_per_wave=1,
+    )
+
+    assert len(packet_rows) == 2
+    assert {row["review_status"] for row in packet_rows} == {"needs_human_review"}
+    assert all(row["suggested_tags"] for row in packet_rows)
+    assert packet_rows[0]["schema_version"] == (
+        "stock-gold-coverage-active-review-packet/v1"
+    )
+    assert report["training_review"]["review_row_count"] == 1
+    assert report["evaluation_review"]["review_row_count"] == 1
+    assert len(report["training_review"]["top_priority_rows"]) == 1
+    assert report["training_review"]["top_priority_rows"][0]["review_wave"] == 0
 
 
 def test_build_stock_gold_coverage_plan_excludes_supervised_and_current_review_stocks(
@@ -540,6 +612,33 @@ def _review_row(
         "final_tags": final_tags if final_tags is not None else [primary_label],
         "final_sentiment": row["sentiment"],
         "final_importance": row["importance"],
+    }
+
+
+def _coverage_plan_row(
+    stock_code: str,
+    stock_name: str,
+    primary_label: str,
+    intended_split: str,
+    review_wave: int,
+) -> dict[str, object]:
+    row = _review_row(
+        stock_code,
+        stock_name,
+        primary_label,
+        intended_split,
+        "needs_human_review",
+    )
+    return {
+        **row,
+        "schema_version": "stock-gold-coverage-plan-row/v1",
+        "review_wave": review_wave,
+        "review_stage": "current_review_batch" if review_wave == 0 else "additional_coverage_plan",
+        "review_reason": (
+            "already_exported_for_human_review"
+            if review_wave == 0
+            else "missing_supervised_stock_coverage"
+        ),
     }
 
 

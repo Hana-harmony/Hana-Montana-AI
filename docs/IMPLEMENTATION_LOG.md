@@ -354,3 +354,10 @@
 - 학습 split과 평가 split의 종목코드는 disjoint 상태를 유지하고, 이미 supervised/evaluation 데이터에 있는 종목은 추가 계획에서 제외한다.
 - 후보 큐 2,127개 종목 중 기존 supervised 종목과 전체 계획을 합치면 2,068개 종목을 커버한다.
 - 모든 coverage plan row는 `needs_human_review`이며, 검수자 승인과 최종 라벨 없이 gold나 supervised 데이터셋으로 승격하지 않는다.
+
+## 2026-06-05 coverage plan active review packet
+- `build_stock_gold_coverage_active_review_report`를 추가해 2,000종목 coverage plan 전체에 모델 제안 라벨, confidence, disagreement, review priority를 붙인다.
+- `scripts/build_stock_gold_coverage_active_review_report.py`는 `data/curation/stock_gold_coverage_active_review_packet.jsonl`와 `reports/stock-gold-coverage-active-review-report.json`을 생성한다.
+- active review packet은 학습 1,500개 row와 평가 500개 row 전체를 포함하며, 검수자가 wave 단위로 바로 승인·수정할 수 있도록 원문 text와 모델 제안 필드를 함께 기록한다.
+- 리포트는 split별 상위 100개 우선 검수 row와 wave별 상위 10개 row를 기록한다.
+- 모델 제안은 검수 보조 정보이며, `human_review_approved`와 검수자 메타데이터, 최종 라벨 없이 supervised/gold 데이터로 승격하지 않는다.

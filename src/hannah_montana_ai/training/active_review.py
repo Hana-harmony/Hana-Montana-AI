@@ -9,6 +9,12 @@ from typing import Any
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
 
 STOCK_GOLD_ACTIVE_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-active-review-report/v1"
+STOCK_GOLD_COVERAGE_ACTIVE_REVIEW_REPORT_SCHEMA_VERSION = (
+    "stock-gold-coverage-active-review-report/v1"
+)
+STOCK_GOLD_COVERAGE_ACTIVE_REVIEW_PACKET_SCHEMA_VERSION = (
+    "stock-gold-coverage-active-review-packet/v1"
+)
 
 
 def build_stock_gold_active_review_report(
@@ -46,9 +52,66 @@ def build_stock_gold_active_review_report(
     }
 
 
+def build_stock_gold_coverage_active_review_report(
+    coverage_plan_path: Path,
+    model_path: Path,
+    top_n_per_split: int = 100,
+    top_n_per_wave: int = 10,
+) -> dict[str, Any]:
+    model = MachineLearningFinancialNlpModel(model_path)
+    rows = _load_jsonl(coverage_plan_path)
+    packet_rows = _build_coverage_packet_rows(rows, model)
+    training_rows = [row for row in packet_rows if row.get("intended_split") == "training"]
+    evaluation_rows = [row for row in packet_rows if row.get("intended_split") == "evaluation"]
+    training_suggestions = _build_coverage_split_suggestions(
+        rows=training_rows,
+        top_n_per_split=top_n_per_split,
+        top_n_per_wave=top_n_per_wave,
+    )
+    evaluation_suggestions = _build_coverage_split_suggestions(
+        rows=evaluation_rows,
+        top_n_per_split=top_n_per_split,
+        top_n_per_wave=top_n_per_wave,
+    )
+    return {
+        "schema_version": STOCK_GOLD_COVERAGE_ACTIVE_REVIEW_REPORT_SCHEMA_VERSION,
+        "model_version": model.version,
+        "model_path": _report_path(model_path),
+        "coverage_plan_path": _report_path(coverage_plan_path),
+        "top_n_per_split": top_n_per_split,
+        "top_n_per_wave": top_n_per_wave,
+        "training_review": training_suggestions,
+        "evaluation_review": evaluation_suggestions,
+        "review_policy": (
+            "coverage plan suggestions are reviewer assistance only and are not "
+            "promoted without human_review_approved final labels"
+        ),
+    }
+
+
+def build_stock_gold_coverage_active_review_packet(
+    coverage_plan_path: Path,
+    model_path: Path,
+) -> list[dict[str, Any]]:
+    model = MachineLearningFinancialNlpModel(model_path)
+    rows = _load_jsonl(coverage_plan_path)
+    return _build_coverage_packet_rows(rows, model)
+
+
 def write_stock_gold_active_review_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def write_stock_gold_active_review_packet(
+    path: Path,
+    rows: Sequence[dict[str, Any]],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
 
 
 def _build_split_suggestions(
@@ -78,6 +141,32 @@ def _build_split_suggestions(
         "disagreement_count_by_reason": dict(sorted(disagreement_counter.items())),
         "average_review_priority_score": _average(
             float(row["review_priority_score"]) for row in suggestions
+        ),
+    }
+
+
+def _build_coverage_split_suggestions(
+    rows: Sequence[dict[str, Any]],
+    top_n_per_split: int,
+    top_n_per_wave: int,
+) -> dict[str, Any]:
+    ranked = _rank_suggestions(rows)
+    disagreement_counter = Counter(
+        reason
+        for row in rows
+        for reason in row["disagreement_reasons"]
+    )
+    stage_counter = Counter(str(row["review_stage"]) for row in rows)
+    return {
+        "review_row_count": len(rows),
+        "suggestion_count": len(rows),
+        "top_priority_rows": ranked[:top_n_per_split],
+        "wave_priority_rows": _top_rows_by_wave(ranked, top_n_per_wave),
+        "review_wave_count": len({int(row["review_wave"]) for row in rows}),
+        "disagreement_count_by_reason": dict(sorted(disagreement_counter.items())),
+        "review_stage_distribution": dict(sorted(stage_counter.items())),
+        "average_review_priority_score": _average(
+            float(row["review_priority_score"]) for row in rows
         ),
     }
 
@@ -135,6 +224,113 @@ def _suggest_review_row(
         "review_priority_score": round(priority_score, 6),
         "original_url": row["original_url"],
     }
+
+
+def _coverage_suggest_review_row(
+    suggestion: dict[str, Any],
+    original_row: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        **suggestion,
+        "review_wave": int(original_row.get("review_wave", 0) or 0),
+        "review_stage": str(original_row.get("review_stage", "")),
+        "review_reason": str(original_row.get("review_reason", "")),
+    }
+
+
+def _build_coverage_packet_rows(
+    rows: Sequence[dict[str, Any]],
+    model: MachineLearningFinancialNlpModel,
+) -> list[dict[str, Any]]:
+    packet_rows = [
+        _coverage_packet_row(
+            suggestion=_coverage_suggest_review_row(
+                _suggest_review_row(row, str(row["intended_split"]), model),
+                row,
+            ),
+            original_row=row,
+        )
+        for row in rows
+    ]
+    return sorted(
+        packet_rows,
+        key=lambda row: (
+            str(row["intended_split"]),
+            int(row["review_wave"]),
+            -float(row["review_priority_score"]),
+            str(row["stock_code"]),
+            str(row["review_key"]),
+        ),
+    )
+
+
+def _coverage_packet_row(
+    suggestion: dict[str, Any],
+    original_row: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "schema_version": STOCK_GOLD_COVERAGE_ACTIVE_REVIEW_PACKET_SCHEMA_VERSION,
+        "review_key": suggestion["review_key"],
+        "intended_split": suggestion["intended_split"],
+        "review_wave": suggestion["review_wave"],
+        "review_stage": suggestion["review_stage"],
+        "review_reason": suggestion["review_reason"],
+        "review_status": original_row.get("review_status", "needs_human_review"),
+        "reviewer_id": original_row.get("reviewer_id", ""),
+        "reviewed_at": original_row.get("reviewed_at", ""),
+        "review_notes": original_row.get("review_notes", ""),
+        "text": original_row["text"],
+        "stock_code": suggestion["stock_code"],
+        "stock_name": suggestion["stock_name"],
+        "source_type": suggestion["source_type"],
+        "primary_label": suggestion["primary_label"],
+        "tags": list(original_row.get("tags", [])),
+        "sentiment": original_row["sentiment"],
+        "importance": original_row["importance"],
+        "suggested_tags": suggestion["suggested_tags"],
+        "suggested_sentiment": suggestion["suggested_sentiment"],
+        "suggested_importance": suggestion["suggested_importance"],
+        "event_top_label": suggestion["event_top_label"],
+        "event_confidence": suggestion["event_confidence"],
+        "event_margin": suggestion["event_margin"],
+        "sentiment_confidence": suggestion["sentiment_confidence"],
+        "importance_confidence": suggestion["importance_confidence"],
+        "disagreement_reasons": suggestion["disagreement_reasons"],
+        "review_priority_score": suggestion["review_priority_score"],
+        "final_tags": original_row.get("final_tags", []),
+        "final_sentiment": original_row.get("final_sentiment", ""),
+        "final_importance": original_row.get("final_importance", ""),
+        "original_url": suggestion["original_url"],
+        "provider": original_row["provider"],
+        "content_hash": original_row["content_hash"],
+    }
+
+
+def _rank_suggestions(
+    suggestions: Sequence[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    return sorted(
+        suggestions,
+        key=lambda row: (
+            -float(row["review_priority_score"]),
+            int(row.get("review_wave", 0) or 0),
+            str(row["stock_code"]),
+            str(row["review_key"]),
+        ),
+    )
+
+
+def _top_rows_by_wave(
+    ranked: Sequence[dict[str, Any]],
+    top_n_per_wave: int,
+) -> dict[str, list[dict[str, Any]]]:
+    rows_by_wave: dict[str, list[dict[str, Any]]] = {}
+    for row in ranked:
+        wave = str(row.get("review_wave", 0))
+        if len(rows_by_wave.setdefault(wave, [])) >= top_n_per_wave:
+            continue
+        rows_by_wave[wave].append(row)
+    return dict(sorted(rows_by_wave.items(), key=lambda item: int(item[0])))
 
 
 def _disagreement_reasons(
