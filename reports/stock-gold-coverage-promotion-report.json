@@ -1,0 +1,57 @@
+{
+  "schema_version": "stock-gold-coverage-promotion-report/v1",
+  "approved_status": "human_review_approved",
+  "coverage_review_packet_path": "data/curation/stock_gold_coverage_active_review_packet.jsonl",
+  "training_output_path": "data/training/financial_alert_stock_review_gold.jsonl",
+  "evaluation_output_path": "data/evaluation/financial_alert_stock_review_gold.jsonl",
+  "training_promotion": {
+    "review_row_count": 1500,
+    "approved_row_count": 0,
+    "promoted_row_count": 0,
+    "promoted_stock_count": 0,
+    "review_status_distribution": {
+      "needs_human_review": 1500
+    },
+    "rejected_approved_count_by_reason": {},
+    "label_distribution": {},
+    "review_wave_distribution": {
+      "0": 300,
+      "1": 100,
+      "2": 100,
+      "3": 100,
+      "4": 100,
+      "5": 100,
+      "6": 100,
+      "7": 100,
+      "8": 100,
+      "9": 100,
+      "10": 100,
+      "11": 100,
+      "12": 100
+    },
+    "promoted_wave_distribution": {}
+  },
+  "evaluation_promotion": {
+    "review_row_count": 500,
+    "approved_row_count": 0,
+    "promoted_row_count": 0,
+    "promoted_stock_count": 0,
+    "review_status_distribution": {
+      "needs_human_review": 500
+    },
+    "rejected_approved_count_by_reason": {},
+    "label_distribution": {},
+    "review_wave_distribution": {
+      "0": 100,
+      "1": 100,
+      "2": 100,
+      "3": 100,
+      "4": 100
+    },
+    "promoted_wave_distribution": {}
+  },
+  "disjoint_stock_check": {
+    "status": "pass"
+  },
+  "promotion_policy": "coverage active review packet rows are written to supervised or gold datasets only after human_review_approved reviewer metadata and final labels"
+}

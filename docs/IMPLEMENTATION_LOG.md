@@ -361,3 +361,10 @@
 - active review packet은 학습 1,500개 row와 평가 500개 row 전체를 포함하며, 검수자가 wave 단위로 바로 승인·수정할 수 있도록 원문 text와 모델 제안 필드를 함께 기록한다.
 - 리포트는 split별 상위 100개 우선 검수 row와 wave별 상위 10개 row를 기록한다.
 - 모델 제안은 검수 보조 정보이며, `human_review_approved`와 검수자 메타데이터, 최종 라벨 없이 supervised/gold 데이터로 승격하지 않는다.
+
+## 2026-06-05 coverage packet gold promotion
+- `promote_approved_stock_gold_coverage_reviews`를 추가해 coverage active review packet에서 승인된 row만 stock review gold 파일로 승격한다.
+- `scripts/promote_stock_gold_coverage_review_packet.py`는 `data/training/financial_alert_stock_review_gold.jsonl`, `data/evaluation/financial_alert_stock_review_gold.jsonl`, `reports/stock-gold-coverage-promotion-report.json`을 생성한다.
+- 기존 검수 배치와 동일하게 `human_review_approved`, `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`가 모두 유효한 row만 승격한다.
+- 승격된 gold row에는 source review wave/stage/reason과 모델 제안 라벨, review priority를 lineage로 보존한다.
+- 현재 커밋된 packet은 모두 `needs_human_review`라 학습 승격 0건, 평가 승격 0건으로 기록한다.

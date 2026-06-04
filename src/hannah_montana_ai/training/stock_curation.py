@@ -26,6 +26,9 @@ STOCK_CURATION_REPORT_SCHEMA_VERSION = "stock-curation-report/v1"
 STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION = "stock-gold-review-batch/v1"
 STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-review-report/v1"
 STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION = "stock-gold-promotion-report/v1"
+STOCK_GOLD_COVERAGE_PROMOTION_REPORT_SCHEMA_VERSION = (
+    "stock-gold-coverage-promotion-report/v1"
+)
 STOCK_GOLD_REVIEW_VALIDATION_REPORT_SCHEMA_VERSION = "stock-gold-review-validation-report/v1"
 HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
 VALID_REVIEW_SENTIMENTS = {"POSITIVE", "NEUTRAL", "NEGATIVE"}
@@ -239,6 +242,46 @@ def promote_approved_stock_gold_reviews(
     report = _build_gold_promotion_report(
         training_review_path=training_review_path,
         evaluation_review_path=evaluation_review_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+        training_review_rows=training_review_rows,
+        evaluation_review_rows=evaluation_review_rows,
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        training_rejected_reasons=training_rejected_reasons,
+        evaluation_rejected_reasons=evaluation_rejected_reasons,
+    )
+    return StockGoldPromotionResult(
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        report=report,
+    )
+
+
+def promote_approved_stock_gold_coverage_reviews(
+    coverage_review_packet_path: Path,
+    training_output_path: Path,
+    evaluation_output_path: Path,
+) -> StockGoldPromotionResult:
+    review_rows = _load_stock_gold_review_rows(coverage_review_packet_path)
+    training_review_rows = [
+        row for row in review_rows if row.get("intended_split") == "training"
+    ]
+    evaluation_review_rows = [
+        row for row in review_rows if row.get("intended_split") == "evaluation"
+    ]
+    training_rows, training_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        training_review_rows,
+        intended_split="training",
+    )
+    evaluation_rows, evaluation_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        evaluation_review_rows,
+        intended_split="evaluation",
+    )
+    _write_dict_jsonl(training_output_path, training_rows)
+    _write_dict_jsonl(evaluation_output_path, evaluation_rows)
+    report = _build_gold_coverage_promotion_report(
+        coverage_review_packet_path=coverage_review_packet_path,
         training_output_path=training_output_path,
         evaluation_output_path=evaluation_output_path,
         training_review_rows=training_review_rows,
@@ -578,7 +621,7 @@ def _is_valid_reviewed_at(value: object) -> bool:
 
 
 def _to_labeled_gold_row(row: dict[str, Any], intended_split: str) -> dict[str, Any]:
-    return {
+    labeled_row = {
         "text": row["text"],
         "tags": list(row["final_tags"]),
         "sentiment": row["final_sentiment"],
@@ -595,6 +638,18 @@ def _to_labeled_gold_row(row: dict[str, Any], intended_split: str) -> dict[str, 
         "source_review_split": intended_split,
         "source_review_status": row["review_status"],
     }
+    for source_key, output_key in (
+        ("review_wave", "source_review_wave"),
+        ("review_stage", "source_review_stage"),
+        ("review_reason", "source_review_reason"),
+        ("suggested_tags", "source_model_suggested_tags"),
+        ("suggested_sentiment", "source_model_suggested_sentiment"),
+        ("suggested_importance", "source_model_suggested_importance"),
+        ("review_priority_score", "source_review_priority_score"),
+    ):
+        if source_key in row:
+            labeled_row[output_key] = row[source_key]
+    return labeled_row
 
 
 def _write_dict_jsonl(path: Path, rows: Sequence[dict[str, Any]]) -> None:
@@ -644,6 +699,70 @@ def _build_gold_promotion_report(
             "written to supervised or gold datasets"
         ),
     }
+
+
+def _build_gold_coverage_promotion_report(
+    coverage_review_packet_path: Path,
+    training_output_path: Path,
+    evaluation_output_path: Path,
+    training_review_rows: Sequence[dict[str, Any]],
+    evaluation_review_rows: Sequence[dict[str, Any]],
+    training_rows: Sequence[dict[str, Any]],
+    evaluation_rows: Sequence[dict[str, Any]],
+    training_rejected_reasons: Counter[str],
+    evaluation_rejected_reasons: Counter[str],
+) -> dict[str, Any]:
+    training_stocks = _row_stock_codes(training_rows)
+    evaluation_stocks = _row_stock_codes(evaluation_rows)
+    return {
+        "schema_version": STOCK_GOLD_COVERAGE_PROMOTION_REPORT_SCHEMA_VERSION,
+        "approved_status": HUMAN_REVIEW_APPROVED_STATUS,
+        "coverage_review_packet_path": _report_path(coverage_review_packet_path),
+        "training_output_path": _report_path(training_output_path),
+        "evaluation_output_path": _report_path(evaluation_output_path),
+        "training_promotion": _coverage_promotion_split_report(
+            review_rows=training_review_rows,
+            promoted_rows=training_rows,
+            rejected_reasons=training_rejected_reasons,
+        ),
+        "evaluation_promotion": _coverage_promotion_split_report(
+            review_rows=evaluation_review_rows,
+            promoted_rows=evaluation_rows,
+            rejected_reasons=evaluation_rejected_reasons,
+        ),
+        "disjoint_stock_check": {
+            "status": "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
+        },
+        "promotion_policy": (
+            "coverage active review packet rows are written to supervised or gold "
+            "datasets only after human_review_approved reviewer metadata and final labels"
+        ),
+    }
+
+
+def _coverage_promotion_split_report(
+    review_rows: Sequence[dict[str, Any]],
+    promoted_rows: Sequence[dict[str, Any]],
+    rejected_reasons: Counter[str],
+) -> dict[str, Any]:
+    report = _promotion_split_report(
+        review_rows=review_rows,
+        promoted_rows=promoted_rows,
+        rejected_reasons=rejected_reasons,
+    )
+    report["review_wave_distribution"] = dict(
+        sorted(
+            Counter(str(row.get("review_wave", "")) for row in review_rows).items(),
+            key=lambda item: int(item[0]) if item[0].isdigit() else -1,
+        )
+    )
+    report["promoted_wave_distribution"] = dict(
+        sorted(
+            Counter(str(row.get("source_review_wave", "")) for row in promoted_rows).items(),
+            key=lambda item: int(item[0]) if item[0].isdigit() else -1,
+        )
+    )
+    return report
 
 
 def _build_gold_review_validation_report(

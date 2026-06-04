@@ -11,6 +11,7 @@ from hannah_montana_ai.training.stock_curation import (
     build_stock_gold_review_batches,
     build_stock_training_candidates,
     candidate_review_key,
+    promote_approved_stock_gold_coverage_reviews,
     promote_approved_stock_gold_reviews,
     validate_stock_gold_review_batches,
 )
@@ -177,6 +178,21 @@ def test_stock_gold_promotion_report_tracks_zero_approved_committed_batch() -> N
     assert report["evaluation_promotion"]["review_row_count"] == 100
     assert report["evaluation_promotion"]["approved_row_count"] == 0
     assert "reviewer metadata and final labels" in report["promotion_policy"]
+
+
+def test_stock_gold_coverage_promotion_report_tracks_zero_approved_packet() -> None:
+    report = json.loads(Path("reports/stock-gold-coverage-promotion-report.json").read_text())
+
+    assert report["schema_version"] == "stock-gold-coverage-promotion-report/v1"
+    assert report["training_promotion"]["review_row_count"] == 1_500
+    assert report["training_promotion"]["approved_row_count"] == 0
+    assert report["training_promotion"]["promoted_row_count"] == 0
+    assert report["training_promotion"]["review_wave_distribution"]["0"] == 300
+    assert report["training_promotion"]["review_wave_distribution"]["12"] == 100
+    assert report["evaluation_promotion"]["review_row_count"] == 500
+    assert report["evaluation_promotion"]["review_wave_distribution"]["4"] == 100
+    assert report["disjoint_stock_check"]["status"] == "pass"
+    assert "human_review_approved" in report["promotion_policy"]
 
 
 def test_stock_gold_review_validation_report_tracks_current_blocker() -> None:
@@ -493,6 +509,62 @@ def test_promote_stock_gold_reviews_writes_only_human_approved_rows(
     assert result.report["disjoint_stock_check"]["status"] == "pass"
 
 
+def test_promote_stock_gold_coverage_reviews_preserves_packet_lineage(
+    tmp_path: Path,
+) -> None:
+    coverage_packet_path = tmp_path / "coverage_packet.jsonl"
+    training_output_path = tmp_path / "training_gold.jsonl"
+    evaluation_output_path = tmp_path / "evaluation_gold.jsonl"
+    _write_jsonl(
+        coverage_packet_path,
+        [
+            _coverage_packet_row(
+                "000001",
+                "학습승인",
+                "CONTRACT",
+                "training",
+                2,
+                "human_review_approved",
+            ),
+            _coverage_packet_row(
+                "000002",
+                "학습대기",
+                "RISK",
+                "training",
+                3,
+                "needs_human_review",
+            ),
+            _coverage_packet_row(
+                "000003",
+                "평가승인",
+                "EARNINGS",
+                "evaluation",
+                1,
+                "human_review_approved",
+            ),
+        ],
+    )
+
+    result = promote_approved_stock_gold_coverage_reviews(
+        coverage_review_packet_path=coverage_packet_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+    )
+    training_rows = _read_jsonl(training_output_path)
+    evaluation_rows = _read_jsonl(evaluation_output_path)
+
+    assert [row["stock_code"] for row in training_rows] == ["000001"]
+    assert [row["stock_code"] for row in evaluation_rows] == ["000003"]
+    assert training_rows[0]["source_review_wave"] == 2
+    assert training_rows[0]["source_review_stage"] == "additional_coverage_plan"
+    assert training_rows[0]["source_model_suggested_tags"] == ["CONTRACT"]
+    assert training_rows[0]["source_review_priority_score"] == 123.45
+    assert result.report["training_promotion"]["promoted_stock_count"] == 1
+    assert result.report["training_promotion"]["promoted_wave_distribution"] == {"2": 1}
+    assert result.report["evaluation_promotion"]["promoted_wave_distribution"] == {"1": 1}
+    assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
 def test_promote_stock_gold_reviews_rejects_unattested_approved_rows(
     tmp_path: Path,
 ) -> None:
@@ -639,6 +711,44 @@ def _coverage_plan_row(
             if review_wave == 0
             else "missing_supervised_stock_coverage"
         ),
+    }
+
+
+def _coverage_packet_row(
+    stock_code: str,
+    stock_name: str,
+    primary_label: str,
+    intended_split: str,
+    review_wave: int,
+    review_status: str,
+) -> dict[str, object]:
+    row = _coverage_plan_row(
+        stock_code,
+        stock_name,
+        primary_label,
+        intended_split,
+        review_wave,
+    )
+    return {
+        **row,
+        "schema_version": "stock-gold-coverage-active-review-packet/v1",
+        "review_status": review_status,
+        "reviewer_id": "analyst-001",
+        "reviewed_at": "2026-06-05T00:00:00+09:00",
+        "review_notes": "테스트 검수",
+        "final_tags": [primary_label],
+        "final_sentiment": "NEUTRAL",
+        "final_importance": "HIGH",
+        "suggested_tags": [primary_label],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": primary_label,
+        "event_confidence": 0.91,
+        "event_margin": 0.44,
+        "sentiment_confidence": 0.82,
+        "importance_confidence": 0.78,
+        "disagreement_reasons": [],
+        "review_priority_score": 123.45,
     }
 
 
