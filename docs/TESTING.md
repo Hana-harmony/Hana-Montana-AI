@@ -17,6 +17,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
+uv run python scripts/train_stock_linker_model.py
 ```
 
 ## 현재 테스트 범위
@@ -45,6 +46,8 @@ uv run python scripts/build_stock_training_candidate_queue.py
 - 외부 provider credential 누락 시 값 비노출 오류와 네트워크 호출 전 fail-fast
 - 국내주식 universe 파일이 3,000개 이상 공개 종목 메타데이터를 포함하는지 검증
 - 내부 universe master의 전체 6자리 종목코드가 종목 매핑 경로에서 누락 없이 매칭되는지 검증
+- stock linker ML artifact가 전 종목코드와 trainable 종목명 템플릿 기준 정확도를 통과하는지 검증
+- stock linker ML artifact 누락·손상 시 명시적 오류를 반환하는지 검증
 - 종목 universe 기반 Naver 수집 쿼리 생성과 coverage report 산출 검증
 - 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
@@ -71,6 +74,8 @@ uv run python scripts/build_stock_training_candidate_queue.py
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 2,356개 종목, supervised 38개 종목, evaluation 56개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 400건, 400개 종목도 별도 섹션으로 기록한다.
 - `reports/stock-training-candidate-report.json`은 검수 대기 후보 6,244건, 2,127개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
+- `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
+- stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 다음 데이터 확장 PR의 기준선으로 사용한다.
 
 ## 추가 예정

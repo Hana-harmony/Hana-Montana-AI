@@ -19,6 +19,7 @@
 
 ## 현재 구현 상태
 - 종목 매핑은 요청 `stock_universe`를 우선 사용하고, 누락된 종목은 내부 `data/reference/korea_stock_universe.csv` master에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
+- 내부 master fallback은 `stock_linker_ml.joblib`의 TF-IDF stock linker 예측을 먼저 확인하고, 대표 종목 오탐 방지를 위해 실제 선두 term 매칭 여부를 함께 검증한다.
 - 이벤트 태그는 `financial_nlp_ml.joblib`의 source type과 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
 - 감성은 TF-IDF char n-gram, 한국어 금융 token feature, Logistic Regression 모델로 분류한다.
 - 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.

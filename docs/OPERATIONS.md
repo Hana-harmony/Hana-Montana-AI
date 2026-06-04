@@ -34,11 +34,13 @@ docker run --rm --network hana-internal hannah-montana-ai
 - `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
 - 국내주식 universe는 로컬 `OPEN_DART_API_KEY`로 동기화한다.
 - 분석 API는 `data/reference/korea_stock_universe.csv`를 내부 종목 master로 로드하므로 배포 artifact에 이 파일을 포함해야 한다.
+- 분석 API는 `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`도 함께 로드하므로 배포 artifact에 stock linker 모델을 포함해야 한다.
 - Spring client가 넘기는 `stock_universe`는 후보 우선순위와 alias 보강 용도이며, 전체 종목 master를 매 요청마다 전달하지 않는다.
 ```bash
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
+uv run python scripts/train_stock_linker_model.py
 ```
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
 ```bash

@@ -286,3 +286,11 @@
 - 요청 후보가 비어 있어도 삼성전자 같은 국내주식을 내부 universe로 매핑하는 API 회귀 테스트를 추가했다.
 - 내부 universe 3,967개 전체 종목의 6자리 종목코드가 종목 매핑 경로에서 누락 없이 매칭되는지 테스트한다.
 - 이 변경은 supervised/gold coverage를 통과시킨 것이 아니라, 전 종목 서비스 입력을 처리하기 위한 종목 master fallback을 추가한 것이다.
+
+## 2026-06-05 전 종목 stock linker ML artifact
+- `stock_linker_trainer.py`를 추가해 KRX/OpenDART universe 3,967개 종목의 6자리 종목코드와 trainable 종목명을 TF-IDF char n-gram stock linker 학습 term으로 변환한다.
+- `scripts/train_stock_linker_model.py`가 `data/training/stock_linker_training.jsonl`, `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`, `reports/stock-linker-training-report.json`을 생성한다.
+- stock linker 학습 term은 7,649건이며 모든 3,967개 종목을 최소 종목코드 term으로 포함한다.
+- 학습 리포트는 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
+- 분석 API는 요청 후보 우선 정책을 유지하고, 내부 fallback 단계에서 stock linker 예측 종목코드와 실제 선두 term 매칭을 함께 확인해 대표 종목 오탐을 줄인다.
+- 이 모델은 종목 identity 후보를 학습하는 artifact이며, 이벤트/감성/중요도 분류 모델과 별도로 배포한다.

@@ -1,0 +1,25 @@
+{
+  "schema_version": "stock-linker-training/v1",
+  "version": "stock-linker-tfidf-20260604172114",
+  "trained_at": "2026-06-04T17:21:14.930176+00:00",
+  "stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "model_path": "src/hannah_montana_ai/model_store/stock_linker_ml.joblib",
+  "training_data_path": "data/training/stock_linker_training.jsonl",
+  "universe_count": 3967,
+  "training_row_count": 7649,
+  "training_stock_count": 3967,
+  "source_distribution": {
+    "stock_code": 3967,
+    "stock_name": 3682
+  },
+  "similarity_threshold": 0.58,
+  "evaluation": {
+    "all_stock_code_template_accuracy": 1.0,
+    "trainable_stock_name_template_accuracy": 0.9921238457360131
+  },
+  "coverage_gate": {
+    "minimum_training_stock_count": 3967,
+    "actual_training_stock_count": 3967,
+    "status": "pass"
+  }
+}

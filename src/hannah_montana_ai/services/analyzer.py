@@ -13,6 +13,7 @@ from hannah_montana_ai.domain.schemas import (
 )
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
+from hannah_montana_ai.services.stock_linker import MachineLearningStockLinker
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseEntry,
     load_stock_universe,
@@ -57,9 +58,13 @@ class AlertAnalyzer:
         settings = get_settings()
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
+        self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
         self._internal_stock_universe = _load_internal_stock_universe(
             settings.stock_universe_path
         )
+        self._internal_stock_by_code = {
+            stock.stock_code: stock for stock in self._internal_stock_universe
+        }
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         text = f"{request.title} {request.snippet}"
@@ -120,7 +125,29 @@ class AlertAnalyzer:
         )
         if request_match is not None:
             return request_match
+        ml_match = self._match_leading_internal_stock_with_ml(text)
+        if ml_match is not None:
+            return ml_match
         return self._match_leading_internal_stock(text)
+
+    def _match_leading_internal_stock_with_ml(
+        self,
+        text: str,
+    ) -> StockUniverseEntry | None:
+        stock_code = self.stock_linker.predict_stock_code(text)
+        if stock_code is None:
+            return None
+        stock = self._internal_stock_by_code.get(stock_code)
+        if stock is None:
+            return None
+        position = self._stock_match_position(
+            normalize_stock_term(text),
+            stock,
+            allow_short_terms=False,
+        )
+        if position != 0:
+            return None
+        return stock
 
     def _match_leading_internal_stock(
         self,

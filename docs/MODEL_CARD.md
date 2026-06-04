@@ -14,6 +14,7 @@
 - snippet
 - 후보 종목 목록
 - 내부 국내주식 universe master
+- 전 종목 stock linker 학습 term
 
 ## 출력
 - 대표 종목
@@ -65,6 +66,9 @@
 - OpenDART 고유번호 기반 universe 종목 수: 3,967개
 - 분석 API는 요청 후보 종목이 비어 있거나 50개 이하 후보에 포함되지 않은 종목도 내부 universe master로 매핑한다.
 - 전체 universe 3,967개 종목의 6자리 종목코드 매핑을 회귀 테스트로 검증한다.
+- stock linker ML 학습 데이터: `data/training/stock_linker_training.jsonl`
+- stock linker ML artifact: `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`
+- stock linker 학습 리포트: `reports/stock-linker-training-report.json`
 - raw 후보에서 보수적 종목명·종목코드 매칭으로 확인한 종목 수: 2,356개
 - 학습 승격 후보 큐 샘플 수: 6,244건
 - 학습 승격 후보 큐 종목 수: 2,127개
@@ -91,6 +95,8 @@
 - 중요도는 source type, char n-gram, 한국어 금융 token n-gram을 결합한 다중 클래스 Logistic Regression으로 학습한다.
 - 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `무상증자`, `타법인주식`, `자기주식처분`, `주주총회`, `소송등`, `상장폐지`, `주주환원`, `주식교환`, `지분인수`, `지분매각`, `리밸런싱`, `공급망`, `생산차질` 같은 한국어 복합 금융 표현을 도메인 token으로 추가한다.
 - 종목 매핑은 request 후보를 먼저 사용하고, 같은 종목코드가 없으면 내부 universe master를 fallback으로 사용한다.
+- 내부 universe fallback은 TF-IDF char n-gram stock linker가 예측한 종목코드를 먼저 확인한 뒤, 대표 종목 오탐 방지를 위해 실제 선두 종목 term 매칭 여부를 검증한다.
+- stock linker는 전체 universe 3,967개 종목코드와 trainable 종목명을 학습 term으로 사용한다. 현재 전 종목코드 템플릿 정확도는 1.0, trainable 종목명 템플릿 정확도는 0.9921이다.
 - 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.34, `CORPORATE_ACTION` 0.22, `EARNINGS` 0.36, `MACRO` 0.32, `RISK` 0.56을 label별 calibration했다.
 - 학습 시 검수·균형 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
 - 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건을 이벤트 모델 학습에 승격했다.
