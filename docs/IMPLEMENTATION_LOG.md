@@ -317,3 +317,9 @@
 - `reviewed_at`은 ISO-8601 형식이어야 하며, 최종 이벤트·감성·중요도 라벨은 허용된 라벨 집합에 속해야 한다.
 - 승격 거부 사유는 `reports/stock-gold-promotion-report.json`의 `rejected_approved_count_by_reason`에 남긴다.
 - 현재 커밋된 검수 배치는 모두 `needs_human_review`라 승인 0건, 승격 0건으로 기록한다.
+
+## 2026-06-05 gold 검수 validation report
+- `validate_stock_gold_review_batches`를 추가해 검수 배치의 승인 가능 row와 목표 종목 수 충족 여부를 승격 전에 검사한다.
+- `scripts/validate_stock_gold_review_batch.py`는 `reports/stock-gold-review-validation-report.json`을 생성한다.
+- 현재 검수 배치는 승인 가능 학습 0종목, 평가 0종목이라 `overall_status=fail`로 기록한다.
+- 승인 상태지만 필수 검수 필드가 빠진 row는 `blocked_approved_count_by_reason`에 집계한다.

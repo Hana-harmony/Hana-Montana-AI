@@ -66,6 +66,7 @@
 - 학습 gold 검수 배치: `data/curation/stock_gold_training_review_batch.jsonl`
 - 평가 gold 검수 배치: `data/curation/stock_gold_evaluation_review_batch.jsonl`
 - gold 검수 배치 리포트: `reports/stock-gold-review-batch-report.json`
+- gold 검수 validation 리포트: `reports/stock-gold-review-validation-report.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
 - 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
 - gold 승격 리포트: `reports/stock-gold-promotion-report.json`
@@ -80,12 +81,14 @@
 - 학습 승격 후보 큐 종목 수: 2,127개
 - 학습 gold 검수 배치 종목 수: 300개
 - 평가 gold 검수 배치 종목 수: 100개
+- 현재 검수 validation 승인 가능 종목 수: 학습 0개, 평가 0개
 - supervised 학습 데이터 종목 수: 38개
 - evaluation 데이터 종목 수: 57개
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 이는 raw 후보 폭에 비해 사람이 검수한 supervised/gold 종목 커버리지가 아직 부족하다는 뜻이다.
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
 - `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
+- validation 리포트는 승격 전 승인 가능 row가 학습 300개 종목과 평가 100개 종목 목표를 채우는지 검사한다.
 - 학습·평가 스크립트는 승인된 stock review gold 파일이 존재할 때만 포함한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
