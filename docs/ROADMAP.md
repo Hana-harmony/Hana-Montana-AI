@@ -23,4 +23,4 @@
 - teacher-student promotion gate 품질 모니터링과 라벨별 확대 검증 완료
 - 추론 latency 모니터링 완료
 - audit log 완료
-- 배포 환경별 secret 관리
+- 배포 환경별 secret 관리 완료

@@ -29,6 +29,8 @@ docker run --rm --network hana-internal hannah-montana-ai
 
 ## 재학습 운영
 - 외부 API 키는 `secrets.local.env`에서만 읽고 커밋하지 않는다.
+- 필요한 수집 변수명은 `NAVER_NEWS_CLIENT_ID`, `NAVER_NEWS_CLIENT_SECRET`, `OPEN_DART_API_KEY`다.
+- 수집 credential이 없으면 네트워크 요청 전에 실패하며, 오류에는 변수명만 남긴다.
 - `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
@@ -58,4 +60,4 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 ## 운영 전 보강
 - drift 감시
 - 재학습 기준과 rollback 절차
-- 배포 환경별 Secret Manager 연동
+- 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성

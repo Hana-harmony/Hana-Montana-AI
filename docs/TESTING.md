@@ -5,6 +5,7 @@
 uv run ruff check .
 uv run mypy
 uv run bandit -c pyproject.toml -r src
+uv run python scripts/verify_secret_hygiene.py
 uv run pytest
 uv run python scripts/build_gold_evaluation_data.py
 uv run python scripts/build_augmented_training_data.py
@@ -36,6 +37,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - 약지도 distillation 후보 중 teacher confidence와 gold gate를 통과한 후보만 이벤트 모델 학습에 승격하는지 검증
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
 - 분석 API 성공·실패 audit log와 원문 비노출
+- 외부 provider credential 누락 시 값 비노출 오류와 네트워크 호출 전 fail-fast
+- 추적 파일에 로컬 secret 파일, key material, provider credential assignment가 포함되지 않는지 CI 검사
 - 모델 release report가 학습·평가·distillation 리포트와 동기화되어 있고 모든 gate가 통과하는지 검증
 - pseudo-label promotion monitoring report가 distillation·release 리포트와 동기화되어 있고 라벨별 확장 결정을 고정하는지 검증
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증

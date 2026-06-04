@@ -196,6 +196,14 @@
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 actual-news gold gate 실험 전까지 `expansion_candidate_hold_for_gold_gate`로 보류한다.
 - 테스트는 monitoring report가 distillation·release 리포트에서 재계산한 결과와 완전히 일치하는지 검증한다.
 
+## 2026-06-04 배포 환경별 secret hygiene
+- AI 런타임은 협력사 API key, Hannah 서비스 토큰, 외부 provider credential을 요구하지 않는 secret-free 서비스로 유지한다.
+- Naver News Search와 OpenDART credential은 학습 데이터 수집 스크립트에서만 사용한다.
+- `ProviderCredentialError`를 추가해 수집 credential이 누락되면 네트워크 요청 전 fail-fast하고 변수명만 출력한다.
+- `scripts/verify_secret_hygiene.py`를 추가해 추적 파일에 로컬 secret 파일, key material, credential assignment가 들어오면 CI에서 차단한다.
+- GitHub Actions CI에 secret hygiene 검사를 추가했다.
+- 테스트로 로컬 env가 기존 환경변수를 덮어쓰지 않는지, credential 누락 오류가 값을 노출하지 않는지 검증한다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.

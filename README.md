@@ -13,6 +13,7 @@ Hana-OmniLens-API의 뉴스·공시 알림 분석을 담당하는 FastAPI 기반
 ```bash
 uv sync --all-groups
 uv run pytest
+uv run python scripts/verify_secret_hygiene.py
 uv run uvicorn hannah_montana_ai.main:app --reload
 ```
 
@@ -28,6 +29,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 ```
 
 로컬 외부 API 키는 커밋하지 않는 `secrets.local.env`에서만 읽는다.
+수집 credential은 학습 데이터 수집 스크립트에서만 사용하며, AI 런타임은 provider credential이나 협력사용 API key를 요구하지 않는다.
 수집 실패나 rate limit으로 새 raw 수가 기존보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
 수집된 대량 weak-label 후보는 supervised teacher 모델의 confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 학습 결과는 `reports/ml-training-report.json`의 80:20 holdout 검증, `reports/ml-model-evaluation.json`의 gold 평가셋 지표, `reports/model-release-report.json`의 버전별 release gate, `reports/pseudo-label-promotion-monitoring.json`의 pseudo-label 운영 상태로 기록한다.

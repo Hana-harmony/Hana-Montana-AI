@@ -29,6 +29,9 @@ NAVER_QUERIES = (
     "환율 수출 기업",
 )
 
+NAVER_NEWS_CREDENTIAL_NAMES = ("NAVER_NEWS_CLIENT_ID", "NAVER_NEWS_CLIENT_SECRET")
+OPEN_DART_CREDENTIAL_NAMES = ("OPEN_DART_API_KEY",)
+
 
 @dataclass
 class ProviderCollectionStatus:
@@ -64,6 +67,10 @@ class RawCollectionResult:
     status: ProviderCollectionStatus
 
 
+class ProviderCredentialError(RuntimeError):
+    pass
+
+
 def load_local_env(path: Path) -> None:
     if not path.exists():
         return
@@ -79,8 +86,9 @@ def collect_naver_news(
     sleep_seconds: float = 0.4,
     max_retries: int = 3,
 ) -> RawCollectionResult:
-    client_id = os.environ["NAVER_NEWS_CLIENT_ID"]
-    client_secret = os.environ["NAVER_NEWS_CLIENT_SECRET"]
+    credentials = _required_credentials(NAVER_NEWS_CREDENTIAL_NAMES)
+    client_id = credentials["NAVER_NEWS_CLIENT_ID"]
+    client_secret = credentials["NAVER_NEWS_CLIENT_SECRET"]
     collected: dict[str, RawCollectedAlert] = {}
     status = ProviderCollectionStatus(provider="naver-news")
 
@@ -139,7 +147,8 @@ def collect_open_dart(
     window_days: int = 30,
     sleep_seconds: float = 0.1,
 ) -> RawCollectionResult:
-    api_key = os.environ["OPEN_DART_API_KEY"]
+    credentials = _required_credentials(OPEN_DART_CREDENTIAL_NAMES)
+    api_key = credentials["OPEN_DART_API_KEY"]
     effective_end_date = end_date or date.today()
     collected: dict[str, RawCollectedAlert] = {}
     status = ProviderCollectionStatus(provider="open-dart")
@@ -216,6 +225,15 @@ def should_write_raw_alerts(existing_count: int, next_count: int, force: bool = 
 
 def collection_status_to_dict(statuses: list[ProviderCollectionStatus]) -> list[dict[str, Any]]:
     return [status.to_dict() for status in statuses]
+
+
+def _required_credentials(names: tuple[str, ...]) -> dict[str, str]:
+    missing = [name for name in names if not os.environ.get(name)]
+    if missing:
+        raise ProviderCredentialError(
+            "Missing provider credential environment variables: " + ", ".join(missing)
+        )
+    return {name: os.environ[name] for name in names}
 
 
 def _json_request_with_retry(
