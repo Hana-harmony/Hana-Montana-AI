@@ -14,11 +14,12 @@
 - 사람이 검수한 Naver 뉴스 도메인 gold label set 추가 완료
 - 뉴스 제목체 증강 corpus 기반 재학습 완료
 - 약지도 대량 후보 distillation gate 추가 완료
+- 37,278건 수집 후보 기반 teacher-gated pseudo-label 이벤트 학습 완료
 
 ## M3 운영 하드닝
 - 모델 버전별 성능 리포트
 - 뉴스 gold label set 종목·기간 확대
-- distillation 후보 teacher-student 재라벨링과 promotion gate 자동화
+- teacher-student promotion gate 라벨 범위 확대
 - 추론 latency 모니터링
 - audit log
 - 배포 환경별 secret 관리

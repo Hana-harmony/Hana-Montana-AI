@@ -21,6 +21,14 @@ docker run --rm --network hana-internal hannah-montana-ai
 ## 헬스체크
 - `GET /health`
 
+## 재학습 운영
+- 외부 API 키는 `secrets.local.env`에서만 읽고 커밋하지 않는다.
+- `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
+- `data/raw`, `data/processed`는 gitignore 상태로 유지한다.
+- weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
+- 현재 artifact는 37,278건 수집 후보 중 320건 pseudo-label을 이벤트 모델 학습에 반영했다.
+- 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
+
 ## 운영 전 보강
 - 모델 latency와 오류율 모니터링
 - 모델 버전별 audit log

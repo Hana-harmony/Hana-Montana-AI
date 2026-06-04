@@ -5,7 +5,7 @@
     "sentiment_accuracy": 1.0,
     "importance_accuracy": 0.94140625,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 1.0,
+    "event_macro_f1": 0.9992603550295858,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -50,9 +50,9 @@
         "support": 144
       },
       "RISK": {
-        "precision": 1.0,
+        "precision": 0.9882352941176471,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.9940828402366864,
         "support": 168
       }
     },
@@ -154,7 +154,7 @@
     "sentiment_accuracy": 0.9166666666666666,
     "importance_accuracy": 0.8888888888888888,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9074747474747475,
+    "event_macro_f1": 0.8806349206349205,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -181,15 +181,15 @@
         "support": 13
       },
       "MACRO": {
-        "precision": 0.6923076923076923,
+        "precision": 0.75,
         "recall": 1.0,
-        "f1": 0.8181818181818181,
+        "f1": 0.8571428571428571,
         "support": 9
       },
       "RISK": {
-        "precision": 1.0,
+        "precision": 0.6666666666666666,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.8,
         "support": 10
       }
     },

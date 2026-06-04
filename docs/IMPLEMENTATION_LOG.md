@@ -134,6 +134,23 @@
 - 따라서 `reports/weak-distillation-report.json`에 `not_promoted_to_supervised_loss`로 기록하고, artifact는 검수·균형 corpus 기준으로 유지했다.
 - 최종 gate는 21개 pytest, benchmark, 실공시 gold, 실제 뉴스 gold 모두 통과했다.
 
+## 2026-06-04 teacher-gated pseudo-label 이벤트 학습
+- Naver News Search와 OpenDART를 로컬 키로 확장 수집해 raw 후보를 37,278건으로 늘렸다.
+- provider 리포트 기준 Naver News Search 11,312건, OpenDART 25,966건을 보존했다.
+- 수집 raw와 weak label 파일은 `data/raw`, `data/processed`에만 저장하며 gitignore 상태를 유지했다.
+- weak distillation 후보는 37,278건 중 4,845건이며 disclosure noise, disclosure-only, duplicate, low-signal 후보를 제외했다.
+- supervised corpus 3,571건으로 teacher 모델을 먼저 학습한 뒤, distillation 후보를 teacher가 다시 예측한다.
+- teacher event confidence 0.58, sentiment confidence 0.72, importance confidence 0.68 이상이고 weak-label과 이벤트가 합의한 후보만 pseudo-label로 승격한다.
+- pseudo-label을 모든 라벨에 넣으면 실제 뉴스 gold와 `CORPORATE_ACTION` benchmark가 흔들려, gold gate를 유지한 `RISK` 140건과 `CONTRACT` 180건만 이벤트 모델 학습에 투입했다.
+- 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
+- 최종 artifact 학습 샘플은 supervised 3,571건, pseudo-label 320건을 합친 3,891건이다.
+- 이벤트 threshold는 benchmark와 실제 뉴스 gold를 함께 통과하도록 0.30으로 조정했다.
+- 80:20 supervised holdout 기준 이벤트 macro F1 0.9941, 감성 accuracy 0.9958, 중요도 accuracy 0.9930을 기록했다.
+- 768건 benchmark 기준 이벤트 recall 1.0, macro F1 0.9993, 감성 accuracy 1.0, 중요도 accuracy 0.9414, 종목 accuracy 1.0을 기록했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9333, 종목 accuracy 1.0을 기록했다.
+- 36건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9444, macro F1 0.8806, 감성 accuracy 0.9167, 중요도 accuracy 0.8889, 종목 accuracy 1.0을 기록했다.
+- 테스트에 pseudo-label 승격 학습 검증을 추가했고, 총 22개 pytest가 통과했다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -143,6 +160,7 @@
 - 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
 - 실제 뉴스 gold와 뉴스 제목체 증강 corpus를 포함해 뉴스 도메인 표현도 함께 학습한다.
 - Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 distillation 후보 풀로 관리하며, gold gate를 낮추는 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
+- teacher-gated pseudo-label 중 gold gate를 유지한 `RISK`, `CONTRACT` 후보는 이벤트 모델 학습에 투입한다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
 ## 학습 방식
@@ -151,6 +169,7 @@
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `weak_distiller.py`가 약지도 후보를 필터링하고 promotion 여부를 리포트로 남긴다.
+- supervised teacher 모델이 weak distillation 후보를 재예측하고 confidence gate를 통과한 pseudo-label을 student 이벤트 모델 학습에 승격한다.
 - `scripts/build_augmented_training_data.py`가 균형 보강용 합성 금융 corpus를 생성한다.
 - `scripts/build_news_style_training_data.py`가 Naver 뉴스 제목체를 반영한 증강 corpus를 생성한다.
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.

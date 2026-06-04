@@ -42,6 +42,9 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
 
     assert model_path.exists()
     assert report.sample_count >= 300
+    assert report.supervised_sample_count == report.sample_count
+    assert report.pseudo_labeled_sample_count == 0
+    assert report.pseudo_labeling["status"] == "not_configured"
     assert report.event_label_distribution["MACRO"] >= 40
     assert report.sentiment_label_distribution["NEGATIVE"] >= 100
     assert report.importance_label_distribution["CRITICAL"] >= 50
@@ -57,6 +60,50 @@ def test_training_builds_supervised_ml_artifact(tmp_path: Path) -> None:
     assert report.validation.sentiment_accuracy >= 0.8
     assert report.validation.importance_accuracy >= 0.8
     assert report.validation.event_label_metrics["DISCLOSURE"]["support"] >= 10
+
+
+def test_training_promotes_teacher_gated_pseudo_labels(tmp_path: Path) -> None:
+    model_path = tmp_path / "financial_nlp_ml.joblib"
+    weak_path = tmp_path / "weak_labeled_alerts.jsonl"
+    rows = [
+        {
+            "text": "SK하이닉스 대규모 공급계약 체결로 장기 수주 기대 확대",
+            "tags": ["CONTRACT"],
+            "sentiment": "POSITIVE",
+            "importance": "HIGH",
+            "source_type": "NEWS",
+        },
+        {
+            "text": "위험기업 상장폐지 우려와 주권매매거래정지 가능성 확대",
+            "tags": ["RISK"],
+            "sentiment": "NEGATIVE",
+            "importance": "CRITICAL",
+            "source_type": "NEWS",
+        },
+    ]
+    weak_path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+    report = train_ml_model(
+        [
+            Path("data/training/financial_alert_corpus.jsonl"),
+            Path("data/training/financial_alert_augmented.jsonl"),
+            Path("data/training/financial_alert_news_style_augmented.jsonl"),
+            Path("data/training/financial_alert_real_news_gold.jsonl"),
+        ],
+        model_path,
+        pseudo_label_path=weak_path,
+    )
+
+    assert report.supervised_sample_count >= 300
+    assert report.pseudo_labeled_sample_count >= 1
+    assert report.sample_count == (
+        report.supervised_sample_count + report.pseudo_labeled_sample_count
+    )
+    assert report.pseudo_labeling["status"] == "promoted_to_student_training"
+    assert report.pseudo_labeling["promotion_method"] == "supervised_teacher_confidence_filter"
 
 
 def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:
