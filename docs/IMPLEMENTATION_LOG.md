@@ -382,3 +382,11 @@
 - 현재 모델 품질 `overall_status`는 holdout·gold 평가와 consistency 기준 `pass`지만, `service_readiness.overall_status`는 coverage 승인 0건으로 `fail`이다.
 - service readiness는 학습 1,500종목, 평가 500종목, wave별 승인 100종목 gate가 통과될 때만 `pass`가 된다.
 - 이 변경은 현재 모델을 실서비스급으로 과장하지 않기 위한 release guard다.
+
+## 2026-06-05 누락 종목 수집 shard plan
+- `stock_collection_plan.py`를 추가해 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 수집 대상으로 산출한다.
+- `scripts/build_stock_collection_shard_plan.py`는 전 종목 universe와 현재 raw/candidate/gold coverage를 읽어 `data/curation/stock_collection_shard_plan.jsonl`과 `reports/stock-collection-shard-plan.json`을 생성한다.
+- 현재 plan은 1,836개 누락 종목을 19개 shard로 나누고, 9,180개 Naver News Search 쿼리를 만든다.
+- 1,607개 `no_raw_no_candidate` 종목을 229개 `raw_without_candidate` 종목보다 먼저 배치해 실제 데이터가 전혀 없는 종목부터 수집한다.
+- `scripts/collect_training_data.py`는 `--stock-collection-plan`과 `--stock-collection-plan-shard-index`를 받아 특정 shard만 수집할 수 있다.
+- shard 수집 결과도 raw 또는 검수 후보일 뿐이며, 사람 승인 전에는 supervised/gold 데이터로 승격하지 않는다.

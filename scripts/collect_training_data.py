@@ -15,6 +15,9 @@ from hannah_montana_ai.training.collector import (
     should_write_raw_alerts,
     write_jsonl,
 )
+from hannah_montana_ai.training.stock_collection_plan import (
+    load_stock_collection_plan_queries,
+)
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseMatcher,
     attach_stock_metadata,
@@ -46,6 +49,8 @@ def main() -> None:
     parser.add_argument("--stock-universe-path", type=Path, default=DEFAULT_STOCK_UNIVERSE_PATH)
     parser.add_argument("--use-stock-universe-news-queries", action="store_true")
     parser.add_argument("--stock-query-limit", type=int)
+    parser.add_argument("--stock-collection-plan", type=Path)
+    parser.add_argument("--stock-collection-plan-shard-index", type=int)
     args = parser.parse_args()
 
     load_local_env(PROJECT_ROOT / "secrets.local.env")
@@ -58,7 +63,20 @@ def main() -> None:
         raw_alerts.extend(existing_raw_alerts)
     if not args.skip_news:
         news_queries = None
-        if args.use_stock_universe_news_queries:
+        if args.stock_collection_plan:
+            news_queries = list(
+                dict.fromkeys(
+                    [
+                        *NAVER_QUERIES,
+                        *load_stock_collection_plan_queries(
+                            args.stock_collection_plan,
+                            shard_index=args.stock_collection_plan_shard_index,
+                            stock_limit=args.stock_query_limit,
+                        ),
+                    ]
+                )
+            )
+        elif args.use_stock_universe_news_queries:
             news_queries = list(
                 dict.fromkeys(
                     [
@@ -126,10 +144,12 @@ def main() -> None:
         "stock_universe": {
             "path": _report_path(args.stock_universe_path),
             "stock_count": len(stock_universe),
-            "news_query_mode": "stock_universe"
-            if args.use_stock_universe_news_queries
-            else "fixed_seed_queries",
+            "news_query_mode": _news_query_mode(args),
             "stock_query_limit": args.stock_query_limit,
+            "stock_collection_plan": _report_path(args.stock_collection_plan)
+            if args.stock_collection_plan
+            else None,
+            "stock_collection_plan_shard_index": args.stock_collection_plan_shard_index,
             "matched_weak_labeled_stock_count": len(
                 {alert.stock_code for alert in labeled_alerts if alert.stock_code}
             ),
@@ -153,6 +173,14 @@ def _report_path(path: Path) -> str:
         return str(path.resolve().relative_to(PROJECT_ROOT))
     except ValueError:
         return str(path)
+
+
+def _news_query_mode(args: argparse.Namespace) -> str:
+    if args.stock_collection_plan:
+        return "stock_collection_shard_plan"
+    if args.use_stock_universe_news_queries:
+        return "stock_universe"
+    return "fixed_seed_queries"
 
 
 if __name__ == "__main__":

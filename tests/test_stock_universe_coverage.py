@@ -2,6 +2,11 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.training.dataset import LabeledAlert
+from hannah_montana_ai.training.stock_collection_plan import (
+    build_stock_collection_shard_plan,
+    load_stock_collection_plan_queries,
+    write_stock_collection_shard_plan,
+)
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseEntry,
     StockUniverseMatcher,
@@ -35,6 +40,92 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 137
     assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 209
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
+
+
+def test_stock_collection_shard_plan_targets_missing_candidate_coverage() -> None:
+    report = json.loads(Path("reports/stock-collection-shard-plan.json").read_text())
+    rows = _read_jsonl(Path("data/curation/stock_collection_shard_plan.jsonl"))
+
+    assert report["schema_version"] == "stock-collection-shard-report/v1"
+    assert report["row_schema_version"] == "stock-collection-shard-row/v1"
+    assert report["planned_stock_count"] == len(rows)
+    assert report["planned_stock_count"] >= 1_800
+    assert report["shard_size"] == 100
+    assert report["shard_count"] >= 18
+    assert report["planned_query_count"] == report["planned_stock_count"] * len(
+        report["intents"]
+    )
+    assert report["priority_distribution"]["no_raw_no_candidate"] >= 1_500
+    assert all(row["candidate_count"] == 0 for row in rows)
+    assert all(row["training_gold_count"] == 0 for row in rows)
+    assert all(row["evaluation_gold_count"] == 0 for row in rows)
+    assert all(len(row["naver_queries"]) == len(report["intents"]) for row in rows)
+    assert "human_review_approved" in report["collection_policy"]
+
+
+def test_build_stock_collection_shard_plan_prioritizes_no_raw_stocks(
+    tmp_path: Path,
+) -> None:
+    universe_path = tmp_path / "universe.csv"
+    raw_path = tmp_path / "raw.jsonl"
+    candidate_path = tmp_path / "candidate.jsonl"
+    training_path = tmp_path / "training.jsonl"
+    evaluation_path = tmp_path / "evaluation.jsonl"
+    write_stock_universe(
+        universe_path,
+        [
+            StockUniverseEntry("000001", "후보없음"),
+            StockUniverseEntry("000002", "원시있음"),
+            StockUniverseEntry("000003", "검수후보"),
+            StockUniverseEntry("000004", "학습골드"),
+            StockUniverseEntry("000005", "평가골드"),
+        ],
+    )
+    _write_jsonl(raw_path, [_raw_alert("원시있음 실적 개선")])
+    _write_jsonl(candidate_path, [{"stock_code": "000003"}])
+    _write_jsonl(training_path, [_labeled_alert("000004", "학습골드")])
+    _write_jsonl(evaluation_path, [_labeled_alert("000005", "평가골드")])
+
+    result = build_stock_collection_shard_plan(
+        stock_universe_path=universe_path,
+        raw_alert_path=raw_path,
+        candidate_path=candidate_path,
+        training_paths=[training_path],
+        evaluation_paths=[evaluation_path],
+        shard_size=1,
+        intents=("실적", "공시"),
+    )
+
+    assert [row.stock_code for row in result.rows] == ["000001", "000002"]
+    assert [row.priority_bucket for row in result.rows] == [
+        "no_raw_no_candidate",
+        "raw_without_candidate",
+    ]
+    assert [row.shard_index for row in result.rows] == [0, 1]
+    assert result.rows[0].naver_queries == ["후보없음 실적", "후보없음 공시"]
+    assert result.report["planned_query_count"] == 4
+    assert result.report["next_collection_commands"][0].endswith(
+        "--stock-collection-plan-shard-index 0"
+    )
+
+
+def test_load_stock_collection_plan_queries_filters_shard(tmp_path: Path) -> None:
+    plan_path = tmp_path / "plan.jsonl"
+    rows = [
+        _plan_row("000001", shard_index=0, queries=["A 실적", "A 공시"]),
+        _plan_row("000002", shard_index=1, queries=["B 실적", "A 실적"]),
+    ]
+    write_stock_collection_shard_plan(plan_path, rows)
+
+    assert load_stock_collection_plan_queries(plan_path, shard_index=0) == [
+        "A 실적",
+        "A 공시",
+    ]
+    assert load_stock_collection_plan_queries(plan_path) == [
+        "A 실적",
+        "A 공시",
+        "B 실적",
+    ]
 
 
 def test_stock_universe_news_queries_expand_by_stock_intent() -> None:
@@ -155,6 +246,55 @@ def _raw_alert(title: str) -> dict[str, str]:
         "published_at": "2026-06-05T00:00:00+00:00",
         "provider": "test",
     }
+
+
+def _labeled_alert(stock_code: str, stock_name: str) -> dict[str, object]:
+    return {
+        "text": f"{stock_name} 실적 개선",
+        "tags": ["EARNINGS"],
+        "sentiment": "POSITIVE",
+        "importance": "HIGH",
+        "source_type": "NEWS",
+        "stock_code": stock_code,
+        "stock_name": stock_name,
+    }
+
+
+def _plan_row(
+    stock_code: str,
+    shard_index: int,
+    queries: list[str],
+):
+    from hannah_montana_ai.training.stock_collection_plan import (
+        STOCK_COLLECTION_SHARD_ROW_SCHEMA_VERSION,
+        StockCollectionShardRow,
+    )
+
+    return StockCollectionShardRow(
+        schema_version=STOCK_COLLECTION_SHARD_ROW_SCHEMA_VERSION,
+        stock_code=stock_code,
+        stock_name=f"종목{stock_code}",
+        stock_name_en="",
+        market="",
+        dart_corp_code="",
+        collection_priority=10,
+        priority_bucket="no_raw_no_candidate",
+        shard_index=shard_index,
+        shard_size=1,
+        raw_match_count=0,
+        candidate_count=0,
+        training_gold_count=0,
+        evaluation_gold_count=0,
+        naver_queries=queries,
+    )
+
+
+def _read_jsonl(path: Path) -> list[dict[str, object]]:
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
 
 def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:

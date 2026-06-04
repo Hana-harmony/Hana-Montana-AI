@@ -30,6 +30,7 @@
 - OpenDART 고유번호 기반 국내주식 universe 3,967개 추적 완료
 - stock coverage report로 raw, training, evaluation 종목 커버리지 계측 완료
 - Naver News Search 수집기를 stock universe 기반 쿼리 모드로 확장 완료
+- 후보 큐와 gold가 없는 1,836개 누락 종목을 19개 shard로 나누는 수집 plan 완료
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 6,244건, 2,127개 종목 생성 완료
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 523건, 523개 종목을 event-model-only pseudo-label로 제한 승격 완료
 - stock candidate quota experiment로 이전 release, risk/contract 확장, calibrated current release의 gold gate 결과 기록 완료

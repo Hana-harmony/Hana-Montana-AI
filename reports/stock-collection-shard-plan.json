@@ -1,0 +1,71 @@
+{
+  "schema_version": "stock-collection-shard-report/v1",
+  "row_schema_version": "stock-collection-shard-row/v1",
+  "generated_at": "2026-06-04T20:50:36.980609+00:00",
+  "stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "raw_alert_path": "data/raw/collected_alerts.jsonl",
+  "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
+  "training_paths": [
+    "data/training/financial_alert_corpus.jsonl",
+    "data/training/financial_alert_augmented.jsonl",
+    "data/training/financial_alert_news_style_augmented.jsonl",
+    "data/training/financial_alert_real_news_gold.jsonl",
+    "data/training/financial_alert_stock_review_gold.jsonl"
+  ],
+  "evaluation_paths": [
+    "data/evaluation/financial_alert_eval.jsonl",
+    "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+    "data/evaluation/financial_alert_real_news_gold.jsonl",
+    "data/evaluation/financial_alert_stock_review_gold.jsonl"
+  ],
+  "universe_count": 3967,
+  "raw_matched_stock_count": 2356,
+  "candidate_stock_count": 2127,
+  "training_gold_stock_count": 38,
+  "evaluation_gold_stock_count": 57,
+  "planned_stock_count": 1836,
+  "planned_query_count": 9180,
+  "shard_size": 100,
+  "shard_count": 19,
+  "stock_limit": null,
+  "intents": [
+    "실적",
+    "공시",
+    "수주",
+    "유상증자",
+    "거래정지"
+  ],
+  "priority_distribution": {
+    "no_raw_no_candidate": 1607,
+    "raw_without_candidate": 229
+  },
+  "shard_distribution": {
+    "0": 100,
+    "1": 100,
+    "2": 100,
+    "3": 100,
+    "4": 100,
+    "5": 100,
+    "6": 100,
+    "7": 100,
+    "8": 100,
+    "9": 100,
+    "10": 100,
+    "11": 100,
+    "12": 100,
+    "13": 100,
+    "14": 100,
+    "15": 100,
+    "16": 100,
+    "17": 100,
+    "18": 36
+  },
+  "next_collection_commands": [
+    "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 0",
+    "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 1",
+    "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 2",
+    "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 3",
+    "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 4"
+  ],
+  "collection_policy": "plan targets stocks without supervised gold, evaluation gold, or candidate queue rows; collected rows remain raw or review candidates until human_review_approved"
+}
