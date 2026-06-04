@@ -39,6 +39,7 @@ docker run --rm --network hana-internal hannah-montana-ai
 ```bash
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
+uv run python scripts/build_stock_collection_shard_plan.py
 uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/validate_stock_gold_review_batch.py
@@ -53,6 +54,15 @@ uv run python scripts/collect_training_data.py \
   --use-stock-universe-news-queries \
   --stock-query-limit 200
 ```
+- 누락 종목 우선 shard 수집은 아래 순서로 실행한다. shard plan은 supervised/evaluation gold와 후보 큐가 모두 비어 있는 종목을 먼저 골라 Naver 쿼리 묶음으로 만든다.
+```bash
+uv run python scripts/build_stock_collection_shard_plan.py
+uv run python scripts/collect_training_data.py \
+  --reuse-existing-raw \
+  --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl \
+  --stock-collection-plan-shard-index 0
+```
+- `reports/stock-collection-shard-plan.json`은 현재 누락 후보 1,836개 종목, 19개 shard, 9,180개 Naver 쿼리를 기록한다.
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`은 후보 큐에서 뽑은 사람 검수용 배치다.
@@ -71,6 +81,7 @@ uv run python scripts/collect_training_data.py \
 ```bash
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
+uv run python scripts/build_stock_collection_shard_plan.py
 uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/validate_stock_gold_review_batch.py
@@ -101,6 +112,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
 - 현재 event model pseudo training coverage는 523건, 523개 종목이며 supervised gold coverage로 간주하지 않는다.
+- `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
+- 현재 shard plan은 1,607개 `no_raw_no_candidate` 종목과 229개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 이전 release 464건/464종목, risk/contract 확장 644건/470종목, calibrated current release 523건/523종목 profile이 모두 gate를 통과했음을 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.

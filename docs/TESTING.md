@@ -57,6 +57,7 @@ uv run python scripts/train_stock_linker_model.py
 - stock linker ML artifact가 전 종목코드와 trainable 종목명 템플릿 기준 정확도를 통과하는지 검증
 - stock linker ML artifact 누락·손상 시 명시적 오류를 반환하는지 검증
 - 종목 universe 기반 Naver 수집 쿼리 생성과 coverage report 산출 검증
+- 누락 종목 우선 stock collection shard plan이 candidate/gold가 없는 종목을 먼저 수집 대상으로 잡는지 검증
 - 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 학습 300개 종목, 평가 100개 종목 검수 배치가 라벨 균형과 학습·평가 종목 분리 조건을 만족하고 `needs_human_review` 상태인지 검증
 - 검수 validation report가 현재 승인 0건 상태를 `fail`로 기록하고, 승인 가능 row가 목표치를 채우면 `pass`가 되는지 검증
@@ -88,6 +89,8 @@ uv run python scripts/train_stock_linker_model.py
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 4,845건, teacher 탈락 3,124건, quota 보류 838건, 최종 승격 883건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 2,356개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 523건, 523개 종목도 별도 섹션으로 기록한다.
+- `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 1,836개 종목, 19개 shard, 9,180개 Naver 쿼리를 기록한다.
+- stock collection shard plan은 1,607개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 이전 release 464건/464종목, risk/contract 확장 644건/470종목, calibrated current release 523건/523종목을 함께 기록한다.
 - `reports/stock-training-candidate-report.json`은 검수 대기 후보 6,244건, 2,127개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목, 평가 검수 배치 100개 종목, 학습·평가 종목 disjoint check를 `pass`로 기록한다.
