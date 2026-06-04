@@ -34,5 +34,6 @@
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
 - 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
 - 검수 배치 승인 가능 종목 수를 계측하는 validation report 완료
+- 모델 제안·불확실성 기반 active review report 완료
 - raw 후보는 2,356개 종목까지 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 57개라 coverage gate는 아직 fail이다.
 - 다음 단계는 검수 배치를 사람이 승인해 gold/supervised 데이터에 승격하고 최소 300개 이상 종목의 supervised 학습셋과 100개 이상 종목의 evaluation gold를 확보하는 것이다.

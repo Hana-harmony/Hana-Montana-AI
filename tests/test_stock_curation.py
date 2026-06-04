@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from hannah_montana_ai.training.active_review import build_stock_gold_active_review_report
 from hannah_montana_ai.training.stock_curation import (
     build_stock_gold_review_batches,
     build_stock_training_candidates,
@@ -188,6 +189,39 @@ def test_stock_gold_review_validation_report_tracks_current_blocker() -> None:
     assert report["approval_requirements"]["required_status"] == (
         "human_review_approved"
     )
+
+
+def test_stock_gold_active_review_report_prioritizes_model_disagreement() -> None:
+    report = json.loads(Path("reports/stock-gold-active-review-report.json").read_text())
+    top_training_rows = report["training_review"]["top_priority_rows"]
+    top_evaluation_rows = report["evaluation_review"]["top_priority_rows"]
+
+    assert report["schema_version"] == "stock-gold-active-review-report/v1"
+    assert report["training_review"]["review_row_count"] == 300
+    assert report["evaluation_review"]["review_row_count"] == 100
+    assert len(top_training_rows) == 50
+    assert len(top_evaluation_rows) == 50
+    assert top_training_rows[0]["review_priority_score"] >= top_training_rows[-1][
+        "review_priority_score"
+    ]
+    assert top_training_rows[0]["suggested_tags"]
+    assert "reviewer assistance only" in report["review_policy"]
+
+
+def test_build_stock_gold_active_review_report_can_limit_top_rows() -> None:
+    report = build_stock_gold_active_review_report(
+        training_review_path=Path("data/curation/stock_gold_training_review_batch.jsonl"),
+        evaluation_review_path=Path(
+            "data/curation/stock_gold_evaluation_review_batch.jsonl"
+        ),
+        model_path=Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"),
+        top_n_per_split=3,
+    )
+
+    assert len(report["training_review"]["top_priority_rows"]) == 3
+    assert len(report["evaluation_review"]["top_priority_rows"]) == 3
+    assert report["training_review"]["disagreement_count_by_reason"]
+    assert report["model_version"].startswith("financial-ml-tfidf-logreg-")
 
 
 def test_validate_stock_gold_review_batches_passes_when_targets_are_eligible(

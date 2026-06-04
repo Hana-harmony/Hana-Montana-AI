@@ -57,25 +57,51 @@ class MachineLearningFinancialNlpModel:
             raise ModelArtifactInvalidError(message)
 
     def predict_event_tags(self, text: str, source_type: str) -> list[str]:
-        probabilities = self.event_model.predict_proba([_event_text(text, source_type)])[0]
-        classes = list(self.event_binarizer.classes_)
+        probability_by_label = self.event_tag_probabilities(text, source_type)
         tags = [
-            str(label)
-            for label, probability in zip(classes, probabilities, strict=True)
+            label
+            for label, probability in probability_by_label.items()
             if probability >= self.event_label_thresholds.get(
-                str(label),
+                label,
                 self.event_probability_threshold,
             )
         ]
         if tags:
             return sorted(tags)
 
-        top_index = int(max(range(len(probabilities)), key=lambda index: probabilities[index]))
-        return [str(classes[top_index])] if classes else ["GENERAL_MARKET"]
+        if not probability_by_label:
+            return ["GENERAL_MARKET"]
+        return [max(probability_by_label.items(), key=lambda item: item[1])[0]]
+
+    def event_tag_probabilities(self, text: str, source_type: str) -> dict[str, float]:
+        probabilities = self.event_model.predict_proba([_event_text(text, source_type)])[0]
+        classes = list(self.event_binarizer.classes_)
+        return {
+            str(label): float(probability)
+            for label, probability in zip(classes, probabilities, strict=True)
+        }
 
     def classify_sentiment(self, text: str) -> Sentiment:
         return cast(Sentiment, self.sentiment_model.predict([text])[0])
 
+    def sentiment_probabilities(self, text: str) -> dict[str, float]:
+        probabilities = self.sentiment_model.predict_proba([text])[0]
+        classes = list(self.sentiment_model.classes_)
+        return {
+            str(label): float(probability)
+            for label, probability in zip(classes, probabilities, strict=True)
+        }
+
     def classify_importance(self, text: str, source_type: str) -> Importance:
         prediction = self.importance_model.predict([_importance_text(text, source_type)])[0]
         return cast(Importance, prediction)
+
+    def importance_probabilities(self, text: str, source_type: str) -> dict[str, float]:
+        probabilities = self.importance_model.predict_proba(
+            [_importance_text(text, source_type)]
+        )[0]
+        classes = list(self.importance_model.classes_)
+        return {
+            str(label): float(probability)
+            for label, probability in zip(classes, probabilities, strict=True)
+        }

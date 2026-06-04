@@ -1,0 +1,210 @@
+from __future__ import annotations
+
+import json
+from collections import Counter
+from collections.abc import Iterable, Sequence
+from pathlib import Path
+from typing import Any
+
+from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
+
+STOCK_GOLD_ACTIVE_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-active-review-report/v1"
+
+
+def build_stock_gold_active_review_report(
+    training_review_path: Path,
+    evaluation_review_path: Path,
+    model_path: Path,
+    top_n_per_split: int = 50,
+) -> dict[str, Any]:
+    model = MachineLearningFinancialNlpModel(model_path)
+    training_rows = _load_jsonl(training_review_path)
+    evaluation_rows = _load_jsonl(evaluation_review_path)
+    training_suggestions = _build_split_suggestions(
+        rows=training_rows,
+        split="training",
+        model=model,
+        top_n=top_n_per_split,
+    )
+    evaluation_suggestions = _build_split_suggestions(
+        rows=evaluation_rows,
+        split="evaluation",
+        model=model,
+        top_n=top_n_per_split,
+    )
+    return {
+        "schema_version": STOCK_GOLD_ACTIVE_REVIEW_REPORT_SCHEMA_VERSION,
+        "model_version": model.version,
+        "model_path": _report_path(model_path),
+        "top_n_per_split": top_n_per_split,
+        "training_review": training_suggestions,
+        "evaluation_review": evaluation_suggestions,
+        "review_policy": (
+            "model suggestions are reviewer assistance only and are not promoted "
+            "without human_review_approved final labels"
+        ),
+    }
+
+
+def write_stock_gold_active_review_report(path: Path, report: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _build_split_suggestions(
+    rows: Sequence[dict[str, Any]],
+    split: str,
+    model: MachineLearningFinancialNlpModel,
+    top_n: int,
+) -> dict[str, Any]:
+    suggestions = [_suggest_review_row(row, split, model) for row in rows]
+    ranked = sorted(
+        suggestions,
+        key=lambda row: (
+            -float(row["review_priority_score"]),
+            str(row["stock_code"]),
+            str(row["review_key"]),
+        ),
+    )
+    disagreement_counter = Counter(
+        reason
+        for row in suggestions
+        for reason in row["disagreement_reasons"]
+    )
+    return {
+        "review_row_count": len(rows),
+        "suggestion_count": len(suggestions),
+        "top_priority_rows": ranked[:top_n],
+        "disagreement_count_by_reason": dict(sorted(disagreement_counter.items())),
+        "average_review_priority_score": _average(
+            float(row["review_priority_score"]) for row in suggestions
+        ),
+    }
+
+
+def _suggest_review_row(
+    row: dict[str, Any],
+    split: str,
+    model: MachineLearningFinancialNlpModel,
+) -> dict[str, Any]:
+    text = str(row["text"])
+    source_type = str(row["source_type"])
+    event_scores = model.event_tag_probabilities(text, source_type)
+    suggested_tags = model.predict_event_tags(text, source_type)
+    sentiment_scores = model.sentiment_probabilities(text)
+    suggested_sentiment, sentiment_confidence = _top_label(sentiment_scores)
+    importance_scores = model.importance_probabilities(text, source_type)
+    suggested_importance, importance_confidence = _top_label(importance_scores)
+    event_top_label, event_confidence = _top_label(event_scores)
+    event_margin = _top_margin(event_scores)
+    original_tags = {str(tag) for tag in row.get("tags", [])}
+    suggested_tag_set = set(suggested_tags)
+    disagreement_reasons = _disagreement_reasons(
+        original_tags=original_tags,
+        suggested_tags=suggested_tag_set,
+        original_sentiment=str(row["sentiment"]),
+        suggested_sentiment=suggested_sentiment,
+        original_importance=str(row["importance"]),
+        suggested_importance=suggested_importance,
+    )
+    priority_score = _review_priority_score(
+        disagreement_count=len(disagreement_reasons),
+        event_confidence=event_confidence,
+        event_margin=event_margin,
+        sentiment_confidence=sentiment_confidence,
+        importance_confidence=importance_confidence,
+        signal_score=int(row.get("signal_score", 0) or 0),
+    )
+    return {
+        "review_key": row["review_key"],
+        "intended_split": split,
+        "stock_code": row["stock_code"],
+        "stock_name": row["stock_name"],
+        "source_type": source_type,
+        "primary_label": row["primary_label"],
+        "original_tags": sorted(original_tags),
+        "suggested_tags": suggested_tags,
+        "suggested_sentiment": suggested_sentiment,
+        "suggested_importance": suggested_importance,
+        "event_top_label": event_top_label,
+        "event_confidence": round(event_confidence, 6),
+        "event_margin": round(event_margin, 6),
+        "sentiment_confidence": round(sentiment_confidence, 6),
+        "importance_confidence": round(importance_confidence, 6),
+        "disagreement_reasons": disagreement_reasons,
+        "review_priority_score": round(priority_score, 6),
+        "original_url": row["original_url"],
+    }
+
+
+def _disagreement_reasons(
+    original_tags: set[str],
+    suggested_tags: set[str],
+    original_sentiment: str,
+    suggested_sentiment: str,
+    original_importance: str,
+    suggested_importance: str,
+) -> list[str]:
+    reasons: list[str] = []
+    if not original_tags.intersection(suggested_tags):
+        reasons.append("event_tag_disagreement")
+    if original_sentiment != suggested_sentiment:
+        reasons.append("sentiment_disagreement")
+    if original_importance != suggested_importance:
+        reasons.append("importance_disagreement")
+    return reasons
+
+
+def _review_priority_score(
+    disagreement_count: int,
+    event_confidence: float,
+    event_margin: float,
+    sentiment_confidence: float,
+    importance_confidence: float,
+    signal_score: int,
+) -> float:
+    uncertainty_score = (
+        (1.0 - event_confidence) * 35.0
+        + (1.0 - event_margin) * 25.0
+        + (1.0 - sentiment_confidence) * 20.0
+        + (1.0 - importance_confidence) * 20.0
+    )
+    return disagreement_count * 100.0 + uncertainty_score + min(signal_score, 10) * 2.0
+
+
+def _top_label(scores: dict[str, float]) -> tuple[str, float]:
+    if not scores:
+        return "", 0.0
+    label, score = max(scores.items(), key=lambda item: item[1])
+    return label, score
+
+
+def _top_margin(scores: dict[str, float]) -> float:
+    if len(scores) < 2:
+        return 1.0
+    ordered_scores = sorted(scores.values(), reverse=True)
+    return max(0.0, ordered_scores[0] - ordered_scores[1])
+
+
+def _average(values: Iterable[float]) -> float:
+    collected_values = list(values)
+    if not collected_values:
+        return 0.0
+    return sum(collected_values) / len(collected_values)
+
+
+def _load_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def _report_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(path)
