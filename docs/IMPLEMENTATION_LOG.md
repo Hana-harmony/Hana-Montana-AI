@@ -278,3 +278,11 @@
 - 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
 - 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9375, macro F1 0.9217, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
 - release report는 weak-label 승격 수 360건과 종목 후보 승격 수 400건을 분리해 기록한다.
+
+## 2026-06-05 내부 국내주식 universe 기반 종목 매핑
+- 분석 API가 요청 `stock_universe`만으로 종목을 찾던 구조를 내부 `data/reference/korea_stock_universe.csv` fallback 구조로 바꿨다.
+- 요청 후보 종목은 우선 적용하고, 같은 종목코드가 없는 종목은 내부 universe master에서 종목코드, 한글명, 영문명, alias로 매핑한다.
+- `AlertAnalysisRequest.stock_universe`는 API payload 크기를 제한하기 위해 50개 이하 후보로 유지한다.
+- 요청 후보가 비어 있어도 삼성전자 같은 국내주식을 내부 universe로 매핑하는 API 회귀 테스트를 추가했다.
+- 내부 universe 3,967개 전체 종목의 6자리 종목코드가 종목 매핑 경로에서 누락 없이 매칭되는지 테스트한다.
+- 이 변경은 supervised/gold coverage를 통과시킨 것이 아니라, 전 종목 서비스 입력을 처리하기 위한 종목 master fallback을 추가한 것이다.

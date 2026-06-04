@@ -40,6 +40,29 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert "EARNINGS" in payload["event_tags"]
 
 
+def test_analyze_alert_uses_internal_stock_universe_when_request_candidates_are_empty() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "삼성전자 2분기 영업이익 증가",
+            "snippet": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+            "original_url": "https://example.com/news/internal-stock-universe",
+            "stock_universe": [],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["stock_code"] == "005930"
+    assert payload["stock_name"] == "삼성전자"
+
+
 def test_analyze_alert_writes_structured_audit_log_without_raw_content(caplog) -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()

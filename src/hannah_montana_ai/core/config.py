@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class Settings(BaseModel):
     model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
+    stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
 
 
 @lru_cache

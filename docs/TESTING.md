@@ -23,6 +23,7 @@ uv run python scripts/build_stock_training_candidate_queue.py
 - 분석 API 정상 응답
 - health endpoint 정상 응답
 - 분석 API의 종목 매핑, 감성, 이벤트 태그 응답
+- 요청 후보가 비어 있어도 내부 국내주식 universe master로 종목을 매핑하는지 검증
 - 수집·증강 데이터 기반 ML artifact 생성
 - 약지도 대량 후보 distillation 필터와 노이즈 제거
 - supervised teacher confidence gate를 통과한 pseudo-label 승격 학습
@@ -43,6 +44,7 @@ uv run python scripts/build_stock_training_candidate_queue.py
 - 분석 API 성공·실패 audit log와 원문 비노출
 - 외부 provider credential 누락 시 값 비노출 오류와 네트워크 호출 전 fail-fast
 - 국내주식 universe 파일이 3,000개 이상 공개 종목 메타데이터를 포함하는지 검증
+- 내부 universe master의 전체 6자리 종목코드가 종목 매핑 경로에서 누락 없이 매칭되는지 검증
 - 종목 universe 기반 Naver 수집 쿼리 생성과 coverage report 산출 검증
 - 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
