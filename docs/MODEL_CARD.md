@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260604210928`
+`financial-ml-tfidf-logreg-20260604212852`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -37,24 +37,24 @@
 - curated gold benchmark: `data/evaluation/financial_alert_eval.jsonl`
 - 사람이 검수한 실공시 gold: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 사람이 검수한 실제 뉴스 평가 gold: `data/evaluation/financial_alert_real_news_gold.jsonl`
-- 이번 artifact 학습 샘플 수: 4,509
+- 이번 artifact 학습 샘플 수: 4,527
 - supervised 학습 샘플 수: 3,609
-- teacher-gated pseudo-label 학습 샘플 수: 900
-- 실제 수집 raw 총량: 40,907건
+- teacher-gated pseudo-label 학습 샘플 수: 918
+- 실제 수집 raw 총량: 43,269건
 - 실제 수집 원천: OpenDART 공시검색 25,966건
-- 실제 수집 원천: Naver News Search 14,941건
+- 실제 수집 원천: Naver News Search 17,303건
 - 합성 증강 샘플 수: 1,656건
 - 뉴스 제목체 증강 샘플 수: 1,872건
 - 실제 뉴스 학습 gold 샘플 수: 63건
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
 - 실제 뉴스 gold 샘플 수: 80건
-- 약지도 후보 수: 40,907건
-- distillation 통과 후보 수: 4,893건
-- teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 900건
+- 약지도 후보 수: 43,269건
+- distillation 통과 후보 수: 4,925건
+- teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 918건
 - weak-label distillation 승격 수: 360건
-- 종목 후보 큐 승격 수: 540건
-- 종목 후보 큐 승격 종목 수: 540개
+- 종목 후보 큐 승격 수: 558건
+- 종목 후보 큐 승격 종목 수: 558개
 - 수집기는 429 rate limit과 5xx 장애에 대해 재시도와 지수 백오프를 수행한다.
 - 수집 실패로 새 결과가 기존 raw 수보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
 - 수집 raw와 약지도 라벨은 학습 재현성 때문에 커밋하지만, 외부 API 키와 비공개 credential은 포함하지 않는다.
@@ -85,9 +85,9 @@
 - stock linker ML 학습 데이터: `data/training/stock_linker_training.jsonl`
 - stock linker ML artifact: `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`
 - stock linker 학습 리포트: `reports/stock-linker-training-report.json`
-- raw 후보에서 보수적 종목명·종목코드 매칭으로 확인한 종목 수: 2,528개
-- 학습 승격 후보 큐 샘플 수: 7,490건
-- 학습 승격 후보 큐 종목 수: 2,314개
+- raw 후보에서 보수적 종목명·종목코드 매칭으로 확인한 종목 수: 2,666개
+- 학습 승격 후보 큐 샘플 수: 8,291건
+- 학습 승격 후보 큐 종목 수: 2,456개
 - 학습 gold 검수 배치 종목 수: 300개
 - 평가 gold 검수 배치 종목 수: 100개
 - coverage review plan 학습 목표 종목 수: 1,500개
@@ -139,9 +139,9 @@
 - 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.42, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.36, `GENERAL_MARKET` 0.34, `MACRO` 0.38, `RISK` 0.50을 label별 calibration했다.
 - 학습 시 검수·균형 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
 - 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건을 이벤트 모델 학습에 승격했다.
-- 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 152건, `CONTRACT` 200건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 41건, `EARNINGS` 14건, `MACRO` 13건을 이벤트 모델 학습에 추가했다.
-- 종목 후보의 per-stock quota는 1건으로 제한해 540건이 540개 종목에 분산되도록 했다.
-- `stock-candidate-quota-experiment`에서 이전 490건/490종목, risk/contract 확장 667건/493종목, calibrated current release 540건/540종목 profile은 모두 release gate를 통과했고, current release는 종목 수와 라벨 다양성을 우선해 선택했다.
+- 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 164건, `CONTRACT` 204건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 43건, `EARNINGS` 14건, `MACRO` 13건을 이벤트 모델 학습에 추가했다.
+- 종목 후보의 per-stock quota는 1건으로 제한해 558건이 558개 종목에 분산되도록 했다.
+- `stock-candidate-quota-experiment`에서 이전 500건/500종목, risk/contract 확장 693건/516종목, calibrated current release 558건/558종목 profile은 모두 release gate를 통과했고, current release는 종목 수와 라벨 다양성을 우선해 선택했다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
 
 ## Holdout 검증 결과
@@ -158,8 +158,8 @@
 ## Gold 평가 결과
 - 위치: `reports/ml-model-evaluation.json`
 - 평가 샘플 수: 768
-- 이벤트 태그 recall: 0.9909
-- 이벤트 태그 macro F1: 0.9968
+- 이벤트 태그 recall: 1.0
+- 이벤트 태그 macro F1: 1.0
 - 감성 accuracy: 1.0
 - 중요도 accuracy: 0.9375
 - 종목 매핑 accuracy: 1.0
@@ -169,7 +169,7 @@
 - 위치: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 평가 샘플 수: 30
 - 이벤트 태그 recall: 1.0
-- 이벤트 태그 macro F1: 0.9846
+- 이벤트 태그 macro F1: 1.0
 - 감성 accuracy: 1.0
 - 중요도 accuracy: 0.9667
 - 종목 매핑 accuracy: 1.0
@@ -177,8 +177,8 @@
 ## 실제 뉴스 Gold 평가 결과
 - 위치: `data/evaluation/financial_alert_real_news_gold.jsonl`
 - 평가 샘플 수: 80
-- 이벤트 태그 recall: 0.9375
-- 이벤트 태그 macro F1: 0.9180
+- 이벤트 태그 recall: 0.9625
+- 이벤트 태그 macro F1: 0.9217
 - 감성 accuracy: 0.9125
 - 중요도 accuracy: 0.9250
 - 종목 매핑 accuracy: 1.0
@@ -187,16 +187,16 @@
 - 위치: `reports/model-confidence-calibration.json`
 - benchmark 샘플 수: 768
 - benchmark 이벤트 멀티라벨 결정 수: 6,144
-- benchmark 이벤트 expected calibration error: 0.067578
-- benchmark 이벤트 Brier score: 0.010911
+- benchmark 이벤트 expected calibration error: 0.067869
+- benchmark 이벤트 Brier score: 0.011028
 - benchmark 감성 top confidence ECE: 0.149164
 - benchmark 중요도 top confidence ECE: 0.118967
-- 실제 뉴스 gold 이벤트 expected calibration error: 0.120075
+- 실제 뉴스 gold 이벤트 expected calibration error: 0.118749
 - confidence 리포트는 고신뢰 오답을 따로 기록해 운영 알림 노출 전 threshold 재보정과 human review 우선순위 판단에 사용한다.
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260604210928`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260604212852`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -205,19 +205,19 @@
 
 ## Pseudo-label promotion gate
 - 위치: `reports/pseudo-label-promotion-monitoring.json`
-- 40,907건 raw 후보 중 4,893건이 고신호 후보로 남았다.
-- teacher confidence 또는 weak-label 합의 기준에서 3,289건이 탈락했다.
+- 43,269건 raw 후보 중 4,925건이 고신호 후보로 남았다.
+- teacher confidence 또는 weak-label 합의 기준에서 3,395건이 탈락했다.
 - weak-label distillation에서는 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건을 student 이벤트 모델 학습에 승격했다.
-- 종목 후보 큐에서는 `RISK` 152건, `CONTRACT` 200건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 41건, `EARNINGS` 14건, `MACRO` 13건을 teacher gate로 추가 승격했다.
+- 종목 후보 큐에서는 `RISK` 164건, `CONTRACT` 204건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 43건, `EARNINGS` 14건, `MACRO` 13건을 teacher gate로 추가 승격했다.
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 gold gate 실험 전까지 quota 0으로 유지한다.
 
 ## 한계
 - Naver 뉴스 gold set을 80건으로 확대하고 종목코드 30개를 포함했지만, 분기별 증분 수집과 업종별 샘플 균형은 계속 관리해야 한다.
 - 국내주식 universe 3,967개를 추적하지만 현재 artifact의 supervised 학습 종목 커버리지는 38개라 전 종목급 실서비스 모델로 보기에는 부족하다.
-- raw 후보는 2,528개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 supervised/gold 데이터로 승격하는 것이다.
-- 후보 큐는 2,314개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로 gold label로 직접 사용하지 않는다.
+- raw 후보는 2,666개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 supervised/gold 데이터로 승격하는 것이다.
+- 후보 큐는 2,456개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로 gold label로 직접 사용하지 않는다.
 - coverage review plan은 2,000개 종목의 검수 과제를 만들지만 아직 검수자 승인이 없으므로 supervised coverage gate를 통과시키지 않는다.
-- 현재 artifact는 후보 큐 중 540개 종목의 540건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
+- 현재 artifact는 후보 큐 중 558개 종목의 558건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
 - 약지도 라벨은 대규모 bootstrapping 용도이며, teacher confidence gate를 통과한 일부 후보만 artifact 이벤트 모델 학습에 투입한다.
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 `RISK`, `CONTRACT`, `CORPORATE_ACTION`처럼 gold gate를 유지한 라벨만 승격했다. 다른 라벨은 후보는 존재하지만 현재 artifact 학습에는 투입하지 않는다.

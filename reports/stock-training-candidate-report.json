@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 40907,
+  "raw_alert_count": 43269,
   "universe_count": 3967,
-  "candidate_count": 7490,
-  "candidate_stock_count": 2314,
-  "candidate_coverage_ratio": 0.5833123266952357,
+  "candidate_count": 8291,
+  "candidate_stock_count": 2456,
+  "candidate_coverage_ratio": 0.6191076380136123,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2314,
+    "actual_stock_count": 2456,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 1349,
-    "CONTRACT": 956,
-    "CORPORATE_ACTION": 609,
-    "DISCLOSURE": 2612,
-    "EARNINGS": 945,
-    "MACRO": 277,
-    "RISK": 742
+    "CAPITAL_ACTION": 1538,
+    "CONTRACT": 1156,
+    "CORPORATE_ACTION": 679,
+    "DISCLOSURE": 2632,
+    "EARNINGS": 1062,
+    "MACRO": 298,
+    "RISK": 926
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4599,
-    "NEWS": 2891
+    "DISCLOSURE": 4566,
+    "NEWS": 3725
   },
   "sentiment_distribution": {
-    "NEGATIVE": 188,
-    "NEUTRAL": 5212,
-    "POSITIVE": 2090
+    "NEGATIVE": 221,
+    "NEUTRAL": 5648,
+    "POSITIVE": 2422
   },
   "importance_distribution": {
-    "CRITICAL": 466,
-    "HIGH": 6192,
-    "LOW": 104,
-    "MEDIUM": 728
+    "CRITICAL": 563,
+    "HIGH": 6718,
+    "LOW": 140,
+    "MEDIUM": 870
   },
   "top_candidate_stocks": [
     {
@@ -82,8 +82,23 @@
       "candidate_count": 14
     },
     {
+      "stock_code": "105560",
+      "stock_name": "KB금융",
+      "candidate_count": 14
+    },
+    {
       "stock_code": "010140",
       "stock_name": "삼성중공업",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "035420",
+      "stock_name": "NAVER",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "267250",
+      "stock_name": "HD현대",
       "candidate_count": 13
     },
     {
@@ -92,8 +107,23 @@
       "candidate_count": 13
     },
     {
+      "stock_code": "353200",
+      "stock_name": "대덕전자",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "452400",
+      "stock_name": "이닉스",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "000720",
       "stock_name": "현대건설",
+      "candidate_count": 12
+    },
+    {
+      "stock_code": "001720",
+      "stock_name": "신영증권",
       "candidate_count": 12
     },
     {
@@ -107,46 +137,16 @@
       "candidate_count": 12
     },
     {
-      "stock_code": "005940",
-      "stock_name": "NH투자증권",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "035420",
-      "stock_name": "NAVER",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "069620",
-      "stock_name": "대웅제약",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "105560",
-      "stock_name": "KB금융",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "267250",
-      "stock_name": "HD현대",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "353200",
-      "stock_name": "대덕전자",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "452400",
-      "stock_name": "이닉스",
+      "stock_code": "003490",
+      "stock_name": "대한항공",
       "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3450,
-    "low_signal": 2969,
-    "stock_not_matched": 17316
+    "general_market_not_stock_specific": 3567,
+    "low_signal": 3384,
+    "stock_not_matched": 17692
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }

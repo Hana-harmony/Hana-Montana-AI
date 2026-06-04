@@ -2,8 +2,8 @@
   "schema_version": "stock-gold-review-report/v1",
   "batch_schema_version": "stock-gold-review-batch/v1",
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
-  "candidate_count": 7490,
-  "candidate_stock_count": 2314,
+  "candidate_count": 8291,
+  "candidate_stock_count": 2456,
   "existing_training_stock_count": 38,
   "existing_evaluation_stock_count": 57,
   "training_review": {
@@ -21,8 +21,8 @@
       "RISK": 43
     },
     "source_type_distribution": {
-      "DISCLOSURE": 73,
-      "NEWS": 227
+      "DISCLOSURE": 63,
+      "NEWS": 237
     },
     "review_status": "needs_human_review"
   },
@@ -41,8 +41,8 @@
       "RISK": 15
     },
     "source_type_distribution": {
-      "DISCLOSURE": 32,
-      "NEWS": 68
+      "DISCLOSURE": 28,
+      "NEWS": 72
     },
     "review_status": "needs_human_review"
   },
