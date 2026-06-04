@@ -107,8 +107,8 @@ PSEUDO_LABEL_QUOTAS = {
     "GENERAL_MARKET": 0,
 }
 STOCK_CANDIDATE_LABEL_QUOTAS = {
-    "RISK": 250,
-    "CONTRACT": 250,
+    "RISK": 500,
+    "CONTRACT": 500,
     "CAPITAL_ACTION": 0,
     "CORPORATE_ACTION": 0,
     "EARNINGS": 0,
@@ -116,7 +116,7 @@ STOCK_CANDIDATE_LABEL_QUOTAS = {
     "DISCLOSURE": 0,
     "GENERAL_MARKET": 0,
 }
-STOCK_CANDIDATE_PER_STOCK_QUOTA = 1
+STOCK_CANDIDATE_PER_STOCK_QUOTA = 2
 EVENT_PROBABILITY_THRESHOLD = 0.30
 EVENT_LABEL_THRESHOLDS = {
     "CONTRACT": 0.34,
@@ -193,11 +193,26 @@ class PseudoLabelPromotionResult:
     report: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class StockCandidatePromotionConfig:
+    label_quotas: dict[str, int]
+    per_stock_quota: int
+
+
+DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG = StockCandidatePromotionConfig(
+    label_quotas=STOCK_CANDIDATE_LABEL_QUOTAS,
+    per_stock_quota=STOCK_CANDIDATE_PER_STOCK_QUOTA,
+)
+
+
 def train_ml_model(
     training_paths: list[Path],
     model_path: Path,
     pseudo_label_path: Path | None = None,
     stock_candidate_path: Path | None = None,
+    stock_candidate_config: StockCandidatePromotionConfig = (
+        DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG
+    ),
 ) -> MlTrainingReport:
     supervised_samples = _load_samples(training_paths)
     if len(supervised_samples) < 30:
@@ -208,6 +223,7 @@ def train_ml_model(
         supervised_samples,
         pseudo_label_path,
         stock_candidate_path,
+        stock_candidate_config,
     )
     samples = [*supervised_samples, *pseudo_label_result.samples]
 
@@ -324,6 +340,9 @@ def _promote_pseudo_labels(
     supervised_samples: Sequence[LabeledAlert],
     pseudo_label_path: Path | None,
     stock_candidate_path: Path | None = None,
+    stock_candidate_config: StockCandidatePromotionConfig = (
+        DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG
+    ),
 ) -> PseudoLabelPromotionResult:
     if pseudo_label_path is None:
         base_result = PseudoLabelPromotionResult(
@@ -334,6 +353,7 @@ def _promote_pseudo_labels(
             supervised_samples,
             base_result,
             stock_candidate_path,
+            stock_candidate_config,
         )
     if not pseudo_label_path.exists():
         base_result = PseudoLabelPromotionResult(
@@ -348,6 +368,7 @@ def _promote_pseudo_labels(
             supervised_samples,
             base_result,
             stock_candidate_path,
+            stock_candidate_config,
         )
 
     distillation = distill_weak_labeled_alerts(pseudo_label_path)
@@ -364,6 +385,7 @@ def _promote_pseudo_labels(
             supervised_samples,
             base_result,
             stock_candidate_path,
+            stock_candidate_config,
         )
 
     teacher = _fit_teacher(supervised_samples)
@@ -421,6 +443,7 @@ def _promote_pseudo_labels(
         supervised_samples,
         base_result,
         stock_candidate_path,
+        stock_candidate_config,
     )
 
 
@@ -428,8 +451,13 @@ def _merge_stock_candidate_pseudo_labels(
     supervised_samples: Sequence[LabeledAlert],
     base_result: PseudoLabelPromotionResult,
     stock_candidate_path: Path | None,
+    stock_candidate_config: StockCandidatePromotionConfig,
 ) -> PseudoLabelPromotionResult:
-    stock_result = _promote_stock_candidate_labels(supervised_samples, stock_candidate_path)
+    stock_result = _promote_stock_candidate_labels(
+        supervised_samples,
+        stock_candidate_path,
+        stock_candidate_config,
+    )
     if not stock_result.samples:
         return PseudoLabelPromotionResult(
             samples=base_result.samples,
@@ -461,6 +489,9 @@ def _merge_stock_candidate_pseudo_labels(
 def _promote_stock_candidate_labels(
     supervised_samples: Sequence[LabeledAlert],
     stock_candidate_path: Path | None,
+    stock_candidate_config: StockCandidatePromotionConfig = (
+        DEFAULT_STOCK_CANDIDATE_PROMOTION_CONFIG
+    ),
 ) -> PseudoLabelPromotionResult:
     if stock_candidate_path is None:
         return PseudoLabelPromotionResult(
@@ -481,7 +512,7 @@ def _promote_stock_candidate_labels(
     teacher = _fit_teacher(supervised_samples)
     seen_texts = {sample.text for sample in supervised_samples}
     accepted_by_label: dict[str, list[tuple[float, str, LabeledAlert]]] = {
-        label: [] for label in STOCK_CANDIDATE_LABEL_QUOTAS
+        label: [] for label in stock_candidate_config.label_quotas
     }
     accepted_by_stock: defaultdict[str, int] = defaultdict(int)
     rejected_reasons: Counter[str] = Counter()
@@ -491,10 +522,13 @@ def _promote_stock_candidate_labels(
             rejected_reasons["duplicate_supervised_text"] += 1
             continue
         primary_label = _primary_label(candidate.tags)
-        if STOCK_CANDIDATE_LABEL_QUOTAS.get(primary_label, 0) == 0:
+        if stock_candidate_config.label_quotas.get(primary_label, 0) == 0:
             rejected_reasons["zero_quota_label"] += 1
             continue
-        if accepted_by_stock[candidate.stock_code or "UNKNOWN"] >= STOCK_CANDIDATE_PER_STOCK_QUOTA:
+        if (
+            accepted_by_stock[candidate.stock_code or "UNKNOWN"]
+            >= stock_candidate_config.per_stock_quota
+        ):
             rejected_reasons["per_stock_quota_filled"] += 1
             continue
 
@@ -508,7 +542,7 @@ def _promote_stock_candidate_labels(
             continue
 
         pseudo_primary_label = _primary_label(pseudo_sample.tags)
-        if STOCK_CANDIDATE_LABEL_QUOTAS.get(pseudo_primary_label, 0) == 0:
+        if stock_candidate_config.label_quotas.get(pseudo_primary_label, 0) == 0:
             rejected_reasons["teacher_zero_quota_label"] += 1
             continue
         tie_breaker = f"{pseudo_primary_label}:{pseudo_sample.stock_code}:{pseudo_sample.text}"
@@ -517,7 +551,7 @@ def _promote_stock_candidate_labels(
 
     promoted_samples: list[LabeledAlert] = []
     accepted_count_by_primary_label: dict[str, int] = {}
-    for label, quota in STOCK_CANDIDATE_LABEL_QUOTAS.items():
+    for label, quota in stock_candidate_config.label_quotas.items():
         rows = sorted(accepted_by_label[label], key=lambda item: (-item[0], item[1]))
         selected = [sample for _, _, sample in rows[:quota]]
         promoted_samples.extend(selected)
@@ -536,8 +570,8 @@ def _promote_stock_candidate_labels(
             "accepted_stock_count": len(accepted_stock_codes),
             "accepted_count_by_primary_label": accepted_count_by_primary_label,
             "rejected_count_by_reason": dict(sorted(rejected_reasons.items())),
-            "label_quotas": STOCK_CANDIDATE_LABEL_QUOTAS,
-            "per_stock_quota": STOCK_CANDIDATE_PER_STOCK_QUOTA,
+            "label_quotas": stock_candidate_config.label_quotas,
+            "per_stock_quota": stock_candidate_config.per_stock_quota,
             "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
             "pseudo_sample_influence_control": "event_model_only",
         },

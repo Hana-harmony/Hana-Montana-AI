@@ -31,7 +31,8 @@
 - stock coverage report로 raw, training, evaluation 종목 커버리지 계측 완료
 - Naver News Search 수집기를 stock universe 기반 쿼리 모드로 확장 완료
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 6,244건, 2,127개 종목 생성 완료
-- 종목 후보 큐 중 teacher gate와 release gate를 통과한 464건, 464개 종목을 event-model-only pseudo-label로 제한 승격 완료
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 644건, 470개 종목을 event-model-only pseudo-label로 제한 승격 완료
+- stock candidate quota experiment로 이전 release, 현재 release, balanced probe의 gold gate 결과 기록 완료
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
 - 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
 - 검수 배치 승인 가능 종목 수를 계측하는 validation report 완료
