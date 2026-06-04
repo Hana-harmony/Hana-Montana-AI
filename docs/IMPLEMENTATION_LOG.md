@@ -166,6 +166,12 @@
 - 56건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9821, macro F1 0.9525, 감성 accuracy 0.9821, 중요도 accuracy 0.9643, 종목 accuracy 1.0을 기록했다.
 - 실제 뉴스 gold gate를 50건 이상, 이벤트 recall 0.9, macro F1 0.9, 감성·중요도 accuracy 0.9 이상으로 상향했다.
 
+## 2026-06-04 학습 데이터 추적 정책 전환
+- `data/raw/collected_alerts.jsonl`와 `data/processed/weak_labeled_alerts.jsonl`를 gitignore 대상에서 제거했다.
+- 수집 raw 37,278건과 약지도 라벨 37,278건은 학습 재현성과 PR 리뷰를 위해 커밋한다.
+- 수집 데이터에는 제목, snippet, 원문 링크, provider, content hash, 약지도 라벨만 남기고 외부 API 키나 credential은 포함하지 않는다.
+- 로컬 외부 API 키는 계속 `secrets.local.env`에만 두고 커밋하지 않는다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -174,7 +180,7 @@
 - 모델 artifact 누락·손상 시 분석 API는 fail-closed 방식으로 `503`을 반환한다.
 - 모델은 사람이 검수한 curated corpus와 DART 제목체를 반영한 균형 증강 corpus로 학습된다.
 - 실제 뉴스 gold와 뉴스 제목체 증강 corpus를 포함해 뉴스 도메인 표현도 함께 학습한다.
-- Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 distillation 후보 풀로 관리하며, gold gate를 낮추는 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
+- Naver 뉴스와 OpenDART 수집 raw와 약지도 라벨은 커밋된 distillation 후보 풀로 관리하며, gold gate를 낮추는 약지도 라벨은 최종 artifact 학습에 직접 투입하지 않는다.
 - teacher-gated pseudo-label 중 gold gate를 유지한 `RISK`, `CONTRACT`, `CORPORATE_ACTION` 후보는 이벤트 모델 학습에 투입한다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 정규화 제목을 SHA-256으로 해시한다.
 
