@@ -18,6 +18,7 @@ uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
 uv run python scripts/build_stock_gold_review_batch.py
+uv run python scripts/validate_stock_gold_review_batch.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
 ```
@@ -53,6 +54,7 @@ uv run python scripts/train_stock_linker_model.py
 - 종목 universe 기반 Naver 수집 쿼리 생성과 coverage report 산출 검증
 - 종목·라벨 균형 학습 승격 후보 큐가 5,000건 이상, 2,000개 이상 종목을 포함하고 `needs_human_review` 상태인지 검증
 - 학습 300개 종목, 평가 100개 종목 검수 배치가 라벨 균형과 학습·평가 종목 분리 조건을 만족하고 `needs_human_review` 상태인지 검증
+- 검수 validation report가 현재 승인 0건 상태를 `fail`로 기록하고, 승인 가능 row가 목표치를 채우면 `pass`가 되는지 검증
 - 검수 배치 승격은 `human_review_approved` row 중 검수자 메타데이터와 최종 라벨이 있는 row만 학습·평가 gold 파일로 출력하고 `needs_human_review` row는 제외하는지 검증
 - 승인 상태지만 검수자 메타데이터나 최종 라벨이 누락된 row를 승격하지 않고 사유를 리포트에 남기는지 검증
 - 짧은 종목명 오탐을 줄이기 위해 coverage matcher가 2자 명칭을 제외하고 6자리 종목코드는 유지하는지 검증
@@ -80,6 +82,7 @@ uv run python scripts/train_stock_linker_model.py
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 464건, 464개 종목도 별도 섹션으로 기록한다.
 - `reports/stock-training-candidate-report.json`은 검수 대기 후보 6,244건, 2,127개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목, 평가 검수 배치 100개 종목, 학습·평가 종목 disjoint check를 `pass`로 기록한다.
+- `reports/stock-gold-review-validation-report.json`은 현재 승인 가능 학습 0개 종목, 평가 0개 종목이라 `overall_status=fail`로 기록한다.
 - `reports/stock-gold-promotion-report.json`은 승인된 검수 row 중 최종 검수 필드를 통과한 row만 학습·평가 gold 출력으로 편입했는지 기록한다.
 - `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.

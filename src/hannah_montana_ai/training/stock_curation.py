@@ -26,6 +26,7 @@ STOCK_CURATION_REPORT_SCHEMA_VERSION = "stock-curation-report/v1"
 STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION = "stock-gold-review-batch/v1"
 STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-review-report/v1"
 STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION = "stock-gold-promotion-report/v1"
+STOCK_GOLD_REVIEW_VALIDATION_REPORT_SCHEMA_VERSION = "stock-gold-review-validation-report/v1"
 HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
 VALID_REVIEW_SENTIMENTS = {"POSITIVE", "NEUTRAL", "NEGATIVE"}
 VALID_REVIEW_IMPORTANCE = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
@@ -97,6 +98,11 @@ class StockGoldReviewBatchBuildResult:
 class StockGoldPromotionResult:
     training_rows: list[dict[str, Any]]
     evaluation_rows: list[dict[str, Any]]
+    report: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class StockGoldReviewValidationResult:
     report: dict[str, Any]
 
 
@@ -249,6 +255,37 @@ def promote_approved_stock_gold_reviews(
     )
 
 
+def validate_stock_gold_review_batches(
+    training_review_path: Path,
+    evaluation_review_path: Path,
+    training_stock_target: int = 300,
+    evaluation_stock_target: int = 100,
+) -> StockGoldReviewValidationResult:
+    training_rows = _load_stock_gold_review_rows(training_review_path)
+    evaluation_rows = _load_stock_gold_review_rows(evaluation_review_path)
+    eligible_training_rows, training_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        training_rows,
+        intended_split="training",
+    )
+    eligible_evaluation_rows, evaluation_rejected_reasons = _approved_review_rows_to_labeled_rows(
+        evaluation_rows,
+        intended_split="evaluation",
+    )
+    report = _build_gold_review_validation_report(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        eligible_training_rows=eligible_training_rows,
+        eligible_evaluation_rows=eligible_evaluation_rows,
+        training_rejected_reasons=training_rejected_reasons,
+        evaluation_rejected_reasons=evaluation_rejected_reasons,
+        training_stock_target=training_stock_target,
+        evaluation_stock_target=evaluation_stock_target,
+    )
+    return StockGoldReviewValidationResult(report=report)
+
+
 def write_stock_training_candidates(
     path: Path,
     candidates: Sequence[StockTrainingCandidate],
@@ -280,6 +317,11 @@ def write_stock_gold_review_report(path: Path, report: dict[str, Any]) -> None:
 
 
 def write_stock_gold_promotion_report(path: Path, report: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def write_stock_gold_review_validation_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -600,6 +642,101 @@ def _build_gold_promotion_report(
         "promotion_policy": (
             "only human_review_approved rows with reviewer metadata and final labels are "
             "written to supervised or gold datasets"
+        ),
+    }
+
+
+def _build_gold_review_validation_report(
+    training_review_path: Path,
+    evaluation_review_path: Path,
+    training_rows: Sequence[dict[str, Any]],
+    evaluation_rows: Sequence[dict[str, Any]],
+    eligible_training_rows: Sequence[dict[str, Any]],
+    eligible_evaluation_rows: Sequence[dict[str, Any]],
+    training_rejected_reasons: Counter[str],
+    evaluation_rejected_reasons: Counter[str],
+    training_stock_target: int,
+    evaluation_stock_target: int,
+) -> dict[str, Any]:
+    training_stocks = _row_stock_codes(eligible_training_rows)
+    evaluation_stocks = _row_stock_codes(eligible_evaluation_rows)
+    training_status = (
+        "pass" if len(training_stocks) >= training_stock_target else "fail"
+    )
+    evaluation_status = (
+        "pass" if len(evaluation_stocks) >= evaluation_stock_target else "fail"
+    )
+    disjoint_status = "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
+    overall_status = (
+        "pass"
+        if training_status == "pass"
+        and evaluation_status == "pass"
+        and disjoint_status == "pass"
+        else "fail"
+    )
+    return {
+        "schema_version": STOCK_GOLD_REVIEW_VALIDATION_REPORT_SCHEMA_VERSION,
+        "overall_status": overall_status,
+        "training_review_path": _report_path(training_review_path),
+        "evaluation_review_path": _report_path(evaluation_review_path),
+        "training_validation": _review_validation_split_report(
+            review_rows=training_rows,
+            eligible_rows=eligible_training_rows,
+            rejected_reasons=training_rejected_reasons,
+            target_stock_count=training_stock_target,
+        ),
+        "evaluation_validation": _review_validation_split_report(
+            review_rows=evaluation_rows,
+            eligible_rows=eligible_evaluation_rows,
+            rejected_reasons=evaluation_rejected_reasons,
+            target_stock_count=evaluation_stock_target,
+        ),
+        "disjoint_stock_check": {
+            "status": disjoint_status,
+            "overlap_stock_count": len(training_stocks & evaluation_stocks),
+        },
+        "approval_requirements": {
+            "required_status": HUMAN_REVIEW_APPROVED_STATUS,
+            "required_fields": [
+                "reviewer_id",
+                "reviewed_at",
+                "final_tags",
+                "final_sentiment",
+                "final_importance",
+            ],
+            "reviewed_at_format": "ISO-8601",
+        },
+    }
+
+
+def _review_validation_split_report(
+    review_rows: Sequence[dict[str, Any]],
+    eligible_rows: Sequence[dict[str, Any]],
+    rejected_reasons: Counter[str],
+    target_stock_count: int,
+) -> dict[str, Any]:
+    status_counter = Counter(str(row.get("review_status", "")) for row in review_rows)
+    eligible_stocks = _row_stock_codes(eligible_rows)
+    return {
+        "review_row_count": len(review_rows),
+        "target_stock_count": target_stock_count,
+        "approved_row_count": int(status_counter.get(HUMAN_REVIEW_APPROVED_STATUS, 0)),
+        "eligible_row_count": len(eligible_rows),
+        "eligible_stock_count": len(eligible_stocks),
+        "status": "pass" if len(eligible_stocks) >= target_stock_count else "fail",
+        "review_status_distribution": dict(sorted(status_counter.items())),
+        "blocked_approved_count_by_reason": dict(sorted(rejected_reasons.items())),
+        "eligible_label_distribution": dict(
+            sorted(
+                Counter(
+                    _primary_label(cast(list[str], row["tags"]))
+                    for row in eligible_rows
+                ).items()
+            )
+        ),
+        "remaining_stock_count_to_target": max(
+            0,
+            target_stock_count - len(eligible_stocks),
         ),
     }
 

@@ -1,0 +1,49 @@
+{
+  "schema_version": "stock-gold-review-validation-report/v1",
+  "overall_status": "fail",
+  "training_review_path": "data/curation/stock_gold_training_review_batch.jsonl",
+  "evaluation_review_path": "data/curation/stock_gold_evaluation_review_batch.jsonl",
+  "training_validation": {
+    "review_row_count": 300,
+    "target_stock_count": 300,
+    "approved_row_count": 0,
+    "eligible_row_count": 0,
+    "eligible_stock_count": 0,
+    "status": "fail",
+    "review_status_distribution": {
+      "needs_human_review": 300
+    },
+    "blocked_approved_count_by_reason": {},
+    "eligible_label_distribution": {},
+    "remaining_stock_count_to_target": 300
+  },
+  "evaluation_validation": {
+    "review_row_count": 100,
+    "target_stock_count": 100,
+    "approved_row_count": 0,
+    "eligible_row_count": 0,
+    "eligible_stock_count": 0,
+    "status": "fail",
+    "review_status_distribution": {
+      "needs_human_review": 100
+    },
+    "blocked_approved_count_by_reason": {},
+    "eligible_label_distribution": {},
+    "remaining_stock_count_to_target": 100
+  },
+  "disjoint_stock_check": {
+    "status": "pass",
+    "overlap_stock_count": 0
+  },
+  "approval_requirements": {
+    "required_status": "human_review_approved",
+    "required_fields": [
+      "reviewer_id",
+      "reviewed_at",
+      "final_tags",
+      "final_sentiment",
+      "final_importance"
+    ],
+    "reviewed_at_format": "ISO-8601"
+  }
+}

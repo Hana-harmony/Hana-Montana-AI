@@ -6,6 +6,7 @@ from hannah_montana_ai.training.stock_curation import (
     build_stock_training_candidates,
     candidate_review_key,
     promote_approved_stock_gold_reviews,
+    validate_stock_gold_review_batches,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, write_stock_universe
 
@@ -170,6 +171,88 @@ def test_stock_gold_promotion_report_tracks_zero_approved_committed_batch() -> N
     assert report["evaluation_promotion"]["review_row_count"] == 100
     assert report["evaluation_promotion"]["approved_row_count"] == 0
     assert "reviewer metadata and final labels" in report["promotion_policy"]
+
+
+def test_stock_gold_review_validation_report_tracks_current_blocker() -> None:
+    report = json.loads(
+        Path("reports/stock-gold-review-validation-report.json").read_text()
+    )
+
+    assert report["schema_version"] == "stock-gold-review-validation-report/v1"
+    assert report["overall_status"] == "fail"
+    assert report["training_validation"]["review_row_count"] == 300
+    assert report["training_validation"]["eligible_stock_count"] == 0
+    assert report["training_validation"]["remaining_stock_count_to_target"] == 300
+    assert report["evaluation_validation"]["review_row_count"] == 100
+    assert report["evaluation_validation"]["remaining_stock_count_to_target"] == 100
+    assert report["approval_requirements"]["required_status"] == (
+        "human_review_approved"
+    )
+
+
+def test_validate_stock_gold_review_batches_passes_when_targets_are_eligible(
+    tmp_path: Path,
+) -> None:
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    _write_jsonl(
+        training_review_path,
+        [
+            _review_row("000001", "학습승인", "CONTRACT", "training", "human_review_approved"),
+        ],
+    )
+    _write_jsonl(
+        evaluation_review_path,
+        [
+            _review_row("000002", "평가승인", "RISK", "evaluation", "human_review_approved"),
+        ],
+    )
+
+    result = validate_stock_gold_review_batches(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_stock_target=1,
+        evaluation_stock_target=1,
+    )
+
+    assert result.report["overall_status"] == "pass"
+    assert result.report["training_validation"]["eligible_stock_count"] == 1
+    assert result.report["evaluation_validation"]["eligible_stock_count"] == 1
+    assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
+def test_validate_stock_gold_review_batches_reports_invalid_approved_rows(
+    tmp_path: Path,
+) -> None:
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    _write_jsonl(
+        training_review_path,
+        [
+            _review_row(
+                "000001",
+                "검수시각오류",
+                "CONTRACT",
+                "training",
+                "human_review_approved",
+                reviewed_at="bad-time",
+            ),
+        ],
+    )
+    _write_jsonl(evaluation_review_path, [])
+
+    result = validate_stock_gold_review_batches(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_stock_target=1,
+        evaluation_stock_target=1,
+    )
+
+    assert result.report["overall_status"] == "fail"
+    assert result.report["training_validation"]["eligible_row_count"] == 0
+    assert result.report["training_validation"]["blocked_approved_count_by_reason"] == {
+        "invalid_reviewed_at": 1
+    }
 
 
 def test_promote_stock_gold_reviews_writes_only_human_approved_rows(
