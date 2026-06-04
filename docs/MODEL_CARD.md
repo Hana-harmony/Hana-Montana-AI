@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260604155535`
+`financial-ml-tfidf-logreg-20260604161654`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -52,7 +52,7 @@
 - teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 580건
 - weak-label distillation 승격 수: 360건
 - 종목 후보 큐 승격 수: 220건
-- 종목 후보 큐 승격 종목 수: 201개
+- 종목 후보 큐 승격 종목 수: 220개
 - 수집기는 429 rate limit과 5xx 장애에 대해 재시도와 지수 백오프를 수행한다.
 - 수집 실패로 새 결과가 기존 raw 수보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
 - 수집 raw와 약지도 라벨은 학습 재현성 때문에 커밋하지만, 외부 API 키와 비공개 credential은 포함하지 않는다.
@@ -87,11 +87,12 @@
 - 감성은 char n-gram과 한국어 금융 token n-gram을 결합한 다중 클래스 Logistic Regression으로 학습한다.
 - 중요도는 source type, char n-gram, 한국어 금융 token n-gram을 결합한 다중 클래스 Logistic Regression으로 학습한다.
 - 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `무상증자`, `타법인주식`, `자기주식처분`, `주주총회`, `소송등`, `상장폐지`, `주주환원`, `주식교환`, `지분인수`, `지분매각`, `리밸런싱`, `공급망`, `생산차질` 같은 한국어 복합 금융 표현을 도메인 token으로 추가한다.
-- 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CORPORATE_ACTION` 0.22, `EARNINGS` 0.42, `MACRO` 0.34, `RISK` 0.42를 label별 calibration했다.
+- 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CORPORATE_ACTION` 0.23, `EARNINGS` 0.38, `MACRO` 0.34, `RISK` 0.42를 label별 calibration했다.
 - 학습 시 검수·균형 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
 - 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건을 이벤트 모델 학습에 승격했다.
 - 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 110건, `CONTRACT` 110건만 이벤트 모델 학습에 추가했다.
-- `RISK`/`CONTRACT` 각 120건 승격 실험은 실제 뉴스 gold event macro F1이 release gate 아래로 떨어져 폐기했다.
+- 종목 후보의 per-stock quota는 1건으로 제한해 220건이 220개 종목에 분산되도록 했다.
+- `RISK`/`CONTRACT` 각 120건 이상 승격 실험과 threshold 미조정 per-stock quota 1 실험은 실제 뉴스 gold event macro F1이 release gate 아래로 떨어져 폐기했다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
 
 ## Holdout 검증 결과
@@ -119,7 +120,7 @@
 - 위치: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 평가 샘플 수: 30
 - 이벤트 태그 recall: 1.0
-- 이벤트 태그 macro F1: 0.9846
+- 이벤트 태그 macro F1: 1.0
 - 감성 accuracy: 1.0
 - 중요도 accuracy: 0.9667
 - 종목 매핑 accuracy: 1.0
@@ -127,15 +128,15 @@
 ## 실제 뉴스 Gold 평가 결과
 - 위치: `data/evaluation/financial_alert_real_news_gold.jsonl`
 - 평가 샘플 수: 80
-- 이벤트 태그 recall: 0.9375
-- 이벤트 태그 macro F1: 0.9007
+- 이벤트 태그 recall: 0.95
+- 이벤트 태그 macro F1: 0.9032
 - 감성 accuracy: 0.9125
 - 중요도 accuracy: 0.9250
 - 종목 매핑 accuracy: 1.0
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260604155535`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260604161654`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -153,7 +154,7 @@
 - 국내주식 universe 3,967개를 추적하지만 현재 artifact의 supervised 학습 종목 커버리지는 38개라 전 종목급 실서비스 모델로 보기에는 부족하다.
 - raw 후보는 2,356개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 supervised/gold 데이터로 승격하는 것이다.
 - 후보 큐는 2,127개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로 gold label로 직접 사용하지 않는다.
-- 현재 artifact는 후보 큐 중 201개 종목의 220건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
+- 현재 artifact는 후보 큐 중 220개 종목의 220건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
 - 약지도 라벨은 대규모 bootstrapping 용도이며, teacher confidence gate를 통과한 일부 후보만 artifact 이벤트 모델 학습에 투입한다.
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
 - pseudo-label은 `RISK`, `CONTRACT`, `CORPORATE_ACTION`처럼 gold gate를 유지한 라벨만 승격했다. 다른 라벨은 후보는 존재하지만 현재 artifact 학습에는 투입하지 않는다.

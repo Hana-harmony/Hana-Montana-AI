@@ -1,6 +1,6 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260604155535",
-  "trained_at": "2026-06-04T15:55:35.064094+00:00",
+  "version": "financial-ml-tfidf-logreg-20260604161654",
+  "trained_at": "2026-06-04T16:16:54.866476+00:00",
   "sample_count": 4189,
   "supervised_sample_count": 3609,
   "pseudo_labeled_sample_count": 580,
@@ -12,7 +12,7 @@
   ],
   "event_label_distribution": {
     "EARNINGS": 722,
-    "CONTRACT": 716,
+    "CONTRACT": 717,
     "RISK": 1196,
     "CAPITAL_ACTION": 433,
     "DISCLOSURE": 1276,
@@ -124,8 +124,8 @@
   },
   "event_probability_threshold": 0.3,
   "event_label_thresholds": {
-    "CORPORATE_ACTION": 0.22,
-    "EARNINGS": 0.42,
+    "CORPORATE_ACTION": 0.23,
+    "EARNINGS": 0.38,
     "MACRO": 0.34,
     "RISK": 0.42
   },
@@ -198,7 +198,7 @@
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
       "candidate_count": 6244,
       "accepted_count": 220,
-      "accepted_stock_count": 201,
+      "accepted_stock_count": 220,
       "accepted_count_by_primary_label": {
         "RISK": 110,
         "CONTRACT": 110,
@@ -210,9 +210,9 @@
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 412,
-        "per_stock_quota_filled": 36,
-        "teacher_zero_quota_label": 57,
+        "low_teacher_confidence": 371,
+        "per_stock_quota_filled": 253,
+        "teacher_zero_quota_label": 55,
         "zero_quota_label": 5095
       },
       "label_quotas": {
@@ -225,7 +225,7 @@
         "DISCLOSURE": 0,
         "GENERAL_MARKET": 0
       },
-      "per_stock_quota": 2,
+      "per_stock_quota": 1,
       "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
       "pseudo_sample_influence_control": "event_model_only"
     }

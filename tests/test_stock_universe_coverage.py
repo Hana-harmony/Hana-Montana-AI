@@ -21,6 +21,21 @@ def test_stock_universe_file_covers_thousands_of_korean_stocks() -> None:
     assert all(len(stock.stock_code) == 6 for stock in entries)
 
 
+def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> None:
+    report = json.loads(Path("reports/stock-coverage-report.json").read_text())
+    pseudo_coverage = report["event_model_pseudo_training_coverage"]
+
+    assert report["coverage_gates"]["overall_status"] == "fail"
+    assert pseudo_coverage["status"] == "promoted_to_event_student_training"
+    assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
+    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 220
+    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 220
+    assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
+    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 220
+    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 110
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 110
+
+
 def test_stock_universe_news_queries_expand_by_stock_intent() -> None:
     entries = [
         StockUniverseEntry("005930", "삼성전자"),

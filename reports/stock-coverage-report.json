@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-04T15:17:31.141342+00:00",
+  "generated_at": "2026-06-04T16:17:19.015242+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
@@ -240,5 +240,24 @@
         "status": "fail"
       }
     }
+  },
+  "event_model_pseudo_training_coverage": {
+    "status": "promoted_to_event_student_training",
+    "source_path": "reports/ml-training-report.json",
+    "stock_candidate_event_training_sample_count": 220,
+    "stock_candidate_event_training_stock_count": 220,
+    "stock_candidate_label_distribution": {
+      "RISK": 110,
+      "CONTRACT": 110,
+      "CAPITAL_ACTION": 0,
+      "CORPORATE_ACTION": 0,
+      "EARNINGS": 0,
+      "MACRO": 0,
+      "DISCLOSURE": 0,
+      "GENERAL_MARKET": 0
+    },
+    "stock_candidate_per_stock_quota": 1,
+    "effective_event_training_stock_count_lower_bound": 220,
+    "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }

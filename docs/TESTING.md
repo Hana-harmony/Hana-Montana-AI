@@ -61,12 +61,13 @@ uv run python scripts/build_stock_training_candidate_queue.py
 - benchmark 최소 기준은 이벤트 recall 0.8, 이벤트 macro F1 0.8, 감성 accuracy 0.85, 중요도 accuracy 0.8, 종목 accuracy 1.0이다.
 - 현재 benchmark 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9375, 종목 accuracy 1.0이다.
 - 실공시 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
-- 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 0.9846, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
+- 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
-- 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9375, 이벤트 macro F1 0.9007, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260604155535`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- 현재 실제 뉴스 gold 결과는 이벤트 recall 0.95, 이벤트 macro F1 0.9032, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260604161654`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 4,845건, teacher 탈락 3,124건, quota 보류 1,141건, 최종 승격 580건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 2,356개 종목, supervised 38개 종목, evaluation 56개 종목을 기록한다.
+- `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 220건, 220개 종목도 별도 섹션으로 기록한다.
 - `reports/stock-training-candidate-report.json`은 검수 대기 후보 6,244건, 2,127개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 다음 데이터 확장 PR의 기준선으로 사용한다.
 

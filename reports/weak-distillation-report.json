@@ -67,7 +67,7 @@
     "source_path": "data/curation/stock_training_candidate_queue.jsonl",
     "candidate_count": 6244,
     "accepted_count": 220,
-    "accepted_stock_count": 201,
+    "accepted_stock_count": 220,
     "accepted_count_by_primary_label": {
       "RISK": 110,
       "CONTRACT": 110,
@@ -79,9 +79,9 @@
       "GENERAL_MARKET": 0
     },
     "rejected_count_by_reason": {
-      "low_teacher_confidence": 412,
-      "per_stock_quota_filled": 36,
-      "teacher_zero_quota_label": 57,
+      "low_teacher_confidence": 371,
+      "per_stock_quota_filled": 253,
+      "teacher_zero_quota_label": 55,
       "zero_quota_label": 5095
     },
     "label_quotas": {
@@ -94,7 +94,7 @@
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
-    "per_stock_quota": 2,
+    "per_stock_quota": 1,
     "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
     "pseudo_sample_influence_control": "event_model_only"
   }

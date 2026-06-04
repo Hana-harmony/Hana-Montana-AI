@@ -1,7 +1,7 @@
 {
   "schema_version": "pseudo-label-monitor/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260604155535",
-  "report_created_at": "2026-06-04T15:55:35.064094+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260604161654",
+  "report_created_at": "2026-06-04T16:16:54.866476+00:00",
   "overall_status": "pass",
   "candidate_funnel": {
     "raw_candidate_count": 37278,

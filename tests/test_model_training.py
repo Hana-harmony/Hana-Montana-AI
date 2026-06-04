@@ -297,9 +297,10 @@ def test_model_release_report_matches_source_reports() -> None:
     assert stock_candidate_labeling["status"] == "promoted_to_event_student_training"
     assert stock_candidate_labeling["candidate_count"] == 6244
     assert stock_candidate_labeling["accepted_count"] == 220
-    assert stock_candidate_labeling["accepted_stock_count"] == 201
+    assert stock_candidate_labeling["accepted_stock_count"] == 220
     assert stock_candidate_labeling["accepted_count_by_primary_label"]["RISK"] == 110
     assert stock_candidate_labeling["accepted_count_by_primary_label"]["CONTRACT"] == 110
+    assert stock_candidate_labeling["per_stock_quota"] == 1
     assert release_report["quality_gates"]["real_news_gold"]["status"] == "pass"
     assert (
         release_report["quality_gates"]["real_news_gold"]["metrics"][
