@@ -217,6 +217,17 @@
 - GitHub Actions CI에 secret hygiene 검사를 추가했다.
 - 테스트로 로컬 env가 기존 환경변수를 덮어쓰지 않는지, credential 누락 오류가 값을 노출하지 않는지 검증한다.
 
+## 2026-06-05 국내주식 universe와 coverage gate
+- OpenDART 고유번호 파일을 로컬 `OPEN_DART_API_KEY`로 동기화하는 `scripts/sync_stock_universe.py`를 추가했다.
+- 공개 종목 메타데이터 3,967개를 `data/reference/korea_stock_universe.csv`에 저장하고 학습 재현성을 위해 추적한다.
+- API 키는 `secrets.local.env`에서만 읽고, 동기화 리포트에는 credential 값이 아니라 로컬 env 사용 정책만 기록한다.
+- `stock_universe.py`를 추가해 종목 universe CSV 입출력, Naver 종목별 쿼리 생성, 종목명 매칭, coverage report 생성을 담당한다.
+- coverage matcher는 `SK`, `LG`, `DB` 같은 짧은 명칭 오탐을 줄이기 위해 6자리 종목코드 또는 3자 이상 명칭만 사용한다.
+- `scripts/collect_training_data.py`에 `--use-stock-universe-news-queries`와 `--stock-query-limit`을 추가해 고정 쿼리 12개를 넘어 종목 universe 기반 수집을 할 수 있게 했다.
+- 약지도 라벨 생성 후 universe matcher로 stock_code, stock_name, stock_aliases를 부착해 대규모 후보를 종목별로 집계할 수 있게 했다.
+- `reports/stock-coverage-report.json` 기준 raw 후보는 2,356개 종목과 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 56개라 전 종목 coverage gate는 fail로 기록했다.
+- 이 변경은 모델을 완성했다고 주장하지 않고, 전 종목급 실서비스 모델로 가기 위한 coverage 측정과 수집 확장 기반을 만든다.
+
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
 - 이벤트 태그는 한국어 금융 tokenizer feature를 포함한 학습된 multilabel classifier가 산출한다.
@@ -232,6 +243,8 @@
 ## 학습 방식
 - `data/training/financial_alert_corpus.jsonl`에 뉴스·공시 예시와 라벨을 기록한다.
 - `scripts/collect_training_data.py`가 외부 공급자에서 raw 후보 데이터를 수집한다.
+- `scripts/sync_stock_universe.py`가 국내주식 universe를 동기화한다.
+- `scripts/build_stock_coverage_report.py`가 raw, supervised, evaluation 데이터의 종목 커버리지를 측정한다.
 - 수집기는 장애 시 기존 raw 코퍼스를 보존하고 provider별 수집 상태를 리포트로 남긴다.
 - `weak_labeler.py`가 수집 raw에 약지도 라벨을 부여한다.
 - `weak_distiller.py`가 약지도 후보를 필터링하고 promotion 여부를 리포트로 남긴다.
