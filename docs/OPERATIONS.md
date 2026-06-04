@@ -40,6 +40,7 @@ docker run --rm --network hana-internal hannah-montana-ai
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
+uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
 ```
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
@@ -51,6 +52,8 @@ uv run python scripts/collect_training_data.py \
 ```
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
+- `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`은 후보 큐에서 뽑은 사람 검수용 배치다.
+- 검수 배치는 학습 300개 종목, 평가 100개 종목 목표로 생성하지만 `review_status=needs_human_review`인 동안 supervised/gold 정답셋으로 사용하지 않는다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
 - 현재 artifact는 37,278건 수집 후보 중 weak-label 360건과 종목 후보 큐 464건을 이벤트 모델 학습에 반영했다.
@@ -62,6 +65,7 @@ uv run python scripts/collect_training_data.py \
 uv run python scripts/sync_stock_universe.py
 uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/build_stock_training_candidate_queue.py
+uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_release_report.py
@@ -84,6 +88,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
 - 현재 event model pseudo training coverage는 464건, 464개 종목이며 supervised gold coverage로 간주하지 않는다.
 - 464종목 확장 모델의 실제 뉴스 gold event macro F1 margin은 0.0116이다. 추가 pseudo quota 확대 전 실제 뉴스 gold 보강 또는 threshold 재검증이 필요하다.
+- `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
+- 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 
 ## 운영 전 보강
 - drift 감시

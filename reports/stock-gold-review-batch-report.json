@@ -1,0 +1,53 @@
+{
+  "schema_version": "stock-gold-review-report/v1",
+  "batch_schema_version": "stock-gold-review-batch/v1",
+  "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
+  "candidate_count": 6244,
+  "candidate_stock_count": 2127,
+  "existing_training_stock_count": 38,
+  "existing_evaluation_stock_count": 57,
+  "training_review": {
+    "target_stock_count": 300,
+    "actual_row_count": 300,
+    "actual_stock_count": 300,
+    "status": "pass",
+    "label_distribution": {
+      "CAPITAL_ACTION": 43,
+      "CONTRACT": 43,
+      "CORPORATE_ACTION": 43,
+      "DISCLOSURE": 42,
+      "EARNINGS": 43,
+      "MACRO": 43,
+      "RISK": 43
+    },
+    "source_type_distribution": {
+      "DISCLOSURE": 96,
+      "NEWS": 204
+    },
+    "review_status": "needs_human_review"
+  },
+  "evaluation_review": {
+    "target_stock_count": 100,
+    "actual_row_count": 100,
+    "actual_stock_count": 100,
+    "status": "pass",
+    "label_distribution": {
+      "CAPITAL_ACTION": 14,
+      "CONTRACT": 15,
+      "CORPORATE_ACTION": 14,
+      "DISCLOSURE": 14,
+      "EARNINGS": 14,
+      "MACRO": 14,
+      "RISK": 15
+    },
+    "source_type_distribution": {
+      "DISCLOSURE": 62,
+      "NEWS": 38
+    },
+    "review_status": "needs_human_review"
+  },
+  "disjoint_stock_check": {
+    "status": "pass"
+  },
+  "promotion_policy": "review rows are not supervised or gold labels until human_review_approved"
+}

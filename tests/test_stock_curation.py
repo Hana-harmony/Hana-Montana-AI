@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.training.stock_curation import (
+    build_stock_gold_review_batches,
     build_stock_training_candidates,
     candidate_review_key,
 )
@@ -69,6 +70,69 @@ def test_candidate_review_key_is_stable_and_keeps_stock_boundary() -> None:
     assert first_key != second_key
 
 
+def test_stock_gold_review_batches_are_balanced_and_not_promoted() -> None:
+    report = json.loads(Path("reports/stock-gold-review-batch-report.json").read_text())
+    training_rows = _read_jsonl(
+        Path("data/curation/stock_gold_training_review_batch.jsonl")
+    )
+    evaluation_rows = _read_jsonl(
+        Path("data/curation/stock_gold_evaluation_review_batch.jsonl")
+    )
+    training_stocks = {row["stock_code"] for row in training_rows}
+    evaluation_stocks = {row["stock_code"] for row in evaluation_rows}
+
+    assert report["schema_version"] == "stock-gold-review-report/v1"
+    assert report["training_review"]["status"] == "pass"
+    assert report["evaluation_review"]["status"] == "pass"
+    assert report["training_review"]["actual_stock_count"] == 300
+    assert report["evaluation_review"]["actual_stock_count"] == 100
+    assert report["disjoint_stock_check"]["status"] == "pass"
+    assert training_stocks.isdisjoint(evaluation_stocks)
+    assert {row["review_status"] for row in training_rows} == {"needs_human_review"}
+    assert {row["review_status"] for row in evaluation_rows} == {"needs_human_review"}
+    assert len(report["training_review"]["label_distribution"]) >= 7
+    assert len(report["evaluation_review"]["label_distribution"]) >= 7
+    assert "not supervised or gold" in report["promotion_policy"]
+
+
+def test_build_stock_gold_review_batches_excludes_existing_and_splits_stocks(
+    tmp_path: Path,
+) -> None:
+    candidate_path = tmp_path / "candidates.jsonl"
+    training_path = tmp_path / "training.jsonl"
+    evaluation_path = tmp_path / "evaluation.jsonl"
+    _write_jsonl(
+        candidate_path,
+        [
+            _candidate("000001", "후보1", "CONTRACT"),
+            _candidate("000002", "후보2", "RISK"),
+            _candidate("000003", "후보3", "EARNINGS"),
+            _candidate("000004", "후보4", "MACRO"),
+            _candidate("000005", "후보5", "CAPITAL_ACTION"),
+        ],
+    )
+    _write_jsonl(training_path, [{"stock_code": "000001"}])
+    _write_jsonl(evaluation_path, [{"stock_code": "000002"}])
+
+    result = build_stock_gold_review_batches(
+        candidate_path=candidate_path,
+        training_paths=[training_path],
+        evaluation_paths=[evaluation_path],
+        training_stock_target=2,
+        evaluation_stock_target=1,
+    )
+
+    training_stocks = {row.stock_code for row in result.training_rows}
+    evaluation_stocks = {row.stock_code for row in result.evaluation_rows}
+
+    assert training_stocks.isdisjoint({"000001", "000002"})
+    assert evaluation_stocks.isdisjoint({"000001", "000002"})
+    assert training_stocks.isdisjoint(evaluation_stocks)
+    assert result.report["training_review"]["status"] == "pass"
+    assert result.report["evaluation_review"]["status"] == "pass"
+    assert result.report["promotion_policy"].endswith("human_review_approved")
+
+
 def candidate_review_key_from_dict(row: dict[str, object]) -> str:
     from hannah_montana_ai.training.stock_curation import StockTrainingCandidate
 
@@ -99,6 +163,24 @@ def _raw(title: str, snippet: str) -> dict[str, str]:
         "original_url": f"https://example.com/{title}",
         "published_at": "2026-06-05T00:00:00+00:00",
         "provider": "test",
+    }
+
+
+def _candidate(stock_code: str, stock_name: str, primary_label: str) -> dict[str, object]:
+    return {
+        "text": f"{stock_name} {primary_label} 검수 후보",
+        "tags": [primary_label],
+        "sentiment": "NEUTRAL",
+        "importance": "HIGH",
+        "source_type": "NEWS",
+        "stock_code": stock_code,
+        "stock_name": stock_name,
+        "primary_label": primary_label,
+        "signal_score": 5,
+        "original_url": f"https://example.com/{stock_code}",
+        "provider": "test",
+        "content_hash": stock_code,
+        "curation_status": "needs_human_review",
     }
 
 

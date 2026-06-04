@@ -294,3 +294,11 @@
 - 학습 리포트는 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
 - 분석 API는 요청 후보 우선 정책을 유지하고, 내부 fallback 단계에서 stock linker 예측 종목코드와 실제 선두 term 매칭을 함께 확인해 대표 종목 오탐을 줄인다.
 - 이 모델은 종목 identity 후보를 학습하는 artifact이며, 이벤트/감성/중요도 분류 모델과 별도로 배포한다.
+
+## 2026-06-05 전 종목 gold 검수 배치
+- `build_stock_gold_review_batches`를 추가해 종목 후보 큐에서 supervised 학습 승격용 검수 배치와 evaluation gold 승격용 검수 배치를 분리 생성한다.
+- 기존 supervised 학습 데이터와 evaluation 데이터에 이미 포함된 종목은 검수 배치 후보에서 제외한다.
+- 학습 검수 배치는 300개 종목, 평가 검수 배치는 100개 종목으로 생성하고 두 배치의 종목코드가 겹치지 않게 한다.
+- 라벨 round-robin 선별로 `CAPITAL_ACTION`, `CONTRACT`, `CORPORATE_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`, `RISK` 분포를 균형화했다.
+- 모든 row는 `review_status=needs_human_review`이며 사람이 승인하기 전까지 supervised/gold 정답셋으로 승격하지 않는다.
+- `reports/stock-gold-review-batch-report.json`은 후보 수 6,244건, 후보 종목 수 2,127개, 학습 검수 300종목, 평가 검수 100종목, disjoint check pass를 기록한다.

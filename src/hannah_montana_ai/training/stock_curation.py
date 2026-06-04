@@ -22,6 +22,8 @@ from hannah_montana_ai.training.weak_labeler import RawCollectedAlert, weak_labe
 
 STOCK_CURATION_QUEUE_SCHEMA_VERSION = "stock-curation-queue/v1"
 STOCK_CURATION_REPORT_SCHEMA_VERSION = "stock-curation-report/v1"
+STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION = "stock-gold-review-batch/v1"
+STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-review-report/v1"
 
 
 @dataclass(frozen=True)
@@ -47,6 +49,35 @@ class StockTrainingCandidate:
 @dataclass(frozen=True)
 class StockTrainingCandidateBuildResult:
     candidates: list[StockTrainingCandidate]
+    report: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class StockGoldReviewRow:
+    review_key: str
+    intended_split: str
+    text: str
+    tags: list[str]
+    sentiment: str
+    importance: str
+    source_type: str
+    stock_code: str
+    stock_name: str
+    primary_label: str
+    signal_score: int
+    original_url: str
+    provider: str
+    content_hash: str
+    review_status: str = "needs_human_review"
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class StockGoldReviewBatchBuildResult:
+    training_rows: list[StockGoldReviewRow]
+    evaluation_rows: list[StockGoldReviewRow]
     report: dict[str, Any]
 
 
@@ -114,6 +145,54 @@ def build_stock_training_candidates(
     return StockTrainingCandidateBuildResult(candidates=candidates, report=report)
 
 
+def build_stock_gold_review_batches(
+    candidate_path: Path,
+    training_paths: Sequence[Path],
+    evaluation_paths: Sequence[Path],
+    training_stock_target: int = 300,
+    evaluation_stock_target: int = 100,
+) -> StockGoldReviewBatchBuildResult:
+    candidates = _load_stock_training_candidates(candidate_path)
+    existing_training_stocks = _sample_stock_codes(training_paths)
+    existing_evaluation_stocks = _sample_stock_codes(evaluation_paths)
+    reserved_stocks = existing_training_stocks | existing_evaluation_stocks
+    ranked_candidates = _rank_review_candidates(candidates)
+    training_candidates = _select_review_candidates(
+        ranked_candidates,
+        excluded_stocks=reserved_stocks,
+        target_stock_count=training_stock_target,
+    )
+    evaluation_candidates = _select_review_candidates(
+        ranked_candidates,
+        excluded_stocks=reserved_stocks
+        | {candidate.stock_code for candidate in training_candidates},
+        target_stock_count=evaluation_stock_target,
+    )
+    training_rows = [
+        _to_review_row(candidate, intended_split="training")
+        for candidate in training_candidates
+    ]
+    evaluation_rows = [
+        _to_review_row(candidate, intended_split="evaluation")
+        for candidate in evaluation_candidates
+    ]
+    report = _build_gold_review_report(
+        candidate_path=candidate_path,
+        candidates=candidates,
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        existing_training_stocks=existing_training_stocks,
+        existing_evaluation_stocks=existing_evaluation_stocks,
+        training_stock_target=training_stock_target,
+        evaluation_stock_target=evaluation_stock_target,
+    )
+    return StockGoldReviewBatchBuildResult(
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        report=report,
+    )
+
+
 def write_stock_training_candidates(
     path: Path,
     candidates: Sequence[StockTrainingCandidate],
@@ -126,6 +205,22 @@ def write_stock_training_candidates(
         ),
         encoding="utf-8",
     )
+
+
+def write_stock_gold_review_rows(
+    path: Path,
+    rows: Sequence[StockGoldReviewRow],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(json.dumps(row.to_dict(), ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
+def write_stock_gold_review_report(path: Path, report: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def write_stock_curation_report(path: Path, report: dict[str, Any]) -> None:
@@ -280,3 +375,184 @@ def candidate_review_key(candidate: StockTrainingCandidate) -> str:
         f"{candidate.source_type}:{candidate.stock_code}:{candidate.primary_label}:"
         f"{candidate.content_hash}".encode()
     ).hexdigest()
+
+
+def _load_stock_training_candidates(path: Path) -> list[StockTrainingCandidate]:
+    if not path.exists():
+        return []
+    candidates: list[StockTrainingCandidate] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        candidates.append(
+            StockTrainingCandidate(
+                text=payload["text"],
+                tags=list(payload["tags"]),
+                sentiment=payload["sentiment"],
+                importance=payload["importance"],
+                source_type=payload["source_type"],
+                stock_code=payload["stock_code"],
+                stock_name=payload["stock_name"],
+                primary_label=payload["primary_label"],
+                signal_score=int(payload["signal_score"]),
+                original_url=payload["original_url"],
+                provider=payload["provider"],
+                content_hash=payload["content_hash"],
+                curation_status=payload.get("curation_status", "needs_human_review"),
+            )
+        )
+    return candidates
+
+
+def _sample_stock_codes(paths: Sequence[Path]) -> set[str]:
+    stock_codes: set[str] = set()
+    for path in paths:
+        if not path.exists():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            payload = json.loads(line)
+            stock_code = payload.get("stock_code")
+            if isinstance(stock_code, str) and stock_code:
+                stock_codes.add(stock_code)
+    return stock_codes
+
+
+def _rank_review_candidates(
+    candidates: Sequence[StockTrainingCandidate],
+) -> list[StockTrainingCandidate]:
+    return sorted(
+        candidates,
+        key=lambda row: (
+            _label_rank(row.primary_label),
+            -row.signal_score,
+            row.stock_code,
+            row.content_hash,
+        ),
+    )
+
+
+def _select_review_candidates(
+    candidates: Sequence[StockTrainingCandidate],
+    excluded_stocks: set[str],
+    target_stock_count: int,
+) -> list[StockTrainingCandidate]:
+    selected: list[StockTrainingCandidate] = []
+    seen_stocks: set[str] = set()
+    buckets: dict[str, list[StockTrainingCandidate]] = defaultdict(list)
+    for candidate in candidates:
+        buckets[candidate.primary_label].append(candidate)
+    labels = sorted(buckets, key=_label_rank)
+    while len(selected) < target_stock_count:
+        added_this_round = False
+        for label in labels:
+            while buckets[label]:
+                candidate = buckets[label].pop(0)
+                if (
+                    candidate.stock_code in excluded_stocks
+                    or candidate.stock_code in seen_stocks
+                ):
+                    continue
+                selected.append(candidate)
+                seen_stocks.add(candidate.stock_code)
+                added_this_round = True
+                break
+            if len(selected) == target_stock_count:
+                break
+        if not added_this_round:
+            break
+    return selected
+
+
+def _to_review_row(
+    candidate: StockTrainingCandidate,
+    intended_split: str,
+) -> StockGoldReviewRow:
+    return StockGoldReviewRow(
+        review_key=candidate_review_key(candidate),
+        intended_split=intended_split,
+        text=candidate.text,
+        tags=candidate.tags,
+        sentiment=candidate.sentiment,
+        importance=candidate.importance,
+        source_type=candidate.source_type,
+        stock_code=candidate.stock_code,
+        stock_name=candidate.stock_name,
+        primary_label=candidate.primary_label,
+        signal_score=candidate.signal_score,
+        original_url=candidate.original_url,
+        provider=candidate.provider,
+        content_hash=candidate.content_hash,
+    )
+
+
+def _build_gold_review_report(
+    candidate_path: Path,
+    candidates: Sequence[StockTrainingCandidate],
+    training_rows: Sequence[StockGoldReviewRow],
+    evaluation_rows: Sequence[StockGoldReviewRow],
+    existing_training_stocks: set[str],
+    existing_evaluation_stocks: set[str],
+    training_stock_target: int,
+    evaluation_stock_target: int,
+) -> dict[str, Any]:
+    training_stock_codes = {row.stock_code for row in training_rows}
+    evaluation_stock_codes = {row.stock_code for row in evaluation_rows}
+    return {
+        "schema_version": STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION,
+        "batch_schema_version": STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION,
+        "candidate_path": _report_path(candidate_path),
+        "candidate_count": len(candidates),
+        "candidate_stock_count": len({candidate.stock_code for candidate in candidates}),
+        "existing_training_stock_count": len(existing_training_stocks),
+        "existing_evaluation_stock_count": len(existing_evaluation_stocks),
+        "training_review": _review_split_report(
+            training_rows,
+            target_stock_count=training_stock_target,
+            actual_stock_count=len(training_stock_codes),
+        ),
+        "evaluation_review": _review_split_report(
+            evaluation_rows,
+            target_stock_count=evaluation_stock_target,
+            actual_stock_count=len(evaluation_stock_codes),
+        ),
+        "disjoint_stock_check": {
+            "status": (
+                "pass"
+                if training_stock_codes.isdisjoint(evaluation_stock_codes)
+                else "fail"
+            )
+        },
+        "promotion_policy": (
+            "review rows are not supervised or gold labels until human_review_approved"
+        ),
+    }
+
+
+def _review_split_report(
+    rows: Sequence[StockGoldReviewRow],
+    target_stock_count: int,
+    actual_stock_count: int,
+) -> dict[str, Any]:
+    return {
+        "target_stock_count": target_stock_count,
+        "actual_row_count": len(rows),
+        "actual_stock_count": actual_stock_count,
+        "status": "pass" if actual_stock_count >= target_stock_count else "fail",
+        "label_distribution": dict(
+            sorted(Counter(row.primary_label for row in rows).items())
+        ),
+        "source_type_distribution": dict(
+            sorted(Counter(row.source_type for row in rows).items())
+        ),
+        "review_status": "needs_human_review",
+    }
+
+
+def _label_rank(label: str) -> int:
+    try:
+        return PRIMARY_LABEL_PRIORITY.index(label)
+    except ValueError:
+        return len(PRIMARY_LABEL_PRIORITY)
