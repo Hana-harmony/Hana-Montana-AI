@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 44997,
+  "raw_alert_count": 46585,
   "universe_count": 3967,
-  "candidate_count": 8917,
-  "candidate_stock_count": 2567,
-  "candidate_coverage_ratio": 0.6470884799596672,
+  "candidate_count": 9434,
+  "candidate_stock_count": 2667,
+  "candidate_coverage_ratio": 0.6722964456768339,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2567,
+    "actual_stock_count": 2667,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 1669,
-    "CONTRACT": 1294,
-    "CORPORATE_ACTION": 730,
-    "DISCLOSURE": 2646,
-    "EARNINGS": 1191,
-    "MACRO": 317,
-    "RISK": 1070
+    "CAPITAL_ACTION": 1780,
+    "CONTRACT": 1407,
+    "CORPORATE_ACTION": 779,
+    "DISCLOSURE": 2659,
+    "EARNINGS": 1267,
+    "MACRO": 334,
+    "RISK": 1208
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4546,
-    "NEWS": 4371
+    "DISCLOSURE": 4525,
+    "NEWS": 4909
   },
   "sentiment_distribution": {
-    "NEGATIVE": 268,
-    "NEUTRAL": 5977,
-    "POSITIVE": 2672
+    "NEGATIVE": 303,
+    "NEUTRAL": 6265,
+    "POSITIVE": 2866
   },
   "importance_distribution": {
-    "CRITICAL": 635,
-    "HIGH": 7101,
-    "LOW": 187,
-    "MEDIUM": 994
+    "CRITICAL": 710,
+    "HIGH": 7390,
+    "LOW": 231,
+    "MEDIUM": 1103
   },
   "top_candidate_stocks": [
     {
@@ -79,6 +79,11 @@
     {
       "stock_code": "010130",
       "stock_name": "고려아연",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "011070",
+      "stock_name": "LG이노텍",
       "candidate_count": 14
     },
     {
@@ -135,18 +140,13 @@
       "stock_code": "003470",
       "stock_name": "유안타증권",
       "candidate_count": 12
-    },
-    {
-      "stock_code": "003490",
-      "stock_name": "대한항공",
-      "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3646,
-    "low_signal": 3670,
-    "stock_not_matched": 17902
+    "general_market_not_stock_specific": 3717,
+    "low_signal": 3885,
+    "stock_not_matched": 18122
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }

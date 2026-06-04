@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-gold-active-review-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260604212852",
+  "model_version": "financial-ml-tfidf-logreg-20260604221241",
   "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
   "top_n_per_split": 50,
   "training_review": {
@@ -24,8 +24,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.454225,
-        "event_margin": 0.084758,
+        "event_confidence": 0.527943,
+        "event_margin": 0.181363,
         "sentiment_confidence": 0.423297,
         "importance_confidence": 0.450278,
         "disagreement_reasons": [
@@ -33,7 +33,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 374.511649,
+        "review_priority_score": 369.51641,
         "original_url": "https://view.asiae.co.kr/article/2025072200585891100"
       },
       {
@@ -52,8 +52,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.857691,
-        "event_margin": 0.718249,
+        "event_confidence": 0.875884,
+        "event_margin": 0.732367,
         "sentiment_confidence": 0.551282,
         "importance_confidence": 0.543928,
         "disagreement_reasons": [
@@ -61,63 +61,39 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 346.120399,
+        "review_priority_score": 345.13071,
         "original_url": "http://www.moneytoday.co.kr/view/mtview.php?type=1&no=2009092907534469337&outlink=1"
       },
       {
-        "review_key": "ebb991305fdb1a6c69bb7c7893e5a24d7d789977b1f8c205035f27ac68634ab9",
+        "review_key": "78ae97b32700bdfb3a3d249a1c0d920f24e059573a8c6ff501ddaee1fda06af1",
         "intended_split": "training",
-        "stock_code": "003480",
-        "stock_name": "한진중공업홀딩스",
+        "stock_code": "009220",
+        "stock_name": "그로웰전자",
         "source_type": "NEWS",
-        "primary_label": "EARNINGS",
+        "primary_label": "CAPITAL_ACTION",
         "original_tags": [
+          "CAPITAL_ACTION",
+          "CORPORATE_ACTION",
           "DISCLOSURE",
-          "EARNINGS"
+          "EARNINGS",
+          "MACRO"
         ],
         "suggested_tags": [
-          "EARNINGS"
+          "RISK"
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.499059,
-        "event_margin": 0.007835,
-        "sentiment_confidence": 0.396093,
-        "importance_confidence": 0.667885,
+        "event_top_label": "RISK",
+        "event_confidence": 0.364418,
+        "event_margin": 0.053893,
+        "sentiment_confidence": 0.495165,
+        "importance_confidence": 0.712909,
         "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
+          "event_tag_disagreement",
+          "sentiment_disagreement"
         ],
-        "review_priority_score": 279.057494,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=121472"
-      },
-      {
-        "review_key": "9fa4db60cc358ca24a1648bce2f19077cbf473efeda53992015d6398c7170138",
-        "intended_split": "training",
-        "stock_code": "010470",
-        "stock_name": "오리콤",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.494526,
-        "event_margin": 0.176315,
-        "sentiment_confidence": 0.461949,
-        "importance_confidence": 0.524602,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 276.552687,
-        "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=640942"
+        "review_priority_score": 277.736552,
+        "original_url": "https://n.news.naver.com/mnews/article/011/0000024950"
       },
       {
         "review_key": "444974ad04d81171c0bee73da549ea04662c86f5a76f105aefb8837800dc8797",
@@ -137,16 +113,351 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.38035,
-        "event_margin": 0.055311,
+        "event_confidence": 0.379,
+        "event_margin": 0.042689,
         "sentiment_confidence": 0.605423,
         "importance_confidence": 0.540759,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 276.381329,
+        "review_priority_score": 276.744113,
         "original_url": "https://www.news1.kr/articles/?4557520"
+      },
+      {
+        "review_key": "9fa4db60cc358ca24a1648bce2f19077cbf473efeda53992015d6398c7170138",
+        "intended_split": "training",
+        "stock_code": "010470",
+        "stock_name": "오리콤",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.51306,
+        "event_margin": 0.182546,
+        "sentiment_confidence": 0.461949,
+        "importance_confidence": 0.524602,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 275.748235,
+        "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=640942"
+      },
+      {
+        "review_key": "07deea32fdc785dc6aad84806834854fcc613a3f0664ed37499129770e9a202d",
+        "intended_split": "training",
+        "stock_code": "004020",
+        "stock_name": "현대제철",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "CORPORATE_ACTION",
+        "event_confidence": 0.441411,
+        "event_margin": 0.050286,
+        "sentiment_confidence": 0.484889,
+        "importance_confidence": 0.527867,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 275.038352,
+        "original_url": "http://www.newsway.co.kr/view.php?tp=1&ud=2015051417350467901"
+      },
+      {
+        "review_key": "180de0423030ab037f6ce62532c04a11e91ac266cf7c2a12afb3e198af701461",
+        "intended_split": "training",
+        "stock_code": "000830",
+        "stock_name": "삼성물산",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.612913,
+        "event_margin": 0.180753,
+        "sentiment_confidence": 0.36007,
+        "importance_confidence": 0.510335,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 274.621122,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=109991"
+      },
+      {
+        "review_key": "d8b259bf0a738fd2ed6c0d9ef6a72f119b0bec1ba1e5387b1efde20fbe9f73b2",
+        "intended_split": "training",
+        "stock_code": "009770",
+        "stock_name": "삼정펄프",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.633751,
+        "event_margin": 0.245279,
+        "sentiment_confidence": 0.381044,
+        "importance_confidence": 0.487785,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 274.310155,
+        "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=616930"
+      },
+      {
+        "review_key": "400ed0eda683f4f9043e7cd34fc3208323116d80580230ebd203562fbea679b1",
+        "intended_split": "training",
+        "stock_code": "014190",
+        "stock_name": "원익큐브",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS",
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.602699,
+        "event_margin": 0.005202,
+        "sentiment_confidence": 0.392155,
+        "importance_confidence": 0.651021,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 273.911958,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=123344"
+      },
+      {
+        "review_key": "ebb991305fdb1a6c69bb7c7893e5a24d7d789977b1f8c205035f27ac68634ab9",
+        "intended_split": "training",
+        "stock_code": "003480",
+        "stock_name": "한진중공업홀딩스",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS",
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.536479,
+        "event_margin": 0.165914,
+        "sentiment_confidence": 0.396093,
+        "importance_confidence": 0.667885,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 273.795811,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=121472"
+      },
+      {
+        "review_key": "2e73ce12dcad02fc220dd88c30026a80f911affa1597fbecf9a54e8540a068fb",
+        "intended_split": "training",
+        "stock_code": "005560",
+        "stock_name": "제이에스전선",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.4039,
+        "event_margin": 0.138659,
+        "sentiment_confidence": 0.488097,
+        "importance_confidence": 0.615679,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 272.321509,
+        "original_url": "http://www.thebell.co.kr/front/free/contents/news/article_view.asp?key=202102101245535640107358"
+      },
+      {
+        "review_key": "63fbbfaedd77225c5b902b78a24011a530682ba9f13dde6240f47389dc5decd7",
+        "intended_split": "training",
+        "stock_code": "185190",
+        "stock_name": "수프로",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.627685,
+        "event_margin": 0.221097,
+        "sentiment_confidence": 0.382632,
+        "importance_confidence": 0.535517,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 272.140627,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124609"
+      },
+      {
+        "review_key": "ab878379fc72c41c6b0a3a7c1e09379a1cb8dcbc01394c4a4edab41b7ccaeabf",
+        "intended_split": "training",
+        "stock_code": "000010",
+        "stock_name": "신한은행",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "DISCLOSURE",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.458061,
+        "event_margin": 0.208758,
+        "sentiment_confidence": 0.345143,
+        "importance_confidence": 0.497088,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 271.904294,
+        "original_url": "https://www.hankyung.com/article/2026060481161"
+      },
+      {
+        "review_key": "f7af343826d52e45270d94e7bc69669c9f0fb909ff52b00ec1e3524d7d688e51",
+        "intended_split": "training",
+        "stock_code": "005350",
+        "stock_name": "심팩인더스트리",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.530297,
+        "event_margin": 0.048567,
+        "sentiment_confidence": 0.505347,
+        "importance_confidence": 0.651568,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 271.087121,
+        "original_url": "http://news.bizwatch.co.kr/article/governance/2022/04/16/0002"
+      },
+      {
+        "review_key": "645a6456e9d3ce6fa088cab1c193572203af71f7d51f8e68f57a275a2e6eff58",
+        "intended_split": "training",
+        "stock_code": "119850",
+        "stock_name": "지엔씨에너지",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.632864,
+        "event_margin": 0.305925,
+        "sentiment_confidence": 0.498161,
+        "importance_confidence": 0.467436,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 270.889694,
+        "original_url": "http://www.businesspost.co.kr/BP?command=article_view&num=139221"
+      },
+      {
+        "review_key": "680a56e26a3ec819abca3db9f3a414195d841b56e8bbb157346a8af4439c702e",
+        "intended_split": "training",
+        "stock_code": "003900",
+        "stock_name": "동원데어리푸드",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.479603,
+        "event_margin": 0.175261,
+        "sentiment_confidence": 0.48636,
+        "importance_confidence": 0.529728,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 270.510594,
+        "original_url": "http://www.whitepaper.co.kr/news/articleView.html?idxno=227428"
       },
       {
         "review_key": "28f60a6675042a88cadb239cba017217b478740635921757b99373bedd70b00d",
@@ -167,375 +478,16 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.524012,
-        "event_margin": 0.214541,
+        "event_confidence": 0.626136,
+        "event_margin": 0.340827,
         "sentiment_confidence": 0.402255,
         "importance_confidence": 0.507323,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 276.104517,
+        "review_priority_score": 269.373018,
         "original_url": "https://n.news.naver.com/mnews/article/003/0004663652?sid=101"
-      },
-      {
-        "review_key": "9ba7f3c5755ea189a7cd7d599b9d0b54abdd47bb6efcb40450ecb8c8059c876e",
-        "intended_split": "training",
-        "stock_code": "010200",
-        "stock_name": "극동제혁",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.426365,
-        "event_margin": 0.028161,
-        "sentiment_confidence": 0.558177,
-        "importance_confidence": 0.483069,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 275.548291,
-        "original_url": "https://n.news.naver.com/mnews/article/008/0000461219?sid=101"
-      },
-      {
-        "review_key": "2e73ce12dcad02fc220dd88c30026a80f911affa1597fbecf9a54e8540a068fb",
-        "intended_split": "training",
-        "stock_code": "005560",
-        "stock_name": "제이에스전선",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.382402,
-        "event_margin": 0.117835,
-        "sentiment_confidence": 0.488097,
-        "importance_confidence": 0.615679,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 273.594529,
-        "original_url": "http://www.thebell.co.kr/front/free/contents/news/article_view.asp?key=202102101245535640107358"
-      },
-      {
-        "review_key": "07deea32fdc785dc6aad84806834854fcc613a3f0664ed37499129770e9a202d",
-        "intended_split": "training",
-        "stock_code": "004020",
-        "stock_name": "현대제철",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.459427,
-        "event_margin": 0.104122,
-        "sentiment_confidence": 0.484889,
-        "importance_confidence": 0.527867,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 273.061896,
-        "original_url": "http://www.newsway.co.kr/view.php?tp=1&ud=2015051417350467901"
-      },
-      {
-        "review_key": "f7af343826d52e45270d94e7bc69669c9f0fb909ff52b00ec1e3524d7d688e51",
-        "intended_split": "training",
-        "stock_code": "005350",
-        "stock_name": "심팩인더스트리",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.486139,
-        "event_margin": 0.035892,
-        "sentiment_confidence": 0.505347,
-        "importance_confidence": 0.651568,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 272.94951,
-        "original_url": "http://news.bizwatch.co.kr/article/governance/2022/04/16/0002"
-      },
-      {
-        "review_key": "180de0423030ab037f6ce62532c04a11e91ac266cf7c2a12afb3e198af701461",
-        "intended_split": "training",
-        "stock_code": "000830",
-        "stock_name": "삼성물산",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.632214,
-        "event_margin": 0.222639,
-        "sentiment_confidence": 0.36007,
-        "importance_confidence": 0.510335,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 272.898435,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=109991"
-      },
-      {
-        "review_key": "ab878379fc72c41c6b0a3a7c1e09379a1cb8dcbc01394c4a4edab41b7ccaeabf",
-        "intended_split": "training",
-        "stock_code": "000010",
-        "stock_name": "신한은행",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "DISCLOSURE",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.441776,
-        "event_margin": 0.195765,
-        "sentiment_confidence": 0.345143,
-        "importance_confidence": 0.497088,
-        "disagreement_reasons": [
-          "event_tag_disagreement",
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 272.799077,
-        "original_url": "https://www.hankyung.com/article/2026060481161"
-      },
-      {
-        "review_key": "680a56e26a3ec819abca3db9f3a414195d841b56e8bbb157346a8af4439c702e",
-        "intended_split": "training",
-        "stock_code": "003900",
-        "stock_name": "동원데어리푸드",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.442496,
-        "event_margin": 0.155392,
-        "sentiment_confidence": 0.48636,
-        "importance_confidence": 0.529728,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 272.306065,
-        "original_url": "http://www.whitepaper.co.kr/news/articleView.html?idxno=227428"
-      },
-      {
-        "review_key": "226c374163d6b6ed8683297513271e5327158a7e4d336d155c30f4bd6ad50e03",
-        "intended_split": "training",
-        "stock_code": "000760",
-        "stock_name": "이화산업",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "DISCLOSURE",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.424818,
-        "event_margin": 0.086177,
-        "sentiment_confidence": 0.529816,
-        "importance_confidence": 0.544575,
-        "disagreement_reasons": [
-          "event_tag_disagreement",
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 271.489115,
-        "original_url": "https://www.sedaily.com/article/20023026?ref=naver"
-      },
-      {
-        "review_key": "63fbbfaedd77225c5b902b78a24011a530682ba9f13dde6240f47389dc5decd7",
-        "intended_split": "training",
-        "stock_code": "185190",
-        "stock_name": "수프로",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.63509,
-        "event_margin": 0.25124,
-        "sentiment_confidence": 0.382632,
-        "importance_confidence": 0.535517,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 271.127847,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124609"
-      },
-      {
-        "review_key": "645a6456e9d3ce6fa088cab1c193572203af71f7d51f8e68f57a275a2e6eff58",
-        "intended_split": "training",
-        "stock_code": "119850",
-        "stock_name": "지엔씨에너지",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.640451,
-        "event_margin": 0.323636,
-        "sentiment_confidence": 0.498161,
-        "importance_confidence": 0.467436,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 270.181387,
-        "original_url": "http://www.businesspost.co.kr/BP?command=article_view&num=139221"
-      },
-      {
-        "review_key": "1011ddaab6e27d8f657e213236b601c2c902ea0fdfc8c93e5736c5f8b9333d9d",
-        "intended_split": "training",
-        "stock_code": "019640",
-        "stock_name": "희훈디앤지",
-        "source_type": "NEWS",
-        "primary_label": "DISCLOSURE",
-        "original_tags": [
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "RISK",
-        "event_confidence": 0.405441,
-        "event_margin": 0.207611,
-        "sentiment_confidence": 0.661656,
-        "importance_confidence": 0.701758,
-        "disagreement_reasons": [
-          "event_tag_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 269.351004,
-        "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2013042418584381350&outlink=1"
-      },
-      {
-        "review_key": "d8b259bf0a738fd2ed6c0d9ef6a72f119b0bec1ba1e5387b1efde20fbe9f73b2",
-        "intended_split": "training",
-        "stock_code": "009770",
-        "stock_name": "삼정펄프",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "DISCLOSURE",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.704626,
-        "event_margin": 0.345415,
-        "sentiment_confidence": 0.381044,
-        "importance_confidence": 0.487785,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 269.326147,
-        "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=616930"
-      },
-      {
-        "review_key": "76640a94d3b1d152b771229b32fdd1f7951be67095956600c80bfd43ca33a5c6",
-        "intended_split": "training",
-        "stock_code": "006360",
-        "stock_name": "GS건설",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.612132,
-        "event_margin": 0.283672,
-        "sentiment_confidence": 0.516238,
-        "importance_confidence": 0.492444,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 269.309949,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=122469"
       },
       {
         "review_key": "a1922d0c1e001f4721ac1cbd5be55ce83a2d769f3ef7d1e7d78454dd5bc16174",
@@ -557,16 +509,183 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.575628,
-        "event_margin": 0.221304,
+        "event_confidence": 0.568413,
+        "event_margin": 0.244576,
         "sentiment_confidence": 0.525332,
         "importance_confidence": 0.639957,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 269.014612,
+        "review_priority_score": 268.685353,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921707394&cDateYear=2009&cDateMonth=07&cDateDay=09&"
+      },
+      {
+        "review_key": "226c374163d6b6ed8683297513271e5327158a7e4d336d155c30f4bd6ad50e03",
+        "intended_split": "training",
+        "stock_code": "000760",
+        "stock_name": "이화산업",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "DISCLOSURE",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.471612,
+        "event_margin": 0.135329,
+        "sentiment_confidence": 0.529816,
+        "importance_confidence": 0.544575,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 268.622546,
+        "original_url": "https://www.sedaily.com/article/20023026?ref=naver"
+      },
+      {
+        "review_key": "1011ddaab6e27d8f657e213236b601c2c902ea0fdfc8c93e5736c5f8b9333d9d",
+        "intended_split": "training",
+        "stock_code": "019640",
+        "stock_name": "희훈디앤지",
+        "source_type": "NEWS",
+        "primary_label": "DISCLOSURE",
+        "original_tags": [
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.435354,
+        "event_margin": 0.232942,
+        "sentiment_confidence": 0.661656,
+        "importance_confidence": 0.701758,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 267.670774,
+        "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2013042418584381350&outlink=1"
+      },
+      {
+        "review_key": "848d14fa487f4463024cdb06d305613d7569f3466b3d1c628ee9b29cf87388c8",
+        "intended_split": "training",
+        "stock_code": "000800",
+        "stock_name": "경남기업",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.638589,
+        "event_margin": 0.436612,
+        "sentiment_confidence": 0.445866,
+        "importance_confidence": 0.429783,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 267.221127,
+        "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921085280&cDateYear=2007&cDateMonth=08&cDateDay=28&"
+      },
+      {
+        "review_key": "76640a94d3b1d152b771229b32fdd1f7951be67095956600c80bfd43ca33a5c6",
+        "intended_split": "training",
+        "stock_code": "006360",
+        "stock_name": "GS건설",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.658429,
+        "event_margin": 0.306461,
+        "sentiment_confidence": 0.516238,
+        "importance_confidence": 0.492444,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 267.119822,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=122469"
+      },
+      {
+        "review_key": "0c22fcc3b24bbc9bfbf4313b1f22a0f2e5de6c44cd645a76ee322fb593b145f1",
+        "intended_split": "training",
+        "stock_code": "005190",
+        "stock_name": "동성화학",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.576697,
+        "event_margin": 0.236311,
+        "sentiment_confidence": 0.430653,
+        "importance_confidence": 0.720597,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 266.882828,
+        "original_url": "https://www.ebn.co.kr/news/articleView.html?idxno=1704237"
+      },
+      {
+        "review_key": "cd282d9e5298b9e226b2f8f989375e606a841656d8b30c09a4ecb3841ee7a58d",
+        "intended_split": "training",
+        "stock_code": "160550",
+        "stock_name": "NEW",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.691866,
+        "event_margin": 0.309157,
+        "sentiment_confidence": 0.40677,
+        "importance_confidence": 0.611363,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 265.693108,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=123428"
       },
       {
         "review_key": "f469277689d151c8e36dd358c5af081cb3519a005f4cd34ec8d7afc88d7e74ec",
@@ -586,48 +705,16 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.440093,
-        "event_margin": 0.233483,
+        "event_confidence": 0.486609,
+        "event_margin": 0.28532,
         "sentiment_confidence": 0.63814,
         "importance_confidence": 0.600532,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 267.986237,
+        "review_priority_score": 265.062219,
         "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=15910086"
-      },
-      {
-        "review_key": "14d323963bbca75a86db5d70657215b6b1c21ab21b006142cc316f1161fbd62c",
-        "intended_split": "training",
-        "stock_code": "036560",
-        "stock_name": "KZ정밀",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "CONTRACT",
-          "DISCLOSURE",
-          "EARNINGS",
-          "MACRO",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "RISK",
-        "event_confidence": 0.757031,
-        "event_margin": 0.154827,
-        "sentiment_confidence": 0.499288,
-        "importance_confidence": 0.56787,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 266.290057,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=116510"
       },
       {
         "review_key": "1fce4acd50672f8376a1528ca82e5feda9dc951ce5b589cc377b1e65080dfa0b",
@@ -645,71 +732,16 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.652431,
-        "event_margin": 0.274031,
+        "event_confidence": 0.66107,
+        "event_margin": 0.30211,
         "sentiment_confidence": 0.428483,
         "importance_confidence": 0.687557,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 265.99331,
+        "review_priority_score": 264.988996,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124648"
-      },
-      {
-        "review_key": "cd282d9e5298b9e226b2f8f989375e606a841656d8b30c09a4ecb3841ee7a58d",
-        "intended_split": "training",
-        "stock_code": "160550",
-        "stock_name": "NEW",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.698573,
-        "event_margin": 0.324828,
-        "sentiment_confidence": 0.40677,
-        "importance_confidence": 0.611363,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 265.066565,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=123428"
-      },
-      {
-        "review_key": "0c22fcc3b24bbc9bfbf4313b1f22a0f2e5de6c44cd645a76ee322fb593b145f1",
-        "intended_split": "training",
-        "stock_code": "005190",
-        "stock_name": "동성화학",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.612278,
-        "event_margin": 0.279507,
-        "sentiment_confidence": 0.430653,
-        "importance_confidence": 0.720597,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 264.557604,
-        "original_url": "https://www.ebn.co.kr/news/articleView.html?idxno=1704237"
       },
       {
         "review_key": "0e9a31d8b36e7494f6e4cbc463c88f10dc3adbe6d7b2b70f5c4298f6b2bc7fe1",
@@ -727,15 +759,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.401285,
-        "event_margin": 0.22361,
+        "event_confidence": 0.424665,
+        "event_margin": 0.217361,
         "sentiment_confidence": 0.7765,
         "importance_confidence": 0.820183,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 264.431116,
+        "review_priority_score": 263.769021,
         "original_url": "http://korea.kr/newsWeb/pages/brief/partNews2/view.do?dataId=155684117&call_from=extlink&call_from=extlink"
       },
       {
@@ -755,16 +787,98 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "MACRO",
-        "event_confidence": 0.726072,
-        "event_margin": 0.278548,
+        "event_confidence": 0.730639,
+        "event_margin": 0.263532,
         "sentiment_confidence": 0.425566,
         "importance_confidence": 0.748754,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.137363,
+        "review_priority_score": 260.352926,
         "original_url": "https://www.kyeongin.com/article/1764735"
+      },
+      {
+        "review_key": "d779e3b38b7e2e50c86522027103b06b71bf1c19704901c5758f57db5c3be15d",
+        "intended_split": "training",
+        "stock_code": "017010",
+        "stock_name": "제너비오믹스",
+        "source_type": "NEWS",
+        "primary_label": "DISCLOSURE",
+        "original_tags": [
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.660278,
+        "event_margin": 0.516238,
+        "sentiment_confidence": 0.661997,
+        "importance_confidence": 0.332527,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 260.093847,
+        "original_url": "http://polinews.co.kr/news/newsview.html?no=101695"
+      },
+      {
+        "review_key": "45923d150a1753cbd9c49300f84aa89e93a4b0fd1c4e833c19ba2a4b8c2213c8",
+        "intended_split": "training",
+        "stock_code": "225590",
+        "stock_name": "패션플랫폼",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.744308,
+        "event_margin": 0.472639,
+        "sentiment_confidence": 0.412485,
+        "importance_confidence": 0.60726,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 259.73832,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=79349"
+      },
+      {
+        "review_key": "76d10ce15278e47d5f8a3bf77f92b40806947b5174d2da0089dabb024e0e8287",
+        "intended_split": "training",
+        "stock_code": "025750",
+        "stock_name": "한솔홈데코",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.839761,
+        "event_margin": 0.544637,
+        "sentiment_confidence": 0.448816,
+        "importance_confidence": 0.512504,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 257.766032,
+        "original_url": "https://www.newsinside.kr/news/articleView.html?idxno=4632212"
       },
       {
         "review_key": "fa21a988ad4d738faebe7bde9841b504088aaab27e6ed0d7d249103c5514dbcb",
@@ -784,16 +898,47 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.810342,
-        "event_margin": 0.569745,
+        "event_confidence": 0.798681,
+        "event_margin": 0.54024,
         "sentiment_confidence": 0.422825,
         "importance_confidence": 0.536067,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 256.216554,
+        "review_priority_score": 257.362328,
         "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2016042507414743186&outlink=1"
+      },
+      {
+        "review_key": "9d3d281fe9daf9cdbe8e3d84197733058ac81358d021261d9a86939787bb8a4a",
+        "intended_split": "training",
+        "stock_code": "003000",
+        "stock_name": "부광약품",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.788242,
+        "event_margin": 0.441898,
+        "sentiment_confidence": 0.522566,
+        "importance_confidence": 0.579604,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 257.320671,
+        "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0922306394&cDateYear=2011&cDateMonth=05&cDateDay=11&"
       },
       {
         "review_key": "3ffb07b205f2f23803fe877f334f7e4877a1c8f5843173dcc54566175c7de99a",
@@ -815,16 +960,44 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.833855,
-        "event_margin": 0.437072,
+        "event_confidence": 0.844271,
+        "event_margin": 0.374325,
         "sentiment_confidence": 0.540481,
         "importance_confidence": 0.578627,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 253.50609,
+        "review_priority_score": 254.710208,
         "original_url": "http://app.yonhapnews.co.kr/YNA/Basic/SNS/r.aspx?c=AKR20170311028600008&did=1195m"
+      },
+      {
+        "review_key": "dd036817d91c4c9a05deec89866b6bff7327049ebbac6d9803ec3a9830ab13a2",
+        "intended_split": "training",
+        "stock_code": "001830",
+        "stock_name": "동부일렉트로닉스",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.788097,
+        "event_margin": 0.51736,
+        "sentiment_confidence": 0.475641,
+        "importance_confidence": 0.490054,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 254.168691,
+        "original_url": "https://biz.chosun.com/industry/company/2025/09/02/JJZDTOIXJFBJ3MMTOSUCLGJ3L4/?utm_source=naver&utm_medium=original&utm_campaign=biz"
       },
       {
         "review_key": "cfaf46db3dae3c409043efe65c6fc31adb83ae6ec4c1b428adf26ec347a8ff7e",
@@ -847,73 +1020,16 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.816385,
-        "event_margin": 0.475477,
+        "event_confidence": 0.831634,
+        "event_margin": 0.48726,
         "sentiment_confidence": 0.814334,
         "importance_confidence": 0.507081,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 253.111327,
+        "review_priority_score": 252.283011,
         "original_url": "http://www.betanews.net:8080/article/1054771.html"
-      },
-      {
-        "review_key": "dd036817d91c4c9a05deec89866b6bff7327049ebbac6d9803ec3a9830ab13a2",
-        "intended_split": "training",
-        "stock_code": "001830",
-        "stock_name": "동부일렉트로닉스",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.793352,
-        "event_margin": 0.553344,
-        "sentiment_confidence": 0.475641,
-        "importance_confidence": 0.490054,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 253.085179,
-        "original_url": "https://biz.chosun.com/industry/company/2025/09/02/JJZDTOIXJFBJ3MMTOSUCLGJ3L4/?utm_source=naver&utm_medium=original&utm_campaign=biz"
-      },
-      {
-        "review_key": "774f37922b7d6a5c940811e7ca96573975d5b38cc137c5cf9d9469ebf30b87dd",
-        "intended_split": "training",
-        "stock_code": "003830",
-        "stock_name": "대한화섬",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION",
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.676086,
-        "event_margin": 0.46582,
-        "sentiment_confidence": 0.60745,
-        "importance_confidence": 0.599661,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 252.549277,
-        "original_url": "https://www.etoday.co.kr/news/view/2587889"
       },
       {
         "review_key": "724f7016e616e25a359cba9e40a7862b63a3eec683c09779a37ce4b7648c680c",
@@ -935,16 +1051,45 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "DISCLOSURE",
-        "event_confidence": 0.99308,
-        "event_margin": 0.361859,
+        "event_confidence": 0.993084,
+        "event_margin": 0.348783,
         "sentiment_confidence": 0.456468,
         "importance_confidence": 0.49451,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 249.17615,
+        "review_priority_score": 249.502927,
         "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240105800628"
+      },
+      {
+        "review_key": "774f37922b7d6a5c940811e7ca96573975d5b38cc137c5cf9d9469ebf30b87dd",
+        "intended_split": "training",
+        "stock_code": "003830",
+        "stock_name": "대한화섬",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION",
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.738585,
+        "event_margin": 0.529315,
+        "sentiment_confidence": 0.60745,
+        "importance_confidence": 0.599661,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 248.774419,
+        "original_url": "https://www.etoday.co.kr/news/view/2587889"
       },
       {
         "review_key": "e36cded98722174edaf948ad5b79a1aba003acb945f8927a6491d4a009cc4366",
@@ -965,15 +1110,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.86139,
-        "event_margin": 0.656341,
+        "event_confidence": 0.886233,
+        "event_margin": 0.687054,
         "sentiment_confidence": 0.724389,
         "importance_confidence": 0.401663,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 248.921783,
+        "review_priority_score": 247.284467,
         "original_url": "http://www.smedaily.co.kr/news/articleView.html?idxno=66569"
       },
       {
@@ -993,15 +1138,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.773803,
-        "event_margin": 0.57151,
+        "event_confidence": 0.780456,
+        "event_margin": 0.574683,
         "sentiment_confidence": 0.735266,
         "importance_confidence": 0.683446,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 246.254915,
+        "review_priority_score": 245.94273,
         "original_url": "https://news.bizwatch.co.kr/article/governance/2026/05/30/0001"
       },
       {
@@ -1021,16 +1166,42 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.759985,
-        "event_margin": 0.491771,
+        "event_confidence": 0.764785,
+        "event_margin": 0.48781,
         "sentiment_confidence": 0.730384,
         "importance_confidence": 0.735536,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 243.787838,
+        "review_priority_score": 243.718873,
         "original_url": "https://www.thebell.co.kr/free/content/ArticleView.asp?key=202604071529117760102915"
+      },
+      {
+        "review_key": "bc205d02a60bb03d7801aa4dbe2b67a46d30db19cd267be25f08d9286132b88a",
+        "intended_split": "training",
+        "stock_code": "097950",
+        "stock_name": "CJ제일제당",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.484351,
+        "event_margin": 0.021903,
+        "sentiment_confidence": 0.499474,
+        "importance_confidence": 0.475996,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 180.99076,
+        "original_url": "http://www.foodnews.co.kr/news/articleView.html?idxno=117997"
       },
       {
         "review_key": "a413d48a0c297ff7b8904c05bd425b1f9389f0977b22f03c91c2a61fb0d9d971",
@@ -1049,105 +1220,21 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.367585,
-        "event_margin": 0.068649,
+        "event_confidence": 0.42013,
+        "event_margin": 0.132742,
         "sentiment_confidence": 0.406252,
         "importance_confidence": 0.454096,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 184.211342,
+        "review_priority_score": 180.769963,
         "original_url": "https://www.ddaily.co.kr/news/article.html?no=240723"
       },
       {
-        "review_key": "bc205d02a60bb03d7801aa4dbe2b67a46d30db19cd267be25f08d9286132b88a",
+        "review_key": "01525383a5df1a2c74b2ba1f1fc6fc3386cd2b9ddb6543fd34b26cc24df3836e",
         "intended_split": "training",
-        "stock_code": "097950",
-        "stock_name": "CJ제일제당",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.44674,
-        "event_margin": 0.013009,
-        "sentiment_confidence": 0.499474,
-        "importance_confidence": 0.475996,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 182.529476,
-        "original_url": "http://www.foodnews.co.kr/news/articleView.html?idxno=117997"
-      },
-      {
-        "review_key": "23e74cf630c58e41b6be373bdacd34f0ce9db7e9b65f327e45521b1b803da382",
-        "intended_split": "training",
-        "stock_code": "065170",
-        "stock_name": "비엘팜텍",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "DISCLOSURE",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.383982,
-        "event_margin": 0.008956,
-        "sentiment_confidence": 0.459651,
-        "importance_confidence": 0.582244,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 181.498802,
-        "original_url": "https://www.etoday.co.kr/news/view/2553710"
-      },
-      {
-        "review_key": "78ae97b32700bdfb3a3d249a1c0d920f24e059573a8c6ff501ddaee1fda06af1",
-        "intended_split": "training",
-        "stock_code": "009220",
-        "stock_name": "그로웰전자",
-        "source_type": "NEWS",
-        "primary_label": "CAPITAL_ACTION",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "CORPORATE_ACTION",
-          "DISCLOSURE",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.362677,
-        "event_margin": 0.04214,
-        "sentiment_confidence": 0.495165,
-        "importance_confidence": 0.712909,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 178.091326,
-        "original_url": "https://n.news.naver.com/mnews/article/011/0000024950"
-      },
-      {
-        "review_key": "ace2481ad295c221e535bcefcc48fe5d3f5dba1d675a2e0ce82789d686c21988",
-        "intended_split": "training",
-        "stock_code": "007770",
-        "stock_name": "한일화학",
+        "stock_code": "014470",
+        "stock_name": "부방",
         "source_type": "NEWS",
         "primary_label": "EARNINGS",
         "original_tags": [
@@ -1155,105 +1242,20 @@
           "EARNINGS"
         ],
         "suggested_tags": [
-          "EARNINGS",
-          "RISK"
+          "EARNINGS"
         ],
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.562512,
-        "event_margin": 0.053828,
-        "sentiment_confidence": 0.341051,
-        "importance_confidence": 0.692296,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 176.299453,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=104681"
-      },
-      {
-        "review_key": "38a3995bb3680e9e4caddb79672e5b44ec10fe872385c35a81387af9c37c7dc7",
-        "intended_split": "training",
-        "stock_code": "024900",
-        "stock_name": "디와이덕양",
-        "source_type": "NEWS",
-        "primary_label": "CONTRACT",
-        "original_tags": [
-          "CONTRACT",
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CONTRACT"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.561863,
-        "event_margin": 0.139835,
-        "sentiment_confidence": 0.387844,
-        "importance_confidence": 0.648027,
+        "event_confidence": 0.468778,
+        "event_margin": 0.072192,
+        "sentiment_confidence": 0.459588,
+        "importance_confidence": 0.552475,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 176.121499,
-        "original_url": "https://www.sedaily.com/NewsView/22MEA4CTYV"
-      },
-      {
-        "review_key": "94d472981a10b1adce1137c3b8fb6874c1ca6617d9061cde7ac2620fb7bf71a5",
-        "intended_split": "training",
-        "stock_code": "308100",
-        "stock_name": "형지글로벌",
-        "source_type": "NEWS",
-        "primary_label": "CAPITAL_ACTION",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CAPITAL_ACTION",
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.393324,
-        "event_margin": 0.018952,
-        "sentiment_confidence": 0.521351,
-        "importance_confidence": 0.773678,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 175.859279,
-        "original_url": "https://www.youthdaily.co.kr/news/article.html?no=219547"
-      },
-      {
-        "review_key": "5f33b8da43b0fcfa8554e8de60950149034836a59e688b9e440f0aac6ad711c9",
-        "intended_split": "training",
-        "stock_code": "007800",
-        "stock_name": "솔로몬저축은행",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.414409,
-        "event_margin": 0.132654,
-        "sentiment_confidence": 0.443724,
-        "importance_confidence": 0.47881,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 175.728658,
-        "original_url": "http://www.todaykorea.co.kr/news/articleView.html?idxno=318336"
+        "review_priority_score": 177.546726,
+        "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=631588"
       },
       {
         "review_key": "cdc3ff81a351262d2e8fe29a7f5e6312c936c9e8b0f3186a83c5032f5d86faba",
@@ -1273,77 +1275,128 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.451547,
-        "event_margin": 0.168856,
+        "event_confidence": 0.45014,
+        "event_margin": 0.144938,
         "sentiment_confidence": 0.504944,
         "importance_confidence": 0.628615,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 175.303261,
+        "review_priority_score": 175.950463,
         "original_url": "https://www.gasnews.com/news/articleView.html?idxno=124300"
       },
       {
-        "review_key": "553a02f5e5c23ca7ad68ab0971291fc27eb24069a2647512ac6e8bc38ca4ff32",
+        "review_key": "38a3995bb3680e9e4caddb79672e5b44ec10fe872385c35a81387af9c37c7dc7",
         "intended_split": "training",
-        "stock_code": "004820",
-        "stock_name": "조인에너지",
+        "stock_code": "024900",
+        "stock_name": "디와이덕양",
         "source_type": "NEWS",
         "primary_label": "CONTRACT",
         "original_tags": [
-          "CAPITAL_ACTION",
           "CONTRACT",
           "DISCLOSURE",
-          "EARNINGS",
-          "MACRO"
+          "EARNINGS"
         ],
         "suggested_tags": [
-          "CAPITAL_ACTION"
+          "CONTRACT"
         ],
-        "suggested_sentiment": "NEUTRAL",
+        "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
-        "event_top_label": "CAPITAL_ACTION",
-        "event_confidence": 0.426491,
-        "event_margin": 0.018972,
-        "sentiment_confidence": 0.499936,
-        "importance_confidence": 0.900876,
+        "event_top_label": "CONTRACT",
+        "event_confidence": 0.597044,
+        "event_margin": 0.167985,
+        "sentiment_confidence": 0.387844,
+        "importance_confidence": 0.648027,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 174.582254,
-        "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921930451&cDateYear=2010&cDateMonth=03&cDateDay=18&"
+        "review_priority_score": 174.186431,
+        "original_url": "https://www.sedaily.com/NewsView/22MEA4CTYV"
       },
       {
-        "review_key": "d6cdd106aaf6e9bc540fefb0255596dbe019d32bca12a3f0e3f0a6f5630bba99",
+        "review_key": "5f33b8da43b0fcfa8554e8de60950149034836a59e688b9e440f0aac6ad711c9",
         "intended_split": "training",
-        "stock_code": "008350",
-        "stock_name": "남선알미늄",
+        "stock_code": "007800",
+        "stock_name": "솔로몬저축은행",
         "source_type": "NEWS",
-        "primary_label": "RISK",
+        "primary_label": "CORPORATE_ACTION",
         "original_tags": [
-          "CAPITAL_ACTION",
-          "CONTRACT",
           "CORPORATE_ACTION",
-          "DISCLOSURE",
-          "EARNINGS",
-          "RISK"
+          "DISCLOSURE"
         ],
         "suggested_tags": [
-          "CONTRACT",
+          "CORPORATE_ACTION"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.446052,
+        "event_margin": 0.156887,
+        "sentiment_confidence": 0.443724,
+        "importance_confidence": 0.47881,
+        "disagreement_reasons": [
+          "importance_disagreement"
+        ],
+        "review_priority_score": 174.015322,
+        "original_url": "http://www.todaykorea.co.kr/news/articleView.html?idxno=318336"
+      },
+      {
+        "review_key": "ace2481ad295c221e535bcefcc48fe5d3f5dba1d675a2e0ce82789d686c21988",
+        "intended_split": "training",
+        "stock_code": "007770",
+        "stock_name": "한일화학",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS",
           "RISK"
         ],
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.530749,
-        "event_margin": 0.074468,
-        "sentiment_confidence": 0.374045,
-        "importance_confidence": 0.835768,
+        "event_confidence": 0.561397,
+        "event_margin": 0.155498,
+        "sentiment_confidence": 0.341051,
+        "importance_confidence": 0.692296,
+        "disagreement_reasons": [
+          "importance_disagreement"
+        ],
+        "review_priority_score": 173.796731,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=104681"
+      },
+      {
+        "review_key": "0a1b18d6d517d28b4156fb74c0372aa1d0727150a6598014084c44c16f045874",
+        "intended_split": "training",
+        "stock_code": "004370",
+        "stock_name": "농심",
+        "source_type": "NEWS",
+        "primary_label": "CAPITAL_ACTION",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE",
+          "EARNINGS",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.525224,
+        "event_margin": 0.099115,
+        "sentiment_confidence": 0.500315,
+        "importance_confidence": 0.666915,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 173.365811,
-        "original_url": "https://www.kdpress.co.kr/news/articleView.html?idxno=204835"
+        "review_priority_score": 173.794688,
+        "original_url": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=368545"
       },
       {
         "review_key": "4bb75375288c06401445e869d7d580bb69f2a2cae6c2011e6dbf9afe34b90bcd",
@@ -1365,81 +1418,23 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.485388,
-        "event_margin": 0.086095,
+        "event_confidence": 0.485537,
+        "event_margin": 0.02937,
         "sentiment_confidence": 0.451742,
         "importance_confidence": 0.698077,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 171.86265,
+        "review_priority_score": 173.27559,
         "original_url": "https://www.womaneconomy.co.kr/news/articleView.html?idxno=254434"
-      },
-      {
-        "review_key": "be566bffeaa139dad951d8689f0253976958bf915f92d2e8bc802e42a0347b23",
-        "intended_split": "training",
-        "stock_code": "352820",
-        "stock_name": "하이브",
-        "source_type": "NEWS",
-        "primary_label": "CONTRACT",
-        "original_tags": [
-          "CONTRACT",
-          "CORPORATE_ACTION",
-          "DISCLOSURE",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.50634,
-        "event_margin": 0.112328,
-        "sentiment_confidence": 0.679929,
-        "importance_confidence": 0.635784,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 171.155641,
-        "original_url": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=429287"
-      },
-      {
-        "review_key": "16ba8b5cff2d8add3ceaa8101b40f38e31b5fde79373e71a54326301107c2312",
-        "intended_split": "training",
-        "stock_code": "052900",
-        "stock_name": "KX하이텍",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.385498,
-        "event_margin": 0.02456,
-        "sentiment_confidence": 0.889543,
-        "importance_confidence": 0.670053,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 170.701629,
-        "original_url": "https://www.edaily.co.kr/news/newspath.asp?newsid=03214406645478440"
       }
     ],
     "disagreement_count_by_reason": {
-      "event_tag_disagreement": 11,
+      "event_tag_disagreement": 14,
       "importance_disagreement": 57,
-      "sentiment_disagreement": 126
+      "sentiment_disagreement": 132
     },
-    "average_review_priority_score": 117.36271695
+    "average_review_priority_score": 120.23672118666667
   },
   "evaluation_review": {
     "review_row_count": 100,
@@ -1462,43 +1457,98 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.308659,
-        "event_margin": 0.034723,
+        "event_confidence": 0.340106,
+        "event_margin": 0.110309,
         "sentiment_confidence": 0.466334,
         "importance_confidence": 0.558151,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 279.839139,
+        "review_priority_score": 276.848852,
         "original_url": "https://www.bloter.net/news/articleView.html?idxno=637762"
       },
       {
-        "review_key": "4ca3d94aa931054c409002ce068f8ba84a9c27216f736874e243a8acdcaf9e7c",
+        "review_key": "9ba7f3c5755ea189a7cd7d599b9d0b54abdd47bb6efcb40450ecb8c8059c876e",
         "intended_split": "evaluation",
-        "stock_code": "012750",
-        "stock_name": "에스원",
+        "stock_code": "010200",
+        "stock_name": "극동제혁",
         "source_type": "NEWS",
-        "primary_label": "EARNINGS",
+        "primary_label": "CORPORATE_ACTION",
         "original_tags": [
-          "EARNINGS"
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
         ],
         "suggested_tags": [
-          "EARNINGS"
+          "CORPORATE_ACTION"
         ],
-        "suggested_sentiment": "POSITIVE",
+        "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.355133,
-        "event_margin": 0.021421,
-        "sentiment_confidence": 0.578237,
-        "importance_confidence": 0.554469,
+        "event_top_label": "RISK",
+        "event_confidence": 0.435113,
+        "event_margin": 0.017801,
+        "sentiment_confidence": 0.558177,
+        "importance_confidence": 0.483069,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 278.380673,
-        "original_url": "https://kpenews.com/View.aspx?No=4041312"
+        "review_priority_score": 275.501077,
+        "original_url": "https://n.news.naver.com/mnews/article/008/0000461219?sid=101"
+      },
+      {
+        "review_key": "ed0cf5bf16faea30409e6f6b9af95ddabe45d21b363084e5848b0523a0ee3285",
+        "intended_split": "evaluation",
+        "stock_code": "003620",
+        "stock_name": "KG모빌리티",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.342955,
+        "event_margin": 0.001302,
+        "sentiment_confidence": 0.467145,
+        "importance_confidence": 0.629418,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 274.032769,
+        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=523039"
+      },
+      {
+        "review_key": "1b3d24794c0443d6d6359eb0e47521eee70c7dcf54150370ee2a9370335b31aa",
+        "intended_split": "evaluation",
+        "stock_code": "006340",
+        "stock_name": "대원전선",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "GENERAL_MARKET"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "GENERAL_MARKET",
+        "event_confidence": 0.338741,
+        "event_margin": 0.008044,
+        "sentiment_confidence": 0.544259,
+        "importance_confidence": 0.593981,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 273.178152,
+        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=523363"
       },
       {
         "review_key": "00e8b033259de8a161b0912fe527b07853345aa978a9b7039e9247265d00df94",
@@ -1517,101 +1567,48 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.440363,
-        "event_margin": 0.016692,
+        "event_confidence": 0.470735,
+        "event_margin": 0.071772,
         "sentiment_confidence": 0.643378,
         "importance_confidence": 0.625923,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 274.783964,
+        "review_priority_score": 272.343931,
         "original_url": "http://www.jeonmin.co.kr/news/articleView.html?idxno=438058"
       },
       {
-        "review_key": "1b3d24794c0443d6d6359eb0e47521eee70c7dcf54150370ee2a9370335b31aa",
+        "review_key": "14d323963bbca75a86db5d70657215b6b1c21ab21b006142cc316f1161fbd62c",
         "intended_split": "evaluation",
-        "stock_code": "006340",
-        "stock_name": "대원전선",
+        "stock_code": "036560",
+        "stock_name": "KZ정밀",
         "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "GENERAL_MARKET"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.375009,
-        "event_margin": 0.057526,
-        "sentiment_confidence": 0.544259,
-        "importance_confidence": 0.593981,
-        "disagreement_reasons": [
-          "event_tag_disagreement",
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 270.671715,
-        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=523363"
-      },
-      {
-        "review_key": "78f0a13e8c25ef97d01369038275f6fecd1ff6f98fa2507ecc3736b75f9c34f8",
-        "intended_split": "evaluation",
-        "stock_code": "060910",
-        "stock_name": "프리젠",
-        "source_type": "NEWS",
-        "primary_label": "CONTRACT",
+        "primary_label": "RISK",
         "original_tags": [
           "CONTRACT",
-          "CORPORATE_ACTION",
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "CORPORATE_ACTION"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.465658,
-        "event_margin": 0.006037,
-        "sentiment_confidence": 0.526896,
-        "importance_confidence": 0.852635,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 269.960404,
-        "original_url": "http://www.etoday.co.kr/news/section/newsview.php?TM=news&SM=2101&idxno=587384"
-      },
-      {
-        "review_key": "f6ae2e92481cac8acd7c57eb29b005a467b56ec9643cb2be1c82663e91980cc2",
-        "intended_split": "evaluation",
-        "stock_code": "001060",
-        "stock_name": "JW중외제약",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
+          "DISCLOSURE",
           "EARNINGS",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "CONTRACT",
           "RISK"
         ],
         "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.713889,
-        "event_margin": 0.046226,
-        "sentiment_confidence": 0.407846,
-        "importance_confidence": 0.613901,
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.802594,
+        "event_margin": 0.230291,
+        "sentiment_confidence": 0.499288,
+        "importance_confidence": 0.56787,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 267.423262,
-        "original_url": "https://www.hitnews.co.kr/news/articleView.html?idxno=75854"
+        "review_priority_score": 262.808765,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=116510"
       },
       {
         "review_key": "56e3a01c332e58ad4974de4b9f7a6193c068d6049e8440c08b5c21d038a81bca",
@@ -1629,44 +1626,16 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.647632,
-        "event_margin": 0.320846,
+        "event_confidence": 0.638005,
+        "event_margin": 0.312802,
         "sentiment_confidence": 0.507736,
         "importance_confidence": 0.552111,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 262.1148,
+        "review_priority_score": 262.652833,
         "original_url": "https://www.businesspost.co.kr/BP?command=article_view&num=358105"
-      },
-      {
-        "review_key": "f78fccd0f21eefb78120a248c07da9bf4c6514e10ad539db86046ba0eead26f7",
-        "intended_split": "evaluation",
-        "stock_code": "009300",
-        "stock_name": "삼아제약",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.703568,
-        "event_margin": 0.256405,
-        "sentiment_confidence": 0.599458,
-        "importance_confidence": 0.580012,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 259.375581,
-        "original_url": "https://www.apsk.co.kr/news/articleView.html?idxno=539373"
       },
       {
         "review_key": "6f68b357d3b8ca7cba0811243efdec4634f8dbfca83929171ab18d8ca02fa720",
@@ -1685,43 +1654,16 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.922194,
-        "event_margin": 0.579818,
+        "event_confidence": 0.918341,
+        "event_margin": 0.566135,
         "sentiment_confidence": 0.50222,
         "importance_confidence": 0.522245,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 248.73846,
+        "review_priority_score": 249.215408,
         "original_url": "http://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202605130608&t=NN"
-      },
-      {
-        "review_key": "04b5d4e8ee980e9310cb7429273f7548f160490565cdbab737a9a900ad55ccfb",
-        "intended_split": "evaluation",
-        "stock_code": "004450",
-        "stock_name": "삼화왕관",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
-        "original_tags": [
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "EARNINGS"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.765417,
-        "event_margin": 0.491351,
-        "sentiment_confidence": 0.721125,
-        "importance_confidence": 0.713335,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 246.237429,
-        "original_url": "https://www.news2day.co.kr/article/20260317500123"
       },
       {
         "review_key": "fb4ceb2a25c2586981e4f785c3de10fa18eaf6efd41524eba9304eea5309410e",
@@ -1740,16 +1682,44 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.949578,
-        "event_margin": 0.876683,
+        "event_confidence": 0.956625,
+        "event_margin": 0.893541,
         "sentiment_confidence": 0.759821,
         "importance_confidence": 0.828891,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 231.073471,
+        "review_priority_score": 230.405353,
         "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=16046889"
+      },
+      {
+        "review_key": "23e74cf630c58e41b6be373bdacd34f0ce9db7e9b65f327e45521b1b803da382",
+        "intended_split": "evaluation",
+        "stock_code": "065170",
+        "stock_name": "비엘팜텍",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "DISCLOSURE",
+          "EARNINGS",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.4221,
+        "event_margin": 0.056853,
+        "sentiment_confidence": 0.459651,
+        "importance_confidence": 0.582244,
+        "disagreement_reasons": [
+          "importance_disagreement"
+        ],
+        "review_priority_score": 178.967272,
+        "original_url": "https://www.etoday.co.kr/news/view/2553710"
       },
       {
         "review_key": "8fff4aa96407e388ec79cb2e086d019c76bb0385031bedf30210d50575b7a8d0",
@@ -1766,15 +1736,15 @@
         ],
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.471852,
-        "event_margin": 0.044269,
+        "event_top_label": "RISK",
+        "event_confidence": 0.46445,
+        "event_margin": 0.031551,
         "sentiment_confidence": 0.414642,
         "importance_confidence": 0.50942,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 177.897227,
+        "review_priority_score": 178.474238,
         "original_url": "http://www.ferrotimes.com/news/articleView.html?idxno=33452"
       },
       {
@@ -1793,43 +1763,16 @@
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.43889,
-        "event_margin": 0.025903,
+        "event_top_label": "RISK",
+        "event_confidence": 0.450923,
+        "event_margin": 0.039503,
         "sentiment_confidence": 0.417662,
         "importance_confidence": 0.550188,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 174.634294,
+        "review_priority_score": 173.873139,
         "original_url": "https://www.livebiz.today/news/articleView.html?idxno=202137"
-      },
-      {
-        "review_key": "ed0cf5bf16faea30409e6f6b9af95ddabe45d21b363084e5848b0523a0ee3285",
-        "intended_split": "evaluation",
-        "stock_code": "003620",
-        "stock_name": "KG모빌리티",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "GENERAL_MARKET",
-          "MACRO"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.390887,
-        "event_margin": 0.037718,
-        "sentiment_confidence": 0.467145,
-        "importance_confidence": 0.629418,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 171.444775,
-        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=523039"
       },
       {
         "review_key": "2ced1b4edd8eb62315a259d8c755534faa8fdb1a7970107f0628c7ca14d9a992",
@@ -1851,45 +1794,44 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.450248,
-        "event_margin": 0.075387,
+        "event_confidence": 0.475388,
+        "event_margin": 0.080862,
         "sentiment_confidence": 0.415313,
         "importance_confidence": 0.844014,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 171.170093,
+        "review_priority_score": 170.153334,
         "original_url": "http://www.seoulfn.com/news/articleView.html?idxno=436342"
       },
       {
-        "review_key": "2bfa1835bd913baf63710226a5a5fe8a69c90a2c1b3f38626cdf2764b97ff7ef",
+        "review_key": "d930326548b3473a55793f4ccf245f4c93ec339f9f2b73a5bae0c8faacd9414e",
         "intended_split": "evaluation",
-        "stock_code": "040020",
-        "stock_name": "사라콤",
+        "stock_code": "004100",
+        "stock_name": "태양금속공업",
         "source_type": "NEWS",
-        "primary_label": "CONTRACT",
+        "primary_label": "CAPITAL_ACTION",
         "original_tags": [
           "CAPITAL_ACTION",
-          "CONTRACT",
           "DISCLOSURE",
           "MACRO"
         ],
         "suggested_tags": [
           "CAPITAL_ACTION",
-          "CONTRACT"
+          "MACRO"
         ],
-        "suggested_sentiment": "POSITIVE",
+        "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.499048,
-        "event_margin": 0.008481,
-        "sentiment_confidence": 0.55979,
-        "importance_confidence": 0.723017,
+        "event_top_label": "MACRO",
+        "event_confidence": 0.617711,
+        "event_margin": 0.056503,
+        "sentiment_confidence": 0.692895,
+        "importance_confidence": 0.510141,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 170.66514,
-        "original_url": "https://n.news.naver.com/mnews/article/015/0000797995?sid=101"
+        "review_priority_score": 166.906818,
+        "original_url": "http://www.seoulwire.com/news/articleView.html?idxno=263971"
       },
       {
         "review_key": "3ced9e2661a6d836905f82c6dc9282c178702c8ee79063c2cf46e81b218a8072",
@@ -1906,45 +1848,16 @@
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
-        "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.404522,
-        "event_margin": 0.010245,
+        "event_top_label": "RISK",
+        "event_confidence": 0.445595,
+        "event_margin": 0.064044,
         "sentiment_confidence": 0.510636,
         "importance_confidence": 0.716506,
         "disagreement_reasons": [
           "event_tag_disagreement"
         ],
-        "review_priority_score": 169.042795,
+        "review_priority_score": 166.260235,
         "original_url": "https://www.mt.co.kr/stock/2026/02/20/2026021915474314136"
-      },
-      {
-        "review_key": "04e7c88b3e81ef3dba4a66e5d5a0086a67b438a91e75e35b5c524e2bca06161b",
-        "intended_split": "evaluation",
-        "stock_code": "038110",
-        "stock_name": "에코플라스틱",
-        "source_type": "NEWS",
-        "primary_label": "CONTRACT",
-        "original_tags": [
-          "CONTRACT",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.632898,
-        "event_margin": 0.049543,
-        "sentiment_confidence": 0.490521,
-        "importance_confidence": 0.635643,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 168.086688,
-        "original_url": "http://www.finomy.com/news/articleView.html?idxno=252570"
       },
       {
         "review_key": "1a4f988b5b7a152d554e9bb88aa1df224b809d831c687e94945825c59d9f5151",
@@ -1966,100 +1879,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "CAPITAL_ACTION",
-        "event_confidence": 0.515765,
-        "event_margin": 0.092923,
+        "event_confidence": 0.554657,
+        "event_margin": 0.105338,
         "sentiment_confidence": 0.691571,
         "importance_confidence": 0.624909,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 167.295542,
+        "review_priority_score": 165.623931,
         "original_url": "https://www.etoday.co.kr/news/view/2588736"
-      },
-      {
-        "review_key": "db937a3d4258d45cf5b06154cd287bf9ba918411e44375f836f5603fcf1c799f",
-        "intended_split": "evaluation",
-        "stock_code": "037230",
-        "stock_name": "한국팩키지",
-        "source_type": "NEWS",
-        "primary_label": "CONTRACT",
-        "original_tags": [
-          "CONTRACT",
-          "EARNINGS",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "CONTRACT",
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "CONTRACT",
-        "event_confidence": 0.658678,
-        "event_margin": 0.065324,
-        "sentiment_confidence": 0.48999,
-        "importance_confidence": 0.636357,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 166.78622,
-        "original_url": "http://www.finomy.com/news/articleView.html?idxno=252804"
-      },
-      {
-        "review_key": "d930326548b3473a55793f4ccf245f4c93ec339f9f2b73a5bae0c8faacd9414e",
-        "intended_split": "evaluation",
-        "stock_code": "004100",
-        "stock_name": "태양금속공업",
-        "source_type": "NEWS",
-        "primary_label": "CAPITAL_ACTION",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "DISCLOSURE",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "CAPITAL_ACTION",
-          "MACRO"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.622312,
-        "event_margin": 0.093583,
-        "sentiment_confidence": 0.692895,
-        "importance_confidence": 0.510141,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 165.818791,
-        "original_url": "http://www.seoulwire.com/news/articleView.html?idxno=263971"
-      },
-      {
-        "review_key": "05bd68cfc8527b39bb1d2a2addd1db44d18561fb40a33113e86e6d8bc68c0d32",
-        "intended_split": "evaluation",
-        "stock_code": "006910",
-        "stock_name": "보성파워텍",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "GENERAL_MARKET",
-          "MACRO"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.485099,
-        "event_margin": 0.00943,
-        "sentiment_confidence": 0.541555,
-        "importance_confidence": 0.767978,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 164.595122,
-        "original_url": "http://www.newswell.co.kr/news/articleView.html?idxno=16195"
       },
       {
         "review_key": "a4154c45109fcd243dcdaa73d7a62dd0a533cc2e01b7439eab15a8c4a6bde7fa",
@@ -2077,22 +1905,22 @@
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
-        "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.53851,
-        "event_margin": 0.011756,
+        "event_top_label": "MACRO",
+        "event_confidence": 0.52195,
+        "event_margin": 0.022551,
         "sentiment_confidence": 0.409767,
         "importance_confidence": 0.814987,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 164.36316,
+        "review_priority_score": 164.672888,
         "original_url": "https://www.newspim.com/news/view/20260506000453"
       },
       {
-        "review_key": "687127ba6f4f405bc32c3f961f01e7e7818c698367038fa7ffba6bb58abe1e9e",
+        "review_key": "05bd68cfc8527b39bb1d2a2addd1db44d18561fb40a33113e86e6d8bc68c0d32",
         "intended_split": "evaluation",
-        "stock_code": "0011A0",
-        "stock_name": "액스비스",
+        "stock_code": "006910",
+        "stock_name": "보성파워텍",
         "source_type": "NEWS",
         "primary_label": "MACRO",
         "original_tags": [
@@ -2100,47 +1928,21 @@
         ],
         "suggested_tags": [
           "GENERAL_MARKET",
+          "MACRO",
           "RISK"
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.648635,
-        "event_margin": 0.188867,
-        "sentiment_confidence": 0.355936,
-        "importance_confidence": 0.641718,
+        "event_confidence": 0.513013,
+        "event_margin": 0.023069,
+        "sentiment_confidence": 0.541555,
+        "importance_confidence": 0.767978,
         "disagreement_reasons": [
-          "event_tag_disagreement"
+          "sentiment_disagreement"
         ],
-        "review_priority_score": 160.623012,
-        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=500672"
-      },
-      {
-        "review_key": "b868b97c1a0597f382f2b9b9ff679942437a2d8239f0f7343ccfd45fe9650525",
-        "intended_split": "evaluation",
-        "stock_code": "007630",
-        "stock_name": "폴루스바이오팜",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "DISCLOSURE",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.543514,
-        "event_margin": 0.310214,
-        "sentiment_confidence": 0.492224,
-        "importance_confidence": 0.543658,
-        "disagreement_reasons": [
-          "event_tag_disagreement"
-        ],
-        "review_priority_score": 160.504045,
-        "original_url": "https://biz.chosun.com/stock/stock_general/2023/01/03/GYMJADV5VJACVDR6FYRVNWE3AM/?utm_source=naver&utm_medium=original&utm_campaign=biz"
+        "review_priority_score": 163.277165,
+        "original_url": "http://www.newswell.co.kr/news/articleView.html?idxno=16195"
       },
       {
         "review_key": "e9ac9547ca6d626c0afc33cce3960c147afe1e8047e7a4dbf68007e4519be511",
@@ -2155,30 +1957,30 @@
           "MACRO"
         ],
         "suggested_tags": [
-          "EARNINGS",
-          "GENERAL_MARKET"
+          "EARNINGS"
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.706688,
-        "event_margin": 0.344075,
+        "event_confidence": 0.69516,
+        "event_margin": 0.282637,
         "sentiment_confidence": 0.524996,
         "importance_confidence": 0.610295,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 159.958219,
+        "review_priority_score": 161.897636,
         "original_url": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=451649"
       },
       {
-        "review_key": "9c9ffbb884c314093a542943ca2d1419edb7a10f0a9093323fe13995baae5576",
+        "review_key": "967a6f1e7cf2257c7a60e9492248f8b39712aa4998eda329a4ea8558219bcd92",
         "intended_split": "evaluation",
-        "stock_code": "008730",
-        "stock_name": "율촌화학",
+        "stock_code": "161890",
+        "stock_name": "한국콜마",
         "source_type": "NEWS",
         "primary_label": "EARNINGS",
         "original_tags": [
+          "DISCLOSURE",
           "EARNINGS"
         ],
         "suggested_tags": [
@@ -2187,100 +1989,101 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.611085,
-        "event_margin": 0.339065,
-        "sentiment_confidence": 0.535413,
-        "importance_confidence": 0.679417,
+        "event_confidence": 0.687567,
+        "event_margin": 0.341642,
+        "sentiment_confidence": 0.558716,
+        "importance_confidence": 0.526887,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 159.838814,
-        "original_url": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=440217"
+        "review_priority_score": 161.682035,
+        "original_url": "https://www.imaeil.com/page/view/2026051210030629206"
       },
       {
-        "review_key": "990cac5d177fb5404301647adde116974063356a9d90b3c783efd3d91e2b3aeb",
+        "review_key": "4c5c658f55f336cf175c338064facd8c1d9830f51ea40365defc3631868c3a90",
         "intended_split": "evaluation",
-        "stock_code": "000800",
-        "stock_name": "경남기업",
+        "stock_code": "054780",
+        "stock_name": "키이스트",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "CONTRACT",
+          "DISCLOSURE",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "CAPITAL_ACTION",
+        "event_confidence": 0.785307,
+        "event_margin": 0.023807,
+        "sentiment_confidence": 0.531914,
+        "importance_confidence": 0.892165,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 161.437491,
+        "original_url": "http://news.mk.co.kr/newsRead.php?no=516696&year=2006"
+      },
+      {
+        "review_key": "b7c1d3915a2e3d60dd9cc78a88e6f7e68bba1c0e0e7afa5733dd9a0ec529bb8b",
+        "intended_split": "evaluation",
+        "stock_code": "000910",
+        "stock_name": "유니온",
+        "source_type": "NEWS",
+        "primary_label": "CAPITAL_ACTION",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.653438,
+        "event_margin": 0.232349,
+        "sentiment_confidence": 0.537875,
+        "importance_confidence": 0.670507,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 161.153288,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=104827"
+      },
+      {
+        "review_key": "a72a2b04d561e9fc086606d2b263ca244526689c56e86ff6beab3ba1121b7147",
+        "intended_split": "evaluation",
+        "stock_code": "041450",
+        "stock_name": "인네트",
         "source_type": "NEWS",
         "primary_label": "MACRO",
         "original_tags": [
+          "DISCLOSURE",
           "MACRO"
         ],
         "suggested_tags": [
-          "GENERAL_MARKET",
-          "MACRO"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.513343,
-        "event_margin": 0.05874,
-        "sentiment_confidence": 0.657171,
-        "importance_confidence": 0.813339,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 159.154307,
-        "original_url": "https://news.dealsitetv.com/articles/170447"
-      },
-      {
-        "review_key": "35bfa8cfc2a6ec097e68c2a64b90f124a140e4a6f95a76d91a54c878638f3922",
-        "intended_split": "evaluation",
-        "stock_code": "013450",
-        "stock_name": "동성하이켐",
-        "source_type": "NEWS",
-        "primary_label": "CAPITAL_ACTION",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "CORPORATE_ACTION",
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CAPITAL_ACTION"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "HIGH",
-        "event_top_label": "CAPITAL_ACTION",
-        "event_confidence": 0.537792,
-        "event_margin": 0.28245,
-        "sentiment_confidence": 0.620455,
-        "importance_confidence": 0.875302,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 158.200873,
-        "original_url": "http://www.etoday.co.kr/news/section/newsview.php?idxno=1862818"
-      },
-      {
-        "review_key": "50dac97cb23537f1c974aad8f971897f9ce459451c25afd55098dd51b9084309",
-        "intended_split": "evaluation",
-        "stock_code": "003000",
-        "stock_name": "부광약품",
-        "source_type": "NEWS",
-        "primary_label": "CAPITAL_ACTION",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "CAPITAL_ACTION",
-          "EARNINGS"
+          "RISK"
         ],
         "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.642649,
-        "event_margin": 0.259589,
-        "sentiment_confidence": 0.535781,
-        "importance_confidence": 0.81374,
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.567334,
+        "event_margin": 0.388629,
+        "sentiment_confidence": 0.509024,
+        "importance_confidence": 0.460944,
         "disagreement_reasons": [
-          "sentiment_disagreement"
+          "event_tag_disagreement"
         ],
-        "review_priority_score": 158.027114,
-        "original_url": "https://www.kpanews.co.kr/news/articleView.html?idxno=534948"
+        "review_priority_score": 161.028223,
+        "original_url": "http://www.asiae.co.kr/news/view.htm?idxno=2010032516061363100"
       },
       {
         "review_key": "b62057fc1aa9a12de2b4ef00b392c9cb1601e4a81c283b9971a2dbcb1c227a6f",
@@ -2299,21 +2102,48 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "MACRO",
-        "event_confidence": 0.623298,
-        "event_margin": 0.338282,
+        "event_confidence": 0.582741,
+        "event_margin": 0.289698,
         "sentiment_confidence": 0.489787,
         "importance_confidence": 0.634936,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 157.233078,
+        "review_priority_score": 159.867176,
         "original_url": "http://www.fnnews.com/news/202605121536305205"
       },
       {
-        "review_key": "344329c10826a90937818b11cbe677ac00f1e8f61e7ef76bd78984635c08e260",
+        "review_key": "687127ba6f4f405bc32c3f961f01e7e7818c698367038fa7ffba6bb58abe1e9e",
         "intended_split": "evaluation",
-        "stock_code": "005740",
-        "stock_name": "크라운해태홀딩스",
+        "stock_code": "0011A0",
+        "stock_name": "액스비스",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "GENERAL_MARKET",
+          "RISK"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "RISK",
+        "event_confidence": 0.690287,
+        "event_margin": 0.259266,
+        "sentiment_confidence": 0.355936,
+        "importance_confidence": 0.641718,
+        "disagreement_reasons": [
+          "event_tag_disagreement"
+        ],
+        "review_priority_score": 157.405218,
+        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=500672"
+      },
+      {
+        "review_key": "3be287eb29d9d21ee346e40ae81567547c8ea1e59ff953f4350f71f665385786",
+        "intended_split": "evaluation",
+        "stock_code": "002300",
+        "stock_name": "한국제지",
         "source_type": "NEWS",
         "primary_label": "EARNINGS",
         "original_tags": [
@@ -2323,75 +2153,18 @@
         "suggested_tags": [
           "EARNINGS"
         ],
-        "suggested_sentiment": "NEGATIVE",
+        "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.771812,
-        "event_margin": 0.487588,
-        "sentiment_confidence": 0.401121,
-        "importance_confidence": 0.517841,
+        "event_confidence": 0.75512,
+        "event_margin": 0.416211,
+        "sentiment_confidence": 0.537022,
+        "importance_confidence": 0.483752,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 156.417657,
-        "original_url": "https://news.tf.co.kr/read/economy/2323190.htm"
-      },
-      {
-        "review_key": "5943ce8229a718368e2eed08820818edaecb6c5dc22f7901dce16847a6be8a3c",
-        "intended_split": "evaluation",
-        "stock_code": "236200",
-        "stock_name": "슈프리마",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "EARNINGS",
-          "MACRO",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "RISK",
-        "event_confidence": 0.77872,
-        "event_margin": 0.609871,
-        "sentiment_confidence": 0.670811,
-        "importance_confidence": 0.349582,
-        "disagreement_reasons": [
-          "importance_disagreement"
-        ],
-        "review_priority_score": 155.090144,
-        "original_url": "http://www.hankyung.com/news/app/newsview.php?aid=201412309801u"
-      },
-      {
-        "review_key": "7929030cacaa36ad3116100e228ac4b28d6b394227e3f407e8c2c0d6a97aa5cc",
-        "intended_split": "evaluation",
-        "stock_code": "001750",
-        "stock_name": "한양증권",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "CAPITAL_ACTION",
-          "DISCLOSURE",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "CAPITAL_ACTION",
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.912397,
-        "event_margin": 0.354379,
-        "sentiment_confidence": 0.494369,
-        "importance_confidence": 0.518832,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 154.942634,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=122349"
+        "review_priority_score": 156.750044,
+        "original_url": "http://www.edaily.co.kr/news/newspath.asp?newsid=06448486645448920"
       },
       {
         "review_key": "2b5e253167f3322908e0755cafdad67d0bfc2763cce7d044556c91dd31d52781",
@@ -2411,27 +2184,25 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "MACRO",
-        "event_confidence": 0.659578,
-        "event_margin": 0.144091,
+        "event_confidence": 0.635931,
+        "event_margin": 0.078729,
         "sentiment_confidence": 0.620096,
         "importance_confidence": 0.768981,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 153.530942,
+        "review_priority_score": 155.992675,
         "original_url": "http://www.choicenews.co.kr/news/articleView.html?idxno=163524"
       },
       {
-        "review_key": "fd524b37dca963a5663f4dfcb05077f5d92ffa7a12d3b8b88503a7d8b524fa77",
+        "review_key": "5943ce8229a718368e2eed08820818edaecb6c5dc22f7901dce16847a6be8a3c",
         "intended_split": "evaluation",
-        "stock_code": "000220",
-        "stock_name": "유유제약",
+        "stock_code": "236200",
+        "stock_name": "슈프리마",
         "source_type": "NEWS",
         "primary_label": "RISK",
         "original_tags": [
-          "CAPITAL_ACTION",
-          "CONTRACT",
-          "DISCLOSURE",
+          "EARNINGS",
           "MACRO",
           "RISK"
         ],
@@ -2439,17 +2210,47 @@
           "RISK"
         ],
         "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "HIGH",
+        "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.838167,
-        "event_margin": 0.460715,
-        "sentiment_confidence": 0.66225,
-        "importance_confidence": 0.448094,
+        "event_confidence": 0.78453,
+        "event_margin": 0.610341,
+        "sentiment_confidence": 0.670811,
+        "importance_confidence": 0.349582,
         "disagreement_reasons": [
-          "sentiment_disagreement"
+          "importance_disagreement"
         ],
-        "review_priority_score": 152.939395,
-        "original_url": "https://www.sedaily.com/NewsView/22HBWGASZ9"
+        "review_priority_score": 154.875053,
+        "original_url": "http://www.hankyung.com/news/app/newsview.php?aid=201412309801u"
+      },
+      {
+        "review_key": "08ef50645d1ab459e982144e576d47fc509bc7fac467bb2b7793774322f541da",
+        "intended_split": "evaluation",
+        "stock_code": "002480",
+        "stock_name": "범양사",
+        "source_type": "NEWS",
+        "primary_label": "CAPITAL_ACTION",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE",
+          "EARNINGS",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "CAPITAL_ACTION",
+        "event_confidence": 0.734977,
+        "event_margin": 0.24763,
+        "sentiment_confidence": 0.476195,
+        "importance_confidence": 0.903441,
+        "disagreement_reasons": [
+          "importance_disagreement"
+        ],
+        "review_priority_score": 154.492314,
+        "original_url": "https://n.news.naver.com/mnews/article/014/0000172074?sid=101"
       },
       {
         "review_key": "dfd53b463a960703f63ec672c9716eec42bb108ffdc0c6131b4e9429af242166",
@@ -2469,67 +2270,101 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "LOW",
         "event_top_label": "DISCLOSURE",
-        "event_confidence": 0.783771,
-        "event_margin": 0.12889,
+        "event_confidence": 0.779519,
+        "event_margin": 0.122231,
         "sentiment_confidence": 0.745534,
         "importance_confidence": 0.689185,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 152.651368,
+        "review_priority_score": 152.96666,
         "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240105000421"
       },
       {
-        "review_key": "f8206bf5265c49785370aa4fc3e768aaa07daaa92d7f0c372fbae2c088ee02f2",
+        "review_key": "4cac4d8d76c143bba3434ee004d63753d0ffa81dc7d83ff967c2607c5aeda01c",
         "intended_split": "evaluation",
-        "stock_code": "263750",
-        "stock_name": "펄어비스",
-        "source_type": "NEWS",
-        "primary_label": "EARNINGS",
+        "stock_code": "011170",
+        "stock_name": "롯데케미칼",
+        "source_type": "DISCLOSURE",
+        "primary_label": "CORPORATE_ACTION",
         "original_tags": [
-          "EARNINGS"
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
         ],
         "suggested_tags": [
-          "EARNINGS"
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
         ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "EARNINGS",
-        "event_confidence": 0.839839,
-        "event_margin": 0.572753,
-        "sentiment_confidence": 0.722664,
-        "importance_confidence": 0.633652,
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "LOW",
+        "event_top_label": "DISCLOSURE",
+        "event_confidence": 0.809191,
+        "event_margin": 0.045624,
+        "sentiment_confidence": 0.767962,
+        "importance_confidence": 0.717467,
         "disagreement_reasons": [
-          "sentiment_disagreement"
+          "importance_disagreement"
         ],
-        "review_priority_score": 145.160485,
-        "original_url": "https://kpenews.com/View.aspx?No=4075017"
+        "review_priority_score": 152.829136,
+        "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602000463"
       },
       {
-        "review_key": "ecce800665a906c14b426c95f798e283ea9b9b5a74fa0ef6148cd130e367206e",
+        "review_key": "8154cadb5d29057b7172362e0bd6f159b456fab2cccd85b66874ef76f403de02",
         "intended_split": "evaluation",
-        "stock_code": "004990",
-        "stock_name": "롯데지주",
+        "stock_code": "001290",
+        "stock_name": "상상인증권",
         "source_type": "NEWS",
         "primary_label": "CAPITAL_ACTION",
         "original_tags": [
-          "CAPITAL_ACTION"
+          "CAPITAL_ACTION",
+          "DISCLOSURE",
+          "EARNINGS"
         ],
         "suggested_tags": [
-          "CAPITAL_ACTION"
+          "CAPITAL_ACTION",
+          "EARNINGS"
         ],
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
-        "event_top_label": "CAPITAL_ACTION",
-        "event_confidence": 0.793729,
-        "event_margin": 0.557238,
-        "sentiment_confidence": 0.481142,
-        "importance_confidence": 0.880263,
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.86094,
+        "event_margin": 0.491783,
+        "sentiment_confidence": 0.387455,
+        "importance_confidence": 0.715779,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 145.060427,
-        "original_url": "https://biz.chosun.com/stock/market_trend/2026/06/02/MTKQ5LEUANE6ZN7E6X5V4JCHLE/?utm_source=naver&utm_medium=original&utm_campaign=biz"
+        "review_priority_score": 149.507841,
+        "original_url": "https://www.mt.co.kr/stock/2026/05/15/2026051516550845268"
+      },
+      {
+        "review_key": "ead30acfaa528da118dbba6f37c86eb6bfb0d373c6fa05cecc6b7b679f2fa1ad",
+        "intended_split": "evaluation",
+        "stock_code": "150840",
+        "stock_name": "인트로메딕",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "CRITICAL",
+        "event_top_label": "RISK",
+        "event_confidence": 0.883936,
+        "event_margin": 0.14967,
+        "sentiment_confidence": 0.858807,
+        "importance_confidence": 0.849744,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 149.14948,
+        "original_url": "https://m.skyedaily.com/news_view.html?ID=293291"
       },
       {
         "review_key": "6f23ccce0cd6e75427c55103dd602f84d47db99478594ee06ec5e6ebeacb6465",
@@ -2548,21 +2383,47 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.845767,
-        "event_margin": 0.628852,
+        "event_confidence": 0.829101,
+        "event_margin": 0.612471,
         "sentiment_confidence": 0.685407,
         "importance_confidence": 0.625539,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 144.457936,
+        "review_priority_score": 145.450773,
         "original_url": "http://www.edaily.co.kr/news/newspath.asp?newsid=05369366645448920"
       },
       {
-        "review_key": "e2a13600ad4b16a69f5a718e66009c95f7cca8a7887c8b57f3d0bf88b02adb1d",
+        "review_key": "52e9343b569f06ee4627332fd1bac28399e7d7f58e8a2d622f02c40900f54465",
         "intended_split": "evaluation",
-        "stock_code": "225590",
-        "stock_name": "패션플랫폼",
+        "stock_code": "058630",
+        "stock_name": "엠게임",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.927342,
+        "event_margin": 0.696888,
+        "sentiment_confidence": 0.484146,
+        "importance_confidence": 0.624647,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 143.944962,
+        "original_url": "https://kpenews.com/View.aspx?No=4079109"
+      },
+      {
+        "review_key": "c1226ddeb3e3acdba25f0f900293fa49ded75c71fd36696555abdcb94f1e870e",
+        "intended_split": "evaluation",
+        "stock_code": "090430",
+        "stock_name": "아모레퍼시픽",
         "source_type": "NEWS",
         "primary_label": "EARNINGS",
         "original_tags": [
@@ -2575,15 +2436,124 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.799856,
-        "event_margin": 0.617854,
-        "sentiment_confidence": 0.842993,
-        "importance_confidence": 0.682021,
+        "event_confidence": 0.871932,
+        "event_margin": 0.634156,
+        "sentiment_confidence": 0.759283,
+        "importance_confidence": 0.536814,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 142.058424,
-        "original_url": "https://www.seoulfn.com/news/articleView.html?idxno=627795"
+        "review_priority_score": 143.706565,
+        "original_url": "https://www.financialpost.co.kr/news/articleView.html?idxno=259173"
+      },
+      {
+        "review_key": "f8206bf5265c49785370aa4fc3e768aaa07daaa92d7f0c372fbae2c088ee02f2",
+        "intended_split": "evaluation",
+        "stock_code": "263750",
+        "stock_name": "펄어비스",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
+        "original_tags": [
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "EARNINGS"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.863654,
+        "event_margin": 0.599733,
+        "sentiment_confidence": 0.722664,
+        "importance_confidence": 0.633652,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 143.652475,
+        "original_url": "https://kpenews.com/View.aspx?No=4075017"
+      },
+      {
+        "review_key": "ecce800665a906c14b426c95f798e283ea9b9b5a74fa0ef6148cd130e367206e",
+        "intended_split": "evaluation",
+        "stock_code": "004990",
+        "stock_name": "롯데지주",
+        "source_type": "NEWS",
+        "primary_label": "CAPITAL_ACTION",
+        "original_tags": [
+          "CAPITAL_ACTION"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "CAPITAL_ACTION",
+        "event_confidence": 0.836667,
+        "event_margin": 0.581057,
+        "sentiment_confidence": 0.481142,
+        "importance_confidence": 0.880263,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 142.962131,
+        "original_url": "https://biz.chosun.com/stock/market_trend/2026/06/02/MTKQ5LEUANE6ZN7E6X5V4JCHLE/?utm_source=naver&utm_medium=original&utm_campaign=biz"
+      },
+      {
+        "review_key": "7f4fafcb0374d0144b1c00581e8ac7960b94723880f14fbf0c00fb6d1b7ad8e1",
+        "intended_split": "evaluation",
+        "stock_code": "037630",
+        "stock_name": "에스비엠",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "CORPORATE_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "CRITICAL",
+        "event_top_label": "RISK",
+        "event_confidence": 0.919037,
+        "event_margin": 0.612812,
+        "sentiment_confidence": 0.760423,
+        "importance_confidence": 0.660444,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 142.09608,
+        "original_url": "http://www.asiae.co.kr/news/view.htm?idxno=2013090608044128773"
+      },
+      {
+        "review_key": "ebdb57d37155dc3f6b8b5b4216d5b57daf50407e1aa7ad53ea5445336af73825",
+        "intended_split": "evaluation",
+        "stock_code": "024950",
+        "stock_name": "삼천리자전거",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "DISCLOSURE",
+          "MACRO",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "CRITICAL",
+        "event_top_label": "RISK",
+        "event_confidence": 0.944447,
+        "event_margin": 0.762679,
+        "sentiment_confidence": 0.758806,
+        "importance_confidence": 0.679181,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 137.117626,
+        "original_url": "https://www.seoulfn.com/news/articleView.html?idxno=626989"
       },
       {
         "review_key": "491f3a8f995ad83b0dcad22b511daabc3601146fa0031270e56b7517a4f422f9",
@@ -2602,15 +2572,42 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.95681,
-        "event_margin": 0.873077,
+        "event_confidence": 0.964359,
+        "event_margin": 0.887413,
         "sentiment_confidence": 0.596535,
         "importance_confidence": 0.655687,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 137.640273,
+        "review_priority_score": 137.017661,
         "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=16043533"
+      },
+      {
+        "review_key": "1f9af854c29441ec89b7574a8c19b33384ffd3ce76c99e4706f0cb7ca7978ab5",
+        "intended_split": "evaluation",
+        "stock_code": "017900",
+        "stock_name": "광전자",
+        "source_type": "NEWS",
+        "primary_label": "RISK",
+        "original_tags": [
+          "DISCLOSURE",
+          "RISK"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEGATIVE",
+        "suggested_importance": "CRITICAL",
+        "event_top_label": "RISK",
+        "event_confidence": 0.950014,
+        "event_margin": 0.875793,
+        "sentiment_confidence": 0.668302,
+        "importance_confidence": 0.629246,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 136.903735,
+        "original_url": "https://www.kdpress.co.kr/news/articleView.html?idxno=204188"
       },
       {
         "review_key": "c11caee759abd66b4774b420d3c0c01dfc4566fbbb9ba0630114582d634fe28e",
@@ -2630,48 +2627,21 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.918652,
-        "event_margin": 0.829681,
+        "event_confidence": 0.92907,
+        "event_margin": 0.832304,
         "sentiment_confidence": 0.824904,
         "importance_confidence": 0.795131,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 132.704474,
+        "review_priority_score": 132.274265,
         "original_url": "https://www.greened.kr/news/articleView.html?idxno=339489"
       },
       {
-        "review_key": "db67d25a092c1845434647148a8319d58b0f56ffbedf7d5503232faa4010d35a",
+        "review_key": "8806e80d1c987be3b562a6cc870079a72d795ed5cd1b7921bec5578fff234640",
         "intended_split": "evaluation",
-        "stock_code": "001590",
-        "stock_name": "일화모직공업",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "DISCLOSURE",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.926328,
-        "event_margin": 0.829449,
-        "sentiment_confidence": 0.882147,
-        "importance_confidence": 0.752124,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 130.156876,
-        "original_url": "https://n.news.naver.com/mnews/article/009/0000386049?sid=101"
-      },
-      {
-        "review_key": "b471751d3a8c32ae96818c48fac5ba573238535784feceb83acfdfaf8b3ee176",
-        "intended_split": "evaluation",
-        "stock_code": "002780",
-        "stock_name": "진흥기업",
+        "stock_code": "054180",
+        "stock_name": "메디콕스",
         "source_type": "NEWS",
         "primary_label": "RISK",
         "original_tags": [
@@ -2685,15 +2655,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.970871,
-        "event_margin": 0.848951,
-        "sentiment_confidence": 0.823672,
-        "importance_confidence": 0.747887,
+        "event_confidence": 0.981393,
+        "event_margin": 0.939783,
+        "sentiment_confidence": 0.771828,
+        "importance_confidence": 0.837138,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 129.364572,
-        "original_url": "https://www.etoday.co.kr/news/view/2579604"
+        "review_priority_score": 127.977378,
+        "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=16033704"
       },
       {
         "review_key": "c88dd9b939bcb235b9838a40fd068105620b76f925b9f6189e9c64049c6e62db",
@@ -2712,133 +2682,157 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.955729,
-        "event_margin": 0.878868,
+        "event_confidence": 0.96473,
+        "event_margin": 0.882194,
         "sentiment_confidence": 0.937788,
         "importance_confidence": 0.798131,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 127.859418,
+        "review_priority_score": 127.461205,
         "original_url": "https://www.newsis.com/view/NISX20260527_0003645857"
       },
       {
-        "review_key": "ee297fd44dafe67bf2a25c4f731bc27bcb3c248c80da34c3ddc017d8f66ce621",
+        "review_key": "79a822c9d71ebe7e107ca1a3330ddaa60a7387c1e405feed9f7cc0f01718eb85",
         "intended_split": "evaluation",
-        "stock_code": "298690",
-        "stock_name": "에어부산",
+        "stock_code": "006390",
+        "stock_name": "한일현대시멘트",
         "source_type": "NEWS",
-        "primary_label": "RISK",
+        "primary_label": "CONTRACT",
         "original_tags": [
+          "CAPITAL_ACTION",
+          "CONTRACT",
+          "CORPORATE_ACTION",
           "DISCLOSURE",
-          "MACRO",
-          "RISK"
+          "MACRO"
         ],
         "suggested_tags": [
-          "RISK"
+          "CONTRACT"
         ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.9394,
-        "event_margin": 0.839032,
-        "sentiment_confidence": 0.90604,
-        "importance_confidence": 0.920721,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 127.609958,
-        "original_url": "https://biz.newdaily.co.kr/site/data/html/2026/03/12/2026031200138.html"
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "CONTRACT",
+        "event_confidence": 0.478362,
+        "event_margin": 0.116931,
+        "sentiment_confidence": 0.479908,
+        "importance_confidence": 0.705075,
+        "disagreement_reasons": [],
+        "review_priority_score": 70.634397,
+        "original_url": "https://www.sedaily.com/NewsView/2GXRSBR9UE"
       },
       {
-        "review_key": "6bb0089ac92b8c5bb85f7a2ee4314e21786b31f7658673e4535866946a2f7ec1",
+        "review_key": "b99700e029e3584120bcb8a2b8d9ea312344260a2038e315f855cb3cccbf61a9",
         "intended_split": "evaluation",
-        "stock_code": "002420",
-        "stock_name": "세기상사",
+        "stock_code": "000500",
+        "stock_name": "가온전선",
         "source_type": "NEWS",
-        "primary_label": "RISK",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "GENERAL_MARKET",
+        "event_confidence": 0.47886,
+        "event_margin": 0.034535,
+        "sentiment_confidence": 0.539398,
+        "importance_confidence": 0.770673,
+        "disagreement_reasons": [],
+        "review_priority_score": 64.175091,
+        "original_url": "https://www.joongangenews.com/news/articleView.html?idxno=523411"
+      },
+      {
+        "review_key": "59ab07d0b66ce17d6536fe7a2cf74c9290d74b513dad84e214657ccfc3be1145",
+        "intended_split": "evaluation",
+        "stock_code": "007150",
+        "stock_name": "동양텔레콤",
+        "source_type": "NEWS",
+        "primary_label": "CONTRACT",
+        "original_tags": [
+          "CONTRACT",
+          "CORPORATE_ACTION",
+          "EARNINGS",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "CONTRACT",
+          "CORPORATE_ACTION"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "HIGH",
+        "event_top_label": "CONTRACT",
+        "event_confidence": 0.628816,
+        "event_margin": 0.208195,
+        "sentiment_confidence": 0.670047,
+        "importance_confidence": 0.511169,
+        "disagreement_reasons": [],
+        "review_priority_score": 63.162266,
+        "original_url": "http://news.mk.co.kr/news_forward.php?domain=news&no=1386594&year=2014"
+      },
+      {
+        "review_key": "85aca770c6b00ec964d456576dc8cf45b08e0c6e7878c591111424fc1a32059d",
+        "intended_split": "evaluation",
+        "stock_code": "004840",
+        "stock_name": "DRB동일",
+        "source_type": "NEWS",
+        "primary_label": "CAPITAL_ACTION",
+        "original_tags": [
+          "CAPITAL_ACTION",
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "CAPITAL_ACTION",
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.609379,
+        "event_margin": 0.032063,
+        "sentiment_confidence": 0.649008,
+        "importance_confidence": 0.857772,
+        "disagreement_reasons": [],
+        "review_priority_score": 61.734578,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=104911"
+      },
+      {
+        "review_key": "2f7ee1a2a8552d34a7379745773583c471ab05d2b168204437927b60d1fbc99e",
+        "intended_split": "evaluation",
+        "stock_code": "088290",
+        "stock_name": "이원컴포텍",
+        "source_type": "NEWS",
+        "primary_label": "EARNINGS",
         "original_tags": [
           "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "CONTRACT",
           "EARNINGS",
           "RISK"
         ],
-        "suggested_tags": [
-          "RISK"
-        ],
         "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.929384,
-        "event_margin": 0.81823,
-        "sentiment_confidence": 0.90565,
-        "importance_confidence": 0.947133,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 125.960148,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=91921"
-      },
-      {
-        "review_key": "05398e78bb776d3436010dac90a61dfce171871680d2f6d10e634913b28b5cb1",
-        "intended_split": "evaluation",
-        "stock_code": "294090",
-        "stock_name": "이오플로우",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "DISCLOSURE",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.979811,
-        "event_margin": 0.939613,
-        "sentiment_confidence": 0.905197,
-        "importance_confidence": 0.936456,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 123.383243,
-        "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=16061924"
-      },
-      {
-        "review_key": "2a3da9d886c6cb855aee021f7318716ff1ae8d8d9ac869ab3d5b3ddf359e5e28",
-        "intended_split": "evaluation",
-        "stock_code": "263050",
-        "stock_name": "유틸렉스",
-        "source_type": "NEWS",
-        "primary_label": "RISK",
-        "original_tags": [
-          "DISCLOSURE",
-          "RISK"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEGATIVE",
-        "suggested_importance": "CRITICAL",
-        "event_top_label": "RISK",
-        "event_confidence": 0.995909,
-        "event_margin": 0.970476,
-        "sentiment_confidence": 0.94137,
-        "importance_confidence": 0.973445,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 120.584997,
-        "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=16041064"
+        "suggested_importance": "HIGH",
+        "event_top_label": "EARNINGS",
+        "event_confidence": 0.798349,
+        "event_margin": 0.259556,
+        "sentiment_confidence": 0.454334,
+        "importance_confidence": 0.547461,
+        "disagreement_reasons": [],
+        "review_priority_score": 61.532986,
+        "original_url": "https://www.newsis.com/view/NISX20260528_0003647064"
       }
     ],
     "disagreement_count_by_reason": {
-      "event_tag_disagreement": 4,
+      "event_tag_disagreement": 5,
       "importance_disagreement": 17,
-      "sentiment_disagreement": 40
+      "sentiment_disagreement": 32
     },
-    "average_review_priority_score": 110.21144437999999
+    "average_review_priority_score": 103.87835602999999
   },
   "review_policy": "model suggestions are reviewer assistance only and are not promoted without human_review_approved final labels"
 }
