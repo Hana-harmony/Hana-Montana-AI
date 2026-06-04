@@ -11,6 +11,7 @@ uv run python scripts/build_augmented_training_data.py
 uv run python scripts/build_news_style_training_data.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
+uv run python scripts/build_model_release_report.py
 ```
 
 ## 현재 테스트 범위
@@ -34,6 +35,7 @@ uv run python scripts/evaluate_ml_model.py
 - 약지도 distillation 후보 중 teacher confidence와 gold gate를 통과한 후보만 이벤트 모델 학습에 승격하는지 검증
 - 모델 artifact 누락·손상 시 명시적 오류와 API 503 fail-closed 응답
 - 분석 API 성공·실패 audit log와 원문 비노출
+- 모델 release report가 학습·평가·distillation 리포트와 동기화되어 있고 모든 gate가 통과하는지 검증
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 
@@ -49,6 +51,7 @@ uv run python scripts/evaluate_ml_model.py
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9821, 이벤트 macro F1 0.9525, 감성 accuracy 0.9821, 중요도 accuracy 0.9643, 종목 accuracy 1.0이다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260604122101`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 
 ## 추가 예정
 - 배포 네트워크에서 외부 접근 차단 확인

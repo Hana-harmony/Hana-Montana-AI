@@ -26,7 +26,7 @@
 
 ## 2026-06-04 실제 ML 기반 금융 NLP 전환
 - Naver News Search, OpenDART 수집 파이프라인 추가
-- 수집 raw와 약지도 라벨 데이터는 gitignore된 `data/raw`, `data/processed`에만 저장
+- 수집 raw와 약지도 라벨 데이터는 `data/raw`, `data/processed`에 저장
 - OpenDART 공시검색에서 12,967건을 수집하고 약지도 라벨링 수행
 - 저작권 문제가 없는 합성 금융 문장 증강 corpus 486건 생성
 - TF-IDF char n-gram + Logistic Regression 기반 supervised ML 모델 학습
@@ -124,7 +124,7 @@
 - 36건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9444, macro F1 0.9075, 감성 accuracy 0.9167, 중요도 accuracy 0.8889, 종목 accuracy 1.0을 기록했다.
 
 ## 2026-06-04 약지도 대량 후보 distillation gate
-- gitignore된 `data/processed/weak_labeled_alerts.jsonl` 14,169건을 distillation 후보로 사용한다.
+- `data/processed/weak_labeled_alerts.jsonl` 14,169건을 distillation 후보로 사용한다.
 - `weak_distiller.py`를 추가해 disclosure noise, disclosure-only, duplicate, low-signal 후보를 제거한다.
 - ETF·집합투자증권·투자설명서·증권발행실적보고서 같은 공시 노이즈를 학습 승격 대상에서 제외한다.
 - 라벨별 quota와 deterministic hash tie-breaker로 재현 가능한 선별 순서를 만든다.
@@ -137,7 +137,7 @@
 ## 2026-06-04 teacher-gated pseudo-label 이벤트 학습
 - Naver News Search와 OpenDART를 로컬 키로 확장 수집해 raw 후보를 37,278건으로 늘렸다.
 - provider 리포트 기준 Naver News Search 11,312건, OpenDART 25,966건을 보존했다.
-- 수집 raw와 weak label 파일은 `data/raw`, `data/processed`에만 저장하며 gitignore 상태를 유지했다.
+- 수집 raw와 weak label 파일은 `data/raw`, `data/processed`에 저장하고 학습 재현성을 위해 추적 대상으로 유지했다.
 - weak distillation 후보는 37,278건 중 4,845건이며 disclosure noise, disclosure-only, duplicate, low-signal 후보를 제외했다.
 - supervised corpus 3,571건으로 teacher 모델을 먼저 학습한 뒤, distillation 후보를 teacher가 다시 예측한다.
 - teacher event confidence 0.58, sentiment confidence 0.72, importance confidence 0.68 이상이고 weak-label과 이벤트가 합의한 후보만 pseudo-label로 승격한다.
@@ -179,6 +179,14 @@
 - 원문 제목, snippet, URL은 로그에 직접 남기지 않고 SHA-256 hash만 기록한다.
 - 분석 API는 모델 artifact 누락 실패도 audit log로 남긴 뒤 기존 `503` fail-closed 계약을 유지한다.
 - 테스트로 성공 audit log, 모델 artifact 실패 audit log, 원문 비노출을 검증했다.
+
+## 2026-06-04 모델 release report
+- `model_release_report.py`를 추가해 학습 리포트, gold 평가 리포트, weak distillation 리포트를 하나의 버전별 release report로 묶는다.
+- `scripts/build_model_release_report.py`가 `reports/model-release-report.json`을 결정적으로 재생성한다.
+- release report는 모델 버전, artifact 경로, 학습 샘플 수, pseudo-label 승격 내역, 데이터 lineage, weakest event label을 기록한다.
+- holdout, benchmark, OpenDART 실공시 gold, Naver 실제 뉴스 gold quality gate가 모두 통과해야 `overall_status=pass`가 된다.
+- pseudo-label 승격 수와 teacher 학습 샘플 수가 학습 리포트와 distillation 리포트 사이에서 일치하는지도 consistency check로 검증한다.
+- 수집 raw와 약지도 라벨 파일은 gitignore하지 않고 커밋해 학습 재현성과 PR 리뷰 가능성을 유지한다.
 
 ## 현재 구현 로직
 - 종목 매핑은 전달받은 `stock_universe`에서 종목코드, 한글명, 영문명 포함 여부로 판단한다.

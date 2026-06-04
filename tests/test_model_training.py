@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import joblib
 import pytest
@@ -14,6 +15,7 @@ from hannah_montana_ai.training.collector import should_write_raw_alerts
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.ml_trainer import financial_tokenize, train_ml_model
+from hannah_montana_ai.training.model_release_report import build_model_release_report
 from hannah_montana_ai.training.weak_distiller import distill_weak_labeled_alerts
 
 GOLD_EVENT_LABEL_QUALITY_GATES = {
@@ -227,6 +229,46 @@ def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
     assert training_texts.isdisjoint(evaluation_texts)
 
 
+def test_model_release_report_matches_source_reports() -> None:
+    training_report = _read_json(Path("reports/ml-training-report.json"))
+    evaluation_report = _read_json(Path("reports/ml-model-evaluation.json"))
+    distillation_report = _read_json(Path("reports/weak-distillation-report.json"))
+    release_report = _read_json(Path("reports/model-release-report.json"))
+
+    expected = build_model_release_report(
+        training_report,
+        evaluation_report,
+        distillation_report,
+    )
+
+    assert release_report == expected
+    assert release_report["overall_status"] == "pass"
+    assert release_report["model_version"] == training_report["version"]
+    assert release_report["training"]["sample_count"] == 3949
+    assert release_report["training"]["pseudo_labeled_sample_count"] == 360
+    assert release_report["pseudo_labeling"]["accepted_count_by_primary_label"] == {
+        "RISK": 140,
+        "CONTRACT": 180,
+        "CAPITAL_ACTION": 0,
+        "CORPORATE_ACTION": 40,
+        "EARNINGS": 0,
+        "MACRO": 0,
+        "DISCLOSURE": 0,
+        "GENERAL_MARKET": 0,
+    }
+    assert release_report["quality_gates"]["real_news_gold"]["status"] == "pass"
+    assert (
+        release_report["quality_gates"]["real_news_gold"]["metrics"][
+            "event_macro_f1"
+        ]["actual"]
+        >= 0.9
+    )
+    assert (
+        release_report["data_lineage"]["committed_data_policy"]
+        == "raw_and_processed_training_data_are_tracked"
+    )
+
+
 def test_weak_distiller_filters_noise_and_balances_high_signal_samples(tmp_path: Path) -> None:
     weak_path = tmp_path / "weak.jsonl"
     rows = [
@@ -277,3 +319,7 @@ def test_collection_guard_prevents_dataset_shrink() -> None:
     assert should_write_raw_alerts(existing_count=1000, next_count=900) is False
     assert should_write_raw_alerts(existing_count=1000, next_count=1000) is True
     assert should_write_raw_alerts(existing_count=1000, next_count=1, force=True) is True
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))

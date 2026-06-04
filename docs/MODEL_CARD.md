@@ -26,6 +26,7 @@
 - 수집 raw 위치: `data/raw/collected_alerts.jsonl`
 - 약지도 라벨 위치: `data/processed/weak_labeled_alerts.jsonl`
 - 약지도 distillation 리포트: `reports/weak-distillation-report.json`
+- 버전별 release 리포트: `reports/model-release-report.json`
 - 수동 curated corpus: `data/training/financial_alert_corpus.jsonl`
 - 합성 증강 corpus: `data/training/financial_alert_augmented.jsonl`
 - 뉴스 제목체 증강 corpus: `data/training/financial_alert_news_style_augmented.jsonl`
@@ -112,6 +113,13 @@
 - 감성 accuracy: 0.9821
 - 중요도 accuracy: 0.9643
 - 종목 매핑 accuracy: 1.0
+
+## Release gate
+- 위치: `reports/model-release-report.json`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260604122101`
+- 전체 상태: `pass`
+- release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 56건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
+- pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
 
 ## 한계
 - Naver 뉴스 gold set을 56건으로 확대했지만 종목·업종·기간을 넓혀 계속 확장해야 한다.

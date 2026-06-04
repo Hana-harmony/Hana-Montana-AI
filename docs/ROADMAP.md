@@ -18,7 +18,7 @@
 - 실제 뉴스 gold 56건 확장과 `CORPORATE_ACTION` pseudo-label 승격 완료
 
 ## M3 운영 하드닝
-- 모델 버전별 성능 리포트
+- 모델 버전별 성능 리포트 완료
 - 뉴스 gold label set 종목·기간 확대
 - teacher-student promotion gate 품질 모니터링과 라벨별 확대 검증
 - 추론 latency 모니터링 완료

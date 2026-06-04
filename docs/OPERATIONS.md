@@ -36,6 +36,17 @@ docker run --rm --network hana-internal hannah-montana-ai
 - 현재 artifact는 37,278건 수집 후보 중 `RISK`, `CONTRACT`, `CORPORATE_ACTION` 360건 pseudo-label을 이벤트 모델 학습에 반영했다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
+## 모델 release report
+```bash
+uv run python scripts/train_ml_model.py
+uv run python scripts/evaluate_ml_model.py
+uv run python scripts/build_model_release_report.py
+```
+
+- `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
+- `overall_status`는 모든 quality gate와 pseudo-label consistency check가 통과할 때만 `pass`가 된다.
+- release report는 `reports/ml-training-report.json`, `reports/ml-model-evaluation.json`, `reports/weak-distillation-report.json`에서 결정적으로 생성한다.
+
 ## 운영 전 보강
 - drift 감시
 - 재학습 기준과 rollback 절차
