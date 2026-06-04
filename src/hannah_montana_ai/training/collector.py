@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
@@ -85,6 +86,7 @@ def collect_naver_news(
     max_per_query: int = 200,
     sleep_seconds: float = 0.4,
     max_retries: int = 3,
+    queries: Sequence[str] | None = None,
 ) -> RawCollectionResult:
     credentials = _required_credentials(NAVER_NEWS_CREDENTIAL_NAMES)
     client_id = credentials["NAVER_NEWS_CLIENT_ID"]
@@ -92,7 +94,8 @@ def collect_naver_news(
     collected: dict[str, RawCollectedAlert] = {}
     status = ProviderCollectionStatus(provider="naver-news")
 
-    for query in NAVER_QUERIES:
+    effective_queries = tuple(queries or NAVER_QUERIES)
+    for query in effective_queries:
         for start in range(1, max_per_query + 1, 100):
             params = urlencode(
                 {

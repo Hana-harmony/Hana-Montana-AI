@@ -5,6 +5,7 @@ description = "Financial NLP analysis API for Hana OmniLens alerts"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "defusedxml>=0.7.1",
     "fastapi==0.136.1",
     "joblib>=1.5.1",
     "scikit-learn>=1.7.0",
@@ -18,6 +19,7 @@ dev = [
     "mypy>=1.16.0",
     "pytest>=8.4.0",
     "ruff>=0.11.12",
+    "types-defusedxml>=0.7.0.20250822",
 ]
 
 [tool.uv]

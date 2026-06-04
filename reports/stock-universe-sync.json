@@ -1,0 +1,7 @@
+{
+  "schema_version": "korea-stock-universe/v1",
+  "provider": "open-dart-corp-code",
+  "output_path": "data/reference/korea_stock_universe.csv",
+  "stock_count": 3967,
+  "credential_policy": "OPEN_DART_API_KEY is loaded from gitignored local env only"
+}

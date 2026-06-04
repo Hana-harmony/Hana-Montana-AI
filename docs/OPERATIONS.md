@@ -32,6 +32,18 @@ docker run --rm --network hana-internal hannah-montana-ai
 - 필요한 수집 변수명은 `NAVER_NEWS_CLIENT_ID`, `NAVER_NEWS_CLIENT_SECRET`, `OPEN_DART_API_KEY`다.
 - 수집 credential이 없으면 네트워크 요청 전에 실패하며, 오류에는 변수명만 남긴다.
 - `scripts/collect_training_data.py`는 Naver News Search와 OpenDART에서 제목·snippet·링크만 수집한다.
+- 국내주식 universe는 로컬 `OPEN_DART_API_KEY`로 동기화한다.
+```bash
+uv run python scripts/sync_stock_universe.py
+uv run python scripts/build_stock_coverage_report.py
+```
+- 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
+```bash
+uv run python scripts/collect_training_data.py \
+  --reuse-existing-raw \
+  --use-stock-universe-news-queries \
+  --stock-query-limit 200
+```
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
@@ -40,6 +52,8 @@ docker run --rm --network hana-internal hannah-montana-ai
 
 ## 모델 release report
 ```bash
+uv run python scripts/sync_stock_universe.py
+uv run python scripts/build_stock_coverage_report.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_release_report.py
@@ -59,5 +73,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## 운영 전 보강
 - drift 감시
+- supervised 학습 데이터 300개 이상 종목 coverage 확보
+- evaluation gold 100개 이상 종목 coverage 확보
 - 재학습 기준과 rollback 절차
 - 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성
