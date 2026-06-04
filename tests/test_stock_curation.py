@@ -5,6 +5,7 @@ from hannah_montana_ai.training.stock_curation import (
     build_stock_gold_review_batches,
     build_stock_training_candidates,
     candidate_review_key,
+    promote_approved_stock_gold_reviews,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, write_stock_universe
 
@@ -133,6 +134,68 @@ def test_build_stock_gold_review_batches_excludes_existing_and_splits_stocks(
     assert result.report["promotion_policy"].endswith("human_review_approved")
 
 
+def test_committed_stock_gold_review_batches_do_not_promote_without_approval(
+    tmp_path: Path,
+) -> None:
+    result = promote_approved_stock_gold_reviews(
+        training_review_path=Path("data/curation/stock_gold_training_review_batch.jsonl"),
+        evaluation_review_path=Path(
+            "data/curation/stock_gold_evaluation_review_batch.jsonl"
+        ),
+        training_output_path=tmp_path / "training_gold.jsonl",
+        evaluation_output_path=tmp_path / "evaluation_gold.jsonl",
+    )
+
+    assert result.training_rows == []
+    assert result.evaluation_rows == []
+    assert result.report["training_promotion"]["approved_row_count"] == 0
+    assert result.report["evaluation_promotion"]["approved_row_count"] == 0
+    assert result.report["promotion_policy"].startswith("only human_review_approved")
+    assert (tmp_path / "training_gold.jsonl").read_text(encoding="utf-8") == ""
+    assert (tmp_path / "evaluation_gold.jsonl").read_text(encoding="utf-8") == ""
+
+
+def test_promote_stock_gold_reviews_writes_only_human_approved_rows(
+    tmp_path: Path,
+) -> None:
+    training_review_path = tmp_path / "training_review.jsonl"
+    evaluation_review_path = tmp_path / "evaluation_review.jsonl"
+    training_output_path = tmp_path / "training_gold.jsonl"
+    evaluation_output_path = tmp_path / "evaluation_gold.jsonl"
+    _write_jsonl(
+        training_review_path,
+        [
+            _review_row("000001", "학습승인", "CONTRACT", "training", "human_review_approved"),
+            _review_row("000002", "학습대기", "RISK", "training", "needs_human_review"),
+            _review_row("000003", "분리오류", "MACRO", "evaluation", "human_review_approved"),
+        ],
+    )
+    _write_jsonl(
+        evaluation_review_path,
+        [
+            _review_row("000004", "평가승인", "EARNINGS", "evaluation", "human_review_approved"),
+            _review_row("000005", "평가대기", "RISK", "evaluation", "needs_human_review"),
+        ],
+    )
+
+    result = promote_approved_stock_gold_reviews(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+    )
+    training_rows = _read_jsonl(training_output_path)
+    evaluation_rows = _read_jsonl(evaluation_output_path)
+
+    assert [row["stock_code"] for row in training_rows] == ["000001"]
+    assert [row["stock_code"] for row in evaluation_rows] == ["000004"]
+    assert training_rows[0]["source_review_status"] == "human_review_approved"
+    assert evaluation_rows[0]["source_review_split"] == "evaluation"
+    assert result.report["training_promotion"]["promoted_stock_count"] == 1
+    assert result.report["evaluation_promotion"]["promoted_stock_count"] == 1
+    assert result.report["disjoint_stock_check"]["status"] == "pass"
+
+
 def candidate_review_key_from_dict(row: dict[str, object]) -> str:
     from hannah_montana_ai.training.stock_curation import StockTrainingCandidate
 
@@ -181,6 +244,22 @@ def _candidate(stock_code: str, stock_name: str, primary_label: str) -> dict[str
         "provider": "test",
         "content_hash": stock_code,
         "curation_status": "needs_human_review",
+    }
+
+
+def _review_row(
+    stock_code: str,
+    stock_name: str,
+    primary_label: str,
+    intended_split: str,
+    review_status: str,
+) -> dict[str, object]:
+    row = _candidate(stock_code, stock_name, primary_label)
+    return {
+        **row,
+        "review_key": f"review-{stock_code}",
+        "intended_split": intended_split,
+        "review_status": review_status,
     }
 
 

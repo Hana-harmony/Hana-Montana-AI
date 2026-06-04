@@ -302,3 +302,11 @@
 - 라벨 round-robin 선별로 `CAPITAL_ACTION`, `CONTRACT`, `CORPORATE_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`, `RISK` 분포를 균형화했다.
 - 모든 row는 `review_status=needs_human_review`이며 사람이 승인하기 전까지 supervised/gold 정답셋으로 승격하지 않는다.
 - `reports/stock-gold-review-batch-report.json`은 후보 수 6,244건, 후보 종목 수 2,127개, 학습 검수 300종목, 평가 검수 100종목, disjoint check pass를 기록한다.
+
+## 2026-06-05 gold 검수 승인 승격 파이프라인
+- `promote_approved_stock_gold_reviews`를 추가해 `human_review_approved` row만 학습·평가 gold JSONL로 출력한다.
+- `needs_human_review` row와 intended split이 맞지 않는 row는 승격하지 않는다.
+- `scripts/promote_stock_gold_review_batch.py`는 승격 결과를 `reports/stock-gold-promotion-report.json`으로 기록한다.
+- 학습 스크립트는 `data/training/financial_alert_stock_review_gold.jsonl`이 존재할 때 supervised 학습셋에 포함한다.
+- 평가 스크립트는 `data/evaluation/financial_alert_stock_review_gold.jsonl`이 존재하고 샘플이 있을 때 `stock_review_gold` 평가 섹션을 추가한다.
+- coverage report도 승인된 stock review gold 파일이 존재할 경우 supervised/evaluation coverage에 포함한다.

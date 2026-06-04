@@ -66,6 +66,9 @@
 - 학습 gold 검수 배치: `data/curation/stock_gold_training_review_batch.jsonl`
 - 평가 gold 검수 배치: `data/curation/stock_gold_evaluation_review_batch.jsonl`
 - gold 검수 배치 리포트: `reports/stock-gold-review-batch-report.json`
+- 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
+- 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
+- gold 승격 리포트: `reports/stock-gold-promotion-report.json`
 - OpenDART 고유번호 기반 universe 종목 수: 3,967개
 - 분석 API는 요청 후보 종목이 비어 있거나 50개 이하 후보에 포함되지 않은 종목도 내부 universe master로 매핑한다.
 - 전체 universe 3,967개 종목의 6자리 종목코드 매핑을 회귀 테스트로 검증한다.
@@ -82,6 +85,7 @@
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 이는 raw 후보 폭에 비해 사람이 검수한 supervised/gold 종목 커버리지가 아직 부족하다는 뜻이다.
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
+- `human_review_approved` 상태로 승인된 검수 row만 별도 stock review gold 파일로 승격되며, 학습·평가 스크립트는 해당 파일이 존재할 때만 포함한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.

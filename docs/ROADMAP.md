@@ -32,5 +32,6 @@
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 6,244건, 2,127개 종목 생성 완료
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 464건, 464개 종목을 event-model-only pseudo-label로 제한 승격 완료
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
+- `human_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료
 - raw 후보는 2,356개 종목까지 매칭되지만 supervised 학습 종목은 38개, evaluation 종목은 57개라 coverage gate는 아직 fail이다.
 - 다음 단계는 검수 배치를 사람이 승인해 gold/supervised 데이터에 승격하고 최소 300개 이상 종목의 supervised 학습셋과 100개 이상 종목의 evaluation gold를 확보하는 것이다.

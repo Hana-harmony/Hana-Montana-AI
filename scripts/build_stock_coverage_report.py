@@ -17,11 +17,13 @@ TRAINING_PATHS = [
     PROJECT_ROOT / "data/training/financial_alert_augmented.jsonl",
     PROJECT_ROOT / "data/training/financial_alert_news_style_augmented.jsonl",
     PROJECT_ROOT / "data/training/financial_alert_real_news_gold.jsonl",
+    PROJECT_ROOT / "data/training/financial_alert_stock_review_gold.jsonl",
 ]
 EVALUATION_PATHS = [
     PROJECT_ROOT / "data/evaluation/financial_alert_eval.jsonl",
     PROJECT_ROOT / "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
     PROJECT_ROOT / "data/evaluation/financial_alert_real_news_gold.jsonl",
+    PROJECT_ROOT / "data/evaluation/financial_alert_stock_review_gold.jsonl",
 ]
 
 

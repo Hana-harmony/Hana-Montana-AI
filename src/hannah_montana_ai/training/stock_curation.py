@@ -6,7 +6,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseEntry,
@@ -24,6 +24,8 @@ STOCK_CURATION_QUEUE_SCHEMA_VERSION = "stock-curation-queue/v1"
 STOCK_CURATION_REPORT_SCHEMA_VERSION = "stock-curation-report/v1"
 STOCK_GOLD_REVIEW_BATCH_SCHEMA_VERSION = "stock-gold-review-batch/v1"
 STOCK_GOLD_REVIEW_REPORT_SCHEMA_VERSION = "stock-gold-review-report/v1"
+STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION = "stock-gold-promotion-report/v1"
+HUMAN_REVIEW_APPROVED_STATUS = "human_review_approved"
 
 
 @dataclass(frozen=True)
@@ -78,6 +80,13 @@ class StockGoldReviewRow:
 class StockGoldReviewBatchBuildResult:
     training_rows: list[StockGoldReviewRow]
     evaluation_rows: list[StockGoldReviewRow]
+    report: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class StockGoldPromotionResult:
+    training_rows: list[dict[str, Any]]
+    evaluation_rows: list[dict[str, Any]]
     report: dict[str, Any]
 
 
@@ -193,6 +202,41 @@ def build_stock_gold_review_batches(
     )
 
 
+def promote_approved_stock_gold_reviews(
+    training_review_path: Path,
+    evaluation_review_path: Path,
+    training_output_path: Path,
+    evaluation_output_path: Path,
+) -> StockGoldPromotionResult:
+    training_review_rows = _load_stock_gold_review_rows(training_review_path)
+    evaluation_review_rows = _load_stock_gold_review_rows(evaluation_review_path)
+    training_rows = _approved_review_rows_to_labeled_rows(
+        training_review_rows,
+        intended_split="training",
+    )
+    evaluation_rows = _approved_review_rows_to_labeled_rows(
+        evaluation_review_rows,
+        intended_split="evaluation",
+    )
+    _write_dict_jsonl(training_output_path, training_rows)
+    _write_dict_jsonl(evaluation_output_path, evaluation_rows)
+    report = _build_gold_promotion_report(
+        training_review_path=training_review_path,
+        evaluation_review_path=evaluation_review_path,
+        training_output_path=training_output_path,
+        evaluation_output_path=evaluation_output_path,
+        training_review_rows=training_review_rows,
+        evaluation_review_rows=evaluation_review_rows,
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+    )
+    return StockGoldPromotionResult(
+        training_rows=training_rows,
+        evaluation_rows=evaluation_rows,
+        report=report,
+    )
+
+
 def write_stock_training_candidates(
     path: Path,
     candidates: Sequence[StockTrainingCandidate],
@@ -219,6 +263,11 @@ def write_stock_gold_review_rows(
 
 
 def write_stock_gold_review_report(path: Path, report: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def write_stock_gold_promotion_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -403,6 +452,129 @@ def _load_stock_training_candidates(path: Path) -> list[StockTrainingCandidate]:
             )
         )
     return candidates
+
+
+def _load_stock_gold_review_rows(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        rows.append(payload)
+    return rows
+
+
+def _approved_review_rows_to_labeled_rows(
+    rows: Sequence[dict[str, Any]],
+    intended_split: str,
+) -> list[dict[str, Any]]:
+    promoted_rows: list[dict[str, Any]] = []
+    seen_review_keys: set[str] = set()
+    for row in rows:
+        if row.get("review_status") != HUMAN_REVIEW_APPROVED_STATUS:
+            continue
+        if row.get("intended_split") != intended_split:
+            continue
+        review_key = str(row.get("review_key", ""))
+        if not review_key or review_key in seen_review_keys:
+            continue
+        promoted_rows.append(_to_labeled_gold_row(row, intended_split))
+        seen_review_keys.add(review_key)
+    return promoted_rows
+
+
+def _to_labeled_gold_row(row: dict[str, Any], intended_split: str) -> dict[str, Any]:
+    return {
+        "text": row["text"],
+        "tags": list(row["tags"]),
+        "sentiment": row["sentiment"],
+        "importance": row["importance"],
+        "source_type": row["source_type"],
+        "stock_code": row["stock_code"],
+        "stock_name": row["stock_name"],
+        "stock_aliases": [],
+        "source_url": row["original_url"],
+        "provider": row["provider"],
+        "review_key": row["review_key"],
+        "source_review_split": intended_split,
+        "source_review_status": row["review_status"],
+    }
+
+
+def _write_dict_jsonl(path: Path, rows: Sequence[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
+def _build_gold_promotion_report(
+    training_review_path: Path,
+    evaluation_review_path: Path,
+    training_output_path: Path,
+    evaluation_output_path: Path,
+    training_review_rows: Sequence[dict[str, Any]],
+    evaluation_review_rows: Sequence[dict[str, Any]],
+    training_rows: Sequence[dict[str, Any]],
+    evaluation_rows: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    training_stocks = _row_stock_codes(training_rows)
+    evaluation_stocks = _row_stock_codes(evaluation_rows)
+    return {
+        "schema_version": STOCK_GOLD_PROMOTION_REPORT_SCHEMA_VERSION,
+        "approved_status": HUMAN_REVIEW_APPROVED_STATUS,
+        "training_review_path": _report_path(training_review_path),
+        "evaluation_review_path": _report_path(evaluation_review_path),
+        "training_output_path": _report_path(training_output_path),
+        "evaluation_output_path": _report_path(evaluation_output_path),
+        "training_promotion": _promotion_split_report(
+            review_rows=training_review_rows,
+            promoted_rows=training_rows,
+        ),
+        "evaluation_promotion": _promotion_split_report(
+            review_rows=evaluation_review_rows,
+            promoted_rows=evaluation_rows,
+        ),
+        "disjoint_stock_check": {
+            "status": "pass" if training_stocks.isdisjoint(evaluation_stocks) else "fail"
+        },
+        "promotion_policy": (
+            "only human_review_approved rows are written to supervised or gold datasets"
+        ),
+    }
+
+
+def _promotion_split_report(
+    review_rows: Sequence[dict[str, Any]],
+    promoted_rows: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    status_counter = Counter(str(row.get("review_status", "")) for row in review_rows)
+    return {
+        "review_row_count": len(review_rows),
+        "approved_row_count": int(status_counter.get(HUMAN_REVIEW_APPROVED_STATUS, 0)),
+        "promoted_row_count": len(promoted_rows),
+        "promoted_stock_count": len(_row_stock_codes(promoted_rows)),
+        "review_status_distribution": dict(sorted(status_counter.items())),
+        "label_distribution": dict(
+            sorted(
+                Counter(
+                    _primary_label(cast(list[str], row["tags"]))
+                    for row in promoted_rows
+                ).items()
+            )
+        ),
+    }
+
+
+def _row_stock_codes(rows: Sequence[dict[str, Any]]) -> set[str]:
+    return {
+        str(row["stock_code"])
+        for row in rows
+        if isinstance(row.get("stock_code"), str) and row["stock_code"]
+    }
 
 
 def _sample_stock_codes(paths: Sequence[Path]) -> set[str]:
