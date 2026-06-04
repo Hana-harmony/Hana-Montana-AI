@@ -268,13 +268,13 @@
 ## 2026-06-05 종목 후보 큐 teacher-gated 이벤트 학습
 - `train_ml_model.py`가 `data/curation/stock_training_candidate_queue.jsonl`을 읽어 종목 균형 후보를 이벤트 모델 학습 후보로 사용한다.
 - 후보 큐는 사람이 검수한 gold가 아니므로 supervised 정답셋에는 넣지 않고, supervised teacher 모델의 confidence gate와 라벨 합의 기준을 통과한 샘플만 event-model-only pseudo-label로 승격한다.
-- 6,244건 후보 전체를 투입하지 않고 `RISK` 150건, `CONTRACT` 150건으로 제한했다. 300종목 확장 후 threshold 미조정 모델은 실제 뉴스 gold event macro F1 0.8888로 release gate 아래라 폐기했다.
+- 6,244건 후보 전체를 투입하지 않고 `RISK` 200건, `CONTRACT` 200건으로 제한했다. 400종목 확장 후 threshold 미조정 모델은 실제 뉴스 gold event macro F1 0.8920으로 release gate 아래라 폐기했다.
 - 종목별 quota는 1건으로 제한해 특정 대형주나 반복 뉴스가 student 이벤트 모델을 지배하지 않게 했다.
-- per-stock quota 1 적용 후 `CONTRACT` 0.26, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.38, `MACRO` 0.34, `RISK` 0.52로 threshold를 재보정해 실제 뉴스 gold gate를 회복했다.
-- 최종 artifact 학습 샘플은 supervised 3,609건, pseudo-label 660건을 합친 4,269건이다.
-- pseudo-label 분포는 weak-label `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건과 종목 후보 `RISK` 150건, `CONTRACT` 150건이다.
-- 종목 후보 승격 샘플은 300개 종목을 포함한다.
-- event threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.26, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.38, `MACRO` 0.34, `RISK` 0.52로 calibration했다.
-- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 0.9714, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
-- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9141, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
-- release report는 weak-label 승격 수 360건과 종목 후보 승격 수 300건을 분리해 기록한다.
+- per-stock quota 1 적용 후 `CONTRACT` 0.34, `CORPORATE_ACTION` 0.22, `EARNINGS` 0.36, `MACRO` 0.32, `RISK` 0.56으로 threshold를 재보정해 실제 뉴스 gold gate를 회복했다.
+- 최종 artifact 학습 샘플은 supervised 3,609건, pseudo-label 760건을 합친 4,369건이다.
+- pseudo-label 분포는 weak-label `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건과 종목 후보 `RISK` 200건, `CONTRACT` 200건이다.
+- 종목 후보 승격 샘플은 400개 종목을 포함한다.
+- event threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.34, `CORPORATE_ACTION` 0.22, `EARNINGS` 0.36, `MACRO` 0.32, `RISK` 0.56으로 calibration했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
+- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9375, macro F1 0.9217, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
+- release report는 weak-label 승격 수 360건과 종목 후보 승격 수 400건을 분리해 기록한다.

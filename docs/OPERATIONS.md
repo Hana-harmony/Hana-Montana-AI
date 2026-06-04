@@ -49,8 +49,8 @@ uv run python scripts/collect_training_data.py \
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 37,278건 수집 후보 중 weak-label 360건과 종목 후보 큐 300건을 이벤트 모델 학습에 반영했다.
-- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 300건이 300개 종목에 분산되도록 한다.
+- 현재 artifact는 37,278건 수집 후보 중 weak-label 360건과 종목 후보 큐 400건을 이벤트 모델 학습에 반영했다.
+- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 400건이 400개 종목에 분산되도록 한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
 ## 모델 release report
@@ -70,7 +70,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,124건이 탈락하며 weak-label 360건과 종목 후보 300건만 student 이벤트 모델 학습에 승격된다.
+- 현재 37,278건 raw 후보 중 4,845건이 고신호 후보이고, teacher gate에서 3,124건이 탈락하며 weak-label 360건과 종목 후보 400건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`은 현재 effective quota가 채워진 active label이다.
 - `CAPITAL_ACTION`, `DISCLOSURE`, `EARNINGS`, `MACRO`는 고신호 후보가 충분하지만 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
@@ -78,8 +78,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 ## Coverage report 해석
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
-- 현재 event model pseudo training coverage는 300건, 300개 종목이며 supervised gold coverage로 간주하지 않는다.
-- 300종목 확장 모델의 실제 뉴스 gold event macro F1 margin은 0.0141이다. 추가 pseudo quota 확대 전 실제 뉴스 gold 보강 또는 threshold 재검증이 필요하다.
+- 현재 event model pseudo training coverage는 400건, 400개 종목이며 supervised gold coverage로 간주하지 않는다.
+- 400종목 확장 모델의 실제 뉴스 gold event macro F1 margin은 0.0217이다. 추가 pseudo quota 확대 전 실제 뉴스 gold 보강 또는 threshold 재검증이 필요하다.
 
 ## 운영 전 보강
 - drift 감시

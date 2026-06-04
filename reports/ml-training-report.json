@@ -1,9 +1,9 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260604163220",
-  "trained_at": "2026-06-04T16:32:20.050350+00:00",
-  "sample_count": 4269,
+  "version": "financial-ml-tfidf-logreg-20260604164703",
+  "trained_at": "2026-06-04T16:47:03.830041+00:00",
+  "sample_count": 4369,
   "supervised_sample_count": 3609,
-  "pseudo_labeled_sample_count": 660,
+  "pseudo_labeled_sample_count": 760,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
     "data/training/financial_alert_augmented.jsonl",
@@ -12,10 +12,10 @@
   ],
   "event_label_distribution": {
     "EARNINGS": 722,
-    "CONTRACT": 758,
-    "RISK": 1236,
+    "CONTRACT": 808,
+    "RISK": 1286,
     "CAPITAL_ACTION": 434,
-    "DISCLOSURE": 1339,
+    "DISCLOSURE": 1390,
     "CORPORATE_ACTION": 496,
     "MACRO": 506,
     "GENERAL_MARKET": 164
@@ -124,22 +124,22 @@
   },
   "event_probability_threshold": 0.3,
   "event_label_thresholds": {
-    "CONTRACT": 0.26,
-    "CORPORATE_ACTION": 0.18,
-    "EARNINGS": 0.38,
-    "MACRO": 0.34,
-    "RISK": 0.52
+    "CONTRACT": 0.34,
+    "CORPORATE_ACTION": 0.22,
+    "EARNINGS": 0.36,
+    "MACRO": 0.32,
+    "RISK": 0.56
   },
   "pseudo_labeling": {
     "source_path": "data/processed/weak_labeled_alerts.jsonl",
     "status": "promoted_to_student_training",
     "candidate_count": 37278,
-    "accepted_count": 660,
+    "accepted_count": 760,
     "rejected_count": 32433,
     "accepted_count_by_primary_label": {
-      "CONTRACT": 330,
+      "CONTRACT": 380,
       "CORPORATE_ACTION": 40,
-      "RISK": 290
+      "RISK": 340
     },
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
@@ -198,11 +198,11 @@
       "status": "promoted_to_event_student_training",
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
       "candidate_count": 6244,
-      "accepted_count": 300,
-      "accepted_stock_count": 300,
+      "accepted_count": 400,
+      "accepted_stock_count": 400,
       "accepted_count_by_primary_label": {
-        "RISK": 150,
-        "CONTRACT": 150,
+        "RISK": 200,
+        "CONTRACT": 200,
         "CAPITAL_ACTION": 0,
         "CORPORATE_ACTION": 0,
         "EARNINGS": 0,
@@ -217,8 +217,8 @@
         "zero_quota_label": 5095
       },
       "label_quotas": {
-        "RISK": 150,
-        "CONTRACT": 150,
+        "RISK": 200,
+        "CONTRACT": 200,
         "CAPITAL_ACTION": 0,
         "CORPORATE_ACTION": 0,
         "EARNINGS": 0,
