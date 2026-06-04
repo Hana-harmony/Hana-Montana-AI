@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -105,10 +106,22 @@ PSEUDO_LABEL_QUOTAS = {
     "DISCLOSURE": 0,
     "GENERAL_MARKET": 0,
 }
+STOCK_CANDIDATE_LABEL_QUOTAS = {
+    "RISK": 40,
+    "CONTRACT": 40,
+    "CAPITAL_ACTION": 0,
+    "CORPORATE_ACTION": 0,
+    "EARNINGS": 0,
+    "MACRO": 0,
+    "DISCLOSURE": 0,
+    "GENERAL_MARKET": 0,
+}
+STOCK_CANDIDATE_PER_STOCK_QUOTA = 2
 EVENT_PROBABILITY_THRESHOLD = 0.30
 EVENT_LABEL_THRESHOLDS = {
-    "CORPORATE_ACTION": 0.16,
+    "CORPORATE_ACTION": 0.22,
     "EARNINGS": 0.42,
+    "MACRO": 0.34,
     "RISK": 0.42,
 }
 
@@ -183,13 +196,18 @@ def train_ml_model(
     training_paths: list[Path],
     model_path: Path,
     pseudo_label_path: Path | None = None,
+    stock_candidate_path: Path | None = None,
 ) -> MlTrainingReport:
     supervised_samples = _load_samples(training_paths)
     if len(supervised_samples) < 30:
         raise ValueError("ML training requires at least 30 labeled samples")
 
     validation = _validate_holdout(supervised_samples)
-    pseudo_label_result = _promote_pseudo_labels(supervised_samples, pseudo_label_path)
+    pseudo_label_result = _promote_pseudo_labels(
+        supervised_samples,
+        pseudo_label_path,
+        stock_candidate_path,
+    )
     samples = [*supervised_samples, *pseudo_label_result.samples]
 
     event_texts = [_event_text(sample.text, sample.source_type) for sample in samples]
@@ -304,14 +322,20 @@ def _training_source_paths(paths: list[Path]) -> list[str]:
 def _promote_pseudo_labels(
     supervised_samples: Sequence[LabeledAlert],
     pseudo_label_path: Path | None,
+    stock_candidate_path: Path | None = None,
 ) -> PseudoLabelPromotionResult:
     if pseudo_label_path is None:
-        return PseudoLabelPromotionResult(
+        base_result = PseudoLabelPromotionResult(
             samples=[],
             report={"status": "not_configured", "accepted_count": 0},
         )
+        return _merge_stock_candidate_pseudo_labels(
+            supervised_samples,
+            base_result,
+            stock_candidate_path,
+        )
     if not pseudo_label_path.exists():
-        return PseudoLabelPromotionResult(
+        base_result = PseudoLabelPromotionResult(
             samples=[],
             report={
                 "status": "source_missing",
@@ -319,16 +343,26 @@ def _promote_pseudo_labels(
                 "accepted_count": 0,
             },
         )
+        return _merge_stock_candidate_pseudo_labels(
+            supervised_samples,
+            base_result,
+            stock_candidate_path,
+        )
 
     distillation = distill_weak_labeled_alerts(pseudo_label_path)
     if not distillation.samples:
-        return PseudoLabelPromotionResult(
+        base_result = PseudoLabelPromotionResult(
             samples=[],
             report={
                 **distillation.report,
                 "status": "no_distilled_candidates",
                 "accepted_count": 0,
             },
+        )
+        return _merge_stock_candidate_pseudo_labels(
+            supervised_samples,
+            base_result,
+            stock_candidate_path,
         )
 
     teacher = _fit_teacher(supervised_samples)
@@ -381,7 +415,154 @@ def _promote_pseudo_labels(
         "minimum_sentiment_confidence": 0.72,
         "minimum_importance_confidence": 0.68,
     }
-    return PseudoLabelPromotionResult(samples=promoted_samples, report=report)
+    base_result = PseudoLabelPromotionResult(samples=promoted_samples, report=report)
+    return _merge_stock_candidate_pseudo_labels(
+        supervised_samples,
+        base_result,
+        stock_candidate_path,
+    )
+
+
+def _merge_stock_candidate_pseudo_labels(
+    supervised_samples: Sequence[LabeledAlert],
+    base_result: PseudoLabelPromotionResult,
+    stock_candidate_path: Path | None,
+) -> PseudoLabelPromotionResult:
+    stock_result = _promote_stock_candidate_labels(supervised_samples, stock_candidate_path)
+    if not stock_result.samples:
+        return PseudoLabelPromotionResult(
+            samples=base_result.samples,
+            report={
+                **base_result.report,
+                "stock_candidate_labeling": stock_result.report,
+            },
+        )
+
+    merged_samples = [*base_result.samples, *stock_result.samples]
+    merged_label_counts = Counter(_primary_label(sample.tags) for sample in merged_samples)
+    return PseudoLabelPromotionResult(
+        samples=merged_samples,
+        report={
+            **base_result.report,
+            "status": "promoted_to_student_training",
+            "accepted_count": len(merged_samples),
+            "accepted_count_by_primary_label": dict(
+                sorted(merged_label_counts.items(), key=lambda item: item[0])
+            ),
+            "stock_candidate_labeling": stock_result.report,
+            "pseudo_sample_influence_control": (
+                "weak_and_stock_candidate_pseudo_labels_are_event_model_only"
+            ),
+        },
+    )
+
+
+def _promote_stock_candidate_labels(
+    supervised_samples: Sequence[LabeledAlert],
+    stock_candidate_path: Path | None,
+) -> PseudoLabelPromotionResult:
+    if stock_candidate_path is None:
+        return PseudoLabelPromotionResult(
+            samples=[],
+            report={"status": "not_configured", "accepted_count": 0},
+        )
+    if not stock_candidate_path.exists():
+        return PseudoLabelPromotionResult(
+            samples=[],
+            report={
+                "status": "source_missing",
+                "source_path": _report_path(stock_candidate_path),
+                "accepted_count": 0,
+            },
+        )
+
+    candidates = _load_stock_candidate_samples(stock_candidate_path)
+    teacher = _fit_teacher(supervised_samples)
+    seen_texts = {sample.text for sample in supervised_samples}
+    accepted_by_label: dict[str, list[tuple[float, str, LabeledAlert]]] = {
+        label: [] for label in STOCK_CANDIDATE_LABEL_QUOTAS
+    }
+    accepted_by_stock: defaultdict[str, int] = defaultdict(int)
+    rejected_reasons: Counter[str] = Counter()
+
+    for candidate in candidates:
+        if candidate.text in seen_texts:
+            rejected_reasons["duplicate_supervised_text"] += 1
+            continue
+        primary_label = _primary_label(candidate.tags)
+        if STOCK_CANDIDATE_LABEL_QUOTAS.get(primary_label, 0) == 0:
+            rejected_reasons["zero_quota_label"] += 1
+            continue
+        if accepted_by_stock[candidate.stock_code or "UNKNOWN"] >= STOCK_CANDIDATE_PER_STOCK_QUOTA:
+            rejected_reasons["per_stock_quota_filled"] += 1
+            continue
+
+        prediction = _teacher_predict(teacher, candidate)
+        if prediction is None:
+            rejected_reasons["low_teacher_confidence"] += 1
+            continue
+        pseudo_sample, score = prediction
+        if not set(candidate.tags).intersection(pseudo_sample.tags):
+            rejected_reasons["teacher_candidate_event_disagreement"] += 1
+            continue
+
+        pseudo_primary_label = _primary_label(pseudo_sample.tags)
+        if STOCK_CANDIDATE_LABEL_QUOTAS.get(pseudo_primary_label, 0) == 0:
+            rejected_reasons["teacher_zero_quota_label"] += 1
+            continue
+        tie_breaker = f"{pseudo_primary_label}:{pseudo_sample.stock_code}:{pseudo_sample.text}"
+        accepted_by_label[pseudo_primary_label].append((score, tie_breaker, pseudo_sample))
+        accepted_by_stock[pseudo_sample.stock_code or "UNKNOWN"] += 1
+
+    promoted_samples: list[LabeledAlert] = []
+    accepted_count_by_primary_label: dict[str, int] = {}
+    for label, quota in STOCK_CANDIDATE_LABEL_QUOTAS.items():
+        rows = sorted(accepted_by_label[label], key=lambda item: (-item[0], item[1]))
+        selected = [sample for _, _, sample in rows[:quota]]
+        promoted_samples.extend(selected)
+        accepted_count_by_primary_label[label] = len(selected)
+
+    accepted_stock_codes = {sample.stock_code for sample in promoted_samples if sample.stock_code}
+    return PseudoLabelPromotionResult(
+        samples=promoted_samples,
+        report={
+            "status": "promoted_to_event_student_training"
+            if promoted_samples
+            else "no_promoted_candidates",
+            "source_path": _report_path(stock_candidate_path),
+            "candidate_count": len(candidates),
+            "accepted_count": len(promoted_samples),
+            "accepted_stock_count": len(accepted_stock_codes),
+            "accepted_count_by_primary_label": accepted_count_by_primary_label,
+            "rejected_count_by_reason": dict(sorted(rejected_reasons.items())),
+            "label_quotas": STOCK_CANDIDATE_LABEL_QUOTAS,
+            "per_stock_quota": STOCK_CANDIDATE_PER_STOCK_QUOTA,
+            "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
+            "pseudo_sample_influence_control": "event_model_only",
+        },
+    )
+
+
+def _load_stock_candidate_samples(path: Path) -> list[LabeledAlert]:
+    samples: list[LabeledAlert] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        if payload.get("curation_status") != "needs_human_review":
+            continue
+        samples.append(
+            LabeledAlert(
+                text=payload["text"],
+                tags=payload["tags"],
+                sentiment=payload["sentiment"],
+                importance=payload["importance"],
+                source_type=payload.get("source_type", "NEWS"),
+                stock_code=payload.get("stock_code"),
+                stock_name=payload.get("stock_name"),
+            )
+        )
+    return samples
 
 
 def _fit_teacher(samples: Sequence[LabeledAlert]) -> dict[str, Any]:

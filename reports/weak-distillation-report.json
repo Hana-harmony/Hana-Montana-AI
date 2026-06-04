@@ -2,17 +2,12 @@
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
   "candidate_count": 37278,
-  "accepted_count": 360,
+  "accepted_count": 440,
   "rejected_count": 32433,
   "accepted_count_by_primary_label": {
-    "RISK": 140,
-    "CONTRACT": 180,
-    "CAPITAL_ACTION": 0,
+    "CONTRACT": 220,
     "CORPORATE_ACTION": 40,
-    "EARNINGS": 0,
-    "MACRO": 0,
-    "DISCLOSURE": 0,
-    "GENERAL_MARKET": 0
+    "RISK": 180
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
@@ -62,9 +57,45 @@
     "low_teacher_confidence": 2902,
     "teacher_weak_event_disagreement": 222
   },
-  "pseudo_sample_influence_control": "confidence_threshold_and_label_quota_for_event_model_only",
+  "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",
   "event_probability_threshold": 0.42,
   "minimum_event_confidence": 0.58,
   "minimum_sentiment_confidence": 0.72,
-  "minimum_importance_confidence": 0.68
+  "minimum_importance_confidence": 0.68,
+  "stock_candidate_labeling": {
+    "status": "promoted_to_event_student_training",
+    "source_path": "data/curation/stock_training_candidate_queue.jsonl",
+    "candidate_count": 6244,
+    "accepted_count": 80,
+    "accepted_stock_count": 73,
+    "accepted_count_by_primary_label": {
+      "RISK": 40,
+      "CONTRACT": 40,
+      "CAPITAL_ACTION": 0,
+      "CORPORATE_ACTION": 0,
+      "EARNINGS": 0,
+      "MACRO": 0,
+      "DISCLOSURE": 0,
+      "GENERAL_MARKET": 0
+    },
+    "rejected_count_by_reason": {
+      "low_teacher_confidence": 412,
+      "per_stock_quota_filled": 36,
+      "teacher_zero_quota_label": 57,
+      "zero_quota_label": 5095
+    },
+    "label_quotas": {
+      "RISK": 40,
+      "CONTRACT": 40,
+      "CAPITAL_ACTION": 0,
+      "CORPORATE_ACTION": 0,
+      "EARNINGS": 0,
+      "MACRO": 0,
+      "DISCLOSURE": 0,
+      "GENERAL_MARKET": 0
+    },
+    "per_stock_quota": 2,
+    "promotion_method": "supervised_teacher_gate_on_stock_balanced_queue",
+    "pseudo_sample_influence_control": "event_model_only"
+  }
 }

@@ -264,3 +264,16 @@
 - `scripts/build_gold_evaluation_data.py`가 훈련셋과 별도 문장 패턴의 benchmark 평가셋을 생성한다.
 - `scripts/train_ml_model.py`가 80:20 holdout 검증 후 전체 코퍼스로 최종 학습 artifact를 생성한다.
 - 이벤트·감성·중요도 모델은 char n-gram과 한국어 금융 token n-gram을 함께 사용한다.
+
+## 2026-06-05 종목 후보 큐 teacher-gated 이벤트 학습
+- `train_ml_model.py`가 `data/curation/stock_training_candidate_queue.jsonl`을 읽어 종목 균형 후보를 이벤트 모델 학습 후보로 사용한다.
+- 후보 큐는 사람이 검수한 gold가 아니므로 supervised 정답셋에는 넣지 않고, supervised teacher 모델의 confidence gate와 라벨 합의 기준을 통과한 샘플만 event-model-only pseudo-label로 승격한다.
+- 6,244건 후보 전체를 투입하지 않고 `RISK` 40건, `CONTRACT` 40건으로 제한했다. 180건 이상 대량 승격 실험은 실제 뉴스 gold의 event macro F1과 recall을 release gate 아래로 낮춰 폐기했다.
+- 종목별 quota는 2건으로 제한해 특정 대형주나 반복 뉴스가 student 이벤트 모델을 지배하지 않게 했다.
+- 최종 artifact 학습 샘플은 supervised 3,609건, pseudo-label 440건을 합친 4,049건이다.
+- pseudo-label 분포는 weak-label `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 40건과 종목 후보 `RISK` 40건, `CONTRACT` 40건이다.
+- 종목 후보 승격 샘플은 73개 종목을 포함한다.
+- event threshold는 실제 뉴스 gold 기준으로 `CORPORATE_ACTION` 0.22, `EARNINGS` 0.42, `MACRO` 0.34, `RISK` 0.42로 calibration했다.
+- 30건 OpenDART 실공시 gold 기준 이벤트 recall 1.0, macro F1 0.9846, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0을 기록했다.
+- 80건 Naver 실제 뉴스 gold 기준 이벤트 recall 0.9500, macro F1 0.9092, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0을 기록했다.
+- release report는 weak-label 승격 수 360건과 종목 후보 승격 수 80건을 분리해 기록한다.

@@ -70,7 +70,7 @@ def _label_monitoring_rows(
 ) -> list[dict[str, Any]]:
     high_signal_counts = distillation_report.get("event_label_distribution", {})
     promoted_counts = distillation_report.get("accepted_count_by_primary_label", {})
-    quotas = distillation_report.get("label_quotas", {})
+    quotas = _effective_label_quotas(distillation_report)
     labels = sorted(set(high_signal_counts) | set(promoted_counts) | set(quotas))
 
     return [
@@ -82,6 +82,20 @@ def _label_monitoring_rows(
         )
         for label in labels
     ]
+
+
+def _effective_label_quotas(distillation_report: dict[str, Any]) -> dict[str, int]:
+    quotas = {
+        label: int(quota)
+        for label, quota in distillation_report.get("label_quotas", {}).items()
+    }
+    stock_quotas = distillation_report.get("stock_candidate_labeling", {}).get(
+        "label_quotas",
+        {},
+    )
+    for label, quota in stock_quotas.items():
+        quotas[label] = quotas.get(label, 0) + int(quota)
+    return quotas
 
 
 def _label_monitoring_row(

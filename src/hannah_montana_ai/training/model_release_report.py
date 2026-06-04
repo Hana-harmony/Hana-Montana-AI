@@ -141,10 +141,20 @@ def _build_pseudo_labeling_summary(
     training_report: dict[str, Any],
     distillation_report: dict[str, Any],
 ) -> dict[str, Any]:
+    stock_candidate_labeling = distillation_report.get("stock_candidate_labeling", {})
+    stock_candidate_accepted_count = int(
+        stock_candidate_labeling.get("accepted_count", 0) or 0
+    )
+    accepted_count = int(distillation_report.get("accepted_count", 0) or 0)
     return {
         "status": distillation_report.get("status"),
         "candidate_count": distillation_report.get("candidate_count"),
-        "accepted_count": distillation_report.get("accepted_count"),
+        "accepted_count": accepted_count,
+        "weak_label_accepted_count": max(
+            accepted_count - stock_candidate_accepted_count,
+            0,
+        ),
+        "stock_candidate_accepted_count": stock_candidate_accepted_count,
         "accepted_count_by_primary_label": distillation_report.get(
             "accepted_count_by_primary_label",
             {},
@@ -169,6 +179,7 @@ def _build_pseudo_labeling_summary(
         "minimum_importance_confidence": distillation_report.get(
             "minimum_importance_confidence",
         ),
+        "stock_candidate_labeling": stock_candidate_labeling,
     }
 
 
