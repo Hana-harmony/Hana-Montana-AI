@@ -2,12 +2,12 @@
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
   "candidate_count": 37278,
-  "accepted_count": 440,
+  "accepted_count": 580,
   "rejected_count": 32433,
   "accepted_count_by_primary_label": {
-    "CONTRACT": 220,
+    "CONTRACT": 290,
     "CORPORATE_ACTION": 40,
-    "RISK": 180
+    "RISK": 250
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
@@ -66,11 +66,11 @@
     "status": "promoted_to_event_student_training",
     "source_path": "data/curation/stock_training_candidate_queue.jsonl",
     "candidate_count": 6244,
-    "accepted_count": 80,
-    "accepted_stock_count": 73,
+    "accepted_count": 220,
+    "accepted_stock_count": 201,
     "accepted_count_by_primary_label": {
-      "RISK": 40,
-      "CONTRACT": 40,
+      "RISK": 110,
+      "CONTRACT": 110,
       "CAPITAL_ACTION": 0,
       "CORPORATE_ACTION": 0,
       "EARNINGS": 0,
@@ -85,8 +85,8 @@
       "zero_quota_label": 5095
     },
     "label_quotas": {
-      "RISK": 40,
-      "CONTRACT": 40,
+      "RISK": 110,
+      "CONTRACT": 110,
       "CAPITAL_ACTION": 0,
       "CORPORATE_ACTION": 0,
       "EARNINGS": 0,

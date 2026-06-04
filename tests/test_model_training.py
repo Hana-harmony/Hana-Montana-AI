@@ -281,25 +281,25 @@ def test_model_release_report_matches_source_reports() -> None:
     assert release_report == expected
     assert release_report["overall_status"] == "pass"
     assert release_report["model_version"] == training_report["version"]
-    assert release_report["training"]["sample_count"] == 4049
-    assert release_report["training"]["pseudo_labeled_sample_count"] == 440
+    assert release_report["training"]["sample_count"] == 4189
+    assert release_report["training"]["pseudo_labeled_sample_count"] == 580
     assert release_report["quality_gates"]["real_news_gold"]["sample_count"] == 80
     assert release_report["pseudo_labeling"]["weak_label_accepted_count"] == 360
-    assert release_report["pseudo_labeling"]["stock_candidate_accepted_count"] == 80
+    assert release_report["pseudo_labeling"]["stock_candidate_accepted_count"] == 220
     assert release_report["pseudo_labeling"]["accepted_count_by_primary_label"] == {
-        "CONTRACT": 220,
+        "CONTRACT": 290,
         "CORPORATE_ACTION": 40,
-        "RISK": 180,
+        "RISK": 250,
     }
     stock_candidate_labeling = release_report["pseudo_labeling"][
         "stock_candidate_labeling"
     ]
     assert stock_candidate_labeling["status"] == "promoted_to_event_student_training"
     assert stock_candidate_labeling["candidate_count"] == 6244
-    assert stock_candidate_labeling["accepted_count"] == 80
-    assert stock_candidate_labeling["accepted_stock_count"] == 73
-    assert stock_candidate_labeling["accepted_count_by_primary_label"]["RISK"] == 40
-    assert stock_candidate_labeling["accepted_count_by_primary_label"]["CONTRACT"] == 40
+    assert stock_candidate_labeling["accepted_count"] == 220
+    assert stock_candidate_labeling["accepted_stock_count"] == 201
+    assert stock_candidate_labeling["accepted_count_by_primary_label"]["RISK"] == 110
+    assert stock_candidate_labeling["accepted_count_by_primary_label"]["CONTRACT"] == 110
     assert release_report["quality_gates"]["real_news_gold"]["status"] == "pass"
     assert (
         release_report["quality_gates"]["real_news_gold"]["metrics"][
@@ -332,15 +332,15 @@ def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
     assert monitoring_report["overall_status"] == "pass"
     assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 37278
     assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 4845
-    assert monitoring_report["candidate_funnel"]["promoted_count"] == 440
+    assert monitoring_report["candidate_funnel"]["promoted_count"] == 580
     assert (
         monitoring_report["candidate_funnel"][
             "teacher_passed_not_promoted_or_quota_limited_count"
         ]
-        == 1281
+        == 1141
     )
-    assert _label_row(monitoring_report, "RISK")["student_training_quota"] == 180
-    assert _label_row(monitoring_report, "CONTRACT")["student_training_quota"] == 220
+    assert _label_row(monitoring_report, "RISK")["student_training_quota"] == 250
+    assert _label_row(monitoring_report, "CONTRACT")["student_training_quota"] == 290
     assert label_decisions["RISK"] == "quota_filled"
     assert label_decisions["CONTRACT"] == "quota_filled"
     assert label_decisions["CORPORATE_ACTION"] == "quota_filled"
