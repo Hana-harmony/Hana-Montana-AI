@@ -70,6 +70,8 @@
 - gold active review 리포트: `reports/stock-gold-active-review-report.json`
 - gold coverage review plan: `data/curation/stock_gold_coverage_review_plan.jsonl`
 - gold coverage review plan 리포트: `reports/stock-gold-coverage-plan-report.json`
+- gold coverage active review packet: `data/curation/stock_gold_coverage_active_review_packet.jsonl`
+- gold coverage active review 리포트: `reports/stock-gold-coverage-active-review-report.json`
 - confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - stock candidate quota experiment 리포트: `reports/stock-candidate-quota-experiment.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
@@ -90,6 +92,9 @@
 - coverage review plan 평가 목표 종목 수: 500개
 - coverage review plan 전체 계획 종목 수: 2,000개
 - coverage review plan과 기존 supervised/evaluation 종목을 합친 후보 큐 커버 종목 수: 2,068개
+- coverage active review packet row 수: 2,000건
+- coverage active review 학습 wave 수: 13개
+- coverage active review 평가 wave 수: 5개
 - 현재 검수 validation 승인 가능 종목 수: 학습 0개, 평가 0개
 - supervised 학습 데이터 종목 수: 38개
 - evaluation 데이터 종목 수: 57개
@@ -97,6 +102,7 @@
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
 - gold coverage review plan도 `needs_human_review` 상태이며, 장기 검수 순서를 정하는 산출물이지 자동 정답셋이 아니다.
+- coverage active review packet의 모델 제안 라벨과 confidence도 검수 보조 정보이며 자동 정답셋이 아니다.
 - `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - validation 리포트는 승격 전 승인 가능 row가 학습 300개 종목과 평가 100개 종목 목표를 채우는지 검사한다.
 - active review 리포트는 모델 제안 라벨, 신뢰도, disagreement를 검수 보조 정보로 제공하며 자동 정답으로 쓰지 않는다.
@@ -216,6 +222,7 @@
 - `reports/stock-coverage-report.json` 기준 supervised 300개 이상 종목, evaluation 100개 이상 종목 coverage gate 통과
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`의 사람 검수 승인, 최종 라벨 확정, 정답셋 승격
 - `data/curation/stock_gold_coverage_review_plan.jsonl`의 wave 단위 검수 승인과 stock review gold 증분 승격
+- `data/curation/stock_gold_coverage_active_review_packet.jsonl`의 모델 제안 라벨을 참고한 사람 검수와 최종 라벨 확정
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의
