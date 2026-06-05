@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 50824,
+  "raw_alert_count": 51505,
   "universe_count": 3967,
-  "candidate_count": 10766,
-  "candidate_stock_count": 2876,
-  "candidate_coverage_ratio": 0.7249810940257121,
+  "candidate_count": 11011,
+  "candidate_stock_count": 2912,
+  "candidate_coverage_ratio": 0.7340559616838921,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2876,
+    "actual_stock_count": 2912,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2069,
-    "CONTRACT": 1667,
-    "CORPORATE_ACTION": 916,
-    "DISCLOSURE": 2678,
-    "EARNINGS": 1469,
-    "MACRO": 392,
-    "RISK": 1575
+    "CAPITAL_ACTION": 2121,
+    "CONTRACT": 1733,
+    "CORPORATE_ACTION": 942,
+    "DISCLOSURE": 2684,
+    "EARNINGS": 1499,
+    "MACRO": 402,
+    "RISK": 1630
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4477,
-    "NEWS": 6289
+    "DISCLOSURE": 4475,
+    "NEWS": 6536
   },
   "sentiment_distribution": {
-    "NEGATIVE": 389,
-    "NEUTRAL": 7004,
-    "POSITIVE": 3373
+    "NEGATIVE": 395,
+    "NEUTRAL": 7156,
+    "POSITIVE": 3460
   },
   "importance_distribution": {
-    "CRITICAL": 922,
-    "HIGH": 8139,
-    "LOW": 344,
-    "MEDIUM": 1361
+    "CRITICAL": 952,
+    "HIGH": 8279,
+    "LOW": 376,
+    "MEDIUM": 1404
   },
   "top_candidate_stocks": [
     {
@@ -102,6 +102,11 @@
       "candidate_count": 14
     },
     {
+      "stock_code": "000250",
+      "stock_name": "삼천당제약",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "010140",
       "stock_name": "삼성중공업",
       "candidate_count": 13
@@ -135,18 +140,13 @@
       "stock_code": "353200",
       "stock_name": "대덕전자",
       "candidate_count": 13
-    },
-    {
-      "stock_code": "452400",
-      "stock_name": "이닉스",
-      "candidate_count": 13
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3878,
-    "low_signal": 4559,
-    "stock_not_matched": 18809
+    "general_market_not_stock_specific": 3896,
+    "low_signal": 4656,
+    "stock_not_matched": 18899
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
