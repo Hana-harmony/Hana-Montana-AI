@@ -28,7 +28,7 @@ uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 ```
 
-로컬 외부 API 키는 커밋하지 않는 `secrets.local.env`에서만 읽는다.
+로컬 외부 API 키는 `secrets.local.env.example`을 복사한 뒤 커밋하지 않는 `secrets.local.env`에서만 작성해 읽는다.
 수집 credential은 학습 데이터 수집 스크립트에서만 사용하며, AI 런타임은 provider credential이나 협력사용 API key를 요구하지 않는다.
 수집 실패나 rate limit으로 새 raw 수가 기존보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
 수집된 대량 weak-label 후보는 supervised teacher 모델의 confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.

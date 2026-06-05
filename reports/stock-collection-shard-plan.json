@@ -1,7 +1,7 @@
 {
   "schema_version": "stock-collection-shard-report/v1",
   "row_schema_version": "stock-collection-shard-row/v1",
-  "generated_at": "2026-06-05T00:48:19.807314+00:00",
+  "generated_at": "2026-06-05T04:30:57.115726+00:00",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
@@ -19,14 +19,14 @@
     "data/evaluation/financial_alert_stock_review_gold.jsonl"
   ],
   "universe_count": 3967,
-  "raw_matched_stock_count": 3029,
-  "candidate_stock_count": 2847,
+  "raw_matched_stock_count": 3060,
+  "candidate_stock_count": 2876,
   "training_gold_stock_count": 38,
   "evaluation_gold_stock_count": 57,
-  "planned_stock_count": 1117,
-  "planned_query_count": 5585,
+  "planned_stock_count": 1088,
+  "planned_query_count": 5440,
   "shard_size": 100,
-  "shard_count": 12,
+  "shard_count": 11,
   "stock_limit": null,
   "intents": [
     "실적",
@@ -36,8 +36,8 @@
     "거래정지"
   ],
   "priority_distribution": {
-    "no_raw_no_candidate": 935,
-    "raw_without_candidate": 182
+    "no_raw_no_candidate": 904,
+    "raw_without_candidate": 184
   },
   "shard_distribution": {
     "0": 100,
@@ -50,8 +50,7 @@
     "7": 100,
     "8": 100,
     "9": 100,
-    "10": 100,
-    "11": 17
+    "10": 88
   },
   "next_collection_commands": [
     "uv run python scripts/collect_training_data.py --reuse-existing-raw --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl --stock-collection-plan-shard-index 0",

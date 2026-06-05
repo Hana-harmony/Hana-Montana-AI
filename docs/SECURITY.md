@@ -10,6 +10,7 @@
 - 현재 AI 서비스는 로컬 실행에 필요한 시크릿이 없다.
 - 외부 뉴스·공시 수집 credential은 학습 데이터 수집 스크립트에서만 사용한다.
 - 로컬 수집 credential은 gitignore된 `secrets.local.env`에서만 읽는다.
+- `secrets.local.env.example`에는 변수명만 기록하고 실제 credential 값은 넣지 않는다.
 - 운영 credential은 GitHub Secrets 또는 배포 환경 Secret Manager에서 주입한다.
 - `scripts/verify_secret_hygiene.py`는 추적 파일에 `.env`, `secrets.local.env`, key material, credential assignment가 포함되는지 CI에서 검사한다.
 - credential 누락 오류는 변수명만 노출하고 credential 값은 출력하지 않는다.

@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 49930,
+  "raw_alert_count": 50824,
   "universe_count": 3967,
-  "candidate_count": 10521,
-  "candidate_stock_count": 2847,
-  "candidate_coverage_ratio": 0.7176707839677338,
+  "candidate_count": 10766,
+  "candidate_stock_count": 2876,
+  "candidate_coverage_ratio": 0.7249810940257121,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2847,
+    "actual_stock_count": 2876,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2014,
-    "CONTRACT": 1617,
-    "CORPORATE_ACTION": 895,
-    "DISCLOSURE": 2675,
-    "EARNINGS": 1429,
-    "MACRO": 372,
-    "RISK": 1519
+    "CAPITAL_ACTION": 2069,
+    "CONTRACT": 1667,
+    "CORPORATE_ACTION": 916,
+    "DISCLOSURE": 2678,
+    "EARNINGS": 1469,
+    "MACRO": 392,
+    "RISK": 1575
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4485,
-    "NEWS": 6036
+    "DISCLOSURE": 4477,
+    "NEWS": 6289
   },
   "sentiment_distribution": {
-    "NEGATIVE": 372,
-    "NEUTRAL": 6880,
-    "POSITIVE": 3269
+    "NEGATIVE": 389,
+    "NEUTRAL": 7004,
+    "POSITIVE": 3373
   },
   "importance_distribution": {
-    "CRITICAL": 887,
-    "HIGH": 8015,
-    "LOW": 329,
-    "MEDIUM": 1290
+    "CRITICAL": 922,
+    "HIGH": 8139,
+    "LOW": 344,
+    "MEDIUM": 1361
   },
   "top_candidate_stocks": [
     {
@@ -122,6 +122,11 @@
       "candidate_count": 13
     },
     {
+      "stock_code": "066570",
+      "stock_name": "LG전자",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "267250",
       "stock_name": "HD현대",
       "candidate_count": 13
@@ -135,18 +140,13 @@
       "stock_code": "452400",
       "stock_name": "이닉스",
       "candidate_count": 13
-    },
-    {
-      "stock_code": "000720",
-      "stock_name": "현대건설",
-      "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3856,
-    "low_signal": 4427,
-    "stock_not_matched": 18616
+    "general_market_not_stock_specific": 3878,
+    "low_signal": 4559,
+    "stock_not_matched": 18809
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }

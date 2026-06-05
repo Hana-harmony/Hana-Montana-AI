@@ -4,8 +4,8 @@
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
   "training_review_path": "data/curation/stock_gold_training_review_batch.jsonl",
   "evaluation_review_path": "data/curation/stock_gold_evaluation_review_batch.jsonl",
-  "candidate_count": 10521,
-  "candidate_stock_count": 2847,
+  "candidate_count": 10766,
+  "candidate_stock_count": 2876,
   "existing_supervised_training_stock_count": 38,
   "existing_supervised_evaluation_stock_count": 57,
   "current_training_review_stock_count": 300,
@@ -22,15 +22,15 @@
     "label_distribution": {
       "CAPITAL_ACTION": 260,
       "CONTRACT": 261,
-      "CORPORATE_ACTION": 154,
+      "CORPORATE_ACTION": 155,
       "DISCLOSURE": 259,
-      "EARNINGS": 243,
-      "MACRO": 62,
+      "EARNINGS": 239,
+      "MACRO": 65,
       "RISK": 261
     },
     "source_type_distribution": {
-      "DISCLOSURE": 596,
-      "NEWS": 904
+      "DISCLOSURE": 591,
+      "NEWS": 909
     },
     "stage_distribution": {
       "additional_coverage_plan": 1200,
@@ -70,8 +70,8 @@
       "RISK": 115
     },
     "source_type_distribution": {
-      "DISCLOSURE": 202,
-      "NEWS": 298
+      "DISCLOSURE": 201,
+      "NEWS": 299
     },
     "stage_distribution": {
       "additional_coverage_plan": 400,
@@ -93,7 +93,7 @@
     "planned_stock_count": 2000,
     "already_supervised_stock_count": 68,
     "covered_candidate_stock_count": 2068,
-    "remaining_candidate_stock_count": 784
+    "remaining_candidate_stock_count": 813
   },
   "review_policy": "coverage plan rows are review tasks only; supervised datasets are updated only after human_review_approved with reviewer metadata"
 }
