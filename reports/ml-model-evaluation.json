@@ -149,11 +149,11 @@
   },
   "real_news_gold": {
     "sample_count": 80,
-    "event_tag_recall": 0.9625,
+    "event_tag_recall": 0.95,
     "sentiment_accuracy": 0.9125,
     "importance_accuracy": 0.925,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9253690462698569,
+    "event_macro_f1": 0.9181477889726117,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -180,9 +180,9 @@
         "support": 20
       },
       "GENERAL_MARKET": {
-        "precision": 0.8947368421052632,
-        "recall": 1.0,
-        "f1": 0.9444444444444444,
+        "precision": 0.8888888888888888,
+        "recall": 0.9411764705882353,
+        "f1": 0.9142857142857143,
         "support": 17
       },
       "MACRO": {
@@ -192,9 +192,9 @@
         "support": 13
       },
       "RISK": {
-        "precision": 1.0,
+        "precision": 0.9583333333333334,
         "recall": 0.9583333333333334,
-        "f1": 0.9787234042553191,
+        "f1": 0.9583333333333334,
         "support": 24
       }
     },

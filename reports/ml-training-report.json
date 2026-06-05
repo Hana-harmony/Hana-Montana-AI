@@ -1,9 +1,9 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260604224454",
-  "trained_at": "2026-06-04T22:44:54.930902+00:00",
-  "sample_count": 4590,
+  "version": "financial-ml-tfidf-logreg-20260605002536",
+  "trained_at": "2026-06-05T00:25:36.715977+00:00",
+  "sample_count": 4602,
   "supervised_sample_count": 3609,
-  "pseudo_labeled_sample_count": 981,
+  "pseudo_labeled_sample_count": 993,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
     "data/training/financial_alert_augmented.jsonl",
@@ -12,11 +12,11 @@
     "data/training/financial_alert_stock_review_gold.jsonl"
   ],
   "event_label_distribution": {
-    "EARNINGS": 742,
+    "EARNINGS": 744,
     "CONTRACT": 825,
-    "RISK": 1301,
-    "CAPITAL_ACTION": 567,
-    "DISCLOSURE": 1420,
+    "RISK": 1311,
+    "CAPITAL_ACTION": 568,
+    "DISCLOSURE": 1417,
     "CORPORATE_ACTION": 545,
     "MACRO": 524,
     "GENERAL_MARKET": 173
@@ -135,48 +135,48 @@
   "pseudo_labeling": {
     "source_path": "data/processed/weak_labeled_alerts.jsonl",
     "status": "promoted_to_student_training",
-    "candidate_count": 47963,
-    "accepted_count": 981,
-    "rejected_count": 42992,
+    "candidate_count": 48992,
+    "accepted_count": 993,
+    "rejected_count": 44014,
     "accepted_count_by_primary_label": {
       "CAPITAL_ACTION": 120,
       "CONTRACT": 390,
       "CORPORATE_ACTION": 85,
-      "EARNINGS": 19,
+      "EARNINGS": 21,
       "MACRO": 12,
-      "RISK": 355
+      "RISK": 365
     },
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
-      "disclosure_only": 8504,
-      "duplicate_text": 933,
-      "low_signal": 5214,
+      "disclosure_only": 8581,
+      "duplicate_text": 943,
+      "low_signal": 5316,
       "too_short": 3
     },
     "event_label_distribution": {
-      "CAPITAL_ACTION": 1158,
-      "CONTRACT": 907,
-      "CORPORATE_ACTION": 1339,
-      "DISCLOSURE": 2171,
-      "EARNINGS": 1860,
-      "GENERAL_MARKET": 171,
-      "MACRO": 1868,
+      "CAPITAL_ACTION": 1143,
+      "CONTRACT": 912,
+      "CORPORATE_ACTION": 1341,
+      "DISCLOSURE": 2199,
+      "EARNINGS": 1891,
+      "GENERAL_MARKET": 178,
+      "MACRO": 1899,
       "RISK": 900
     },
     "source_type_distribution": {
-      "DISCLOSURE": 561,
-      "NEWS": 4410
+      "DISCLOSURE": 528,
+      "NEWS": 4450
     },
     "sentiment_label_distribution": {
-      "NEGATIVE": 362,
-      "NEUTRAL": 1563,
-      "POSITIVE": 3046
+      "NEGATIVE": 365,
+      "NEUTRAL": 1575,
+      "POSITIVE": 3038
     },
     "importance_label_distribution": {
-      "CRITICAL": 666,
-      "HIGH": 2941,
-      "LOW": 49,
-      "MEDIUM": 1315
+      "CRITICAL": 667,
+      "HIGH": 2938,
+      "LOW": 51,
+      "MEDIUM": 1322
     },
     "label_quotas": {
       "RISK": 140,
@@ -191,8 +191,8 @@
     "promotion_method": "supervised_teacher_confidence_filter",
     "teacher_training_sample_count": 3609,
     "rejected_count_by_teacher_reason": {
-      "low_teacher_confidence": 3427,
-      "teacher_weak_event_disagreement": 131
+      "low_teacher_confidence": 3468,
+      "teacher_weak_event_disagreement": 119
     },
     "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",
     "event_probability_threshold": 0.42,
@@ -202,25 +202,25 @@
     "stock_candidate_labeling": {
       "status": "promoted_to_event_student_training",
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-      "candidate_count": 9888,
-      "accepted_count": 621,
-      "accepted_stock_count": 621,
+      "candidate_count": 10226,
+      "accepted_count": 633,
+      "accepted_stock_count": 633,
       "accepted_count_by_primary_label": {
-        "RISK": 215,
+        "RISK": 225,
         "CONTRACT": 210,
         "CAPITAL_ACTION": 120,
         "CORPORATE_ACTION": 45,
-        "EARNINGS": 19,
+        "EARNINGS": 21,
         "MACRO": 12,
         "DISCLOSURE": 0,
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 3559,
-        "per_stock_quota_filled": 2372,
-        "teacher_candidate_event_disagreement": 146,
+        "low_teacher_confidence": 3790,
+        "per_stock_quota_filled": 2453,
+        "teacher_candidate_event_disagreement": 145,
         "teacher_zero_quota_label": 27,
-        "zero_quota_label": 2664
+        "zero_quota_label": 2667
       },
       "label_quotas": {
         "RISK": 350,

@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 47963,
+  "raw_alert_count": 48992,
   "universe_count": 3967,
-  "candidate_count": 9888,
-  "candidate_stock_count": 2739,
-  "candidate_coverage_ratio": 0.6904461809931939,
+  "candidate_count": 10226,
+  "candidate_stock_count": 2804,
+  "candidate_coverage_ratio": 0.7068313587093522,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2739,
+    "actual_stock_count": 2804,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 1883,
-    "CONTRACT": 1494,
-    "CORPORATE_ACTION": 832,
-    "DISCLOSURE": 2664,
-    "EARNINGS": 1331,
-    "MACRO": 348,
-    "RISK": 1336
+    "CAPITAL_ACTION": 1962,
+    "CONTRACT": 1568,
+    "CORPORATE_ACTION": 857,
+    "DISCLOSURE": 2667,
+    "EARNINGS": 1391,
+    "MACRO": 359,
+    "RISK": 1422
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4517,
-    "NEWS": 5371
+    "DISCLOSURE": 4501,
+    "NEWS": 5725
   },
   "sentiment_distribution": {
-    "NEGATIVE": 329,
-    "NEUTRAL": 6519,
-    "POSITIVE": 3040
+    "NEGATIVE": 349,
+    "NEUTRAL": 6702,
+    "POSITIVE": 3175
   },
   "importance_distribution": {
-    "CRITICAL": 776,
-    "HIGH": 7668,
-    "LOW": 267,
-    "MEDIUM": 1177
+    "CRITICAL": 820,
+    "HIGH": 7865,
+    "LOW": 300,
+    "MEDIUM": 1241
   },
   "top_candidate_stocks": [
     {
@@ -107,6 +107,11 @@
       "candidate_count": 13
     },
     {
+      "stock_code": "012330",
+      "stock_name": "현대모비스",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "035420",
       "stock_name": "NAVER",
       "candidate_count": 13
@@ -122,6 +127,11 @@
       "candidate_count": 13
     },
     {
+      "stock_code": "452400",
+      "stock_name": "이닉스",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "000720",
       "stock_name": "현대건설",
       "candidate_count": 12
@@ -130,23 +140,13 @@
       "stock_code": "001440",
       "stock_name": "대한전선",
       "candidate_count": 12
-    },
-    {
-      "stock_code": "001510",
-      "stock_name": "SK증권",
-      "candidate_count": 12
-    },
-    {
-      "stock_code": "001750",
-      "stock_name": "한양증권",
-      "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3773,
-    "low_signal": 4130,
-    "stock_not_matched": 18288
+    "general_market_not_stock_specific": 3835,
+    "low_signal": 4301,
+    "stock_not_matched": 18460
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
