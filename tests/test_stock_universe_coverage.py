@@ -33,12 +33,12 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     assert report["coverage_gates"]["overall_status"] == "fail"
     assert pseudo_coverage["status"] == "promoted_to_event_student_training"
     assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
-    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 633
-    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 633
+    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 645
+    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 645
     assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
-    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 633
-    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 225
-    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 210
+    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 645
+    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 230
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 214
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
 
 
@@ -49,14 +49,14 @@ def test_stock_collection_shard_plan_targets_missing_candidate_coverage() -> Non
     assert report["schema_version"] == "stock-collection-shard-report/v1"
     assert report["row_schema_version"] == "stock-collection-shard-row/v1"
     assert report["planned_stock_count"] == len(rows)
-    assert report["planned_stock_count"] == 1_160
+    assert report["planned_stock_count"] == 1_117
     assert report["shard_size"] == 100
     assert report["shard_count"] == 12
     assert report["planned_query_count"] == report["planned_stock_count"] * len(
         report["intents"]
     )
-    assert report["priority_distribution"]["no_raw_no_candidate"] == 977
-    assert report["priority_distribution"]["raw_without_candidate"] == 183
+    assert report["priority_distribution"]["no_raw_no_candidate"] == 935
+    assert report["priority_distribution"]["raw_without_candidate"] == 182
     assert all(row["candidate_count"] == 0 for row in rows)
     assert all(row["training_gold_count"] == 0 for row in rows)
     assert all(row["evaluation_gold_count"] == 0 for row in rows)

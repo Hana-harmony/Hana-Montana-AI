@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 48992,
+  "raw_alert_count": 49930,
   "universe_count": 3967,
-  "candidate_count": 10226,
-  "candidate_stock_count": 2804,
-  "candidate_coverage_ratio": 0.7068313587093522,
+  "candidate_count": 10521,
+  "candidate_stock_count": 2847,
+  "candidate_coverage_ratio": 0.7176707839677338,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 2804,
+    "actual_stock_count": 2847,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 1962,
-    "CONTRACT": 1568,
-    "CORPORATE_ACTION": 857,
-    "DISCLOSURE": 2667,
-    "EARNINGS": 1391,
-    "MACRO": 359,
-    "RISK": 1422
+    "CAPITAL_ACTION": 2014,
+    "CONTRACT": 1617,
+    "CORPORATE_ACTION": 895,
+    "DISCLOSURE": 2675,
+    "EARNINGS": 1429,
+    "MACRO": 372,
+    "RISK": 1519
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4501,
-    "NEWS": 5725
+    "DISCLOSURE": 4485,
+    "NEWS": 6036
   },
   "sentiment_distribution": {
-    "NEGATIVE": 349,
-    "NEUTRAL": 6702,
-    "POSITIVE": 3175
+    "NEGATIVE": 372,
+    "NEUTRAL": 6880,
+    "POSITIVE": 3269
   },
   "importance_distribution": {
-    "CRITICAL": 820,
-    "HIGH": 7865,
-    "LOW": 300,
-    "MEDIUM": 1241
+    "CRITICAL": 887,
+    "HIGH": 8015,
+    "LOW": 329,
+    "MEDIUM": 1290
   },
   "top_candidate_stocks": [
     {
@@ -117,6 +117,11 @@
       "candidate_count": 13
     },
     {
+      "stock_code": "047040",
+      "stock_name": "대우건설",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "267250",
       "stock_name": "HD현대",
       "candidate_count": 13
@@ -135,18 +140,13 @@
       "stock_code": "000720",
       "stock_name": "현대건설",
       "candidate_count": 12
-    },
-    {
-      "stock_code": "001440",
-      "stock_name": "대한전선",
-      "candidate_count": 12
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 3835,
-    "low_signal": 4301,
-    "stock_not_matched": 18460
+    "general_market_not_stock_specific": 3856,
+    "low_signal": 4427,
+    "stock_not_matched": 18616
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
