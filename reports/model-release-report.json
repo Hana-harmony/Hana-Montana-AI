@@ -1,11 +1,11 @@
 {
   "schema_version": "model-release-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260605043316",
-  "report_created_at": "2026-06-05T04:33:16.883610+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260605045653",
+  "report_created_at": "2026-06-05T04:56:53.134169+00:00",
   "overall_status": "pass",
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-    "trained_at": "2026-06-05T04:33:16.883610+00:00",
+    "trained_at": "2026-06-05T04:56:53.134169+00:00",
     "event_probability_threshold": 0.3,
     "event_label_thresholds": {
       "CONTRACT": 0.42,
@@ -28,15 +28,15 @@
     "committed_data_policy": "raw_and_processed_training_data_are_tracked"
   },
   "training": {
-    "sample_count": 4623,
+    "sample_count": 4627,
     "supervised_sample_count": 3609,
-    "pseudo_labeled_sample_count": 1014,
+    "pseudo_labeled_sample_count": 1018,
     "event_label_distribution": {
       "EARNINGS": 746,
-      "CONTRACT": 833,
-      "RISK": 1321,
-      "CAPITAL_ACTION": 569,
-      "DISCLOSURE": 1403,
+      "CONTRACT": 836,
+      "RISK": 1322,
+      "CAPITAL_ACTION": 568,
+      "DISCLOSURE": 1400,
       "CORPORATE_ACTION": 545,
       "MACRO": 528,
       "GENERAL_MARKET": 176
@@ -55,45 +55,45 @@
   },
   "pseudo_labeling": {
     "status": "promoted_to_student_training",
-    "candidate_count": 50824,
-    "accepted_count": 1014,
+    "candidate_count": 51505,
+    "accepted_count": 1018,
     "weak_label_accepted_count": 360,
-    "stock_candidate_accepted_count": 654,
+    "stock_candidate_accepted_count": 658,
     "accepted_count_by_primary_label": {
       "CAPITAL_ACTION": 120,
-      "CONTRACT": 397,
+      "CONTRACT": 400,
       "CORPORATE_ACTION": 85,
       "EARNINGS": 23,
       "MACRO": 14,
-      "RISK": 375
+      "RISK": 376
     },
-    "rejected_count": 45840,
+    "rejected_count": 46520,
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
-      "disclosure_only": 8683,
-      "duplicate_text": 979,
-      "low_signal": 5435,
+      "disclosure_only": 8732,
+      "duplicate_text": 988,
+      "low_signal": 5494,
       "too_short": 3
     },
     "rejected_count_by_teacher_reason": {
-      "low_teacher_confidence": 3516,
-      "teacher_weak_event_disagreement": 93
+      "low_teacher_confidence": 3532,
+      "teacher_weak_event_disagreement": 87
     },
     "promotion_method": "supervised_teacher_confidence_filter",
     "teacher_training_sample_count": 3609,
-    "student_event_training_sample_count": 1014,
+    "student_event_training_sample_count": 1018,
     "minimum_event_confidence": 0.58,
     "minimum_sentiment_confidence": 0.72,
     "minimum_importance_confidence": 0.68,
     "stock_candidate_labeling": {
       "status": "promoted_to_event_student_training",
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-      "candidate_count": 10766,
-      "accepted_count": 654,
-      "accepted_stock_count": 654,
+      "candidate_count": 11011,
+      "accepted_count": 658,
+      "accepted_stock_count": 658,
       "accepted_count_by_primary_label": {
-        "RISK": 235,
-        "CONTRACT": 217,
+        "RISK": 236,
+        "CONTRACT": 220,
         "CAPITAL_ACTION": 120,
         "CORPORATE_ACTION": 45,
         "EARNINGS": 23,
@@ -102,11 +102,11 @@
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 4109,
-        "per_stock_quota_filled": 2630,
-        "teacher_candidate_event_disagreement": 144,
+        "low_teacher_confidence": 4259,
+        "per_stock_quota_filled": 2702,
+        "teacher_candidate_event_disagreement": 141,
         "teacher_zero_quota_label": 25,
-        "zero_quota_label": 2678
+        "zero_quota_label": 2684
       },
       "label_quotas": {
         "RISK": 350,
@@ -269,8 +269,8 @@
   },
   "consistency_checks": {
     "pseudo_count_matches_training": {
-      "expected": 1014,
-      "actual": 1014,
+      "expected": 1018,
+      "actual": 1018,
       "status": "pass"
     },
     "teacher_sample_count_matches_supervised": {
