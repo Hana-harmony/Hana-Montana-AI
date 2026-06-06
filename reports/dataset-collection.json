@@ -1,29 +1,29 @@
 {
   "raw_write_status": "written",
-  "existing_raw_count": 51505,
-  "raw_count": 54581,
-  "weak_labeled_count": 54581,
+  "existing_raw_count": 54581,
+  "raw_count": 55390,
+  "weak_labeled_count": 55390,
   "stock_universe": {
     "path": "data/reference/korea_stock_universe.csv",
     "stock_count": 3967,
     "news_query_mode": "stock_collection_shard_plan",
     "stock_query_limit": null,
     "stock_collection_plan": "data/curation/stock_collection_shard_plan.jsonl",
-    "stock_collection_plan_shard_index": 1,
-    "matched_weak_labeled_stock_count": 3214
+    "stock_collection_plan_shard_index": 0,
+    "matched_weak_labeled_stock_count": 3237
   },
   "providers": {
-    "naver-news": 28615,
+    "naver-news": 29424,
     "open-dart": 25966
   },
   "provider_statuses": [
     {
       "provider": "naver-news",
-      "attempted_requests": 513,
+      "attempted_requests": 512,
       "successful_requests": 512,
       "rate_limited_requests": 0,
-      "failed_requests": 1,
-      "collected_count": 3791,
+      "failed_requests": 0,
+      "collected_count": 3721,
       "completed": true,
       "errors": []
     }

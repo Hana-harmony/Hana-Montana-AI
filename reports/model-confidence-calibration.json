@@ -1,6 +1,6 @@
 {
   "schema_version": "model-confidence-calibration/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260605102859",
+  "model_version": "financial-ml-tfidf-logreg-20260606004023",
   "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
   "bin_count": 10,
   "high_confidence_threshold": 0.85,
@@ -9,70 +9,70 @@
       "sample_count": 768,
       "event_tags": {
         "decision_count": 6144,
-        "brier_score": 0.012401,
-        "expected_calibration_error": 0.072665,
+        "brier_score": 0.012414,
+        "expected_calibration_error": 0.072512,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.005259,
-            "expected_calibration_error": 0.060573,
+            "brier_score": 0.005191,
+            "expected_calibration_error": 0.059777,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CONTRACT": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.007148,
-            "expected_calibration_error": 0.070937,
+            "brier_score": 0.007173,
+            "expected_calibration_error": 0.071023,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 768,
             "positive_count": 96,
-            "brier_score": 0.024893,
-            "expected_calibration_error": 0.090952,
+            "brier_score": 0.024529,
+            "expected_calibration_error": 0.092966,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 768,
             "positive_count": 312,
-            "brier_score": 0.00456,
-            "expected_calibration_error": 0.04758,
+            "brier_score": 0.004584,
+            "expected_calibration_error": 0.047789,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
             "decision_count": 768,
             "positive_count": 120,
-            "brier_score": 0.019918,
-            "expected_calibration_error": 0.094544,
+            "brier_score": 0.020111,
+            "expected_calibration_error": 0.093945,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "GENERAL_MARKET": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.00466,
-            "expected_calibration_error": 0.050183,
+            "brier_score": 0.004719,
+            "expected_calibration_error": 0.050893,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 768,
             "positive_count": 144,
-            "brier_score": 0.009756,
-            "expected_calibration_error": 0.058838,
+            "brier_score": 0.009826,
+            "expected_calibration_error": 0.058361,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
             "decision_count": 768,
             "positive_count": 168,
-            "brier_score": 0.023015,
-            "expected_calibration_error": 0.121925,
+            "brier_score": 0.02318,
+            "expected_calibration_error": 0.122379,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           }
@@ -102,70 +102,70 @@
       "sample_count": 30,
       "event_tags": {
         "decision_count": 240,
-        "brier_score": 0.00378,
-        "expected_calibration_error": 0.038119,
+        "brier_score": 0.00388,
+        "expected_calibration_error": 0.038681,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 30,
             "positive_count": 8,
-            "brier_score": 0.002405,
-            "expected_calibration_error": 0.041417,
+            "brier_score": 0.002421,
+            "expected_calibration_error": 0.041605,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CONTRACT": {
             "decision_count": 30,
             "positive_count": 3,
-            "brier_score": 0.002657,
-            "expected_calibration_error": 0.044452,
+            "brier_score": 0.002725,
+            "expected_calibration_error": 0.045104,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 30,
             "positive_count": 6,
-            "brier_score": 0.004402,
-            "expected_calibration_error": 0.052574,
+            "brier_score": 0.004473,
+            "expected_calibration_error": 0.053435,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 30,
             "positive_count": 30,
-            "brier_score": 0.001219,
-            "expected_calibration_error": 0.021154,
+            "brier_score": 0.001288,
+            "expected_calibration_error": 0.022051,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
             "decision_count": 30,
             "positive_count": 0,
-            "brier_score": 0.000871,
-            "expected_calibration_error": 0.025975,
+            "brier_score": 0.000856,
+            "expected_calibration_error": 0.025788,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "GENERAL_MARKET": {
             "decision_count": 30,
             "positive_count": 0,
-            "brier_score": 0.000408,
-            "expected_calibration_error": 0.017896,
+            "brier_score": 0.000443,
+            "expected_calibration_error": 0.018492,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 30,
             "positive_count": 0,
-            "brier_score": 0.000256,
-            "expected_calibration_error": 0.013727,
+            "brier_score": 0.000248,
+            "expected_calibration_error": 0.013565,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
             "decision_count": 30,
             "positive_count": 7,
-            "brier_score": 0.018019,
-            "expected_calibration_error": 0.087759,
+            "brier_score": 0.018589,
+            "expected_calibration_error": 0.089408,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           }
@@ -205,70 +205,70 @@
       "sample_count": 80,
       "event_tags": {
         "decision_count": 640,
-        "brier_score": 0.041792,
-        "expected_calibration_error": 0.115802,
+        "brier_score": 0.041885,
+        "expected_calibration_error": 0.115551,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 80,
             "positive_count": 15,
-            "brier_score": 0.022258,
-            "expected_calibration_error": 0.11082,
+            "brier_score": 0.022154,
+            "expected_calibration_error": 0.109979,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CONTRACT": {
             "decision_count": 80,
             "positive_count": 8,
-            "brier_score": 0.027283,
-            "expected_calibration_error": 0.147686,
+            "brier_score": 0.026749,
+            "expected_calibration_error": 0.146023,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 80,
             "positive_count": 10,
-            "brier_score": 0.044168,
-            "expected_calibration_error": 0.118587,
+            "brier_score": 0.045105,
+            "expected_calibration_error": 0.118274,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 80,
             "positive_count": 0,
-            "brier_score": 0.001356,
-            "expected_calibration_error": 0.035453,
+            "brier_score": 0.001316,
+            "expected_calibration_error": 0.034923,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
             "decision_count": 80,
             "positive_count": 20,
-            "brier_score": 0.066762,
-            "expected_calibration_error": 0.154182,
+            "brier_score": 0.067159,
+            "expected_calibration_error": 0.153617,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "GENERAL_MARKET": {
             "decision_count": 80,
             "positive_count": 17,
-            "brier_score": 0.03963,
-            "expected_calibration_error": 0.124263,
+            "brier_score": 0.040226,
+            "expected_calibration_error": 0.118989,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 80,
             "positive_count": 13,
-            "brier_score": 0.049513,
-            "expected_calibration_error": 0.124047,
+            "brier_score": 0.048689,
+            "expected_calibration_error": 0.134249,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
             "decision_count": 80,
             "positive_count": 24,
-            "brier_score": 0.083365,
-            "expected_calibration_error": 0.217354,
+            "brier_score": 0.08368,
+            "expected_calibration_error": 0.21841,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           }

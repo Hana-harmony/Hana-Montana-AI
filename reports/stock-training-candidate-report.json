@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 54581,
+  "raw_alert_count": 55390,
   "universe_count": 3967,
-  "candidate_count": 12070,
-  "candidate_stock_count": 3037,
-  "candidate_coverage_ratio": 0.7655659188303504,
+  "candidate_count": 12251,
+  "candidate_stock_count": 3063,
+  "candidate_coverage_ratio": 0.7721199899168137,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 3037,
+    "actual_stock_count": 3063,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2334,
-    "CONTRACT": 2000,
-    "CORPORATE_ACTION": 1033,
-    "DISCLOSURE": 2703,
-    "EARNINGS": 1678,
-    "MACRO": 442,
-    "RISK": 1880
+    "CAPITAL_ACTION": 2369,
+    "CONTRACT": 2035,
+    "CORPORATE_ACTION": 1052,
+    "DISCLOSURE": 2715,
+    "EARNINGS": 1704,
+    "MACRO": 462,
+    "RISK": 1914
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4446,
-    "NEWS": 7624
+    "DISCLOSURE": 4432,
+    "NEWS": 7819
   },
   "sentiment_distribution": {
-    "NEGATIVE": 461,
-    "NEUTRAL": 7725,
-    "POSITIVE": 3884
+    "NEGATIVE": 472,
+    "NEUTRAL": 7833,
+    "POSITIVE": 3946
   },
   "importance_distribution": {
-    "CRITICAL": 1066,
-    "HIGH": 8972,
-    "LOW": 434,
-    "MEDIUM": 1598
+    "CRITICAL": 1071,
+    "HIGH": 9058,
+    "LOW": 451,
+    "MEDIUM": 1671
   },
   "top_candidate_stocks": [
     {
@@ -107,6 +107,11 @@
       "candidate_count": 14
     },
     {
+      "stock_code": "066570",
+      "stock_name": "LG전자",
+      "candidate_count": 14
+    },
+    {
       "stock_code": "105560",
       "stock_name": "KB금융",
       "candidate_count": 14
@@ -117,6 +122,16 @@
       "candidate_count": 14
     },
     {
+      "stock_code": "003540",
+      "stock_name": "대신증권",
+      "candidate_count": 13
+    },
+    {
+      "stock_code": "012630",
+      "stock_name": "HDC",
+      "candidate_count": 13
+    },
+    {
       "stock_code": "035420",
       "stock_name": "NAVER",
       "candidate_count": 13
@@ -125,28 +140,13 @@
       "stock_code": "047040",
       "stock_name": "대우건설",
       "candidate_count": 13
-    },
-    {
-      "stock_code": "066570",
-      "stock_name": "LG전자",
-      "candidate_count": 13
-    },
-    {
-      "stock_code": "068270",
-      "stock_name": "셀트리온",
-      "candidate_count": 13
-    },
-    {
-      "stock_code": "267250",
-      "stock_name": "HD현대",
-      "candidate_count": 13
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 4036,
-    "low_signal": 5117,
-    "stock_not_matched": 19348
+    "general_market_not_stock_specific": 4061,
+    "low_signal": 5240,
+    "stock_not_matched": 19525
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
