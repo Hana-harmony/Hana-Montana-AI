@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 61886,
+  "raw_alert_count": 63682,
   "universe_count": 3967,
-  "candidate_count": 13983,
-  "candidate_stock_count": 3278,
-  "candidate_coverage_ratio": 0.826317116208722,
+  "candidate_count": 14565,
+  "candidate_stock_count": 3356,
+  "candidate_coverage_ratio": 0.8459793294681119,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 3278,
+    "actual_stock_count": 3356,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2823,
-    "CONTRACT": 2421,
-    "CORPORATE_ACTION": 1238,
-    "DISCLOSURE": 2784,
-    "EARNINGS": 1948,
-    "MACRO": 523,
-    "RISK": 2246
+    "CAPITAL_ACTION": 2940,
+    "CONTRACT": 2569,
+    "CORPORATE_ACTION": 1290,
+    "DISCLOSURE": 2800,
+    "EARNINGS": 2060,
+    "MACRO": 551,
+    "RISK": 2355
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4352,
-    "NEWS": 9631
+    "DISCLOSURE": 4340,
+    "NEWS": 10225
   },
   "sentiment_distribution": {
-    "NEGATIVE": 566,
-    "NEUTRAL": 8795,
-    "POSITIVE": 4622
+    "NEGATIVE": 574,
+    "NEUTRAL": 9135,
+    "POSITIVE": 4856
   },
   "importance_distribution": {
-    "CRITICAL": 1217,
-    "HIGH": 9979,
-    "LOW": 590,
-    "MEDIUM": 2197
+    "CRITICAL": 1262,
+    "HIGH": 10344,
+    "LOW": 639,
+    "MEDIUM": 2320
   },
   "top_candidate_stocks": [
     {
@@ -49,6 +49,11 @@
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "003490",
+      "stock_name": "대한항공",
       "candidate_count": 14
     },
     {
@@ -135,18 +140,13 @@
       "stock_code": "001440",
       "stock_name": "대한전선",
       "candidate_count": 13
-    },
-    {
-      "stock_code": "001470",
-      "stock_name": "삼부토건",
-      "candidate_count": 13
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 4296,
-    "low_signal": 6402,
-    "stock_not_matched": 20847
+    "general_market_not_stock_specific": 4404,
+    "low_signal": 6738,
+    "stock_not_matched": 21031
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
