@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 66618,
+  "raw_alert_count": 67286,
   "universe_count": 3967,
-  "candidate_count": 15357,
-  "candidate_stock_count": 3464,
-  "candidate_coverage_ratio": 0.8732039324426519,
+  "candidate_count": 15511,
+  "candidate_stock_count": 3485,
+  "candidate_coverage_ratio": 0.8784976052432568,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 3464,
+    "actual_stock_count": 3485,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 3121,
-    "CONTRACT": 2733,
-    "CORPORATE_ACTION": 1413,
-    "DISCLOSURE": 2823,
-    "EARNINGS": 2166,
-    "MACRO": 579,
-    "RISK": 2522
+    "CAPITAL_ACTION": 3155,
+    "CONTRACT": 2752,
+    "CORPORATE_ACTION": 1440,
+    "DISCLOSURE": 2828,
+    "EARNINGS": 2194,
+    "MACRO": 590,
+    "RISK": 2552
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4293,
-    "NEWS": 11064
+    "DISCLOSURE": 4284,
+    "NEWS": 11227
   },
   "sentiment_distribution": {
-    "NEGATIVE": 602,
-    "NEUTRAL": 9591,
-    "POSITIVE": 5164
+    "NEGATIVE": 615,
+    "NEUTRAL": 9694,
+    "POSITIVE": 5202
   },
   "importance_distribution": {
-    "CRITICAL": 1317,
-    "HIGH": 10729,
-    "LOW": 724,
-    "MEDIUM": 2587
+    "CRITICAL": 1341,
+    "HIGH": 10799,
+    "LOW": 738,
+    "MEDIUM": 2633
   },
   "top_candidate_stocks": [
     {
@@ -144,9 +144,9 @@
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 4508,
-    "low_signal": 7282,
-    "stock_not_matched": 21607
+    "general_market_not_stock_specific": 4536,
+    "low_signal": 7388,
+    "stock_not_matched": 21774
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
