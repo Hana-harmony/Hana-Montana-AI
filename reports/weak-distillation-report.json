@@ -1,48 +1,48 @@
 {
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
-  "candidate_count": 63682,
-  "accepted_count": 1099,
-  "rejected_count": 58542,
+  "candidate_count": 65460,
+  "accepted_count": 1102,
+  "rejected_count": 60297,
   "accepted_count_by_primary_label": {
     "CAPITAL_ACTION": 120,
-    "CONTRACT": 440,
-    "CORPORATE_ACTION": 67,
-    "EARNINGS": 30,
-    "MACRO": 21,
-    "RISK": 421
+    "CONTRACT": 441,
+    "CORPORATE_ACTION": 65,
+    "EARNINGS": 24,
+    "MACRO": 22,
+    "RISK": 430
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
-    "disclosure_only": 9769,
-    "duplicate_text": 1133,
-    "low_signal": 6506,
+    "disclosure_only": 9944,
+    "duplicate_text": 1157,
+    "low_signal": 6629,
     "too_short": 3
   },
   "event_label_distribution": {
-    "CAPITAL_ACTION": 1288,
-    "CONTRACT": 931,
-    "CORPORATE_ACTION": 1515,
-    "DISCLOSURE": 2450,
-    "EARNINGS": 2006,
-    "GENERAL_MARKET": 340,
-    "MACRO": 2073,
+    "CAPITAL_ACTION": 1293,
+    "CONTRACT": 938,
+    "CORPORATE_ACTION": 1550,
+    "DISCLOSURE": 2462,
+    "EARNINGS": 2027,
+    "GENERAL_MARKET": 363,
+    "MACRO": 2103,
     "RISK": 900
   },
   "source_type_distribution": {
-    "DISCLOSURE": 296,
-    "NEWS": 4844
+    "DISCLOSURE": 274,
+    "NEWS": 4889
   },
   "sentiment_label_distribution": {
-    "NEGATIVE": 489,
-    "NEUTRAL": 1686,
-    "POSITIVE": 2965
+    "NEGATIVE": 498,
+    "NEUTRAL": 1701,
+    "POSITIVE": 2964
   },
   "importance_label_distribution": {
-    "CRITICAL": 653,
-    "HIGH": 2917,
-    "LOW": 89,
-    "MEDIUM": 1481
+    "CRITICAL": 651,
+    "HIGH": 2924,
+    "LOW": 85,
+    "MEDIUM": 1503
   },
   "label_quotas": {
     "RISK": 140,
@@ -57,7 +57,7 @@
   "promotion_method": "supervised_teacher_confidence_filter",
   "teacher_training_sample_count": 3609,
   "rejected_count_by_teacher_reason": {
-    "low_teacher_confidence": 3920,
+    "low_teacher_confidence": 3964,
     "teacher_weak_event_disagreement": 11
   },
   "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",
@@ -68,25 +68,25 @@
   "stock_candidate_labeling": {
     "status": "promoted_to_event_student_training",
     "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-    "candidate_count": 14565,
-    "accepted_count": 757,
-    "accepted_stock_count": 757,
+    "candidate_count": 15041,
+    "accepted_count": 762,
+    "accepted_stock_count": 762,
     "accepted_count_by_primary_label": {
-      "RISK": 281,
-      "CONTRACT": 260,
+      "RISK": 290,
+      "CONTRACT": 261,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 45,
-      "EARNINGS": 30,
-      "MACRO": 21,
+      "EARNINGS": 24,
+      "MACRO": 22,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "rejected_count_by_reason": {
-      "low_teacher_confidence": 6474,
-      "per_stock_quota_filled": 3699,
-      "teacher_candidate_event_disagreement": 138,
+      "low_teacher_confidence": 6821,
+      "per_stock_quota_filled": 3807,
+      "teacher_candidate_event_disagreement": 134,
       "teacher_zero_quota_label": 25,
-      "zero_quota_label": 2800
+      "zero_quota_label": 2811
     },
     "label_quotas": {
       "RISK": 350,

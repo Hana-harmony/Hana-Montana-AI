@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 63682,
+  "raw_alert_count": 65460,
   "universe_count": 3967,
-  "candidate_count": 14565,
-  "candidate_stock_count": 3356,
-  "candidate_coverage_ratio": 0.8459793294681119,
+  "candidate_count": 15041,
+  "candidate_stock_count": 3424,
+  "candidate_coverage_ratio": 0.8631207461557853,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 3356,
+    "actual_stock_count": 3424,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2940,
-    "CONTRACT": 2569,
-    "CORPORATE_ACTION": 1290,
-    "DISCLOSURE": 2800,
-    "EARNINGS": 2060,
-    "MACRO": 551,
-    "RISK": 2355
+    "CAPITAL_ACTION": 3058,
+    "CONTRACT": 2660,
+    "CORPORATE_ACTION": 1360,
+    "DISCLOSURE": 2811,
+    "EARNINGS": 2105,
+    "MACRO": 570,
+    "RISK": 2477
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4340,
-    "NEWS": 10225
+    "DISCLOSURE": 4307,
+    "NEWS": 10734
   },
   "sentiment_distribution": {
-    "NEGATIVE": 574,
-    "NEUTRAL": 9135,
-    "POSITIVE": 4856
+    "NEGATIVE": 592,
+    "NEUTRAL": 9423,
+    "POSITIVE": 5026
   },
   "importance_distribution": {
-    "CRITICAL": 1262,
-    "HIGH": 10344,
-    "LOW": 639,
-    "MEDIUM": 2320
+    "CRITICAL": 1287,
+    "HIGH": 10542,
+    "LOW": 695,
+    "MEDIUM": 2517
   },
   "top_candidate_stocks": [
     {
@@ -49,6 +49,11 @@
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
+      "candidate_count": 14
+    },
+    {
+      "stock_code": "001740",
+      "stock_name": "SK네트웍스",
       "candidate_count": 14
     },
     {
@@ -122,6 +127,11 @@
       "candidate_count": 14
     },
     {
+      "stock_code": "101390",
+      "stock_name": "아이엠",
+      "candidate_count": 14
+    },
+    {
       "stock_code": "105560",
       "stock_name": "KB금융",
       "candidate_count": 14
@@ -130,23 +140,13 @@
       "stock_code": "329180",
       "stock_name": "HD현대중공업",
       "candidate_count": 14
-    },
-    {
-      "stock_code": "000250",
-      "stock_name": "삼천당제약",
-      "candidate_count": 13
-    },
-    {
-      "stock_code": "001440",
-      "stock_name": "대한전선",
-      "candidate_count": 13
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 4404,
-    "low_signal": 6738,
-    "stock_not_matched": 21031
+    "general_market_not_stock_specific": 4450,
+    "low_signal": 7060,
+    "stock_not_matched": 21390
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }
