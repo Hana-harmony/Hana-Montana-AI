@@ -1,11 +1,11 @@
 {
   "benchmark": {
     "sample_count": 768,
-    "event_tag_recall": 0.9921875,
+    "event_tag_recall": 0.9934895833333334,
     "sentiment_accuracy": 1.0,
     "importance_accuracy": 0.9375,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9977272727272727,
+    "event_macro_f1": 0.9976792565257843,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -44,15 +44,15 @@
         "support": 72
       },
       "MACRO": {
-        "precision": 1.0,
+        "precision": 0.993103448275862,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.9965397923875432,
         "support": 144
       },
       "RISK": {
         "precision": 1.0,
-        "recall": 0.9642857142857143,
-        "f1": 0.9818181818181818,
+        "recall": 0.9702380952380952,
+        "f1": 0.984894259818731,
         "support": 168
       }
     },
@@ -149,11 +149,11 @@
   },
   "real_news_gold": {
     "sample_count": 80,
-    "event_tag_recall": 0.95,
+    "event_tag_recall": 0.9625,
     "sentiment_accuracy": 0.9125,
     "importance_accuracy": 0.925,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9209613061623196,
+    "event_macro_f1": 0.91082634308618,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -162,9 +162,9 @@
         "support": 15
       },
       "CONTRACT": {
-        "precision": 1.0,
+        "precision": 0.8888888888888888,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.9411764705882353,
         "support": 8
       },
       "CORPORATE_ACTION": {
@@ -186,9 +186,9 @@
         "support": 17
       },
       "MACRO": {
-        "precision": 0.7058823529411765,
-        "recall": 0.9230769230769231,
-        "f1": 0.8000000000000002,
+        "precision": 0.65,
+        "recall": 1.0,
+        "f1": 0.787878787878788,
         "support": 13
       },
       "RISK": {

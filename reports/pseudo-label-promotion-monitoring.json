@@ -1,18 +1,18 @@
 {
   "schema_version": "pseudo-label-monitor/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260610203855",
-  "report_created_at": "2026-06-10T20:38:55.527448+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260610211549",
+  "report_created_at": "2026-06-10T21:15:49.332356+00:00",
   "overall_status": "pass",
   "candidate_funnel": {
-    "raw_candidate_count": 61886,
-    "high_signal_candidate_count": 5099,
-    "teacher_rejected_count": 3868,
+    "raw_candidate_count": 63682,
+    "high_signal_candidate_count": 5140,
+    "teacher_rejected_count": 3931,
     "teacher_rejected_count_by_reason": {
-      "low_teacher_confidence": 3856,
-      "teacher_weak_event_disagreement": 12
+      "low_teacher_confidence": 3920,
+      "teacher_weak_event_disagreement": 11
     },
-    "teacher_passed_not_promoted_or_quota_limited_count": 150,
-    "promoted_count": 1081
+    "teacher_passed_not_promoted_or_quota_limited_count": 110,
+    "promoted_count": 1099
   },
   "confidence_thresholds": {
     "minimum_event_confidence": 0.58,
@@ -22,31 +22,31 @@
   "labels": [
     {
       "label": "CAPITAL_ACTION",
-      "high_signal_event_count": 1270,
+      "high_signal_event_count": 1288,
       "student_training_quota": 120,
       "promoted_count": 120,
-      "promotion_rate_from_high_signal": 0.09448818897637795,
+      "promotion_rate_from_high_signal": 0.09316770186335403,
       "decision": "quota_filled"
     },
     {
       "label": "CONTRACT",
-      "high_signal_event_count": 938,
+      "high_signal_event_count": 931,
       "student_training_quota": 530,
-      "promoted_count": 435,
-      "promotion_rate_from_high_signal": 0.46375266524520253,
+      "promoted_count": 440,
+      "promotion_rate_from_high_signal": 0.47261009667024706,
       "decision": "under_quota_monitor"
     },
     {
       "label": "CORPORATE_ACTION",
-      "high_signal_event_count": 1510,
+      "high_signal_event_count": 1515,
       "student_training_quota": 160,
-      "promoted_count": 66,
-      "promotion_rate_from_high_signal": 0.04370860927152318,
+      "promoted_count": 67,
+      "promotion_rate_from_high_signal": 0.04422442244224423,
       "decision": "under_quota_monitor"
     },
     {
       "label": "DISCLOSURE",
-      "high_signal_event_count": 2412,
+      "high_signal_event_count": 2450,
       "student_training_quota": 0,
       "promoted_count": 0,
       "promotion_rate_from_high_signal": 0.0,
@@ -54,15 +54,15 @@
     },
     {
       "label": "EARNINGS",
-      "high_signal_event_count": 2016,
+      "high_signal_event_count": 2006,
       "student_training_quota": 120,
-      "promoted_count": 25,
-      "promotion_rate_from_high_signal": 0.01240079365079365,
+      "promoted_count": 30,
+      "promotion_rate_from_high_signal": 0.014955134596211365,
       "decision": "under_quota_monitor"
     },
     {
       "label": "GENERAL_MARKET",
-      "high_signal_event_count": 299,
+      "high_signal_event_count": 340,
       "student_training_quota": 0,
       "promoted_count": 0,
       "promotion_rate_from_high_signal": 0.0,
@@ -70,18 +70,18 @@
     },
     {
       "label": "MACRO",
-      "high_signal_event_count": 2068,
+      "high_signal_event_count": 2073,
       "student_training_quota": 80,
-      "promoted_count": 20,
-      "promotion_rate_from_high_signal": 0.009671179883945842,
+      "promoted_count": 21,
+      "promotion_rate_from_high_signal": 0.010130246020260492,
       "decision": "under_quota_monitor"
     },
     {
       "label": "RISK",
       "high_signal_event_count": 900,
       "student_training_quota": 490,
-      "promoted_count": 415,
-      "promotion_rate_from_high_signal": 0.46111111111111114,
+      "promoted_count": 421,
+      "promotion_rate_from_high_signal": 0.4677777777777778,
       "decision": "under_quota_monitor"
     }
   ],
