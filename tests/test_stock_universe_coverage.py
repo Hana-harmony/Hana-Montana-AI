@@ -49,14 +49,14 @@ def test_stock_collection_shard_plan_targets_missing_candidate_coverage() -> Non
     assert report["schema_version"] == "stock-collection-shard-report/v1"
     assert report["row_schema_version"] == "stock-collection-shard-row/v1"
     assert report["planned_stock_count"] == len(rows)
-    assert report["planned_stock_count"] == 889
+    assert report["planned_stock_count"] == 884
     assert report["shard_size"] == 100
     assert report["shard_count"] == 9
     assert report["planned_query_count"] == report["planned_stock_count"] * len(
         report["intents"]
     )
-    assert report["priority_distribution"]["no_raw_no_candidate"] == 712
-    assert report["priority_distribution"]["raw_without_candidate"] == 177
+    assert report["priority_distribution"]["no_raw_no_candidate"] == 708
+    assert report["priority_distribution"]["raw_without_candidate"] == 176
     assert all(row["candidate_count"] == 0 for row in rows)
     assert all(row["training_gold_count"] == 0 for row in rows)
     assert all(row["evaluation_gold_count"] == 0 for row in rows)

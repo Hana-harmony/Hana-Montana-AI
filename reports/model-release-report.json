@@ -1,11 +1,11 @@
 {
   "schema_version": "model-release-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260610172430",
-  "report_created_at": "2026-06-10T17:24:30.031249+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260610174935",
+  "report_created_at": "2026-06-10T17:49:35.114300+00:00",
   "overall_status": "pass",
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-    "trained_at": "2026-06-10T17:24:30.031249+00:00",
+    "trained_at": "2026-06-10T17:49:35.114300+00:00",
     "event_probability_threshold": 0.3,
     "event_label_thresholds": {
       "CONTRACT": 0.42,
@@ -55,7 +55,7 @@
   },
   "pseudo_labeling": {
     "status": "promoted_to_student_training",
-    "candidate_count": 56675,
+    "candidate_count": 56828,
     "accepted_count": 1060,
     "weak_label_accepted_count": 358,
     "stock_candidate_accepted_count": 702,
@@ -67,16 +67,16 @@
       "MACRO": 15,
       "RISK": 399
     },
-    "rejected_count": 51633,
+    "rejected_count": 51785,
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
-      "disclosure_only": 9109,
-      "duplicate_text": 1059,
-      "low_signal": 5892,
+      "disclosure_only": 9114,
+      "duplicate_text": 1061,
+      "low_signal": 5910,
       "too_short": 3
     },
     "rejected_count_by_teacher_reason": {
-      "low_teacher_confidence": 3687,
+      "low_teacher_confidence": 3686,
       "teacher_weak_event_disagreement": 55
     },
     "promotion_method": "supervised_teacher_confidence_filter",
@@ -88,7 +88,7 @@
     "stock_candidate_labeling": {
       "status": "promoted_to_event_student_training",
       "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-      "candidate_count": 12395,
+      "candidate_count": 12435,
       "accepted_count": 702,
       "accepted_stock_count": 702,
       "accepted_count_by_primary_label": {
@@ -102,11 +102,11 @@
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 5131,
-        "per_stock_quota_filled": 3103,
+        "low_teacher_confidence": 5149,
+        "per_stock_quota_filled": 3122,
         "teacher_candidate_event_disagreement": 138,
         "teacher_zero_quota_label": 25,
-        "zero_quota_label": 2719
+        "zero_quota_label": 2720
       },
       "label_quotas": {
         "RISK": 350,

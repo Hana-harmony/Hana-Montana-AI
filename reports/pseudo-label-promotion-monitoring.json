@@ -1,17 +1,17 @@
 {
   "schema_version": "pseudo-label-monitor/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260610172430",
-  "report_created_at": "2026-06-10T17:24:30.031249+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260610174935",
+  "report_created_at": "2026-06-10T17:49:35.114300+00:00",
   "overall_status": "pass",
   "candidate_funnel": {
-    "raw_candidate_count": 56675,
-    "high_signal_candidate_count": 5042,
-    "teacher_rejected_count": 3742,
+    "raw_candidate_count": 56828,
+    "high_signal_candidate_count": 5043,
+    "teacher_rejected_count": 3741,
     "teacher_rejected_count_by_reason": {
-      "low_teacher_confidence": 3687,
+      "low_teacher_confidence": 3686,
       "teacher_weak_event_disagreement": 55
     },
-    "teacher_passed_not_promoted_or_quota_limited_count": 240,
+    "teacher_passed_not_promoted_or_quota_limited_count": 242,
     "promoted_count": 1060
   },
   "confidence_thresholds": {
@@ -22,10 +22,10 @@
   "labels": [
     {
       "label": "CAPITAL_ACTION",
-      "high_signal_event_count": 1210,
+      "high_signal_event_count": 1211,
       "student_training_quota": 120,
       "promoted_count": 120,
-      "promotion_rate_from_high_signal": 0.09917355371900827,
+      "promotion_rate_from_high_signal": 0.0990916597853014,
       "decision": "quota_filled"
     },
     {
@@ -38,15 +38,15 @@
     },
     {
       "label": "CORPORATE_ACTION",
-      "high_signal_event_count": 1418,
+      "high_signal_event_count": 1417,
       "student_training_quota": 160,
       "promoted_count": 82,
-      "promotion_rate_from_high_signal": 0.05782792665726375,
+      "promotion_rate_from_high_signal": 0.05786873676781934,
       "decision": "under_quota_monitor"
     },
     {
       "label": "DISCLOSURE",
-      "high_signal_event_count": 2340,
+      "high_signal_event_count": 2343,
       "student_training_quota": 0,
       "promoted_count": 0,
       "promotion_rate_from_high_signal": 0.0,
@@ -62,7 +62,7 @@
     },
     {
       "label": "GENERAL_MARKET",
-      "high_signal_event_count": 242,
+      "high_signal_event_count": 243,
       "student_training_quota": 0,
       "promoted_count": 0,
       "promotion_rate_from_high_signal": 0.0,
