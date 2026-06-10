@@ -1,17 +1,17 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-06T00:42:36.725930+00:00",
+  "generated_at": "2026-06-10T17:07:24.905795+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
   "evaluation_stock_count": 57,
-  "raw_matched_stock_count": 3237,
+  "raw_matched_stock_count": 3248,
   "training_coverage_ratio": 0.009579026972523318,
   "evaluation_coverage_ratio": 0.014368540458784976,
-  "raw_coverage_ratio": 0.8159818502646836,
+  "raw_coverage_ratio": 0.818754726493572,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 55390,
+  "raw_sample_count": 56494,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -118,22 +118,22 @@
     {
       "stock_code": "005930",
       "stock_name": "삼성전자",
-      "sample_count": 2071
+      "sample_count": 2114
     },
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 556
+      "sample_count": 578
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 488
+      "sample_count": 493
     },
     {
       "stock_code": "035420",
       "stock_name": "NAVER",
-      "sample_count": 486
+      "sample_count": 490
     },
     {
       "stock_code": "029460",
@@ -143,27 +143,32 @@
     {
       "stock_code": "002860",
       "stock_name": "하나은행",
-      "sample_count": 372
+      "sample_count": 399
     },
     {
       "stock_code": "006800",
       "stock_name": "미래에셋증권",
-      "sample_count": 356
+      "sample_count": 375
     },
     {
       "stock_code": "008670",
       "stock_name": "신한투자증권",
-      "sample_count": 266
+      "sample_count": 275
     },
     {
       "stock_code": "005940",
       "stock_name": "NH투자증권",
-      "sample_count": 246
+      "sample_count": 266
     },
     {
       "stock_code": "039490",
       "stock_name": "키움증권",
-      "sample_count": 223
+      "sample_count": 228
+    },
+    {
+      "stock_code": "010130",
+      "stock_name": "고려아연",
+      "sample_count": 225
     },
     {
       "stock_code": "003530",
@@ -171,14 +176,14 @@
       "sample_count": 208
     },
     {
-      "stock_code": "010130",
-      "stock_name": "고려아연",
+      "stock_code": "031150",
+      "stock_name": "국민은행",
       "sample_count": 203
     },
     {
       "stock_code": "009830",
       "stock_name": "한화솔루션",
-      "sample_count": 187
+      "sample_count": 195
     },
     {
       "stock_code": "101390",
@@ -193,27 +198,22 @@
     {
       "stock_code": "008560",
       "stock_name": "메리츠증권",
-      "sample_count": 180
-    },
-    {
-      "stock_code": "031150",
-      "stock_name": "국민은행",
-      "sample_count": 174
+      "sample_count": 181
     },
     {
       "stock_code": "030610",
       "stock_name": "교보증권",
-      "sample_count": 172
-    },
-    {
-      "stock_code": "016360",
-      "stock_name": "삼성증권",
-      "sample_count": 159
+      "sample_count": 173
     },
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
-      "sample_count": 149
+      "sample_count": 165
+    },
+    {
+      "stock_code": "016360",
+      "stock_name": "삼성증권",
+      "sample_count": 164
     }
   ],
   "coverage_gates": {
@@ -225,7 +225,7 @@
         "status": "pass"
       },
       "raw_matched_stock_count": {
-        "actual": 3237,
+        "actual": 3248,
         "minimum": 300,
         "status": "pass"
       },
@@ -244,20 +244,20 @@
   "event_model_pseudo_training_coverage": {
     "status": "promoted_to_event_student_training",
     "source_path": "reports/ml-training-report.json",
-    "stock_candidate_event_training_sample_count": 695,
-    "stock_candidate_event_training_stock_count": 695,
+    "stock_candidate_event_training_sample_count": 701,
+    "stock_candidate_event_training_stock_count": 701,
     "stock_candidate_label_distribution": {
-      "RISK": 261,
-      "CONTRACT": 230,
+      "RISK": 257,
+      "CONTRACT": 236,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 45,
-      "EARNINGS": 24,
+      "EARNINGS": 28,
       "MACRO": 15,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 695,
+    "effective_event_training_stock_count_lower_bound": 701,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }
