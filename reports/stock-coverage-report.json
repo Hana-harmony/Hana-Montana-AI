@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T18:36:09.848444+00:00",
+  "generated_at": "2026-06-10T18:56:36.843489+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
@@ -11,7 +11,7 @@
   "raw_coverage_ratio": 0.8222838416939753,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 57045,
+  "raw_sample_count": 57070,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -123,7 +123,7 @@
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 580
+      "sample_count": 581
     },
     {
       "stock_code": "035720",
@@ -188,7 +188,7 @@
     {
       "stock_code": "034020",
       "stock_name": "두산에너빌리티",
-      "sample_count": 183
+      "sample_count": 184
     },
     {
       "stock_code": "101390",
@@ -244,11 +244,11 @@
   "event_model_pseudo_training_coverage": {
     "status": "promoted_to_event_student_training",
     "source_path": "reports/ml-training-report.json",
-    "stock_candidate_event_training_sample_count": 702,
-    "stock_candidate_event_training_stock_count": 702,
+    "stock_candidate_event_training_sample_count": 704,
+    "stock_candidate_event_training_stock_count": 704,
     "stock_candidate_label_distribution": {
       "RISK": 258,
-      "CONTRACT": 237,
+      "CONTRACT": 239,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 44,
       "EARNINGS": 28,
@@ -257,7 +257,7 @@
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 702,
+    "effective_event_training_stock_count_lower_bound": 704,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }
