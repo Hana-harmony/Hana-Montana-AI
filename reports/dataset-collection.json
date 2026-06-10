@@ -1,8 +1,8 @@
 {
   "raw_write_status": "written",
-  "existing_raw_count": 55390,
-  "raw_count": 56494,
-  "weak_labeled_count": 56494,
+  "existing_raw_count": 56494,
+  "raw_count": 56675,
+  "weak_labeled_count": 56675,
   "stock_universe": {
     "path": "data/reference/korea_stock_universe.csv",
     "stock_count": 3967,
@@ -10,39 +10,22 @@
     "stock_query_limit": null,
     "stock_collection_plan": "data/curation/stock_collection_shard_plan.jsonl",
     "stock_collection_plan_shard_index": 0,
-    "matched_weak_labeled_stock_count": 3248
+    "matched_weak_labeled_stock_count": 3252
   },
   "providers": {
-    "naver-news": 30528,
+    "naver-news": 30709,
     "open-dart": 25966
   },
   "provider_statuses": [
     {
       "provider": "naver-news",
-      "attempted_requests": 582,
-      "successful_requests": 504,
-      "rate_limited_requests": 78,
+      "attempted_requests": 512,
+      "successful_requests": 512,
+      "rate_limited_requests": 0,
       "failed_requests": 0,
-      "collected_count": 3644,
-      "completed": false,
-      "errors": [
-        "rate limit exceeded",
-        "news query stopped: query=영풍 거래정지 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=롯데푸드 수주 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=조흥 유상증자 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=남성 유상증자 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=세방 거래정지 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=삼립 공시 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=LS 수주 start=1",
-        "rate limit exceeded",
-        "news query stopped: query=서연 실적 start=1"
-      ]
+      "collected_count": 3715,
+      "completed": true,
+      "errors": []
     }
   ]
 }
