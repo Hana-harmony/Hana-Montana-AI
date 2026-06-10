@@ -38,7 +38,7 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
     assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 704
     assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 258
-    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 239
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 238
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
 
 

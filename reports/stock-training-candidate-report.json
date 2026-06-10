@@ -3,9 +3,9 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 57070,
+  "raw_alert_count": 57078,
   "universe_count": 3967,
-  "candidate_count": 12483,
+  "candidate_count": 12486,
   "candidate_stock_count": 3087,
   "candidate_coverage_ratio": 0.7781699016889337,
   "per_stock_label_quota": 2,
@@ -17,28 +17,28 @@
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 2407,
+    "CAPITAL_ACTION": 2408,
     "CONTRACT": 2114,
     "CORPORATE_ACTION": 1065,
-    "DISCLOSURE": 2720,
-    "EARNINGS": 1749,
+    "DISCLOSURE": 2721,
+    "EARNINGS": 1750,
     "MACRO": 477,
     "RISK": 1951
   },
   "source_type_distribution": {
     "DISCLOSURE": 4402,
-    "NEWS": 8081
+    "NEWS": 8084
   },
   "sentiment_distribution": {
-    "NEGATIVE": 491,
+    "NEGATIVE": 492,
     "NEUTRAL": 7924,
-    "POSITIVE": 4068
+    "POSITIVE": 4070
   },
   "importance_distribution": {
-    "CRITICAL": 1088,
-    "HIGH": 9197,
+    "CRITICAL": 1089,
+    "HIGH": 9198,
     "LOW": 455,
-    "MEDIUM": 1743
+    "MEDIUM": 1744
   },
   "top_candidate_stocks": [
     {
@@ -145,8 +145,8 @@
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
     "general_market_not_stock_specific": 4116,
-    "low_signal": 5548,
-    "stock_not_matched": 20037
+    "low_signal": 5549,
+    "stock_not_matched": 20038
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }

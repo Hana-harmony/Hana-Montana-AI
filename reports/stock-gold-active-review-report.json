@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-gold-active-review-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260610185431",
+  "model_version": "financial-ml-tfidf-logreg-20260610191529",
   "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
   "top_n_per_split": 50,
   "training_review": {
@@ -25,8 +25,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.746256,
-        "event_margin": 0.428465,
+        "event_confidence": 0.744391,
+        "event_margin": 0.4282,
         "sentiment_confidence": 0.504349,
         "importance_confidence": 0.568013,
         "disagreement_reasons": [
@@ -34,7 +34,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 359.722158,
+        "review_priority_score": 359.79408,
         "original_url": "https://n.news.naver.com/mnews/article/011/0002018667?sid=101"
       },
       {
@@ -53,8 +53,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.890486,
-        "event_margin": 0.761675,
+        "event_confidence": 0.890498,
+        "event_margin": 0.761517,
         "sentiment_confidence": 0.551282,
         "importance_confidence": 0.543928,
         "disagreement_reasons": [
@@ -62,7 +62,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 343.886921,
+        "review_priority_score": 343.890462,
         "original_url": "http://www.moneytoday.co.kr/view/mtview.php?type=1&no=2009092907534469337&outlink=1"
       },
       {
@@ -82,15 +82,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.499811,
-        "event_margin": 0.073455,
+        "event_confidence": 0.499506,
+        "event_margin": 0.074057,
         "sentiment_confidence": 0.399735,
         "importance_confidence": 0.616433,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 278.346865,
+        "review_priority_score": 278.342468,
         "original_url": "https://n.news.naver.com/mnews/article/008/0000517120?sid=101"
       },
       {
@@ -111,15 +111,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.447858,
-        "event_margin": 0.131484,
+        "event_confidence": 0.444048,
+        "event_margin": 0.130603,
         "sentiment_confidence": 0.430181,
         "importance_confidence": 0.667854,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 277.077182,
+        "review_priority_score": 277.232537,
         "original_url": "http://www.edaily.co.kr/news/newspath.asp?newsid=02158246586277720"
       },
       {
@@ -140,15 +140,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.529631,
-        "event_margin": 0.106985,
+        "event_confidence": 0.528022,
+        "event_margin": 0.106849,
         "sentiment_confidence": 0.38194,
         "importance_confidence": 0.747006,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 276.209363,
+        "review_priority_score": 276.269076,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=120627"
       },
       {
@@ -167,15 +167,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.524372,
-        "event_margin": 0.165961,
+        "event_confidence": 0.522141,
+        "event_margin": 0.166158,
         "sentiment_confidence": 0.461949,
         "importance_confidence": 0.524602,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 275.766907,
+        "review_priority_score": 275.840097,
         "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=640942"
       },
       {
@@ -198,15 +198,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.72723,
-        "event_margin": 0.027576,
+        "event_confidence": 0.726819,
+        "event_margin": 0.027739,
         "sentiment_confidence": 0.504123,
         "importance_confidence": 0.436761,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 275.039855,
+        "review_priority_score": 275.050167,
         "original_url": "http://www.hankyung.com/news/app/newsview.php?aid=2009120195771"
       },
       {
@@ -225,15 +225,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.611731,
-        "event_margin": 0.20243,
+        "event_confidence": 0.610662,
+        "event_margin": 0.202833,
         "sentiment_confidence": 0.36007,
         "importance_confidence": 0.510335,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 274.120567,
+        "review_priority_score": 274.147915,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=109991"
       },
       {
@@ -254,15 +254,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.630535,
-        "event_margin": 0.258116,
+        "event_confidence": 0.629246,
+        "event_margin": 0.258332,
         "sentiment_confidence": 0.381044,
         "importance_confidence": 0.487785,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 274.101821,
+        "review_priority_score": 274.141513,
         "original_url": "https://www.digitaltoday.co.kr/news/articleView.html?idxno=616930"
       },
       {
@@ -281,15 +281,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.603457,
-        "event_margin": 0.209896,
+        "event_confidence": 0.601597,
+        "event_margin": 0.210923,
         "sentiment_confidence": 0.382632,
         "importance_confidence": 0.535517,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 273.268627,
+        "review_priority_score": 273.308051,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124609"
       },
       {
@@ -312,15 +312,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.452212,
-        "event_margin": 0.130245,
+        "event_confidence": 0.451075,
+        "event_margin": 0.130331,
         "sentiment_confidence": 0.495165,
         "importance_confidence": 0.712909,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "sentiment_disagreement"
         ],
-        "review_priority_score": 272.754998,
+        "review_priority_score": 272.792611,
         "original_url": "https://n.news.naver.com/mnews/article/011/0000024950"
       },
       {
@@ -339,15 +339,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.61479,
-        "event_margin": 0.269737,
+        "event_confidence": 0.613802,
+        "event_margin": 0.269511,
         "sentiment_confidence": 0.498161,
         "importance_confidence": 0.467436,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 272.427005,
+        "review_priority_score": 272.467201,
         "original_url": "http://www.businesspost.co.kr/BP?command=article_view&num=139221"
       },
       {
@@ -367,15 +367,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.526619,
-        "event_margin": 0.011572,
+        "event_confidence": 0.525361,
+        "event_margin": 0.010683,
         "sentiment_confidence": 0.505347,
         "importance_confidence": 0.651568,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 272.140726,
+        "review_priority_score": 272.206993,
         "original_url": "http://news.bizwatch.co.kr/article/governance/2022/04/16/0002"
       },
       {
@@ -395,15 +395,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.533614,
-        "event_margin": 0.15411,
+        "event_confidence": 0.533392,
+        "event_margin": 0.154018,
         "sentiment_confidence": 0.575635,
         "importance_confidence": 0.537311,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 271.211854,
+        "review_priority_score": 271.221896,
         "original_url": "http://www.thelec.kr/news/articleView.html?idxno=30086"
       },
       {
@@ -422,15 +422,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.62465,
-        "event_margin": 0.240093,
+        "event_confidence": 0.623292,
+        "event_margin": 0.239957,
         "sentiment_confidence": 0.464062,
         "importance_confidence": 0.504618,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 270.761343,
+        "review_priority_score": 270.812276,
         "original_url": "https://n.news.naver.com/mnews/article/018/0000074887?sid=101"
       },
       {
@@ -450,15 +450,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.490752,
-        "event_margin": 0.120898,
+        "event_confidence": 0.490433,
+        "event_margin": 0.121512,
         "sentiment_confidence": 0.725976,
         "importance_confidence": 0.607811,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 269.12548,
+        "review_priority_score": 269.121317,
         "original_url": "http://www.g-enews.com/ko-kr/news/article/news_all/2023011712293123467bdb7041ec_1/article.html"
       },
       {
@@ -477,15 +477,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.420779,
-        "event_margin": 0.209128,
+        "event_confidence": 0.419366,
+        "event_margin": 0.208282,
         "sentiment_confidence": 0.661656,
         "importance_confidence": 0.701758,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 268.776244,
+        "review_priority_score": 268.846877,
         "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2013042418584381350&outlink=1"
       },
       {
@@ -499,21 +499,20 @@
           "EARNINGS"
         ],
         "suggested_tags": [
-          "CONTRACT",
           "EARNINGS"
         ],
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.674134,
-        "event_margin": 0.252434,
+        "event_confidence": 0.67244,
+        "event_margin": 0.253246,
         "sentiment_confidence": 0.422543,
         "importance_confidence": 0.552244,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 268.598727,
+        "review_priority_score": 268.637737,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124595"
       },
       {
@@ -532,15 +531,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.62267,
-        "event_margin": 0.264478,
+        "event_confidence": 0.621066,
+        "event_margin": 0.264885,
         "sentiment_confidence": 0.455123,
         "importance_confidence": 0.612488,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 268.242369,
+        "review_priority_score": 268.288346,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124761"
       },
       {
@@ -563,15 +562,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.785095,
-        "event_margin": 0.015692,
+        "event_confidence": 0.784825,
+        "event_margin": 0.015314,
         "sentiment_confidence": 0.620938,
         "importance_confidence": 0.629873,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 267.113166,
+        "review_priority_score": 267.132071,
         "original_url": "http://www.etoday.co.kr/news/section/newsview.php?idxno=1720691"
       },
       {
@@ -590,15 +589,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.702717,
-        "event_margin": 0.370252,
+        "event_confidence": 0.70165,
+        "event_margin": 0.370755,
         "sentiment_confidence": 0.418917,
         "importance_confidence": 0.485168,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 266.066918,
+        "review_priority_score": 266.091682,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124532"
       },
       {
@@ -617,15 +616,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.407608,
-        "event_margin": 0.176178,
+        "event_confidence": 0.405968,
+        "event_margin": 0.175376,
         "sentiment_confidence": 0.7765,
         "importance_confidence": 0.820183,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 265.395591,
+        "review_priority_score": 265.473045,
         "original_url": "http://korea.kr/newsWeb/pages/brief/partNews2/view.do?dataId=155684117&call_from=extlink&call_from=extlink"
       },
       {
@@ -645,15 +644,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.751867,
-        "event_margin": 0.391057,
+        "event_confidence": 0.749271,
+        "event_margin": 0.391042,
         "sentiment_confidence": 0.448816,
         "importance_confidence": 0.512504,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 264.681824,
+        "review_priority_score": 264.77307,
         "original_url": "https://www.newsinside.kr/news/articleView.html?idxno=4632212"
       },
       {
@@ -672,15 +671,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.75663,
-        "event_margin": 0.385712,
+        "event_confidence": 0.75492,
+        "event_margin": 0.386835,
         "sentiment_confidence": 0.376768,
         "importance_confidence": 0.504262,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 264.25454,
+        "review_priority_score": 264.286315,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=101991"
       },
       {
@@ -701,15 +700,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.504355,
-        "event_margin": 0.29525,
+        "event_confidence": 0.504115,
+        "event_margin": 0.294933,
         "sentiment_confidence": 0.63814,
         "importance_confidence": 0.600532,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 264.192856,
+        "review_priority_score": 264.20922,
         "original_url": "https://www.topstarnews.net/news/articleView.html?idxno=15910086"
       },
       {
@@ -731,15 +730,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.70579,
-        "event_margin": 0.457808,
+        "event_confidence": 0.705334,
+        "event_margin": 0.458175,
         "sentiment_confidence": 0.402255,
         "importance_confidence": 0.507323,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 263.660584,
+        "review_priority_score": 263.667375,
         "original_url": "https://n.news.naver.com/mnews/article/003/0004663652?sid=101"
       },
       {
@@ -760,15 +759,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.690854,
-        "event_margin": 0.451797,
+        "event_confidence": 0.691004,
+        "event_margin": 0.451925,
         "sentiment_confidence": 0.408907,
         "importance_confidence": 0.437432,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 263.598407,
+        "review_priority_score": 263.589983,
         "original_url": "http://www.newspim.com/sub_view.php?cate1=1&cate2=6&news_id=312449"
       },
       {
@@ -789,15 +788,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.719344,
-        "event_margin": 0.415456,
+        "event_confidence": 0.718494,
+        "event_margin": 0.415147,
         "sentiment_confidence": 0.394772,
         "importance_confidence": 0.588385,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.773416,
+        "review_priority_score": 260.810884,
         "original_url": "http://www.newspim.com/common/redirect.jsp?newsId=20110315000549"
       },
       {
@@ -817,71 +816,16 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.737486,
-        "event_margin": 0.442117,
+        "event_confidence": 0.735946,
+        "event_margin": 0.442629,
         "sentiment_confidence": 0.597711,
         "importance_confidence": 0.521746,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.745935,
+        "review_priority_score": 260.78706,
         "original_url": "http://www.fntimes.com/html/view.php?ud=2020050715411944055dfa8de451_18"
-      },
-      {
-        "review_key": "4d61f1225804d04b164243f6d9ac099ee71546606b1cb3a316402d20121fbf01",
-        "intended_split": "training",
-        "stock_code": "000030",
-        "stock_name": "우리은행",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "GENERAL_MARKET",
-          "MACRO"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.717276,
-        "event_margin": 0.270707,
-        "sentiment_confidence": 0.425566,
-        "importance_confidence": 0.748754,
-        "disagreement_reasons": [
-          "sentiment_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 260.641277,
-        "original_url": "https://www.kyeongin.com/article/1764735"
-      },
-      {
-        "review_key": "d779e3b38b7e2e50c86522027103b06b71bf1c19704901c5758f57db5c3be15d",
-        "intended_split": "training",
-        "stock_code": "017010",
-        "stock_name": "제너비오믹스",
-        "source_type": "NEWS",
-        "primary_label": "DISCLOSURE",
-        "original_tags": [
-          "DISCLOSURE"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "RISK",
-        "event_confidence": 0.659294,
-        "event_margin": 0.498225,
-        "sentiment_confidence": 0.661997,
-        "importance_confidence": 0.332527,
-        "disagreement_reasons": [
-          "event_tag_disagreement",
-          "importance_disagreement"
-        ],
-        "review_priority_score": 260.57861,
-        "original_url": "http://polinews.co.kr/news/newsview.html?no=101695"
       },
       {
         "review_key": "de9f05bc86414529f87f482e2a872addc79c3db7272a3889c107f84a64b5d8e8",
@@ -902,16 +846,71 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.821837,
-        "event_margin": 0.07483,
+        "event_confidence": 0.820615,
+        "event_margin": 0.073979,
         "sentiment_confidence": 0.607573,
         "importance_confidence": 0.83487,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.516103,
+        "review_priority_score": 260.58014,
         "original_url": "https://n.news.naver.com/mnews/article/011/0002493619?sid=101"
+      },
+      {
+        "review_key": "d779e3b38b7e2e50c86522027103b06b71bf1c19704901c5758f57db5c3be15d",
+        "intended_split": "training",
+        "stock_code": "017010",
+        "stock_name": "제너비오믹스",
+        "source_type": "NEWS",
+        "primary_label": "DISCLOSURE",
+        "original_tags": [
+          "DISCLOSURE"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.65933,
+        "event_margin": 0.498145,
+        "sentiment_confidence": 0.661997,
+        "importance_confidence": 0.332527,
+        "disagreement_reasons": [
+          "event_tag_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 260.579345,
+        "original_url": "http://polinews.co.kr/news/newsview.html?no=101695"
+      },
+      {
+        "review_key": "4d61f1225804d04b164243f6d9ac099ee71546606b1cb3a316402d20121fbf01",
+        "intended_split": "training",
+        "stock_code": "000030",
+        "stock_name": "우리은행",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "MACRO",
+        "event_confidence": 0.724326,
+        "event_margin": 0.269954,
+        "sentiment_confidence": 0.425566,
+        "importance_confidence": 0.748754,
+        "disagreement_reasons": [
+          "sentiment_disagreement",
+          "importance_disagreement"
+        ],
+        "review_priority_score": 260.413337,
+        "original_url": "https://www.kyeongin.com/article/1764735"
       },
       {
         "review_key": "e89d5ef2e0ca5d65ef8ff5341c2a8c94ce7c8478935dc9fc616a021778feb101",
@@ -933,15 +932,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.822076,
-        "event_margin": 0.453672,
+        "event_confidence": 0.822365,
+        "event_margin": 0.453993,
         "sentiment_confidence": 0.57711,
         "importance_confidence": 0.404252,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.258304,
+        "review_priority_score": 260.240161,
         "original_url": "http://www.ajnews.co.kr/uhtml/read.jsp?idxno=200904291530462340964"
       },
       {
@@ -963,15 +962,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.876139,
-        "event_margin": 0.21143,
+        "event_confidence": 0.875665,
+        "event_margin": 0.211374,
         "sentiment_confidence": 0.683036,
         "importance_confidence": 0.607977,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 258.229129,
+        "review_priority_score": 258.247139,
         "original_url": "https://n.news.naver.com/mnews/article/011/0002012157?sid=101"
       },
       {
@@ -992,15 +991,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.799542,
-        "event_margin": 0.507957,
+        "event_confidence": 0.799052,
+        "event_margin": 0.507734,
         "sentiment_confidence": 0.422825,
         "importance_confidence": 0.536067,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 258.139262,
+        "review_priority_score": 258.162001,
         "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2016042507414743186&outlink=1"
       },
       {
@@ -1023,15 +1022,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.828932,
-        "event_margin": 0.357286,
+        "event_confidence": 0.828047,
+        "event_margin": 0.356926,
         "sentiment_confidence": 0.540481,
         "importance_confidence": 0.578627,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 255.673096,
+        "review_priority_score": 255.713045,
         "original_url": "http://app.yonhapnews.co.kr/YNA/Basic/SNS/r.aspx?c=AKR20170311028600008&did=1195m"
       },
       {
@@ -1050,15 +1049,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.555364,
-        "event_margin": 0.215959,
+        "event_confidence": 0.5552,
+        "event_margin": 0.215964,
         "sentiment_confidence": 0.908914,
         "importance_confidence": 0.971064,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 253.563703,
+        "review_priority_score": 253.569349,
         "original_url": "https://www.kdpress.co.kr/news/articleView.html?idxno=204790"
       },
       {
@@ -1078,15 +1077,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.820803,
-        "event_margin": 0.545822,
+        "event_confidence": 0.819469,
+        "event_margin": 0.546812,
         "sentiment_confidence": 0.475641,
         "importance_confidence": 0.490054,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 252.312445,
+        "review_priority_score": 252.334391,
         "original_url": "https://biz.chosun.com/industry/company/2025/09/02/JJZDTOIXJFBJ3MMTOSUCLGJ3L4/?utm_source=naver&utm_medium=original&utm_campaign=biz"
       },
       {
@@ -1107,15 +1106,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.823084,
-        "event_margin": 0.456684,
+        "event_confidence": 0.821703,
+        "event_margin": 0.458196,
         "sentiment_confidence": 0.528265,
         "importance_confidence": 0.581825,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 251.573142,
+        "review_priority_score": 251.58367,
         "original_url": "http://www.moneytoday.co.kr/view/mtview.php?type=1&no=2010082408391834250&outlink=1"
       },
       {
@@ -1139,15 +1138,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.847229,
-        "event_margin": 0.497065,
+        "event_confidence": 0.846476,
+        "event_margin": 0.497479,
         "sentiment_confidence": 0.814334,
         "importance_confidence": 0.507081,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 251.492057,
+        "review_priority_score": 251.50808,
         "original_url": "http://www.betanews.net:8080/article/1054771.html"
       },
       {
@@ -1167,15 +1166,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.807895,
-        "event_margin": 0.499761,
+        "event_confidence": 0.80754,
+        "event_margin": 0.499456,
         "sentiment_confidence": 0.428798,
         "importance_confidence": 0.666439,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 251.324895,
+        "review_priority_score": 251.344969,
         "original_url": "https://www.ceoscoredaily.com/page/view/2026060416301653885"
       },
       {
@@ -1199,15 +1198,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.963902,
-        "event_margin": 0.491799,
+        "event_confidence": 0.963581,
+        "event_margin": 0.49211,
         "sentiment_confidence": 0.69706,
         "importance_confidence": 0.457919,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 250.868879,
+        "review_priority_score": 250.872335,
         "original_url": "http://www.asiae.co.kr/uhtml/read.jsp?idxno=2009060306462596641"
       },
       {
@@ -1227,14 +1226,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.408119,
-        "event_margin": 0.093752,
+        "event_confidence": 0.40714,
+        "event_margin": 0.093432,
         "sentiment_confidence": 0.406252,
         "importance_confidence": 0.454096,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 182.165069,
+        "review_priority_score": 182.207357,
         "original_url": "https://www.ddaily.co.kr/news/article.html?no=240723"
       },
       {
@@ -1253,14 +1252,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.463695,
-        "event_margin": 0.014223,
+        "event_confidence": 0.462828,
+        "event_margin": 0.014108,
         "sentiment_confidence": 0.499474,
         "importance_confidence": 0.475996,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 181.90572,
+        "review_priority_score": 181.938931,
         "original_url": "http://www.foodnews.co.kr/news/articleView.html?idxno=117997"
       },
       {
@@ -1281,14 +1280,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.359115,
-        "event_margin": 0.050382,
+        "event_confidence": 0.357475,
+        "event_margin": 0.050504,
         "sentiment_confidence": 0.504944,
         "importance_confidence": 0.628615,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 181.500243,
+        "review_priority_score": 181.554607,
         "original_url": "https://www.gasnews.com/news/articleView.html?idxno=124300"
       },
       {
@@ -1309,14 +1308,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.45784,
-        "event_margin": 0.097383,
+        "event_confidence": 0.455441,
+        "event_margin": 0.097717,
         "sentiment_confidence": 0.43472,
         "importance_confidence": 0.484943,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 179.147748,
+        "review_priority_score": 179.223394,
         "original_url": "http://biz.chosun.com/site/data/html_dir/2018/01/17/2018011702007.html"
       },
       {
@@ -1339,14 +1338,14 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.457499,
-        "event_margin": 0.01166,
+        "event_confidence": 0.455559,
+        "event_margin": 0.010448,
         "sentiment_confidence": 0.500315,
         "importance_confidence": 0.666915,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 178.351424,
+        "review_priority_score": 178.449637,
         "original_url": "https://www.pinpointnews.co.kr/news/articleView.html?idxno=368545"
       },
       {
@@ -1366,14 +1365,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "CORPORATE_ACTION",
-        "event_confidence": 0.442276,
-        "event_margin": 0.062619,
+        "event_confidence": 0.441646,
+        "event_margin": 0.064011,
         "sentiment_confidence": 0.5158,
         "importance_confidence": 0.596516,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 176.70854,
+        "review_priority_score": 176.695808,
         "original_url": "http://news.etomato.com/pagelog/popup_log.asp?newsseq=217017"
       },
       {
@@ -1395,14 +1394,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.38653,
-        "event_margin": 0.064158,
+        "event_confidence": 0.397542,
+        "event_margin": 0.075866,
         "sentiment_confidence": 0.605423,
         "importance_confidence": 0.540759,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 175.943873,
+        "review_priority_score": 175.265722,
         "original_url": "https://www.news1.kr/articles/?4557520"
       },
       {
@@ -1426,14 +1425,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.535014,
-        "event_margin": 0.042792,
+        "event_confidence": 0.545257,
+        "event_margin": 0.041818,
         "sentiment_confidence": 0.467207,
         "importance_confidence": 0.583331,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 175.193959,
+        "review_priority_score": 174.85979,
         "original_url": "https://www.newsquest.co.kr/news/articleView.html?idxno=265354"
       }
     ],
@@ -1442,7 +1441,7 @@
       "importance_disagreement": 60,
       "sentiment_disagreement": 127
     },
-    "average_review_priority_score": 118.90463701
+    "average_review_priority_score": 118.87221767666666
   },
   "evaluation_review": {
     "review_row_count": 100,
@@ -1465,8 +1464,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.523245,
-        "event_margin": 0.129387,
+        "event_confidence": 0.520849,
+        "event_margin": 0.129095,
         "sentiment_confidence": 0.423297,
         "importance_confidence": 0.450278,
         "disagreement_reasons": [
@@ -1474,7 +1473,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 370.980234,
+        "review_priority_score": 371.071382,
         "original_url": "https://view.asiae.co.kr/article/2025072200585891100"
       },
       {
@@ -1495,8 +1494,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.916195,
-        "event_margin": 0.688648,
+        "event_confidence": 0.915804,
+        "event_margin": 0.688481,
         "sentiment_confidence": 0.673663,
         "importance_confidence": 0.456661,
         "disagreement_reasons": [
@@ -1504,7 +1503,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 342.11052,
+        "review_priority_score": 342.128347,
         "original_url": "https://www.ajunews.com/view/20240714170500026"
       },
       {
@@ -1525,8 +1524,8 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.939593,
-        "event_margin": 0.835955,
+        "event_confidence": 0.939467,
+        "event_margin": 0.835866,
         "sentiment_confidence": 0.527581,
         "importance_confidence": 0.401159,
         "disagreement_reasons": [
@@ -1534,7 +1533,7 @@
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 341.640568,
+        "review_priority_score": 341.647216,
         "original_url": "http://www.pinpointnews.co.kr/view.php?ud=202106241621184153cd1e7f0bdf_45"
       },
       {
@@ -1555,15 +1554,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.306957,
-        "event_margin": 0.009711,
+        "event_confidence": 0.306029,
+        "event_margin": 0.009646,
         "sentiment_confidence": 0.593024,
         "importance_confidence": 0.743899,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 276.275254,
+        "review_priority_score": 276.309359,
         "original_url": "http://www.newsis.com/ar_detail/view.html?ar_id=NISX20150304_0013512524&cID=10401&pID=10400"
       },
       {
@@ -1583,15 +1582,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.453652,
-        "event_margin": 0.185307,
+        "event_confidence": 0.452554,
+        "event_margin": 0.184814,
         "sentiment_confidence": 0.345143,
         "importance_confidence": 0.497088,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "sentiment_disagreement"
         ],
-        "review_priority_score": 272.644909,
+        "review_priority_score": 272.695647,
         "original_url": "https://www.hankyung.com/article/2026060481161"
       },
       {
@@ -1611,15 +1610,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.53516,
-        "event_margin": 0.136437,
+        "event_confidence": 0.533177,
+        "event_margin": 0.136853,
         "sentiment_confidence": 0.430653,
         "importance_confidence": 0.720597,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 270.833482,
+        "review_priority_score": 270.892484,
         "original_url": "https://www.ebn.co.kr/news/articleView.html?idxno=1704237"
       },
       {
@@ -1639,15 +1638,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.458789,
-        "event_margin": 0.145902,
+        "event_confidence": 0.455997,
+        "event_margin": 0.127975,
         "sentiment_confidence": 0.529816,
         "importance_confidence": 0.544575,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "sentiment_disagreement"
         ],
-        "review_priority_score": 268.807009,
+        "review_priority_score": 269.352911,
         "original_url": "https://www.sedaily.com/article/20023026?ref=naver"
       },
       {
@@ -1669,15 +1668,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.652231,
-        "event_margin": 0.420902,
+        "event_confidence": 0.649924,
+        "event_margin": 0.420017,
         "sentiment_confidence": 0.445866,
         "importance_confidence": 0.429783,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 267.136363,
+        "review_priority_score": 267.239264,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921085280&cDateYear=2007&cDateMonth=08&cDateDay=28&"
       },
       {
@@ -1700,15 +1699,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.564498,
-        "event_margin": 0.327185,
+        "event_confidence": 0.561215,
+        "event_margin": 0.325439,
         "sentiment_confidence": 0.525332,
         "importance_confidence": 0.639957,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 266.75717,
+        "review_priority_score": 266.915703,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921707394&cDateYear=2009&cDateMonth=07&cDateDay=09&"
       },
       {
@@ -1727,15 +1726,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.750742,
-        "event_margin": 0.398396,
+        "event_confidence": 0.748836,
+        "event_margin": 0.400584,
         "sentiment_confidence": 0.353467,
         "importance_confidence": 0.520552,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 264.283751,
+        "review_priority_score": 264.295781,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124803"
       },
       {
@@ -1754,15 +1753,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.687903,
-        "event_margin": 0.332907,
+        "event_confidence": 0.686238,
+        "event_margin": 0.333512,
         "sentiment_confidence": 0.428483,
         "importance_confidence": 0.687557,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 263.279895,
+        "review_priority_score": 263.323048,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124648"
       },
       {
@@ -1784,15 +1783,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.653824,
-        "event_margin": 0.256558,
+        "event_confidence": 0.652926,
+        "event_margin": 0.25658,
         "sentiment_confidence": 0.583318,
         "importance_confidence": 0.531669,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 262.402485,
+        "review_priority_score": 262.433357,
         "original_url": "https://www.thebell.co.kr/free/content/ArticleView.asp?key=202502191605279360105670"
       },
       {
@@ -1811,15 +1810,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.755933,
-        "event_margin": 0.425107,
+        "event_confidence": 0.754413,
+        "event_margin": 0.426506,
         "sentiment_confidence": 0.401123,
         "importance_confidence": 0.559399,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 261.704202,
+        "review_priority_score": 261.722461,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=124631"
       },
       {
@@ -1841,15 +1840,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.740073,
-        "event_margin": 0.422718,
+        "event_confidence": 0.7393,
+        "event_margin": 0.42222,
         "sentiment_confidence": 0.412321,
         "importance_confidence": 0.446166,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 260.359745,
+        "review_priority_score": 260.399274,
         "original_url": "https://n.news.naver.com/mnews/article/011/0002062240?sid=101"
       },
       {
@@ -1870,15 +1869,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.699587,
-        "event_margin": 0.341697,
+        "event_confidence": 0.698509,
+        "event_margin": 0.341847,
         "sentiment_confidence": 0.473168,
         "importance_confidence": 0.623392,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 259.040821,
+        "review_priority_score": 259.074807,
         "original_url": "http://www.mt.co.kr/view/mtview.php?type=1&no=2015020508139695791&outlink=1"
       },
       {
@@ -1901,15 +1900,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.756323,
-        "event_margin": 0.42057,
+        "event_confidence": 0.756086,
+        "event_margin": 0.420411,
         "sentiment_confidence": 0.522566,
         "importance_confidence": 0.579604,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 258.971045,
+        "review_priority_score": 258.983334,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0922306394&cDateYear=2011&cDateMonth=05&cDateDay=11&"
       },
       {
@@ -1928,15 +1927,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.757711,
-        "event_margin": 0.500951,
+        "event_confidence": 0.757144,
+        "event_margin": 0.500937,
         "sentiment_confidence": 0.412485,
         "importance_confidence": 0.60726,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 258.561403,
+        "review_priority_score": 258.581615,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=79349"
       },
       {
@@ -1956,15 +1955,15 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.670155,
-        "event_margin": 0.467666,
+        "event_confidence": 0.668841,
+        "event_margin": 0.460024,
         "sentiment_confidence": 0.500835,
         "importance_confidence": 0.519022,
         "disagreement_reasons": [
           "event_tag_disagreement",
           "sentiment_disagreement"
         ],
-        "review_priority_score": 254.455783,
+        "review_priority_score": 254.69281,
         "original_url": "http://app.yonhapnews.co.kr/YNA/Basic/SNS/r.aspx?c=AKR20160302099351008&did=1195m"
       },
       {
@@ -1985,15 +1984,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.722424,
-        "event_margin": 0.472559,
+        "event_confidence": 0.72152,
+        "event_margin": 0.472512,
         "sentiment_confidence": 0.60745,
         "importance_confidence": 0.599661,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 250.758958,
+        "review_priority_score": 250.791777,
         "original_url": "https://www.etoday.co.kr/news/view/2587889"
       },
       {
@@ -2015,15 +2014,15 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.871193,
-        "event_margin": 0.667887,
+        "event_confidence": 0.870409,
+        "event_margin": 0.667417,
         "sentiment_confidence": 0.724389,
         "importance_confidence": 0.401663,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 248.290015,
+        "review_priority_score": 248.329206,
         "original_url": "http://www.smedaily.co.kr/news/articleView.html?idxno=66569"
       },
       {
@@ -2043,15 +2042,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.779105,
-        "event_margin": 0.554712,
+        "event_confidence": 0.778325,
+        "event_margin": 0.554716,
         "sentiment_confidence": 0.735266,
         "importance_confidence": 0.683446,
         "disagreement_reasons": [
           "sentiment_disagreement",
           "importance_disagreement"
         ],
-        "review_priority_score": 246.489302,
+        "review_priority_score": 246.516482,
         "original_url": "https://news.bizwatch.co.kr/article/governance/2026/05/30/0001"
       },
       {
@@ -2072,14 +2071,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "CAPITAL_ACTION",
-        "event_confidence": 0.509693,
-        "event_margin": 0.013749,
+        "event_confidence": 0.509554,
+        "event_margin": 0.013525,
         "sentiment_confidence": 0.539865,
         "importance_confidence": 0.5359,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 176.301713,
+        "review_priority_score": 176.312169,
         "original_url": "http://www.newspim.com/sub_view.php?cate1=1&cate2=6&news_id=261035"
       },
       {
@@ -2100,14 +2099,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.466092,
-        "event_margin": 0.081942,
+        "event_confidence": 0.46461,
+        "event_margin": 0.081733,
         "sentiment_confidence": 0.362625,
         "importance_confidence": 0.794227,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 174.501186,
+        "review_priority_score": 174.558272,
         "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=121472"
       },
       {
@@ -2126,14 +2125,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.463659,
-        "event_margin": 0.114499,
+        "event_confidence": 0.462368,
+        "event_margin": 0.114337,
         "sentiment_confidence": 0.642008,
         "importance_confidence": 0.601525,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 174.0388,
+        "review_priority_score": 174.08803,
         "original_url": "https://www.dailypharm.com/user/news/339137?REFERER=NP"
       },
       {
@@ -2154,14 +2153,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.386656,
-        "event_margin": 0.133299,
+        "event_confidence": 0.38521,
+        "event_margin": 0.132685,
         "sentiment_confidence": 0.544636,
         "importance_confidence": 0.540419,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 173.433455,
+        "review_priority_score": 173.499426,
         "original_url": "https://www.businesspost.co.kr/BP?command=article_view&num=249311"
       },
       {
@@ -2181,14 +2180,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.455965,
-        "event_margin": 0.0759,
+        "event_confidence": 0.455184,
+        "event_margin": 0.070775,
         "sentiment_confidence": 0.417662,
         "importance_confidence": 0.550188,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 172.786751,
+        "review_priority_score": 172.942207,
         "original_url": "https://www.livebiz.today/news/articleView.html?idxno=202137"
       },
       {
@@ -2212,14 +2211,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.547486,
-        "event_margin": 0.049647,
+        "event_confidence": 0.546607,
+        "event_margin": 0.049979,
         "sentiment_confidence": 0.535372,
         "importance_confidence": 0.694511,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 170.999164,
+        "review_priority_score": 171.021617,
         "original_url": "https://n.news.naver.com/mnews/article/015/0000744541?sid=101"
       },
       {
@@ -2239,14 +2238,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.39107,
-        "event_margin": 0.132109,
+        "event_confidence": 0.391017,
+        "event_margin": 0.131953,
         "sentiment_confidence": 0.509794,
         "importance_confidence": 0.657545,
         "disagreement_reasons": [
           "event_tag_disagreement"
         ],
-        "review_priority_score": 169.66308,
+        "review_priority_score": 169.668807,
         "original_url": "https://www.ggilbo.com/news/articleView.html?idxno=1158266"
       },
       {
@@ -2269,14 +2268,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.557377,
-        "event_margin": 0.070088,
+        "event_confidence": 0.557522,
+        "event_margin": 0.070557,
         "sentiment_confidence": 0.568423,
         "importance_confidence": 0.686922,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 169.632705,
+        "review_priority_score": 169.615925,
         "original_url": "http://www.hankyung.com/news/app/newsview.php?aid=2008011136381"
       },
       {
@@ -2295,14 +2294,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.621345,
-        "event_margin": 0.301508,
+        "event_confidence": 0.620629,
+        "event_margin": 0.300892,
         "sentiment_confidence": 0.408552,
         "importance_confidence": 0.56674,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 169.2094,
+        "review_priority_score": 169.249841,
         "original_url": "https://www.businesspost.co.kr/BP?command=article_view&num=421572"
       },
       {
@@ -2322,43 +2321,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.390029,
-        "event_margin": 0.021027,
+        "event_confidence": 0.389155,
+        "event_margin": 0.015651,
         "sentiment_confidence": 0.707036,
         "importance_confidence": 0.666079,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 168.36102,
+        "review_priority_score": 168.525987,
         "original_url": "https://www.fetv.co.kr/news/article.html?no=214704"
-      },
-      {
-        "review_key": "24028af8bee3488904af769b7e0615cfc23bf4640a83ef6e99dc58542f64b482",
-        "intended_split": "evaluation",
-        "stock_code": "183300",
-        "stock_name": "코미코",
-        "source_type": "NEWS",
-        "primary_label": "CORPORATE_ACTION",
-        "original_tags": [
-          "CORPORATE_ACTION",
-          "DISCLOSURE",
-          "EARNINGS"
-        ],
-        "suggested_tags": [
-          "RISK"
-        ],
-        "suggested_sentiment": "NEUTRAL",
-        "suggested_importance": "HIGH",
-        "event_top_label": "RISK",
-        "event_confidence": 0.600444,
-        "event_margin": 0.214589,
-        "sentiment_confidence": 0.42124,
-        "importance_confidence": 0.744663,
-        "disagreement_reasons": [
-          "event_tag_disagreement"
-        ],
-        "review_priority_score": 164.30168,
-        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=123401"
       },
       {
         "review_key": "237fc77ddd2fbc6e3a88be26daf361d2c684d3a0e26817949a63adb976f1a3b0",
@@ -2378,15 +2349,43 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.537072,
-        "event_margin": 0.180112,
+        "event_confidence": 0.534895,
+        "event_margin": 0.163822,
         "sentiment_confidence": 0.543986,
         "importance_confidence": 0.580174,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 164.216469,
+        "review_priority_score": 164.699933,
         "original_url": "http://news.mk.co.kr/news_forward.php?domain=news&no=1173849&year=2014"
+      },
+      {
+        "review_key": "24028af8bee3488904af769b7e0615cfc23bf4640a83ef6e99dc58542f64b482",
+        "intended_split": "evaluation",
+        "stock_code": "183300",
+        "stock_name": "코미코",
+        "source_type": "NEWS",
+        "primary_label": "CORPORATE_ACTION",
+        "original_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE",
+          "EARNINGS"
+        ],
+        "suggested_tags": [
+          "RISK"
+        ],
+        "suggested_sentiment": "NEUTRAL",
+        "suggested_importance": "HIGH",
+        "event_top_label": "RISK",
+        "event_confidence": 0.598459,
+        "event_margin": 0.214376,
+        "sentiment_confidence": 0.42124,
+        "importance_confidence": 0.744663,
+        "disagreement_reasons": [
+          "event_tag_disagreement"
+        ],
+        "review_priority_score": 164.376476,
+        "original_url": "https://www.catchnews.kr/news/articleView.html?idxno=123401"
       },
       {
         "review_key": "729848f193d0eca0e995e474923d31dbd6153ab9ce1dd290f286a40f423fef3b",
@@ -2404,14 +2403,14 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.71192,
-        "event_margin": 0.369067,
+        "event_confidence": 0.711362,
+        "event_margin": 0.368699,
         "sentiment_confidence": 0.466906,
         "importance_confidence": 0.53672,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 163.783602,
+        "review_priority_score": 163.812353,
         "original_url": "http://www.ggilbo.com/news/articleView.html?idxno=879079"
       },
       {
@@ -2431,14 +2430,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.663777,
-        "event_margin": 0.311198,
+        "event_confidence": 0.662007,
+        "event_margin": 0.312504,
         "sentiment_confidence": 0.57855,
         "importance_confidence": 0.492133,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 163.574212,
+        "review_priority_score": 163.603498,
         "original_url": "http://www.dailypop.kr/news/articleView.html?idxno=98890"
       },
       {
@@ -2459,14 +2458,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.65541,
-        "event_margin": 0.309347,
+        "event_confidence": 0.653354,
+        "event_margin": 0.309635,
         "sentiment_confidence": 0.470481,
         "importance_confidence": 0.626026,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 163.396817,
+        "review_priority_score": 163.461614,
         "original_url": "http://www.thevaluenews.co.kr/news/view.php?idx=174795"
       },
       {
@@ -2488,14 +2487,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.651631,
-        "event_margin": 0.225875,
+        "event_confidence": 0.649217,
+        "event_margin": 0.225962,
         "sentiment_confidence": 0.538339,
         "importance_confidence": 0.587373,
         "disagreement_reasons": [
           "event_tag_disagreement"
         ],
-        "review_priority_score": 163.031809,
+        "review_priority_score": 163.11409,
         "original_url": "http://www.betanews.net:8080/article/892681.html"
       },
       {
@@ -2515,14 +2514,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.552604,
-        "event_margin": 0.338222,
+        "event_confidence": 0.552239,
+        "event_margin": 0.338037,
         "sentiment_confidence": 0.509024,
         "importance_confidence": 0.460944,
         "disagreement_reasons": [
           "event_tag_disagreement"
         ],
-        "review_priority_score": 162.803933,
+        "review_priority_score": 162.821357,
         "original_url": "http://www.asiae.co.kr/news/view.htm?idxno=2010032516061363100"
       },
       {
@@ -2543,14 +2542,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.693086,
-        "event_margin": 0.284722,
+        "event_confidence": 0.691809,
+        "event_margin": 0.28454,
         "sentiment_confidence": 0.514147,
         "importance_confidence": 0.493369,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 162.473598,
+        "review_priority_score": 162.52287,
         "original_url": "https://www.ddaily.co.kr/news/article.html?no=225044"
       },
       {
@@ -2570,42 +2569,15 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "GENERAL_MARKET",
-        "event_confidence": 0.570928,
-        "event_margin": 0.002077,
+        "event_confidence": 0.576488,
+        "event_margin": 0.00279,
         "sentiment_confidence": 0.685006,
         "importance_confidence": 0.820468,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 161.856103,
+        "review_priority_score": 161.643671,
         "original_url": "https://www.g-enews.com/view.php?ud=2026060218170338022bd56fbc3c_1"
-      },
-      {
-        "review_key": "b62057fc1aa9a12de2b4ef00b392c9cb1601e4a81c283b9971a2dbcb1c227a6f",
-        "intended_split": "evaluation",
-        "stock_code": "439960",
-        "stock_name": "코스모로보틱스",
-        "source_type": "NEWS",
-        "primary_label": "MACRO",
-        "original_tags": [
-          "DISCLOSURE",
-          "MACRO"
-        ],
-        "suggested_tags": [
-          "MACRO"
-        ],
-        "suggested_sentiment": "POSITIVE",
-        "suggested_importance": "MEDIUM",
-        "event_top_label": "MACRO",
-        "event_confidence": 0.567481,
-        "event_margin": 0.259627,
-        "sentiment_confidence": 0.489787,
-        "importance_confidence": 0.634936,
-        "disagreement_reasons": [
-          "sentiment_disagreement"
-        ],
-        "review_priority_score": 161.153029,
-        "original_url": "http://www.fnnews.com/news/202605121536305205"
       },
       {
         "review_key": "c244a12dfbc17d1e595a51db7d837afb08d4da6af54940ae759c8548590af8cf",
@@ -2629,14 +2601,14 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "RISK",
-        "event_confidence": 0.786304,
-        "event_margin": 0.089417,
+        "event_confidence": 0.784568,
+        "event_margin": 0.089722,
         "sentiment_confidence": 0.524778,
         "importance_confidence": 0.836487,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 161.018618,
+        "review_priority_score": 161.071774,
         "original_url": "http://www.betanews.net:8080/article/992284.html"
       },
       {
@@ -2658,15 +2630,42 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "MEDIUM",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.78214,
-        "event_margin": 0.090673,
+        "event_confidence": 0.781368,
+        "event_margin": 0.090713,
         "sentiment_confidence": 0.768465,
         "importance_confidence": 0.552753,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 159.933899,
+        "review_priority_score": 159.959939,
         "original_url": "https://www.hankyung.com/article/202605183849i"
+      },
+      {
+        "review_key": "b62057fc1aa9a12de2b4ef00b392c9cb1601e4a81c283b9971a2dbcb1c227a6f",
+        "intended_split": "evaluation",
+        "stock_code": "439960",
+        "stock_name": "코스모로보틱스",
+        "source_type": "NEWS",
+        "primary_label": "MACRO",
+        "original_tags": [
+          "DISCLOSURE",
+          "MACRO"
+        ],
+        "suggested_tags": [
+          "MACRO"
+        ],
+        "suggested_sentiment": "POSITIVE",
+        "suggested_importance": "MEDIUM",
+        "event_top_label": "MACRO",
+        "event_confidence": 0.610817,
+        "event_margin": 0.308333,
+        "sentiment_confidence": 0.489787,
+        "importance_confidence": 0.634936,
+        "disagreement_reasons": [
+          "sentiment_disagreement"
+        ],
+        "review_priority_score": 158.418616,
+        "original_url": "http://www.fnnews.com/news/202605121536305205"
       },
       {
         "review_key": "1bc7dc12e4c9647a463fd734dc0d9d9307b75d7646a62f13d48ea9f55766e7d8",
@@ -2685,14 +2684,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "MEDIUM",
         "event_top_label": "RISK",
-        "event_confidence": 0.578231,
-        "event_margin": 0.402784,
+        "event_confidence": 0.577531,
+        "event_margin": 0.402299,
         "sentiment_confidence": 0.54566,
         "importance_confidence": 0.594773,
         "disagreement_reasons": [
           "event_tag_disagreement"
         ],
-        "review_priority_score": 156.883671,
+        "review_priority_score": 156.920305,
         "original_url": "https://www.dt.co.kr/contents.html?article_no=2025032402109963062006&ref=naver"
       },
       {
@@ -2712,14 +2711,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "EARNINGS",
-        "event_confidence": 0.850329,
-        "event_margin": 0.541826,
+        "event_confidence": 0.849622,
+        "event_margin": 0.542384,
         "sentiment_confidence": 0.435314,
         "importance_confidence": 0.518895,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 155.608649,
+        "review_priority_score": 155.619458,
         "original_url": "http://www.finomy.com/news/articleView.html?idxno=252736"
       },
       {
@@ -2742,14 +2741,14 @@
         "suggested_sentiment": "NEUTRAL",
         "suggested_importance": "CRITICAL",
         "event_top_label": "DISCLOSURE",
-        "event_confidence": 0.988196,
-        "event_margin": 0.151346,
+        "event_confidence": 0.988205,
+        "event_margin": 0.150829,
         "sentiment_confidence": 0.464699,
         "importance_confidence": 0.494985,
         "disagreement_reasons": [
           "importance_disagreement"
         ],
-        "review_priority_score": 154.435816,
+        "review_priority_score": 154.448432,
         "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230809800300"
       },
       {
@@ -2772,14 +2771,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.794896,
-        "event_margin": 0.460474,
+        "event_confidence": 0.794236,
+        "event_margin": 0.461126,
         "sentiment_confidence": 0.416735,
         "importance_confidence": 0.758727,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 153.157542,
+        "review_priority_score": 153.164372,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921573067&cDateYear=2009&cDateMonth=02&cDateDay=18&"
       },
       {
@@ -2801,14 +2800,14 @@
         "suggested_sentiment": "POSITIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.761906,
-        "event_margin": 0.461616,
+        "event_confidence": 0.760717,
+        "event_margin": 0.462686,
         "sentiment_confidence": 0.574528,
         "importance_confidence": 0.898068,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 148.340973,
+        "review_priority_score": 148.355835,
         "original_url": "http://news.mk.co.kr/news_forward.php?domain=news&no=1353370&year=2013"
       },
       {
@@ -2830,14 +2829,14 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "HIGH",
         "event_top_label": "CONTRACT",
-        "event_confidence": 0.990031,
-        "event_margin": 0.304465,
+        "event_confidence": 0.989961,
+        "event_margin": 0.305816,
         "sentiment_confidence": 0.612843,
         "importance_confidence": 0.764506,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 146.190301,
+        "review_priority_score": 146.158987,
         "original_url": "http://www.fnnews.com/view?ra=Sent0301m_01A&corp=fnnews&arcid=0921354624&cDateYear=2008&cDateMonth=06&cDateDay=30&"
       },
       {
@@ -2859,14 +2858,14 @@
         "suggested_sentiment": "NEGATIVE",
         "suggested_importance": "CRITICAL",
         "event_top_label": "RISK",
-        "event_confidence": 0.923445,
-        "event_margin": 0.731719,
+        "event_confidence": 0.923556,
+        "event_margin": 0.731795,
         "sentiment_confidence": 0.785735,
         "importance_confidence": 0.720614,
         "disagreement_reasons": [
           "sentiment_disagreement"
         ],
-        "review_priority_score": 139.259452,
+        "review_priority_score": 139.253678,
         "original_url": "https://www.topdaily.kr/articles/93461"
       }
     ],
@@ -2875,7 +2874,7 @@
       "importance_disagreement": 25,
       "sentiment_disagreement": 44
     },
-    "average_review_priority_score": 134.49645850000002
+    "average_review_priority_score": 134.48520371
   },
   "review_policy": "model suggestions are reviewer assistance only and are not promoted without human_review_approved final labels"
 }

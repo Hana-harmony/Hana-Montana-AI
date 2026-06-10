@@ -74,7 +74,7 @@ uv run python scripts/collect_training_data.py \
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 57,070건 수집 후보 중 weak-label 358건과 종목 후보 큐 704건을 이벤트 모델 학습에 반영했다.
+- 현재 artifact는 57,078건 수집 후보 중 weak-label 358건과 종목 후보 큐 704건을 이벤트 모델 학습에 반영했다.
 - 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 704건이 704개 종목에 분산되도록 한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
@@ -104,7 +104,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 57,070건 raw 후보 중 5,050건이 고신호 후보이고, teacher gate에서 3,746건이 탈락하며 weak-label 358건과 종목 후보 704건만 student 이벤트 모델 학습에 승격된다.
+- 현재 57,078건 raw 후보 중 5,050건이 고신호 후보이고, teacher gate에서 3,747건이 탈락하며 weak-label 358건과 종목 후보 704건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO`는 현재 active label이며 quota 여유가 남아 추가 후보 품질을 모니터링한다.
 - `CAPITAL_ACTION`은 현재 quota를 채웠고, `DISCLOSURE`는 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.

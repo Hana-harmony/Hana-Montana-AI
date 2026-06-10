@@ -24,13 +24,13 @@
           "RISK": 0.54
         }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260610185500",
+      "model_version": "financial-ml-tfidf-logreg-20260610191558",
       "sample_count": 4467,
       "pseudo_labeled_sample_count": 858,
       "stock_candidate_labeling": {
         "status": "promoted_to_event_student_training",
         "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 12483,
+        "candidate_count": 12486,
         "accepted_count": 500,
         "accepted_stock_count": 500,
         "accepted_count_by_primary_label": {
@@ -48,7 +48,7 @@
           "per_stock_quota_filled": 523,
           "teacher_candidate_event_disagreement": 3,
           "teacher_zero_quota_label": 90,
-          "zero_quota_label": 8418
+          "zero_quota_label": 8421
         },
         "label_quotas": {
           "RISK": 250,
@@ -460,13 +460,13 @@
           "RISK": 0.54
         }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260610185525",
+      "model_version": "financial-ml-tfidf-logreg-20260610191623",
       "sample_count": 4831,
       "pseudo_labeled_sample_count": 1222,
       "stock_candidate_labeling": {
         "status": "promoted_to_event_student_training",
         "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 12483,
+        "candidate_count": 12486,
         "accepted_count": 864,
         "accepted_stock_count": 665,
         "accepted_count_by_primary_label": {
@@ -484,7 +484,7 @@
           "per_stock_quota_filled": 61,
           "teacher_candidate_event_disagreement": 3,
           "teacher_zero_quota_label": 93,
-          "zero_quota_label": 8418
+          "zero_quota_label": 8421
         },
         "label_quotas": {
           "RISK": 500,
@@ -897,31 +897,31 @@
           "RISK": 0.5
         }
       },
-      "model_version": "financial-ml-tfidf-logreg-20260610185554",
+      "model_version": "financial-ml-tfidf-logreg-20260610191652",
       "sample_count": 4671,
       "pseudo_labeled_sample_count": 1062,
       "stock_candidate_labeling": {
         "status": "promoted_to_event_student_training",
         "source_path": "data/curation/stock_training_candidate_queue.jsonl",
-        "candidate_count": 12483,
+        "candidate_count": 12486,
         "accepted_count": 704,
         "accepted_stock_count": 704,
         "accepted_count_by_primary_label": {
           "RISK": 258,
-          "CONTRACT": 239,
+          "CONTRACT": 238,
           "CAPITAL_ACTION": 120,
           "CORPORATE_ACTION": 44,
           "EARNINGS": 28,
-          "MACRO": 15,
+          "MACRO": 16,
           "DISCLOSURE": 0,
           "GENERAL_MARKET": 0
         },
         "rejected_count_by_reason": {
-          "low_teacher_confidence": 5172,
-          "per_stock_quota_filled": 3143,
+          "low_teacher_confidence": 5170,
+          "per_stock_quota_filled": 3146,
           "teacher_candidate_event_disagreement": 138,
           "teacher_zero_quota_label": 25,
-          "zero_quota_label": 2720
+          "zero_quota_label": 2721
         },
         "label_quotas": {
           "RISK": 350,
@@ -1318,11 +1318,11 @@
     "accepted_stock_count": 704,
     "accepted_count_by_primary_label": {
       "RISK": 258,
-      "CONTRACT": 239,
+      "CONTRACT": 238,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 44,
       "EARNINGS": 28,
-      "MACRO": 15,
+      "MACRO": 16,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     }

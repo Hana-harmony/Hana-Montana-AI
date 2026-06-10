@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T18:56:36.843489+00:00",
+  "generated_at": "2026-06-10T19:17:34.624907+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
@@ -11,7 +11,7 @@
   "raw_coverage_ratio": 0.8222838416939753,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 57070,
+  "raw_sample_count": 57078,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -123,7 +123,7 @@
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 581
+      "sample_count": 582
     },
     {
       "stock_code": "035720",
@@ -148,12 +148,12 @@
     {
       "stock_code": "006800",
       "stock_name": "미래에셋증권",
-      "sample_count": 374
+      "sample_count": 375
     },
     {
       "stock_code": "008670",
       "stock_name": "신한투자증권",
-      "sample_count": 275
+      "sample_count": 276
     },
     {
       "stock_code": "005940",
@@ -163,7 +163,7 @@
     {
       "stock_code": "010130",
       "stock_name": "고려아연",
-      "sample_count": 229
+      "sample_count": 230
     },
     {
       "stock_code": "039490",
@@ -248,11 +248,11 @@
     "stock_candidate_event_training_stock_count": 704,
     "stock_candidate_label_distribution": {
       "RISK": 258,
-      "CONTRACT": 239,
+      "CONTRACT": 238,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 44,
       "EARNINGS": 28,
-      "MACRO": 15,
+      "MACRO": 16,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
