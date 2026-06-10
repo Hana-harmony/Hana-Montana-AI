@@ -74,7 +74,7 @@ uv run python scripts/train_stock_linker_model.py
 
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 3,609건 supervised 샘플, 1,091건 pseudo-label 샘플, 722건 supervised holdout 검증 결과를 기록한다.
-- `reports/weak-distillation-report.json`은 59,485건 약지도 후보 중 5,069건을 고신호 후보로 선별하고, teacher gate를 통과한 weak-label 353건과 종목 후보 738건을 이벤트 모델 학습에 승격한 결과를 기록한다.
+- `reports/weak-distillation-report.json`은 59,511건 약지도 후보 중 5,069건을 고신호 후보로 선별하고, teacher gate를 통과한 weak-label 353건과 종목 후보 738건을 이벤트 모델 학습에 승격한 결과를 기록한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
 - 현재 holdout 결과는 이벤트 macro F1 0.9881, 감성 accuracy 0.9889, 중요도 accuracy 0.9931이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
@@ -85,13 +85,13 @@ uv run python scripts/train_stock_linker_model.py
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9500, 이벤트 macro F1 0.9171, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260610195809`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260610202009`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,069건, teacher 탈락 3,813건, quota 보류 165건, 최종 승격 1,091건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,369개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 738건, 738개 종목도 별도 섹션으로 기록한다.
 - `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 772개 종목, 8개 shard, 3,860개 Naver 쿼리를 기록한다.
 - stock collection shard plan은 595개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
-- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 738건/738종목이 gate를 통과했고, risk/contract 확장 profile은 875건/680종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
+- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 738건/738종목이 gate를 통과했고, risk/contract 확장 profile은 875건/679종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
 - `reports/stock-training-candidate-report.json`은 검수 대기 후보 13,296건, 3,192개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목, 평가 검수 배치 100개 종목, 학습·평가 종목 disjoint check를 `pass`로 기록한다.
 - `reports/stock-gold-review-validation-report.json`은 현재 승인 가능 학습 0개 종목, 평가 0개 종목이라 `overall_status=fail`로 기록한다.

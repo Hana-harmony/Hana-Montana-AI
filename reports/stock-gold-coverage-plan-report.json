@@ -29,8 +29,8 @@
       "RISK": 269
     },
     "source_type_distribution": {
-      "DISCLOSURE": 524,
-      "NEWS": 976
+      "DISCLOSURE": 523,
+      "NEWS": 977
     },
     "stage_distribution": {
       "additional_coverage_plan": 1200,
@@ -61,17 +61,17 @@
     "remaining_stock_count_to_target": 0,
     "status": "pass",
     "label_distribution": {
-      "CAPITAL_ACTION": 138,
-      "CONTRACT": 139,
+      "CAPITAL_ACTION": 137,
+      "CONTRACT": 138,
       "CORPORATE_ACTION": 14,
-      "DISCLOSURE": 42,
+      "DISCLOSURE": 44,
       "EARNINGS": 14,
       "MACRO": 14,
       "RISK": 139
     },
     "source_type_distribution": {
-      "DISCLOSURE": 144,
-      "NEWS": 356
+      "DISCLOSURE": 146,
+      "NEWS": 354
     },
     "stage_distribution": {
       "additional_coverage_plan": 400,

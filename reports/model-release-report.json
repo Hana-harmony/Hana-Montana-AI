@@ -1,11 +1,11 @@
 {
   "schema_version": "model-release-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260610195809",
-  "report_created_at": "2026-06-10T19:58:09.598786+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260610202009",
+  "report_created_at": "2026-06-10T20:20:09.439439+00:00",
   "overall_status": "pass",
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-    "trained_at": "2026-06-10T19:58:09.598786+00:00",
+    "trained_at": "2026-06-10T20:20:09.439439+00:00",
     "event_probability_threshold": 0.3,
     "event_label_thresholds": {
       "CONTRACT": 0.42,
@@ -55,7 +55,7 @@
   },
   "pseudo_labeling": {
     "status": "promoted_to_student_training",
-    "candidate_count": 59485,
+    "candidate_count": 59511,
     "accepted_count": 1091,
     "weak_label_accepted_count": 353,
     "stock_candidate_accepted_count": 738,
@@ -67,12 +67,12 @@
       "MACRO": 18,
       "RISK": 414
     },
-    "rejected_count": 54416,
+    "rejected_count": 54442,
     "rejected_count_by_reason": {
       "disclosure_noise": 11302,
-      "disclosure_only": 9410,
+      "disclosure_only": 9411,
       "duplicate_text": 1108,
-      "low_signal": 6131,
+      "low_signal": 6135,
       "too_short": 3
     },
     "rejected_count_by_teacher_reason": {
@@ -102,11 +102,11 @@
         "GENERAL_MARKET": 0
       },
       "rejected_count_by_reason": {
-        "low_teacher_confidence": 5735,
-        "per_stock_quota_filled": 3295,
+        "low_teacher_confidence": 5732,
+        "per_stock_quota_filled": 3296,
         "teacher_candidate_event_disagreement": 139,
         "teacher_zero_quota_label": 25,
-        "zero_quota_label": 2768
+        "zero_quota_label": 2769
       },
       "label_quotas": {
         "RISK": 350,

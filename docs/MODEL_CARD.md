@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260610195809`
+`financial-ml-tfidf-logreg-20260610202009`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -40,16 +40,16 @@
 - 이번 artifact 학습 샘플 수: 4,700
 - supervised 학습 샘플 수: 3,609
 - teacher-gated pseudo-label 학습 샘플 수: 1,091
-- 실제 수집 raw 총량: 59,485건
+- 실제 수집 raw 총량: 59,511건
 - 실제 수집 원천: OpenDART 공시검색 25,966건
-- 실제 수집 원천: Naver News Search 33,519건
+- 실제 수집 원천: Naver News Search 33,545건
 - 합성 증강 샘플 수: 1,656건
 - 뉴스 제목체 증강 샘플 수: 1,872건
 - 실제 뉴스 학습 gold 샘플 수: 63건
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
 - 실제 뉴스 gold 샘플 수: 80건
-- 약지도 후보 수: 59,485건
+- 약지도 후보 수: 59,511건
 - distillation 통과 후보 수: 5,069건
 - teacher confidence gate 통과 후 artifact 학습 승격 후보 수: 1,091건
 - weak-label distillation 승격 수: 353건
@@ -141,7 +141,7 @@
 - 약지도 후보 중 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 33건을 이벤트 모델 학습에 승격했다.
 - 종목 후보 큐에서는 teacher gate와 종목별 quota를 통과한 `RISK` 274건, `CONTRACT` 252건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 45건, `EARNINGS` 29건, `MACRO` 18건을 이벤트 모델 학습에 추가했다.
 - 종목 후보의 per-stock quota는 1건으로 제한해 738건이 738개 종목에 분산되도록 했다.
-- `stock-candidate-quota-experiment`에서 current release는 738건/738종목으로 실제 뉴스 gold gate를 통과해 best profile로 선택했다. risk/contract per-stock 2 profile은 875건/680종목까지 늘었지만 실제 뉴스 gold macro F1 gate를 통과하지 못했다.
+- `stock-candidate-quota-experiment`에서 current release는 738건/738종목으로 실제 뉴스 gold gate를 통과해 best profile로 선택했다. risk/contract per-stock 2 profile은 875건/679종목까지 늘었지만 실제 뉴스 gold macro F1 gate를 통과하지 못했다.
 - 생성 artifact는 `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`이다.
 
 ## Holdout 검증 결과
@@ -187,16 +187,16 @@
 - 위치: `reports/model-confidence-calibration.json`
 - benchmark 샘플 수: 768
 - benchmark 이벤트 멀티라벨 결정 수: 6,144
-- benchmark 이벤트 expected calibration error: 0.072916
-- benchmark 이벤트 Brier score: 0.012338
+- benchmark 이벤트 expected calibration error: 0.073178
+- benchmark 이벤트 Brier score: 0.012380
 - benchmark 감성 top confidence ECE: 0.149164
 - benchmark 중요도 top confidence ECE: 0.118967
-- 실제 뉴스 gold 이벤트 expected calibration error: 0.114020
+- 실제 뉴스 gold 이벤트 expected calibration error: 0.115856
 - confidence 리포트는 고신뢰 오답을 따로 기록해 운영 알림 노출 전 threshold 재보정과 human review 우선순위 판단에 사용한다.
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260610195809`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260610202009`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -205,7 +205,7 @@
 
 ## Pseudo-label promotion gate
 - 위치: `reports/pseudo-label-promotion-monitoring.json`
-- 59,485건 raw 후보 중 5,069건이 고신호 후보로 남았다.
+- 59,511건 raw 후보 중 5,069건이 고신호 후보로 남았다.
 - teacher confidence 또는 weak-label 합의 기준에서 3,813건이 탈락했다.
 - weak-label distillation에서는 `RISK` 140건, `CONTRACT` 180건, `CORPORATE_ACTION` 33건을 student 이벤트 모델 학습에 승격했다.
 - 종목 후보 큐에서는 `RISK` 274건, `CONTRACT` 252건, `CAPITAL_ACTION` 120건, `CORPORATE_ACTION` 45건, `EARNINGS` 29건, `MACRO` 18건을 teacher gate로 추가 승격했다.

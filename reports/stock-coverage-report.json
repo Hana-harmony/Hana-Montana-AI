@@ -1,6 +1,6 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T20:00:19.171192+00:00",
+  "generated_at": "2026-06-10T20:22:18.295554+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
@@ -11,7 +11,7 @@
   "raw_coverage_ratio": 0.8492563650113436,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 59485,
+  "raw_sample_count": 59511,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -118,17 +118,17 @@
     {
       "stock_code": "005930",
       "stock_name": "삼성전자",
-      "sample_count": 2150
+      "sample_count": 2160
     },
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 602
+      "sample_count": 601
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 501
+      "sample_count": 502
     },
     {
       "stock_code": "035420",
@@ -163,7 +163,7 @@
     {
       "stock_code": "010130",
       "stock_name": "고려아연",
-      "sample_count": 234
+      "sample_count": 236
     },
     {
       "stock_code": "039490",
@@ -183,7 +183,7 @@
     {
       "stock_code": "009830",
       "stock_name": "한화솔루션",
-      "sample_count": 199
+      "sample_count": 200
     },
     {
       "stock_code": "034020",

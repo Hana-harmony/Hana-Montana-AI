@@ -31,7 +31,7 @@
 - stock coverage report로 raw, training, evaluation 종목 커버리지 계측 완료
 - Naver News Search 수집기를 stock universe 기반 쿼리 모드로 확장 완료
 - 후보 큐와 gold가 없는 772개 누락 종목을 8개 shard로 나누는 수집 plan 완료
-- shard 기반 Naver News Search 수집으로 raw 후보 59,485건, raw 매칭 3,369개 종목까지 확장 완료
+- shard 기반 Naver News Search 수집으로 raw 후보 59,511건, raw 매칭 3,369개 종목까지 확장 완료
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 13,296건, 3,192개 종목 생성 완료
 - 종목 후보 큐 중 teacher gate와 release gate를 통과한 738건, 738개 종목을 event-model-only pseudo-label로 제한 승격 완료
 - stock candidate quota experiment로 이전 release, risk/contract 확장, calibrated current release의 gold gate 통과와 current release best profile 선정을 기록 완료
