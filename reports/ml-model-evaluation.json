@@ -1,11 +1,11 @@
 {
   "benchmark": {
     "sample_count": 768,
-    "event_tag_recall": 0.9973958333333334,
+    "event_tag_recall": 0.9921875,
     "sentiment_accuracy": 1.0,
     "importance_accuracy": 0.9375,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9958731186276096,
+    "event_macro_f1": 0.9947611710323575,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -44,15 +44,15 @@
         "support": 72
       },
       "MACRO": {
-        "precision": 0.9473684210526315,
+        "precision": 0.9536423841059603,
         "recall": 1.0,
-        "f1": 0.972972972972973,
+        "f1": 0.976271186440678,
         "support": 144
       },
       "RISK": {
         "precision": 1.0,
-        "recall": 0.9880952380952381,
-        "f1": 0.9940119760479043,
+        "recall": 0.9642857142857143,
+        "f1": 0.9818181818181818,
         "support": 168
       }
     },
