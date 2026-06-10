@@ -4,8 +4,8 @@
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
   "training_review_path": "data/curation/stock_gold_training_review_batch.jsonl",
   "evaluation_review_path": "data/curation/stock_gold_evaluation_review_batch.jsonl",
-  "candidate_count": 12251,
-  "candidate_stock_count": 3063,
+  "candidate_count": 12366,
+  "candidate_stock_count": 3075,
   "existing_supervised_training_stock_count": 38,
   "existing_supervised_evaluation_stock_count": 57,
   "current_training_review_stock_count": 300,
@@ -20,17 +20,17 @@
     "remaining_stock_count_to_target": 0,
     "status": "pass",
     "label_distribution": {
-      "CAPITAL_ACTION": 265,
-      "CONTRACT": 265,
+      "CAPITAL_ACTION": 264,
+      "CONTRACT": 264,
       "CORPORATE_ACTION": 158,
-      "DISCLOSURE": 264,
-      "EARNINGS": 221,
-      "MACRO": 62,
-      "RISK": 265
+      "DISCLOSURE": 263,
+      "EARNINGS": 224,
+      "MACRO": 63,
+      "RISK": 264
     },
     "source_type_distribution": {
-      "DISCLOSURE": 555,
-      "NEWS": 945
+      "DISCLOSURE": 549,
+      "NEWS": 951
     },
     "stage_distribution": {
       "additional_coverage_plan": 1200,
@@ -61,17 +61,17 @@
     "remaining_stock_count_to_target": 0,
     "status": "pass",
     "label_distribution": {
-      "CAPITAL_ACTION": 127,
-      "CONTRACT": 128,
+      "CAPITAL_ACTION": 128,
+      "CONTRACT": 130,
       "CORPORATE_ACTION": 14,
-      "DISCLOSURE": 74,
+      "DISCLOSURE": 70,
       "EARNINGS": 14,
       "MACRO": 14,
-      "RISK": 129
+      "RISK": 130
     },
     "source_type_distribution": {
-      "DISCLOSURE": 174,
-      "NEWS": 326
+      "DISCLOSURE": 169,
+      "NEWS": 331
     },
     "stage_distribution": {
       "additional_coverage_plan": 400,
@@ -93,7 +93,7 @@
     "planned_stock_count": 2000,
     "already_supervised_stock_count": 68,
     "covered_candidate_stock_count": 2068,
-    "remaining_candidate_stock_count": 1000
+    "remaining_candidate_stock_count": 1012
   },
   "review_policy": "coverage plan rows are review tasks only; supervised datasets are updated only after human_review_approved with reviewer metadata"
 }
