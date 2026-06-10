@@ -1,17 +1,17 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T17:51:49.937870+00:00",
+  "generated_at": "2026-06-10T18:16:01.154743+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
   "evaluation_stock_count": 57,
-  "raw_matched_stock_count": 3256,
+  "raw_matched_stock_count": 3261,
   "training_coverage_ratio": 0.009579026972523318,
   "evaluation_coverage_ratio": 0.014368540458784976,
-  "raw_coverage_ratio": 0.8207713637509453,
+  "raw_coverage_ratio": 0.8220317620368036,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 56828,
+  "raw_sample_count": 56947,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -123,12 +123,12 @@
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 579
+      "sample_count": 580
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 495
+      "sample_count": 494
     },
     {
       "stock_code": "035420",
@@ -225,7 +225,7 @@
         "status": "pass"
       },
       "raw_matched_stock_count": {
-        "actual": 3256,
+        "actual": 3261,
         "minimum": 300,
         "status": "pass"
       },
@@ -244,11 +244,11 @@
   "event_model_pseudo_training_coverage": {
     "status": "promoted_to_event_student_training",
     "source_path": "reports/ml-training-report.json",
-    "stock_candidate_event_training_sample_count": 702,
-    "stock_candidate_event_training_stock_count": 702,
+    "stock_candidate_event_training_sample_count": 707,
+    "stock_candidate_event_training_stock_count": 707,
     "stock_candidate_label_distribution": {
-      "RISK": 259,
-      "CONTRACT": 236,
+      "RISK": 262,
+      "CONTRACT": 238,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 44,
       "EARNINGS": 28,
@@ -257,7 +257,7 @@
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 702,
+    "effective_event_training_stock_count_lower_bound": 707,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }
