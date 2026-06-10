@@ -1,17 +1,17 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T19:36:15.371158+00:00",
+  "generated_at": "2026-06-10T20:00:19.171192+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
   "evaluation_stock_count": 57,
-  "raw_matched_stock_count": 3368,
+  "raw_matched_stock_count": 3369,
   "training_coverage_ratio": 0.009579026972523318,
   "evaluation_coverage_ratio": 0.014368540458784976,
-  "raw_coverage_ratio": 0.8490042853541719,
+  "raw_coverage_ratio": 0.8492563650113436,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 59389,
+  "raw_sample_count": 59485,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -123,17 +123,17 @@
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 598
+      "sample_count": 602
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 500
+      "sample_count": 501
     },
     {
       "stock_code": "035420",
       "stock_name": "NAVER",
-      "sample_count": 490
+      "sample_count": 491
     },
     {
       "stock_code": "029460",
@@ -143,12 +143,12 @@
     {
       "stock_code": "002860",
       "stock_name": "하나은행",
-      "sample_count": 398
+      "sample_count": 399
     },
     {
       "stock_code": "006800",
       "stock_name": "미래에셋증권",
-      "sample_count": 376
+      "sample_count": 377
     },
     {
       "stock_code": "008670",
@@ -158,12 +158,12 @@
     {
       "stock_code": "005940",
       "stock_name": "NH투자증권",
-      "sample_count": 270
+      "sample_count": 271
     },
     {
       "stock_code": "010130",
       "stock_name": "고려아연",
-      "sample_count": 233
+      "sample_count": 234
     },
     {
       "stock_code": "039490",
@@ -178,7 +178,7 @@
     {
       "stock_code": "031150",
       "stock_name": "국민은행",
-      "sample_count": 202
+      "sample_count": 203
     },
     {
       "stock_code": "009830",
@@ -208,7 +208,7 @@
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
-      "sample_count": 167
+      "sample_count": 169
     },
     {
       "stock_code": "016360",
@@ -225,7 +225,7 @@
         "status": "pass"
       },
       "raw_matched_stock_count": {
-        "actual": 3368,
+        "actual": 3369,
         "minimum": 300,
         "status": "pass"
       },
@@ -244,20 +244,20 @@
   "event_model_pseudo_training_coverage": {
     "status": "promoted_to_event_student_training",
     "source_path": "reports/ml-training-report.json",
-    "stock_candidate_event_training_sample_count": 737,
-    "stock_candidate_event_training_stock_count": 737,
+    "stock_candidate_event_training_sample_count": 738,
+    "stock_candidate_event_training_stock_count": 738,
     "stock_candidate_label_distribution": {
-      "RISK": 271,
-      "CONTRACT": 254,
+      "RISK": 274,
+      "CONTRACT": 252,
       "CAPITAL_ACTION": 120,
       "CORPORATE_ACTION": 45,
-      "EARNINGS": 28,
-      "MACRO": 19,
+      "EARNINGS": 29,
+      "MACRO": 18,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 737,
+    "effective_event_training_stock_count_lower_bound": 738,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }

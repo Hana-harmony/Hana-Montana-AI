@@ -2,7 +2,7 @@
   "schema_version": "stock-gold-review-report/v1",
   "batch_schema_version": "stock-gold-review-batch/v1",
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
-  "candidate_count": 13291,
+  "candidate_count": 13296,
   "candidate_stock_count": 3192,
   "existing_training_stock_count": 38,
   "existing_evaluation_stock_count": 57,

@@ -1,7 +1,7 @@
 {
   "schema_version": "stock-collection-shard-report/v1",
   "row_schema_version": "stock-collection-shard-row/v1",
-  "generated_at": "2026-06-10T19:33:24.809958+00:00",
+  "generated_at": "2026-06-10T19:57:27.676935+00:00",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
@@ -19,7 +19,7 @@
     "data/evaluation/financial_alert_stock_review_gold.jsonl"
   ],
   "universe_count": 3967,
-  "raw_matched_stock_count": 3368,
+  "raw_matched_stock_count": 3369,
   "candidate_stock_count": 3192,
   "training_gold_stock_count": 38,
   "evaluation_gold_stock_count": 57,
@@ -36,8 +36,8 @@
     "거래정지"
   ],
   "priority_distribution": {
-    "no_raw_no_candidate": 596,
-    "raw_without_candidate": 176
+    "no_raw_no_candidate": 595,
+    "raw_without_candidate": 177
   },
   "shard_distribution": {
     "0": 100,

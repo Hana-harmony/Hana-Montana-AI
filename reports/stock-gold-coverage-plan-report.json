@@ -4,7 +4,7 @@
   "candidate_path": "data/curation/stock_training_candidate_queue.jsonl",
   "training_review_path": "data/curation/stock_gold_training_review_batch.jsonl",
   "evaluation_review_path": "data/curation/stock_gold_evaluation_review_batch.jsonl",
-  "candidate_count": 13291,
+  "candidate_count": 13296,
   "candidate_stock_count": 3192,
   "existing_supervised_training_stock_count": 38,
   "existing_supervised_evaluation_stock_count": 57,
@@ -23,10 +23,10 @@
       "CAPITAL_ACTION": 268,
       "CONTRACT": 268,
       "CORPORATE_ACTION": 149,
-      "DISCLOSURE": 266,
-      "EARNINGS": 220,
+      "DISCLOSURE": 267,
+      "EARNINGS": 218,
       "MACRO": 61,
-      "RISK": 268
+      "RISK": 269
     },
     "source_type_distribution": {
       "DISCLOSURE": 524,
@@ -61,13 +61,13 @@
     "remaining_stock_count_to_target": 0,
     "status": "pass",
     "label_distribution": {
-      "CAPITAL_ACTION": 136,
-      "CONTRACT": 138,
+      "CAPITAL_ACTION": 138,
+      "CONTRACT": 139,
       "CORPORATE_ACTION": 14,
-      "DISCLOSURE": 46,
+      "DISCLOSURE": 42,
       "EARNINGS": 14,
       "MACRO": 14,
-      "RISK": 138
+      "RISK": 139
     },
     "source_type_distribution": {
       "DISCLOSURE": 144,
