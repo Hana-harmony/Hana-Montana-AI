@@ -1,17 +1,17 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-10T19:17:34.624907+00:00",
+  "generated_at": "2026-06-10T19:36:15.371158+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
   "training_stock_count": 38,
   "evaluation_stock_count": 57,
-  "raw_matched_stock_count": 3262,
+  "raw_matched_stock_count": 3368,
   "training_coverage_ratio": 0.009579026972523318,
   "evaluation_coverage_ratio": 0.014368540458784976,
-  "raw_coverage_ratio": 0.8222838416939753,
+  "raw_coverage_ratio": 0.8490042853541719,
   "training_sample_count": 3609,
   "evaluation_sample_count": 878,
-  "raw_sample_count": 57078,
+  "raw_sample_count": 59389,
   "top_training_stocks": [
     {
       "stock_code": "000660",
@@ -118,17 +118,17 @@
     {
       "stock_code": "005930",
       "stock_name": "삼성전자",
-      "sample_count": 2118
+      "sample_count": 2150
     },
     {
       "stock_code": "000660",
       "stock_name": "SK하이닉스",
-      "sample_count": 582
+      "sample_count": 598
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 496
+      "sample_count": 500
     },
     {
       "stock_code": "035420",
@@ -138,17 +138,17 @@
     {
       "stock_code": "029460",
       "stock_name": "케이씨",
-      "sample_count": 427
+      "sample_count": 433
     },
     {
       "stock_code": "002860",
       "stock_name": "하나은행",
-      "sample_count": 399
+      "sample_count": 398
     },
     {
       "stock_code": "006800",
       "stock_name": "미래에셋증권",
-      "sample_count": 375
+      "sample_count": 376
     },
     {
       "stock_code": "008670",
@@ -158,12 +158,12 @@
     {
       "stock_code": "005940",
       "stock_name": "NH투자증권",
-      "sample_count": 269
+      "sample_count": 270
     },
     {
       "stock_code": "010130",
       "stock_name": "고려아연",
-      "sample_count": 230
+      "sample_count": 233
     },
     {
       "stock_code": "039490",
@@ -183,12 +183,12 @@
     {
       "stock_code": "009830",
       "stock_name": "한화솔루션",
-      "sample_count": 196
+      "sample_count": 199
     },
     {
       "stock_code": "034020",
       "stock_name": "두산에너빌리티",
-      "sample_count": 184
+      "sample_count": 185
     },
     {
       "stock_code": "101390",
@@ -198,17 +198,17 @@
     {
       "stock_code": "008560",
       "stock_name": "메리츠증권",
-      "sample_count": 181
+      "sample_count": 182
     },
     {
       "stock_code": "030610",
       "stock_name": "교보증권",
-      "sample_count": 177
+      "sample_count": 178
     },
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
-      "sample_count": 166
+      "sample_count": 167
     },
     {
       "stock_code": "016360",
@@ -225,7 +225,7 @@
         "status": "pass"
       },
       "raw_matched_stock_count": {
-        "actual": 3262,
+        "actual": 3368,
         "minimum": 300,
         "status": "pass"
       },
@@ -244,20 +244,20 @@
   "event_model_pseudo_training_coverage": {
     "status": "promoted_to_event_student_training",
     "source_path": "reports/ml-training-report.json",
-    "stock_candidate_event_training_sample_count": 704,
-    "stock_candidate_event_training_stock_count": 704,
+    "stock_candidate_event_training_sample_count": 737,
+    "stock_candidate_event_training_stock_count": 737,
     "stock_candidate_label_distribution": {
-      "RISK": 258,
-      "CONTRACT": 238,
+      "RISK": 271,
+      "CONTRACT": 254,
       "CAPITAL_ACTION": 120,
-      "CORPORATE_ACTION": 44,
+      "CORPORATE_ACTION": 45,
       "EARNINGS": 28,
-      "MACRO": 16,
+      "MACRO": 19,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 704,
+    "effective_event_training_stock_count_lower_bound": 737,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }

@@ -73,26 +73,26 @@ uv run python scripts/train_stock_linker_model.py
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 
 ## 현재 ML 검증 기준
-- `reports/ml-training-report.json`은 3,609건 supervised 샘플, 1,062건 pseudo-label 샘플, 722건 supervised holdout 검증 결과를 기록한다.
-- `reports/weak-distillation-report.json`은 57,078건 약지도 후보 중 5,050건을 고신호 후보로 선별하고, teacher gate를 통과한 weak-label 358건과 종목 후보 704건을 이벤트 모델 학습에 승격한 결과를 기록한다.
+- `reports/ml-training-report.json`은 3,609건 supervised 샘플, 1,090건 pseudo-label 샘플, 722건 supervised holdout 검증 결과를 기록한다.
+- `reports/weak-distillation-report.json`은 59,389건 약지도 후보 중 5,069건을 고신호 후보로 선별하고, teacher gate를 통과한 weak-label 353건과 종목 후보 737건을 이벤트 모델 학습에 승격한 결과를 기록한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
 - 현재 holdout 결과는 이벤트 macro F1 0.9881, 감성 accuracy 0.9889, 중요도 accuracy 0.9931이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
 - benchmark 최소 기준은 이벤트 recall 0.8, 이벤트 macro F1 0.8, 감성 accuracy 0.85, 중요도 accuracy 0.8, 종목 accuracy 1.0이다.
-- 현재 benchmark 결과는 이벤트 recall 0.9974, 이벤트 macro F1 0.9993, 감성 accuracy 1.0, 중요도 accuracy 0.9375, 종목 accuracy 1.0이다.
+- 현재 benchmark 결과는 이벤트 recall 0.9961, 이벤트 macro F1 0.9989, 감성 accuracy 1.0, 중요도 accuracy 0.9375, 종목 accuracy 1.0이다.
 - `reports/model-confidence-calibration.json`은 benchmark 768건, 이벤트 멀티라벨 결정 6,144건의 calibration과 감성·중요도 고신뢰 오답을 기록한다.
 - 실공시 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
-- 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9500, 이벤트 macro F1 0.9142, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260610191529`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
-- `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,050건, teacher 탈락 3,747건, quota 보류 241건, 최종 승격 1,062건을 `overall_status=pass`로 기록한다.
-- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,262개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
-- `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 704건, 704개 종목도 별도 섹션으로 기록한다.
-- `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 877개 종목, 9개 shard, 4,385개 Naver 쿼리를 기록한다.
-- stock collection shard plan은 702개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
-- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 704건/704종목이 gate를 통과했고, risk/contract 확장 profile은 864건/665종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
-- `reports/stock-training-candidate-report.json`은 검수 대기 후보 12,486건, 3,087개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
+- 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9500, 이벤트 macro F1 0.9171, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260610193406`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,069건, teacher 탈락 3,809건, quota 보류 170건, 최종 승격 1,090건을 `overall_status=pass`로 기록한다.
+- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,368개 종목, supervised 38개 종목, evaluation 57개 종목을 기록한다.
+- `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 737건, 737개 종목도 별도 섹션으로 기록한다.
+- `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 772개 종목, 8개 shard, 3,860개 Naver 쿼리를 기록한다.
+- stock collection shard plan은 596개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
+- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 737건/737종목이 gate를 통과했고, risk/contract 확장 profile은 876건/679종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
+- `reports/stock-training-candidate-report.json`은 검수 대기 후보 13,291건, 3,192개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목, 평가 검수 배치 100개 종목, 학습·평가 종목 disjoint check를 `pass`로 기록한다.
 - `reports/stock-gold-review-validation-report.json`은 현재 승인 가능 학습 0개 종목, 평가 0개 종목이라 `overall_status=fail`로 기록한다.
 - `reports/stock-gold-active-review-report.json`은 학습·평가 검수 배치 각각 상위 50개 우선 검수 row를 기록한다.
