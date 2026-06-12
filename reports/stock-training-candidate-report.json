@@ -3,42 +3,42 @@
   "queue_schema_version": "stock-curation-queue/v1",
   "raw_alert_path": "data/raw/collected_alerts.jsonl",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
-  "raw_alert_count": 67707,
+  "raw_alert_count": 68710,
   "universe_count": 3967,
-  "candidate_count": 15608,
-  "candidate_stock_count": 3495,
-  "candidate_coverage_ratio": 0.8810184018149735,
+  "candidate_count": 15720,
+  "candidate_stock_count": 3506,
+  "candidate_coverage_ratio": 0.8837912780438618,
   "per_stock_label_quota": 2,
   "minimum_signal_score": 3,
   "curation_status": "needs_human_review",
   "coverage_gate": {
     "minimum_stock_count": 300,
-    "actual_stock_count": 3495,
+    "actual_stock_count": 3506,
     "status": "pass"
   },
   "label_distribution": {
-    "CAPITAL_ACTION": 3179,
-    "CONTRACT": 2775,
-    "CORPORATE_ACTION": 1452,
-    "DISCLOSURE": 2828,
-    "EARNINGS": 2211,
-    "MACRO": 595,
-    "RISK": 2568
+    "CAPITAL_ACTION": 3199,
+    "CONTRACT": 2797,
+    "CORPORATE_ACTION": 1460,
+    "DISCLOSURE": 2833,
+    "EARNINGS": 2249,
+    "MACRO": 599,
+    "RISK": 2583
   },
   "source_type_distribution": {
-    "DISCLOSURE": 4274,
-    "NEWS": 11334
+    "DISCLOSURE": 4254,
+    "NEWS": 11466
   },
   "sentiment_distribution": {
-    "NEGATIVE": 617,
-    "NEUTRAL": 9741,
-    "POSITIVE": 5250
+    "NEGATIVE": 623,
+    "NEUTRAL": 9798,
+    "POSITIVE": 5299
   },
   "importance_distribution": {
-    "CRITICAL": 1343,
-    "HIGH": 10855,
-    "LOW": 755,
-    "MEDIUM": 2655
+    "CRITICAL": 1361,
+    "HIGH": 10918,
+    "LOW": 762,
+    "MEDIUM": 2679
   },
   "top_candidate_stocks": [
     {
@@ -49,11 +49,6 @@
     {
       "stock_code": "000830",
       "stock_name": "삼성물산",
-      "candidate_count": 14
-    },
-    {
-      "stock_code": "001740",
-      "stock_name": "SK네트웍스",
       "candidate_count": 14
     },
     {
@@ -140,13 +135,18 @@
       "stock_code": "101390",
       "stock_name": "아이엠",
       "candidate_count": 14
+    },
+    {
+      "stock_code": "105560",
+      "stock_name": "KB금융",
+      "candidate_count": 14
     }
   ],
   "rejected_count_by_reason": {
     "disclosure_noise": 1455,
-    "general_market_not_stock_specific": 4557,
-    "low_signal": 7462,
-    "stock_not_matched": 21900
+    "general_market_not_stock_specific": 4590,
+    "low_signal": 7618,
+    "stock_not_matched": 22225
   },
   "promotion_policy": "queue rows are not treated as gold labels until human review promotes them"
 }

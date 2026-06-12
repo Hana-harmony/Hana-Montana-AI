@@ -5,7 +5,7 @@
     "sentiment_accuracy": 1.0,
     "importance_accuracy": 0.9375,
     "stock_accuracy": 1.0,
-    "event_macro_f1": 0.9935326418547895,
+    "event_macro_f1": 0.9939393939393939,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
         "precision": 1.0,
@@ -44,9 +44,9 @@
         "support": 72
       },
       "MACRO": {
-        "precision": 0.935064935064935,
+        "precision": 0.9411764705882353,
         "recall": 1.0,
-        "f1": 0.9664429530201343,
+        "f1": 0.9696969696969697,
         "support": 144
       },
       "RISK": {

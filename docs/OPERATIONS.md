@@ -63,7 +63,7 @@ uv run python scripts/collect_training_data.py \
   --stock-collection-plan data/curation/stock_collection_shard_plan.jsonl \
   --stock-collection-plan-shard-index 0
 ```
-- `reports/stock-collection-shard-plan.json`은 현재 누락 후보 469개 종목, 5개 shard, 2,345개 Naver 쿼리를 기록한다.
+- `reports/stock-collection-shard-plan.json`은 현재 누락 후보 458개 종목, 5개 shard, 2,290개 Naver 쿼리를 기록한다.
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`은 후보 큐에서 뽑은 사람 검수용 배치다.
@@ -74,8 +74,8 @@ uv run python scripts/collect_training_data.py \
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 67,707건 수집 후보 중 weak-label 344건과 종목 후보 큐 778건을 이벤트 모델 학습에 반영했다.
-- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 778건이 778개 종목에 분산되도록 한다.
+- 현재 artifact는 68,710건 수집 후보 중 weak-label 344건과 종목 후보 큐 781건을 이벤트 모델 학습에 반영했다.
+- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 781건이 781개 종목에 분산되도록 한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 supervised corpus만으로 학습한다.
 
 ## 모델 release report
@@ -104,7 +104,7 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 67,707건 raw 후보 중 5,192건이 고신호 후보이고, teacher gate에서 4,003건이 탈락하며 weak-label 344건과 종목 후보 778건만 student 이벤트 모델 학습에 승격된다.
+- 현재 68,710건 raw 후보 중 5,204건이 고신호 후보이고, teacher gate에서 4,007건이 탈락하며 weak-label 344건과 종목 후보 781건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO`는 현재 active label이며 quota 여유가 남아 추가 후보 품질을 모니터링한다.
 - `CAPITAL_ACTION`은 현재 quota를 채웠고, `DISCLOSURE`는 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
@@ -112,10 +112,10 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 ## Coverage report 해석
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 사람이 검수한 supervised/gold coverage다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
-- 현재 event model pseudo training coverage는 778건, 778개 종목이며 supervised gold coverage로 간주하지 않는다.
+- 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised gold coverage로 간주하지 않는다.
 - `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
-- 현재 shard plan은 358개 `no_raw_no_candidate` 종목과 111개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
-- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 778건/778종목이 gate를 통과했고, risk/contract 확장 profile은 894건/710종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
+- 현재 shard plan은 351개 `no_raw_no_candidate` 종목과 107개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
+- `reports/stock-candidate-quota-experiment.json`은 calibrated current release 781건/781종목이 gate를 통과했고, risk/contract 확장 profile은 895건/709종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 - `reports/stock-gold-review-validation-report.json`은 현재 검수 배치에서 승격 가능한 승인 row가 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 기록한다.
@@ -127,6 +127,6 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 - drift 감시
 - supervised 학습 데이터 300개 이상 종목 coverage 확보
 - evaluation gold 100개 이상 종목 coverage 확보
-- 후보 큐 3,495개 종목에서 종목·라벨별 human review batch 운영
+- 후보 큐 3,506개 종목에서 종목·라벨별 human review batch 운영
 - 재학습 기준과 rollback 절차
 - 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성
