@@ -48,6 +48,12 @@ uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
 ```
+- 실시간 뉴스 smoke/drift 배치는 라벨 없는 운영 표본을 만든다. 이 결과는 `final_*` 라벨을 채워 gold로 승격하기 전까지 F1이 아니라 confidence, 종목 매칭, drift 점검용이다.
+```bash
+uv run python scripts/build_live_news_evaluation_batch.py \
+  --stock-sample-size 50 \
+  --max-news-per-query 3
+```
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
 ```bash
 uv run python scripts/collect_training_data.py \
