@@ -1,3 +1,5 @@
+import re
+
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api.routes import get_analyzer
@@ -74,6 +76,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
 
     assert response.status_code == 200
     payload = response.json()
+    assert re.fullmatch(r"[0-9a-f]{64}", payload["duplicate_key"])
     assert payload["stock_code"] == "005930"
     assert payload["news_disclosure_type"] == "NEWS"
     assert payload["original_title"] == "삼성전자 2분기 영업이익 증가"

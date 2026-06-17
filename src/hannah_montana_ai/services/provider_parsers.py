@@ -233,6 +233,7 @@ def build_omnilens_websocket_event(
         "channel": delivery_channel,
         "partner_id": partner_id,
         "alert_id": response.alert_id,
+        "duplicate_key": response.duplicate_key,
         "stock_code": response.stock_code,
         "stock_name": response.stock_name,
         "news_disclosure_type": response.news_disclosure_type,

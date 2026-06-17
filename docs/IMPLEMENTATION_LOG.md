@@ -775,3 +775,8 @@
 - Naver News Search row와 OpenDART 공시검색 row를 `IntelligenceEventRequest` 입력으로 정규화하는 파서를 추가했다.
 - provider event id, 원문 URL, 종목 후보를 사용해 중복 제거 키를 생성하고 유효하지 않은 원문 URL은 거부한다.
 - 분석·번역 완료 응답을 협력사/종목 단위 Hana OmniLens WebSocket 이벤트 JSON으로 패킹하는 함수를 추가했다.
+
+## 2026-06-17 - 인텔리전스 중복 제거 계약 노출
+- `/api/v1/intelligence/events` 응답에 분석기의 `duplicate_key`를 포함해 현지 백엔드가 같은 이벤트를 중복 저장하지 않도록 했다.
+- Hana OmniLens WebSocket 이벤트 패킷에도 동일한 `duplicate_key`를 싣는다.
+- 종목과 출처가 다른 이벤트는 중복키가 분리되는지 provider 하네스로 검증한다.

@@ -107,6 +107,7 @@ class IntelligenceEventRequest(AlertAnalysisRequest):
 
 class IntelligenceEventResponse(BaseModel):
     alert_id: str
+    duplicate_key: str
     stock_code: str | None
     stock_name: str | None
     news_disclosure_type: SourceType
