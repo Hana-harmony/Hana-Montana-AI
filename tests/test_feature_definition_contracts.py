@@ -43,6 +43,8 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
     assert payload["price_limit_status"] == "UPPER"
     assert payload["immediate_execution_available"] is False
     assert payload["local_current_price"] == 490.1
+    assert payload["prediction_model_version"] == "foreign-ownership-boundary-v1"
+    assert payload["trading_state_model_version"] == "krx-vi-price-limit-state-v1"
     assert payload["data_source"] == "KIS/KRX/PredictEngine"
 
 
@@ -85,6 +87,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert payload["event_tag"] in payload["event_tags"]
     assert payload["is_watchlist_target"] is True
     assert payload["translation_provider"] == "local-financial-glossary"
+    assert payload["translation_model_version"] == "local-financial-glossary-v1"
     assert payload["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"
 
 
@@ -149,3 +152,5 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert payload["instant_payout_amount"] == 310_400
     assert payload["compliance_sandbox_flag"] == "Y"
     assert payload["clawback_required_if_rejected"] is True
+    assert payload["tax_model_version"] == "hk-treaty-refund-case-engine-v1"
+    assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"

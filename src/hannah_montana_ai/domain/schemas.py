@@ -94,6 +94,8 @@ class StockOrderStatusResponse(BaseModel):
     price_limit_status: PriceLimitStatus
     immediate_execution_available: bool
     order_guidance_message: str
+    prediction_model_version: str
+    trading_state_model_version: str
     data_source: str
 
 
@@ -123,6 +125,7 @@ class IntelligenceEventResponse(BaseModel):
     provider: str
     published_at: str
     translation_provider: str
+    translation_model_version: str
     translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
     model_version: str
     data_source: str
@@ -170,4 +173,6 @@ class TaxRefundStatusResponse(BaseModel):
     instant_payout_amount: int
     compliance_sandbox_flag: YesNoFlag
     clawback_required_if_rejected: bool
+    tax_model_version: str
+    document_model_version: str
     review_message: str

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+from dataclasses import dataclass
 from hashlib import sha256
 from typing import Literal
 
@@ -23,6 +24,11 @@ DIVIDEND_TREATY_LIMIT_RATE = 0.15
 CAPITAL_GAINS_SELL_PROCEEDS_RATE = 0.11
 CAPITAL_GAINS_PROFIT_RATE = 0.22
 CASE_01_MAX_OWNERSHIP_RATE = 25.0
+FOREIGN_OWNERSHIP_MODEL_VERSION = "foreign-ownership-boundary-v1"
+TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
+TRANSLATION_MODEL_VERSION = "local-financial-glossary-v1"
+TAX_REFUND_MODEL_VERSION = "hk-treaty-refund-case-engine-v1"
+DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 
 FINANCIAL_TRANSLATION_TERMS = {
     "삼성전자": "Samsung Electronics",
@@ -48,16 +54,66 @@ FINANCIAL_TRANSLATION_TERMS = {
 }
 
 
-class StockOrderStatusService:
-    def build_response(self, request: StockOrderStatusRequest) -> StockOrderStatusResponse:
+@dataclass(frozen=True)
+class ForeignOwnershipPrediction:
+    foreign_limit_quantity: int
+    ownership_rate: float
+    limit_exhaustion_rate: float
+    predicted_rate_min: float
+    predicted_rate_max: float
+    limit_warning: bool
+    model_version: str
+
+
+@dataclass(frozen=True)
+class TradingStatePrediction:
+    vi_activation_status: Literal["Y", "N"]
+    vi_reasons: list[str]
+    price_limit_status: PriceLimitStatus
+    immediate_execution_available: bool
+    guidance_message: str
+    model_version: str
+
+
+@dataclass(frozen=True)
+class TranslationPrediction:
+    translated_title: str
+    translated_summary: str
+    translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
+    provider: str
+    model_version: str
+
+
+@dataclass(frozen=True)
+class TaxRefundPrediction:
+    tax_case_type: TaxCaseType
+    document_status: Literal["VERIFIED", "PENDING"]
+    required_documents_completed: bool
+    total_withheld_tax: int
+    dividend_refund_amount: int
+    capital_gains_refund_amount: int
+    eligible_refund_amount: int
+    instant_payout_fee_amount: int
+    instant_payout_amount: int
+    compliance_sandbox_flag: Literal["Y", "N"]
+    clawback_required_if_rejected: bool
+    review_message: str
+    tax_model_version: str
+    document_model_version: str
+
+
+class ForeignOwnershipBoundaryModel:
+    version = FOREIGN_OWNERSHIP_MODEL_VERSION
+
+    def predict(self, request: StockOrderStatusRequest) -> ForeignOwnershipPrediction:
         foreign_limit_quantity = request.foreign_limit_quantity or round(
             request.issued_shares * request.foreign_limit_rate / 100
         )
-        foreign_ownership_rate = _rate(
+        ownership_rate = _rate(
             request.foreign_owned_quantity,
             request.issued_shares,
         )
-        foreign_limit_exhaustion_rate = _rate(
+        limit_exhaustion_rate = _rate(
             request.foreign_owned_quantity,
             foreign_limit_quantity,
         )
@@ -73,6 +129,23 @@ class StockOrderStatusService:
             request.foreign_limit_rate,
             predicted_center + request.prediction_confidence_interval_percent,
         )
+        return ForeignOwnershipPrediction(
+            foreign_limit_quantity=foreign_limit_quantity,
+            ownership_rate=round(ownership_rate, 4),
+            limit_exhaustion_rate=round(limit_exhaustion_rate, 4),
+            predicted_rate_min=round(predicted_min, 4),
+            predicted_rate_max=round(predicted_max, 4),
+            limit_warning=(
+                predicted_max >= request.foreign_limit_rate - FOREIGN_LIMIT_WARNING_BUFFER_PERCENT
+            ),
+            model_version=self.version,
+        )
+
+
+class TradingStateModel:
+    version = TRADING_STATE_MODEL_VERSION
+
+    def predict(self, request: StockOrderStatusRequest) -> TradingStatePrediction:
         vi_reasons = _vi_reasons(request)
         price_limit_status = _price_limit_status(request)
         immediate_execution_available = (
@@ -80,91 +153,51 @@ class StockOrderStatusService:
             and price_limit_status == "NORMAL"
             and request.trading_session_status == "REGULAR"
         )
-
-        return StockOrderStatusResponse(
-            stock_code=request.stock_code,
-            stock_name=request.stock_name,
-            stock_name_en=request.stock_name_en,
-            market=request.market,
-            issued_shares=request.issued_shares,
-            current_price=request.current_price,
-            previous_close_price=request.previous_close_price,
-            upper_limit_price=request.upper_limit_price,
-            lower_limit_price=request.lower_limit_price,
-            local_currency=request.local_currency,
-            local_current_price=round(request.current_price * request.local_fx_rate, 4),
-            foreign_owned_quantity=request.foreign_owned_quantity,
-            foreign_limit_quantity=foreign_limit_quantity,
-            foreign_ownership_rate=round(foreign_ownership_rate, 4),
-            foreign_limit_exhaustion_rate=round(foreign_limit_exhaustion_rate, 4),
-            fx_predicted_rate_min=round(predicted_min, 4),
-            fx_predicted_rate_max=round(predicted_max, 4),
-            foreign_limit_warning=(
-                predicted_max >= request.foreign_limit_rate - FOREIGN_LIMIT_WARNING_BUFFER_PERCENT
-            ),
+        return TradingStatePrediction(
             vi_activation_status="Y" if vi_reasons else "N",
-            vi_activation_reason=vi_reasons,
+            vi_reasons=vi_reasons,
             price_limit_status=price_limit_status,
             immediate_execution_available=immediate_execution_available,
-            order_guidance_message=_order_guidance_message(
+            guidance_message=_order_guidance_message(
                 vi_reasons,
                 price_limit_status,
                 immediate_execution_available,
             ),
-            data_source="KIS/KRX/PredictEngine",
+            model_version=self.version,
         )
 
 
-class IntelligenceEventService:
-    def __init__(self, analyzer: AlertAnalyzer) -> None:
-        self._analyzer = analyzer
+class FinancialTranslationModel:
+    version = TRANSLATION_MODEL_VERSION
+    provider = "local-financial-glossary"
 
-    def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
-        analysis_request = AlertAnalysisRequest(
-            source_type=request.source_type,
-            title=request.title,
-            snippet=request.snippet,
-            original_url=request.original_url,
-            stock_universe=request.stock_universe,
-        )
-        analysis = self._analyzer.analyze(analysis_request)
+    def translate_event(
+        self,
+        request: IntelligenceEventRequest,
+        summary: str,
+    ) -> TranslationPrediction:
         translated_title = translate_financial_korean_to_english(request.title)
-        translated_summary = translate_financial_korean_to_english(analysis.summary)
+        translated_summary = translate_financial_korean_to_english(summary)
         translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"] = (
             "TRANSLATED"
             if translated_title != html.unescape(request.title)
-            or translated_summary != html.unescape(analysis.summary)
+            or translated_summary != html.unescape(summary)
             else "SOURCE_LANGUAGE_FALLBACK"
         )
-
-        return IntelligenceEventResponse(
-            alert_id=_alert_id(request),
-            stock_code=analysis.stock_code,
-            stock_name=analysis.stock_name,
-            news_disclosure_type=request.source_type,
-            original_title=request.title,
+        return TranslationPrediction(
             translated_title=translated_title,
-            summary=analysis.summary,
             translated_summary=translated_summary,
-            sentiment=analysis.sentiment,
-            importance=analysis.importance,
-            event_tag=analysis.event_tags[0],
-            event_tags=analysis.event_tags,
-            related_stocks=analysis.related_stocks,
-            is_holder_target=analysis.holder_target,
-            is_watchlist_target=analysis.watchlist_target,
-            original_url=request.original_url,
-            provider=request.provider,
-            published_at=request.published_at,
-            translation_provider="local-financial-glossary",
             translation_status=translation_status,
-            model_version=analysis.model_version,
-            data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter",
+            provider=self.provider,
+            model_version=self.version,
         )
 
 
-class TaxRefundStatusService:
-    def build_response(self, request: TaxRefundStatusRequest) -> TaxRefundStatusResponse:
+class TaxRefundAdvanceModel:
+    version = TAX_REFUND_MODEL_VERSION
+    document_model_version = DOCUMENT_VERIFICATION_MODEL_VERSION
+
+    def predict(self, request: TaxRefundStatusRequest) -> TaxRefundPrediction:
         required_documents_completed = _required_documents_completed(request)
         document_status: Literal["VERIFIED", "PENDING"] = (
             "VERIFIED" if required_documents_completed else "PENDING"
@@ -195,17 +228,14 @@ class TaxRefundStatusService:
             and tax_case_type == "CASE_01"
             else "N"
         )
-
-        return TaxRefundStatusResponse(
-            investor_id=request.investor_id,
+        return TaxRefundPrediction(
             tax_case_type=tax_case_type,
-            document_verification_status=document_status,
+            document_status=document_status,
             required_documents_completed=required_documents_completed,
             total_withheld_tax=total_withheld_tax,
             dividend_refund_amount=dividend_refund_amount,
             capital_gains_refund_amount=capital_gains_refund_amount,
             eligible_refund_amount=eligible_refund_amount,
-            instant_payout_fee_rate=round(request.instant_payout_fee_rate, 2),
             instant_payout_fee_amount=instant_payout_fee_amount,
             instant_payout_amount=instant_payout_amount,
             compliance_sandbox_flag=compliance_sandbox_flag,
@@ -215,6 +245,120 @@ class TaxRefundStatusService:
                 tax_case_type,
                 eligible_refund_amount,
             ),
+            tax_model_version=self.version,
+            document_model_version=self.document_model_version,
+        )
+
+
+class StockOrderStatusService:
+    def __init__(
+        self,
+        ownership_model: ForeignOwnershipBoundaryModel | None = None,
+        trading_state_model: TradingStateModel | None = None,
+    ) -> None:
+        self._ownership_model = ownership_model or ForeignOwnershipBoundaryModel()
+        self._trading_state_model = trading_state_model or TradingStateModel()
+
+    def build_response(self, request: StockOrderStatusRequest) -> StockOrderStatusResponse:
+        ownership = self._ownership_model.predict(request)
+        trading_state = self._trading_state_model.predict(request)
+
+        return StockOrderStatusResponse(
+            stock_code=request.stock_code,
+            stock_name=request.stock_name,
+            stock_name_en=request.stock_name_en,
+            market=request.market,
+            issued_shares=request.issued_shares,
+            current_price=request.current_price,
+            previous_close_price=request.previous_close_price,
+            upper_limit_price=request.upper_limit_price,
+            lower_limit_price=request.lower_limit_price,
+            local_currency=request.local_currency,
+            local_current_price=round(request.current_price * request.local_fx_rate, 4),
+            foreign_owned_quantity=request.foreign_owned_quantity,
+            foreign_limit_quantity=ownership.foreign_limit_quantity,
+            foreign_ownership_rate=ownership.ownership_rate,
+            foreign_limit_exhaustion_rate=ownership.limit_exhaustion_rate,
+            fx_predicted_rate_min=ownership.predicted_rate_min,
+            fx_predicted_rate_max=ownership.predicted_rate_max,
+            foreign_limit_warning=ownership.limit_warning,
+            vi_activation_status=trading_state.vi_activation_status,
+            vi_activation_reason=trading_state.vi_reasons,
+            price_limit_status=trading_state.price_limit_status,
+            immediate_execution_available=trading_state.immediate_execution_available,
+            order_guidance_message=trading_state.guidance_message,
+            prediction_model_version=ownership.model_version,
+            trading_state_model_version=trading_state.model_version,
+            data_source="KIS/KRX/PredictEngine",
+        )
+
+
+class IntelligenceEventService:
+    def __init__(self, analyzer: AlertAnalyzer) -> None:
+        self._analyzer = analyzer
+        self._translation_model = FinancialTranslationModel()
+
+    def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
+        analysis_request = AlertAnalysisRequest(
+            source_type=request.source_type,
+            title=request.title,
+            snippet=request.snippet,
+            original_url=request.original_url,
+            stock_universe=request.stock_universe,
+        )
+        analysis = self._analyzer.analyze(analysis_request)
+        translation = self._translation_model.translate_event(request, analysis.summary)
+
+        return IntelligenceEventResponse(
+            alert_id=_alert_id(request),
+            stock_code=analysis.stock_code,
+            stock_name=analysis.stock_name,
+            news_disclosure_type=request.source_type,
+            original_title=request.title,
+            translated_title=translation.translated_title,
+            summary=analysis.summary,
+            translated_summary=translation.translated_summary,
+            sentiment=analysis.sentiment,
+            importance=analysis.importance,
+            event_tag=analysis.event_tags[0],
+            event_tags=analysis.event_tags,
+            related_stocks=analysis.related_stocks,
+            is_holder_target=analysis.holder_target,
+            is_watchlist_target=analysis.watchlist_target,
+            original_url=request.original_url,
+            provider=request.provider,
+            published_at=request.published_at,
+            translation_provider=translation.provider,
+            translation_model_version=translation.model_version,
+            translation_status=translation.translation_status,
+            model_version=analysis.model_version,
+            data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter",
+        )
+
+
+class TaxRefundStatusService:
+    def __init__(self, tax_refund_model: TaxRefundAdvanceModel | None = None) -> None:
+        self._tax_refund_model = tax_refund_model or TaxRefundAdvanceModel()
+
+    def build_response(self, request: TaxRefundStatusRequest) -> TaxRefundStatusResponse:
+        prediction = self._tax_refund_model.predict(request)
+        return TaxRefundStatusResponse(
+            investor_id=request.investor_id,
+            tax_case_type=prediction.tax_case_type,
+            document_verification_status=prediction.document_status,
+            required_documents_completed=prediction.required_documents_completed,
+            total_withheld_tax=prediction.total_withheld_tax,
+            dividend_refund_amount=prediction.dividend_refund_amount,
+            capital_gains_refund_amount=prediction.capital_gains_refund_amount,
+            eligible_refund_amount=prediction.eligible_refund_amount,
+            instant_payout_fee_rate=round(request.instant_payout_fee_rate, 2),
+            instant_payout_fee_amount=prediction.instant_payout_fee_amount,
+            instant_payout_amount=prediction.instant_payout_amount,
+            compliance_sandbox_flag=prediction.compliance_sandbox_flag,
+            clawback_required_if_rejected=prediction.clawback_required_if_rejected,
+            tax_model_version=prediction.tax_model_version,
+            document_model_version=prediction.document_model_version,
+            review_message=prediction.review_message,
         )
 
 

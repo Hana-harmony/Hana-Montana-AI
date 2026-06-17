@@ -14,12 +14,16 @@
   - 당일 예측 지분율 구간 = 장중 순매수 반영 중심값 ± `prediction_confidence_interval_percent`
   - VI 상태 = 동적 VI, 정적 VI, 단일가 세션 중 하나라도 있으면 `Y`
   - 제한가격 상태 = 현재가가 상한가 이상이면 `UPPER`, 하한가 이하이면 `LOWER`
+- 모델:
+  - `ForeignOwnershipBoundaryModel`: 외국인 지분율 및 당일 예측 boundary 산출
+  - `TradingStateModel`: VI, 단일가, 상·하한가, 즉시체결 가능 여부 판정
 - 출력 핵심 필드:
   - `fx_predicted_rate_min`, `fx_predicted_rate_max`
   - `vi_activation_status`
   - `price_limit_status`
   - `immediate_execution_available`
   - `order_guidance_message`
+  - `prediction_model_version`, `trading_state_model_version`
   - `data_source="KIS/KRX/PredictEngine"`
 
 ## 2. 한국 주식 정보 취득 및 분석
@@ -27,7 +31,7 @@
 - 입력: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
-  - 현재 로컬 하네스에서는 `local-financial-glossary` 번역기를 사용한다.
+  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역기를 사용한다.
   - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
 - 출력 핵심 필드:
   - `alert_id`, `stock_code`, `news_disclosure_type`
@@ -35,7 +39,7 @@
   - `summary`, `translated_summary`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
   - `is_holder_target`, `is_watchlist_target`
-  - `translation_provider`, `translation_status`
+  - `translation_provider`, `translation_model_version`, `translation_status`
   - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
@@ -51,6 +55,8 @@
   - 양도세 환급 = `min(총 매도지급액 × 11%, 양도차익 × 22%)`
   - 최종 환급 가능액 = `min(총 기납부 원천세, 배당 환급 + 양도세 환급)`
   - 즉시 선지급 수수료 = 환급 가능액 × `instant_payout_fee_rate`
+- 모델:
+  - `TaxRefundAdvanceModel`: CASE_01 판정, 서류 검증 gate, 환급 가능액, 선지급액, 사후 환수 플래그 산출
 - 출력 핵심 필드:
   - `tax_case_type`
   - `total_withheld_tax`
@@ -59,6 +65,7 @@
   - `instant_payout_amount`
   - `compliance_sandbox_flag`
   - `clawback_required_if_rejected`
+  - `tax_model_version`, `document_model_version`
 
 ## 하네스 보강
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
