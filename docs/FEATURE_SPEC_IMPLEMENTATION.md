@@ -1,0 +1,67 @@
+# 기능정의서 구현 계약
+
+## 적용 범위
+- 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, Papago, DeepL, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
+- 본 구현은 외부 어댑터가 넘긴 검증된 입력값을 기준으로 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 상태를 계산하고 단일 JSON 계약으로 반환한다.
+- API는 내부 네트워크용이며 별도 사용자 토큰을 검증하지 않는다.
+
+## 1. 한국 주식 주문
+- endpoint: `POST /api/v1/stocks/order-status`
+- 입력: KIS/KRX/PredictEngine에서 동기화된 종목 마스터, 현재가, 상·하한가, VI 플래그, 외국인 보유수량, 외국인 한도율, 장중 외국인 순매수 추정량.
+- 계산:
+  - 외국인 보유율 = `foreign_owned_quantity / issued_shares * 100`
+  - 외국인 한도소진율 = `foreign_owned_quantity / foreign_limit_quantity * 100`
+  - 당일 예측 지분율 구간 = 장중 순매수 반영 중심값 ± `prediction_confidence_interval_percent`
+  - VI 상태 = 동적 VI, 정적 VI, 단일가 세션 중 하나라도 있으면 `Y`
+  - 제한가격 상태 = 현재가가 상한가 이상이면 `UPPER`, 하한가 이하이면 `LOWER`
+- 출력 핵심 필드:
+  - `fx_predicted_rate_min`, `fx_predicted_rate_max`
+  - `vi_activation_status`
+  - `price_limit_status`
+  - `immediate_execution_available`
+  - `order_guidance_message`
+  - `data_source="KIS/KRX/PredictEngine"`
+
+## 2. 한국 주식 정보 취득 및 분석
+- endpoint: `POST /api/v1/intelligence/events`
+- 입력: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
+- 처리:
+  - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
+  - 현재 로컬 하네스에서는 `local-financial-glossary` 번역기를 사용한다.
+  - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
+- 출력 핵심 필드:
+  - `alert_id`, `stock_code`, `news_disclosure_type`
+  - `original_title`, `translated_title`
+  - `summary`, `translated_summary`
+  - `sentiment`, `importance`, `event_tag`, `event_tags`
+  - `is_holder_target`, `is_watchlist_target`
+  - `translation_provider`, `translation_status`
+  - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
+
+## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
+- endpoint: `POST /api/v1/tax/refund-status`
+- 입력: 투자자 ID, 거주지 국가, 과세연도, OCR/위변조 검증 완료 서류, 배당·매도 거래 원장.
+- CASE_01 판정:
+  - 거주지 국가가 `HK`
+  - 모든 거래가 상장주식 장내거래
+  - 직전 5년 및 당해 지분율 입력값이 25% 미만
+  - 거주자증명서와 제한세율신청서가 모두 `VERIFIED`, OCR 신뢰도 0.8 이상, 위변조 위험 0.2 이하
+- 환급 계산:
+  - 배당 환급 = 총 배당금 × 7%
+  - 양도세 환급 = `min(총 매도지급액 × 11%, 양도차익 × 22%)`
+  - 최종 환급 가능액 = `min(총 기납부 원천세, 배당 환급 + 양도세 환급)`
+  - 즉시 선지급 수수료 = 환급 가능액 × `instant_payout_fee_rate`
+- 출력 핵심 필드:
+  - `tax_case_type`
+  - `total_withheld_tax`
+  - `eligible_refund_amount`
+  - `instant_payout_fee_rate`
+  - `instant_payout_amount`
+  - `compliance_sandbox_flag`
+  - `clawback_required_if_rejected`
+
+## 하네스 보강
+- `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
+- 주문 하네스는 외국인 한도 경고, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
+- 인텔리전스 하네스는 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, 데이터 출처를 검증한다.
+- 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그를 검증한다.

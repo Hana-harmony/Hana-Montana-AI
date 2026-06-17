@@ -5,6 +5,15 @@ from pydantic import BaseModel, Field, HttpUrl
 SourceType = Literal["NEWS", "DISCLOSURE"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
+PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
+YesNoFlag = Literal["Y", "N"]
+ViActivationStatus = YesNoFlag
+TradingSessionStatus = Literal["REGULAR", "SINGLE_PRICE", "PRE_OPEN", "CLOSED"]
+TaxCaseType = Literal["CASE_01", "CASE_REVIEW_REQUIRED"]
+DocumentType = Literal["RESIDENCE_CERTIFICATE", "TREATY_APPLICATION", "PASSPORT", "OTHER"]
+DocumentVerificationStatus = Literal["VERIFIED", "PENDING", "REJECTED"]
+TaxTransactionType = Literal["DIVIDEND", "SELL"]
 
 
 class StockCandidate(BaseModel):
@@ -36,3 +45,129 @@ class AlertAnalysisResponse(BaseModel):
     watchlist_target: bool
     duplicate_key: str
     model_version: str
+
+
+class StockOrderStatusRequest(BaseModel):
+    stock_code: str = Field(pattern=r"^\d{6}$")
+    stock_name: str = Field(min_length=1, max_length=80)
+    stock_name_en: str = Field(default="", max_length=120)
+    market: MarketType = "KOSPI"
+    issued_shares: int = Field(gt=0)
+    foreign_owned_quantity: int = Field(ge=0)
+    foreign_limit_rate: float = Field(default=100.0, ge=0.0, le=100.0)
+    foreign_limit_quantity: int | None = Field(default=None, ge=0)
+    intraday_foreign_net_buy_quantity: int = 0
+    prediction_confidence_interval_percent: float = Field(default=0.04, ge=0.0, le=10.0)
+    current_price: int = Field(ge=0)
+    previous_close_price: int = Field(ge=0)
+    upper_limit_price: int = Field(ge=0)
+    lower_limit_price: int = Field(ge=0)
+    dynamic_vi_activated: bool = False
+    static_vi_activated: bool = False
+    trading_session_status: TradingSessionStatus = "REGULAR"
+    base_currency: str = Field(default="KRW", min_length=3, max_length=3)
+    local_currency: str = Field(default="KRW", min_length=3, max_length=3)
+    local_fx_rate: float = Field(default=1.0, gt=0.0)
+
+
+class StockOrderStatusResponse(BaseModel):
+    stock_code: str
+    stock_name: str
+    stock_name_en: str
+    market: MarketType
+    issued_shares: int
+    current_price: int
+    previous_close_price: int
+    upper_limit_price: int
+    lower_limit_price: int
+    local_currency: str
+    local_current_price: float
+    foreign_owned_quantity: int
+    foreign_limit_quantity: int
+    foreign_ownership_rate: float
+    foreign_limit_exhaustion_rate: float
+    fx_predicted_rate_min: float
+    fx_predicted_rate_max: float
+    foreign_limit_warning: bool
+    vi_activation_status: ViActivationStatus
+    vi_activation_reason: list[str]
+    price_limit_status: PriceLimitStatus
+    immediate_execution_available: bool
+    order_guidance_message: str
+    data_source: str
+
+
+class IntelligenceEventRequest(AlertAnalysisRequest):
+    target_language: Literal["en"] = "en"
+    provider: str = Field(default="", max_length=80)
+    published_at: str = Field(default="", max_length=80)
+
+
+class IntelligenceEventResponse(BaseModel):
+    alert_id: str
+    stock_code: str | None
+    stock_name: str | None
+    news_disclosure_type: SourceType
+    original_title: str
+    translated_title: str
+    summary: str
+    translated_summary: str
+    sentiment: Sentiment
+    importance: Importance
+    event_tag: str
+    event_tags: list[str]
+    related_stocks: list[str]
+    is_holder_target: bool
+    is_watchlist_target: bool
+    original_url: HttpUrl
+    provider: str
+    published_at: str
+    translation_provider: str
+    translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
+    model_version: str
+    data_source: str
+
+
+class TaxDocumentInput(BaseModel):
+    document_type: DocumentType
+    file_name: str = Field(min_length=1, max_length=180)
+    verification_status: DocumentVerificationStatus
+    ocr_confidence: float = Field(ge=0.0, le=1.0)
+    fraud_risk_score: float = Field(ge=0.0, le=1.0)
+
+
+class TaxTransactionInput(BaseModel):
+    transaction_type: TaxTransactionType
+    gross_dividend_amount: int = Field(default=0, ge=0)
+    sell_proceeds: int = Field(default=0, ge=0)
+    capital_gain: int = 0
+    withheld_tax: int = Field(default=0, ge=0)
+    listed_market_trade: bool = True
+    ownership_rate_percent: float = Field(default=0.0, ge=0.0, le=100.0)
+
+
+class TaxRefundStatusRequest(BaseModel):
+    investor_id: str = Field(min_length=1, max_length=80)
+    tax_residency_country: str = Field(default="HK", min_length=2, max_length=2)
+    tax_year: str = Field(min_length=4, max_length=20)
+    documents: list[TaxDocumentInput] = Field(default_factory=list, max_length=20)
+    transactions: list[TaxTransactionInput] = Field(default_factory=list, max_length=500)
+    instant_payout_requested: bool = True
+    instant_payout_fee_rate: float = Field(default=3.0, ge=0.0, le=30.0)
+
+
+class TaxRefundStatusResponse(BaseModel):
+    investor_id: str
+    tax_case_type: TaxCaseType
+    document_verification_status: DocumentVerificationStatus
+    required_documents_completed: bool
+    total_withheld_tax: int
+    dividend_refund_amount: int
+    capital_gains_refund_amount: int
+    eligible_refund_amount: int
+    instant_payout_fee_rate: float
+    instant_payout_fee_amount: int
+    instant_payout_amount: int
+    compliance_sandbox_flag: YesNoFlag
+    clawback_required_if_rejected: bool
+    review_message: str

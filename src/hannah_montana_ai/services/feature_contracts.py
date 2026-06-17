@@ -1,0 +1,347 @@
+from __future__ import annotations
+
+import html
+from hashlib import sha256
+from typing import Literal
+
+from hannah_montana_ai.domain.schemas import (
+    AlertAnalysisRequest,
+    IntelligenceEventRequest,
+    IntelligenceEventResponse,
+    PriceLimitStatus,
+    StockOrderStatusRequest,
+    StockOrderStatusResponse,
+    TaxCaseType,
+    TaxRefundStatusRequest,
+    TaxRefundStatusResponse,
+)
+from hannah_montana_ai.services.analyzer import AlertAnalyzer
+
+FOREIGN_LIMIT_WARNING_BUFFER_PERCENT = 1.0
+DIVIDEND_DOMESTIC_WITHHOLDING_RATE = 0.22
+DIVIDEND_TREATY_LIMIT_RATE = 0.15
+CAPITAL_GAINS_SELL_PROCEEDS_RATE = 0.11
+CAPITAL_GAINS_PROFIT_RATE = 0.22
+CASE_01_MAX_OWNERSHIP_RATE = 25.0
+
+FINANCIAL_TRANSLATION_TERMS = {
+    "삼성전자": "Samsung Electronics",
+    "SK하이닉스": "SK hynix",
+    "한화시스템": "Hanwha Systems",
+    "코웨이": "Coway",
+    "젠큐릭스": "Gencurix",
+    "공시": "disclosure",
+    "뉴스": "news",
+    "실적": "earnings",
+    "영업이익": "operating profit",
+    "증가": "increase",
+    "감소": "decrease",
+    "공급계약": "supply contract",
+    "수주": "order win",
+    "상장폐지": "delisting",
+    "거래정지": "trading halt",
+    "유상증자": "paid-in capital increase",
+    "배당": "dividend",
+    "주가": "stock price",
+    "외국인": "foreign investor",
+    "환급": "refund",
+}
+
+
+class StockOrderStatusService:
+    def build_response(self, request: StockOrderStatusRequest) -> StockOrderStatusResponse:
+        foreign_limit_quantity = request.foreign_limit_quantity or round(
+            request.issued_shares * request.foreign_limit_rate / 100
+        )
+        foreign_ownership_rate = _rate(
+            request.foreign_owned_quantity,
+            request.issued_shares,
+        )
+        foreign_limit_exhaustion_rate = _rate(
+            request.foreign_owned_quantity,
+            foreign_limit_quantity,
+        )
+        predicted_center = _rate(
+            request.foreign_owned_quantity + request.intraday_foreign_net_buy_quantity,
+            request.issued_shares,
+        )
+        predicted_min = max(
+            0.0,
+            predicted_center - request.prediction_confidence_interval_percent,
+        )
+        predicted_max = min(
+            request.foreign_limit_rate,
+            predicted_center + request.prediction_confidence_interval_percent,
+        )
+        vi_reasons = _vi_reasons(request)
+        price_limit_status = _price_limit_status(request)
+        immediate_execution_available = (
+            not vi_reasons
+            and price_limit_status == "NORMAL"
+            and request.trading_session_status == "REGULAR"
+        )
+
+        return StockOrderStatusResponse(
+            stock_code=request.stock_code,
+            stock_name=request.stock_name,
+            stock_name_en=request.stock_name_en,
+            market=request.market,
+            issued_shares=request.issued_shares,
+            current_price=request.current_price,
+            previous_close_price=request.previous_close_price,
+            upper_limit_price=request.upper_limit_price,
+            lower_limit_price=request.lower_limit_price,
+            local_currency=request.local_currency,
+            local_current_price=round(request.current_price * request.local_fx_rate, 4),
+            foreign_owned_quantity=request.foreign_owned_quantity,
+            foreign_limit_quantity=foreign_limit_quantity,
+            foreign_ownership_rate=round(foreign_ownership_rate, 4),
+            foreign_limit_exhaustion_rate=round(foreign_limit_exhaustion_rate, 4),
+            fx_predicted_rate_min=round(predicted_min, 4),
+            fx_predicted_rate_max=round(predicted_max, 4),
+            foreign_limit_warning=(
+                predicted_max >= request.foreign_limit_rate - FOREIGN_LIMIT_WARNING_BUFFER_PERCENT
+            ),
+            vi_activation_status="Y" if vi_reasons else "N",
+            vi_activation_reason=vi_reasons,
+            price_limit_status=price_limit_status,
+            immediate_execution_available=immediate_execution_available,
+            order_guidance_message=_order_guidance_message(
+                vi_reasons,
+                price_limit_status,
+                immediate_execution_available,
+            ),
+            data_source="KIS/KRX/PredictEngine",
+        )
+
+
+class IntelligenceEventService:
+    def __init__(self, analyzer: AlertAnalyzer) -> None:
+        self._analyzer = analyzer
+
+    def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
+        analysis_request = AlertAnalysisRequest(
+            source_type=request.source_type,
+            title=request.title,
+            snippet=request.snippet,
+            original_url=request.original_url,
+            stock_universe=request.stock_universe,
+        )
+        analysis = self._analyzer.analyze(analysis_request)
+        translated_title = translate_financial_korean_to_english(request.title)
+        translated_summary = translate_financial_korean_to_english(analysis.summary)
+        translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"] = (
+            "TRANSLATED"
+            if translated_title != html.unescape(request.title)
+            or translated_summary != html.unescape(analysis.summary)
+            else "SOURCE_LANGUAGE_FALLBACK"
+        )
+
+        return IntelligenceEventResponse(
+            alert_id=_alert_id(request),
+            stock_code=analysis.stock_code,
+            stock_name=analysis.stock_name,
+            news_disclosure_type=request.source_type,
+            original_title=request.title,
+            translated_title=translated_title,
+            summary=analysis.summary,
+            translated_summary=translated_summary,
+            sentiment=analysis.sentiment,
+            importance=analysis.importance,
+            event_tag=analysis.event_tags[0],
+            event_tags=analysis.event_tags,
+            related_stocks=analysis.related_stocks,
+            is_holder_target=analysis.holder_target,
+            is_watchlist_target=analysis.watchlist_target,
+            original_url=request.original_url,
+            provider=request.provider,
+            published_at=request.published_at,
+            translation_provider="local-financial-glossary",
+            translation_status=translation_status,
+            model_version=analysis.model_version,
+            data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter",
+        )
+
+
+class TaxRefundStatusService:
+    def build_response(self, request: TaxRefundStatusRequest) -> TaxRefundStatusResponse:
+        required_documents_completed = _required_documents_completed(request)
+        document_status: Literal["VERIFIED", "PENDING"] = (
+            "VERIFIED" if required_documents_completed else "PENDING"
+        )
+        tax_case_type = _tax_case_type(request)
+        total_withheld_tax = sum(transaction.withheld_tax for transaction in request.transactions)
+        eligible_for_refund = required_documents_completed and tax_case_type == "CASE_01"
+        dividend_refund_amount = (
+            _dividend_refund_amount(request) if eligible_for_refund else 0
+        )
+        capital_gains_refund_amount = (
+            _capital_gains_refund_amount(request) if eligible_for_refund else 0
+        )
+        eligible_refund_amount = min(
+            total_withheld_tax,
+            dividend_refund_amount + capital_gains_refund_amount,
+        )
+        instant_payout_fee_amount = (
+            round(eligible_refund_amount * request.instant_payout_fee_rate / 100)
+            if request.instant_payout_requested
+            else 0
+        )
+        instant_payout_amount = max(0, eligible_refund_amount - instant_payout_fee_amount)
+        compliance_sandbox_flag: Literal["Y", "N"] = (
+            "Y"
+            if request.instant_payout_requested
+            and eligible_refund_amount > 0
+            and tax_case_type == "CASE_01"
+            else "N"
+        )
+
+        return TaxRefundStatusResponse(
+            investor_id=request.investor_id,
+            tax_case_type=tax_case_type,
+            document_verification_status=document_status,
+            required_documents_completed=required_documents_completed,
+            total_withheld_tax=total_withheld_tax,
+            dividend_refund_amount=dividend_refund_amount,
+            capital_gains_refund_amount=capital_gains_refund_amount,
+            eligible_refund_amount=eligible_refund_amount,
+            instant_payout_fee_rate=round(request.instant_payout_fee_rate, 2),
+            instant_payout_fee_amount=instant_payout_fee_amount,
+            instant_payout_amount=instant_payout_amount,
+            compliance_sandbox_flag=compliance_sandbox_flag,
+            clawback_required_if_rejected=compliance_sandbox_flag == "Y",
+            review_message=_tax_review_message(
+                required_documents_completed,
+                tax_case_type,
+                eligible_refund_amount,
+            ),
+        )
+
+
+def translate_financial_korean_to_english(text: str) -> str:
+    translated = html.unescape(text)
+    for korean, english in FINANCIAL_TRANSLATION_TERMS.items():
+        translated = translated.replace(korean, english)
+    return " ".join(translated.split())
+
+
+def _rate(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return numerator / denominator * 100
+
+
+def _vi_reasons(request: StockOrderStatusRequest) -> list[str]:
+    reasons: list[str] = []
+    if request.dynamic_vi_activated:
+        reasons.append("DYNAMIC_VI")
+    if request.static_vi_activated:
+        reasons.append("STATIC_VI")
+    if request.trading_session_status == "SINGLE_PRICE":
+        reasons.append("SINGLE_PRICE_SESSION")
+    return reasons
+
+
+def _price_limit_status(request: StockOrderStatusRequest) -> PriceLimitStatus:
+    if request.upper_limit_price and request.current_price >= request.upper_limit_price:
+        return "UPPER"
+    if request.lower_limit_price and request.current_price <= request.lower_limit_price:
+        return "LOWER"
+    return "NORMAL"
+
+
+def _order_guidance_message(
+    vi_reasons: list[str],
+    price_limit_status: PriceLimitStatus,
+    immediate_execution_available: bool,
+) -> str:
+    if vi_reasons:
+        return (
+            "해당 종목은 현재 변동성 완화장치(VI) 또는 단일가 매매 상태로 "
+            "실시간 즉시 체결이 제한될 수 있습니다."
+        )
+    if price_limit_status == "UPPER":
+        return "현재 상한가 도달 상태로 매수 주문 체결이 지연되거나 불가능할 수 있습니다."
+    if price_limit_status == "LOWER":
+        return "현재 하한가 도달 상태로 매도 주문 체결이 지연되거나 불가능할 수 있습니다."
+    if immediate_execution_available:
+        return "정규장 기준 실시간 즉시 체결 가능 상태입니다."
+    return "현재 거래 세션 상태를 확인해야 합니다."
+
+
+def _alert_id(request: IntelligenceEventRequest) -> str:
+    payload = (
+        f"{request.source_type}:{request.title}:"
+        f"{request.original_url}:{request.target_language}"
+    )
+    return sha256(payload.encode()).hexdigest()
+
+
+def _required_documents_completed(request: TaxRefundStatusRequest) -> bool:
+    required_types = {"RESIDENCE_CERTIFICATE", "TREATY_APPLICATION"}
+    verified_types = {
+        document.document_type
+        for document in request.documents
+        if document.verification_status == "VERIFIED"
+        and document.ocr_confidence >= 0.8
+        and document.fraud_risk_score <= 0.2
+    }
+    return required_types.issubset(verified_types)
+
+
+def _tax_case_type(request: TaxRefundStatusRequest) -> TaxCaseType:
+    if request.tax_residency_country != "HK":
+        return "CASE_REVIEW_REQUIRED"
+    if any(not transaction.listed_market_trade for transaction in request.transactions):
+        return "CASE_REVIEW_REQUIRED"
+    max_ownership_rate = max(
+        (transaction.ownership_rate_percent for transaction in request.transactions),
+        default=0.0,
+    )
+    if max_ownership_rate >= CASE_01_MAX_OWNERSHIP_RATE:
+        return "CASE_REVIEW_REQUIRED"
+    return "CASE_01"
+
+
+def _dividend_refund_amount(request: TaxRefundStatusRequest) -> int:
+    gross_dividend = sum(
+        transaction.gross_dividend_amount
+        for transaction in request.transactions
+        if transaction.transaction_type == "DIVIDEND"
+    )
+    return round(
+        gross_dividend * (DIVIDEND_DOMESTIC_WITHHOLDING_RATE - DIVIDEND_TREATY_LIMIT_RATE)
+    )
+
+
+def _capital_gains_refund_amount(request: TaxRefundStatusRequest) -> int:
+    sell_proceeds = sum(
+        transaction.sell_proceeds
+        for transaction in request.transactions
+        if transaction.transaction_type == "SELL"
+    )
+    capital_gain = sum(
+        max(0, transaction.capital_gain)
+        for transaction in request.transactions
+        if transaction.transaction_type == "SELL"
+    )
+    return round(
+        min(
+            sell_proceeds * CAPITAL_GAINS_SELL_PROCEEDS_RATE,
+            capital_gain * CAPITAL_GAINS_PROFIT_RATE,
+        )
+    )
+
+
+def _tax_review_message(
+    required_documents_completed: bool,
+    tax_case_type: TaxCaseType,
+    eligible_refund_amount: int,
+) -> str:
+    if not required_documents_completed:
+        return "거주자증명서와 제한세율신청서 검증 완료 후 환급 가능 금액을 확정합니다."
+    if tax_case_type != "CASE_01":
+        return "상장주식 장내거래 및 25% 미만 지분율 조건을 추가 검토해야 합니다."
+    if eligible_refund_amount <= 0:
+        return "현재 선지급 가능한 환급금이 없습니다."
+    return "CASE_01 요건을 충족하여 샌드박스 선지급 가능 상태입니다."

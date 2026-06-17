@@ -753,3 +753,9 @@
 - 배치 row는 쿼리 종목, 모델 예측 종목, 이벤트·감성·중요도 confidence, 추후 검수용 `final_*` 필드를 함께 기록한다.
 - `reports/live-news-evaluation-report.json`은 provider status, emitted row 수, 종목 매칭률, 예측 라벨 분포를 기록한다.
 - 이 배치는 라벨 없는 smoke/drift 점검용이며 사람이 `final_*` 라벨을 채우기 전까지 F1이나 supervised gold로 취급하지 않는다.
+
+## 2026-06-17 - 기능정의서 기반 API 계약 하네스 추가
+- 국내주식 주문 상태 API가 외국인 보유율, 한도소진율, 예측 지분율 바운더리, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
+- 뉴스·공시 인텔리전스 이벤트 API가 기존 NLP 분석 결과에 번역 제목·요약과 WebSocket 이벤트용 필드를 패킹한다.
+- 세무 환급 API가 홍콩 투자자 CASE_01, 서류 검증 상태, 배당 7% 환급, 양도세 환급, 3% 선지급 수수료, 사후 환수 플래그를 계산한다.
+- `tests/test_feature_definition_contracts.py`로 기능정의서의 세 도메인 JSON 계약을 회귀 테스트에 포함했다.
