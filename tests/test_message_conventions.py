@@ -27,10 +27,31 @@ def test_pr_body_requires_korean_template_fields() -> None:
 - 롤백 방법: 검사 단계 제거
 - 체크리스트:
   - [x] CI 통과
+  - [x] 보안/민감정보 점검
+  - [x] 문서 업데이트
 """
 
     assert _validate_pr_body("## Summary\n- add checks")
     assert _validate_pr_body(body) == []
+
+
+def test_pr_body_rejects_empty_template_placeholders() -> None:
+    empty_template = """
+- 배경:
+- 변경 사항:
+- 검증 결과:
+- 영향 범위:
+- 롤백 방법:
+- 체크리스트:
+  - [ ] CI 통과
+  - [ ] 보안/민감정보 점검
+  - [ ] 문서 업데이트
+"""
+
+    errors = _validate_pr_body(empty_template)
+
+    assert "PR 본문 템플릿 항목 내용 누락: - 배경:" in errors
+    assert "PR 본문 템플릿 항목 내용 누락: - 변경 사항:" in errors
 
 
 def test_commit_subject_requires_conventional_commit_and_korean_title() -> None:

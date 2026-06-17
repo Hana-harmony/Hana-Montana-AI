@@ -31,6 +31,11 @@ PR_TEMPLATE_REQUIRED_FIELDS = (
     "- 롤백 방법:",
     "- 체크리스트:",
 )
+PR_CHECKLIST_REQUIRED_ITEMS = (
+    "CI 통과",
+    "보안/민감정보 점검",
+    "문서 업데이트",
+)
 
 
 def main() -> None:
@@ -87,7 +92,27 @@ def _validate_pr_body(body: str) -> list[str]:
     for field in PR_TEMPLATE_REQUIRED_FIELDS:
         if field not in normalized:
             errors.append(f"PR 본문 템플릿 항목 누락: {field}")
+        elif field != "- 체크리스트:" and not _field_has_content(normalized, field):
+            errors.append(f"PR 본문 템플릿 항목 내용 누락: {field}")
+    for item in PR_CHECKLIST_REQUIRED_ITEMS:
+        if not re.search(rf"- \[[ xX]\] {re.escape(item)}", normalized):
+            errors.append(f"PR 체크리스트 항목 누락: {item}")
     return errors
+
+
+def _field_has_content(body: str, field: str) -> bool:
+    start = body.find(field)
+    if start < 0:
+        return False
+    content_start = start + len(field)
+    following_starts = [
+        position
+        for other_field in PR_TEMPLATE_REQUIRED_FIELDS
+        if other_field != field
+        if (position := body.find(other_field, content_start)) >= 0
+    ]
+    content_end = min(following_starts) if following_starts else len(body)
+    return bool(body[content_start:content_end].strip())
 
 
 def _validate_commit_subject(subject: str) -> str:

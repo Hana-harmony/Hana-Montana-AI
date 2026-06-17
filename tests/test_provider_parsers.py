@@ -1,16 +1,22 @@
 import pytest
 
+from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.domain.schemas import TaxRefundStatusRequest
 from hannah_montana_ai.services.feature_contracts import (
+    IntelligenceEventService,
     StockOrderStatusService,
     TaxRefundStatusService,
 )
 from hannah_montana_ai.services.provider_parsers import (
     ProviderParseError,
+    build_intelligence_event_request,
+    build_omnilens_websocket_event,
     build_stock_order_status_request,
     parse_kis_master_csv,
     parse_kis_realtime_packet,
     parse_krx_foreign_holding_row,
+    parse_naver_news_row,
+    parse_opendart_disclosure_row,
     parse_tax_document_rows,
     parse_tax_transaction_rows,
 )
@@ -138,3 +144,77 @@ def test_tax_provider_parsers_build_tax_refund_model_inputs() -> None:
     assert response.tax_case_type == "CASE_01"
     assert response.eligible_refund_amount == 320_000
     assert response.instant_payout_amount == 310_400
+
+
+def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
+    get_analyzer.cache_clear()
+    record = parse_naver_news_row(
+        {
+            "title": "삼성전자 2분기 영업이익 증가",
+            "description": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+            "originallink": "https://news.example.com/article/005930-earnings",
+            "pubDate": "Wed, 17 Jun 2026 09:00:00 +0900",
+            "provider": "naver-news",
+            "stock_code": "005930",
+            "stock_name": "삼성전자",
+            "stock_name_en": "Samsung Electronics",
+            "aliases": "삼전",
+        }
+    )
+
+    request = build_intelligence_event_request(record)
+    response = IntelligenceEventService(get_analyzer()).build_response(request)
+    websocket_event = build_omnilens_websocket_event(
+        response,
+        partner_id="HK_BROKER",
+    )
+
+    assert record.source_type == "NEWS"
+    assert len(record.duplicate_key) == 64
+    assert request.stock_universe[0].stock_code == "005930"
+    assert response.stock_code == "005930"
+    assert "Samsung Electronics" in response.translated_title
+    assert "EARNINGS" in response.event_tags
+    assert websocket_event["channel"] == "stock:005930"
+    assert websocket_event["partner_id"] == "HK_BROKER"
+    assert websocket_event["alert_id"] == response.alert_id
+    assert websocket_event["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"
+
+
+def test_opendart_provider_parser_builds_disclosure_event_request() -> None:
+    get_analyzer.cache_clear()
+    record = parse_opendart_disclosure_row(
+        {
+            "rcept_no": "20260617000001",
+            "corp_name": "한화시스템",
+            "stock_code": "272210",
+            "stock_name": "한화시스템",
+            "stock_name_en": "Hanwha Systems",
+            "report_nm": "단일판매ㆍ공급계약체결",
+            "rcept_dt": "20260617",
+        }
+    )
+
+    request = build_intelligence_event_request(record)
+    response = IntelligenceEventService(get_analyzer()).build_response(request)
+
+    assert record.source_type == "DISCLOSURE"
+    assert record.provider_event_id == "20260617000001"
+    assert record.original_url.endswith("rcpNo=20260617000001")
+    assert request.provider == "opendart"
+    assert response.news_disclosure_type == "DISCLOSURE"
+    assert response.stock_code == "272210"
+    assert "CONTRACT" in response.event_tags
+
+
+def test_intelligence_provider_parser_rejects_invalid_url() -> None:
+    with pytest.raises(ProviderParseError):
+        parse_naver_news_row(
+            {
+                "title": "삼성전자 영업이익 증가",
+                "description": "실적 개선 기대",
+                "originallink": "javascript:alert(1)",
+                "stock_code": "005930",
+                "stock_name": "삼성전자",
+            }
+        )

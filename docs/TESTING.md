@@ -75,7 +75,8 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - 실시간 Naver 뉴스 표본 배치가 라벨 없는 smoke/drift row와 provider status, confidence 분포를 기록하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 - 기능정의서 기반 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 JSON 계약 검증
-- KIS 종목 마스터, KIS 실시간 패킷, KRX 외국인 보유 row, 세무 서류·거래 row 파싱 검증
+- KIS 종목 마스터, KIS 실시간 패킷, KRX 외국인 보유 row, Naver/OpenDART 인텔리전스 row, 세무 서류·거래 row 파싱 검증
+- 인텔리전스 provider row가 모델 입력, 중복키, 번역·요약 응답, WebSocket 이벤트 패킷으로 연결되는지 검증
 
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 3,609건 supervised 샘플, 1,125건 pseudo-label 샘플, 722건 supervised holdout 검증 결과를 기록한다.

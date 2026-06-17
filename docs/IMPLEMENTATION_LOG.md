@@ -770,3 +770,8 @@
 - KIS 종목 마스터 CSV, KIS 실시간 현재가/VI 패킷, KRX 외국인 보유 row를 주문 상태 모델 입력으로 정규화하는 파서를 추가했다.
 - provider별 종목코드 불일치를 거부해 서로 다른 종목의 시세·외국인 보유 데이터를 합성하지 않도록 했다.
 - MTS 세무 서류 OCR row와 옴니버스 하위 계좌 거래 row를 세무 환급 모델 입력으로 정규화하는 파서를 추가했다.
+
+## 2026-06-17 - 인텔리전스 provider 파서 하네스 추가
+- Naver News Search row와 OpenDART 공시검색 row를 `IntelligenceEventRequest` 입력으로 정규화하는 파서를 추가했다.
+- provider event id, 원문 URL, 종목 후보를 사용해 중복 제거 키를 생성하고 유효하지 않은 원문 URL은 거부한다.
+- 분석·번역 완료 응답을 협력사/종목 단위 Hana OmniLens WebSocket 이벤트 JSON으로 패킹하는 함수를 추가했다.

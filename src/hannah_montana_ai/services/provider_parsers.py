@@ -5,13 +5,19 @@ import html
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from hashlib import sha256
 from io import StringIO
-from typing import Any, cast
+from typing import Any, Literal, cast
+from urllib.parse import urlparse, urlunparse
 
 from hannah_montana_ai.domain.schemas import (
     DocumentType,
     DocumentVerificationStatus,
+    IntelligenceEventRequest,
+    IntelligenceEventResponse,
     MarketType,
+    SourceType,
+    StockCandidate,
     StockOrderStatusRequest,
     TaxDocumentInput,
     TaxTransactionInput,
@@ -52,6 +58,19 @@ class KrxForeignHoldingRecord:
     foreign_ownership_rate: float
     foreign_limit_exhaustion_rate: float
     foreign_limit_quantity: int | None
+
+
+@dataclass(frozen=True)
+class IntelligenceProviderRecord:
+    source_type: SourceType
+    title: str
+    snippet: str
+    original_url: str
+    provider: str
+    published_at: str
+    provider_event_id: str
+    duplicate_key: str
+    stock_universe: list[StockCandidate]
 
 
 def parse_kis_master_csv(payload: str) -> list[KisStockMasterRecord]:
@@ -136,6 +155,107 @@ def build_stock_order_status_request(
     )
 
 
+def parse_naver_news_row(row: Mapping[str, str]) -> IntelligenceProviderRecord:
+    title = _required_text(_first(row, "title", "제목"))
+    snippet = _clean_text(_first(row, "snippet", "description", "요약"))
+    original_url = _required_url(_first(row, "original_url", "originallink", "link", "원문링크"))
+    provider_event_id = _provider_event_id(
+        row,
+        "news_id",
+        "content_hash",
+        "originallink",
+        "link",
+        "original_url",
+    )
+    record = IntelligenceProviderRecord(
+        source_type="NEWS",
+        title=title,
+        snippet=snippet,
+        original_url=original_url,
+        provider=_clean_text(_first(row, "provider", "언론사", default="naver-news")),
+        published_at=_clean_text(_first(row, "published_at", "pubDate", "발행시각")),
+        provider_event_id=provider_event_id,
+        duplicate_key="",
+        stock_universe=_stock_candidates(row),
+    )
+    return _with_duplicate_key(record)
+
+
+def parse_opendart_disclosure_row(row: Mapping[str, str]) -> IntelligenceProviderRecord:
+    receipt_no = _required_text(_first(row, "rcept_no", "접수번호"))
+    title = _required_text(_first(row, "report_nm", "공시제목", "title"))
+    original_url = _clean_text(_first(row, "original_url", "공시링크"))
+    if not original_url:
+        original_url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={receipt_no}"
+    record = IntelligenceProviderRecord(
+        source_type="DISCLOSURE",
+        title=title,
+        snippet=_clean_text(_first(row, "snippet", "corp_name", "회사명")),
+        original_url=_required_url(original_url),
+        provider=_clean_text(_first(row, "provider", default="opendart")),
+        published_at=_clean_text(_first(row, "rcept_dt", "접수일자", "published_at")),
+        provider_event_id=receipt_no,
+        duplicate_key="",
+        stock_universe=_stock_candidates(row),
+    )
+    return _with_duplicate_key(record)
+
+
+def build_intelligence_event_request(
+    record: IntelligenceProviderRecord,
+    *,
+    target_language: Literal["en"] = "en",
+) -> IntelligenceEventRequest:
+    return IntelligenceEventRequest.model_validate(
+        {
+            "source_type": record.source_type,
+            "title": record.title,
+            "snippet": record.snippet,
+            "original_url": record.original_url,
+            "provider": record.provider,
+            "published_at": record.published_at,
+            "target_language": target_language,
+            "stock_universe": record.stock_universe,
+        }
+    )
+
+
+def build_omnilens_websocket_event(
+    response: IntelligenceEventResponse,
+    *,
+    partner_id: str = "",
+    channel: str | None = None,
+) -> dict[str, Any]:
+    delivery_channel = channel or (
+        f"stock:{response.stock_code}" if response.stock_code else "partner:intelligence"
+    )
+    return {
+        "channel": delivery_channel,
+        "partner_id": partner_id,
+        "alert_id": response.alert_id,
+        "stock_code": response.stock_code,
+        "stock_name": response.stock_name,
+        "news_disclosure_type": response.news_disclosure_type,
+        "original_title": response.original_title,
+        "translated_title": response.translated_title,
+        "summary": response.summary,
+        "translated_summary": response.translated_summary,
+        "sentiment": response.sentiment,
+        "importance": response.importance,
+        "event_tag": response.event_tag,
+        "event_tags": response.event_tags,
+        "is_holder_target": response.is_holder_target,
+        "is_watchlist_target": response.is_watchlist_target,
+        "original_url": str(response.original_url),
+        "provider": response.provider,
+        "published_at": response.published_at,
+        "translation_provider": response.translation_provider,
+        "translation_status": response.translation_status,
+        "model_version": response.model_version,
+        "data_source": response.data_source,
+    }
+
+
 def parse_tax_document_rows(rows: Sequence[Mapping[str, str]]) -> list[TaxDocumentInput]:
     return [
         TaxDocumentInput(
@@ -188,6 +308,58 @@ def _mapping_payload(payload: str | Mapping[str, Any]) -> Mapping[str, Any]:
     return payload
 
 
+def _with_duplicate_key(record: IntelligenceProviderRecord) -> IntelligenceProviderRecord:
+    return IntelligenceProviderRecord(
+        source_type=record.source_type,
+        title=record.title,
+        snippet=record.snippet,
+        original_url=record.original_url,
+        provider=record.provider,
+        published_at=record.published_at,
+        provider_event_id=record.provider_event_id,
+        duplicate_key=_intelligence_duplicate_key(record),
+        stock_universe=record.stock_universe,
+    )
+
+
+def _intelligence_duplicate_key(record: IntelligenceProviderRecord) -> str:
+    stock_code = record.stock_universe[0].stock_code if record.stock_universe else "UNKNOWN"
+    source_identity = record.provider_event_id or _canonical_url(record.original_url)
+    raw_key = f"{record.source_type}:{record.provider}:{stock_code}:{source_identity}"
+    return sha256(raw_key.encode("utf-8")).hexdigest()
+
+
+def _provider_event_id(row: Mapping[str, str], *keys: str) -> str:
+    for key in keys:
+        value = _clean_text(row.get(key))
+        if value:
+            return value
+    return ""
+
+
+def _stock_candidates(row: Mapping[str, str]) -> list[StockCandidate]:
+    code = _clean_text(_first(row, "stock_code", "종목코드", "stockCode"))
+    if not code:
+        return []
+    stock_name = _required_text(_first(row, "stock_name", "종목명", "corp_name"))
+    aliases = [
+        alias
+        for alias in (
+            _clean_text(value)
+            for value in _clean_text(_first(row, "aliases", "별칭")).split(",")
+        )
+        if alias
+    ]
+    return [
+        StockCandidate(
+            stock_code=_stock_code(code),
+            stock_name=stock_name,
+            stock_name_en=_clean_text(_first(row, "stock_name_en", "영문명")) or stock_name,
+            aliases=aliases,
+        )
+    ]
+
+
 def _first(row: Mapping[str, Any], *keys: str, default: str = "") -> Any:
     for key in keys:
         value = row.get(key)
@@ -208,6 +380,19 @@ def _required_text(value: Any) -> str:
     if not normalized:
         raise ProviderParseError("필수 텍스트 값이 비어 있음")
     return normalized
+
+
+def _required_url(value: Any) -> str:
+    normalized = _clean_text(value)
+    parsed = urlparse(normalized)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ProviderParseError(f"유효한 URL이 아님: {value}")
+    return normalized
+
+
+def _canonical_url(value: str) -> str:
+    parsed = urlparse(value)
+    return urlunparse((parsed.scheme, parsed.netloc.lower(), parsed.path, "", "", ""))
 
 
 def _clean_text(value: Any) -> str:

@@ -34,6 +34,12 @@
 ## 2. 한국 주식 정보 취득 및 분석
 - endpoint: `POST /api/v1/intelligence/events`
 - 입력: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
+- 파서:
+  - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보를 정규화한다.
+  - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자를 정규화하고 DART 원문 링크를 구성한다.
+  - `build_intelligence_event_request`: provider row를 `IntelligenceEventRequest`로 변환한다.
+  - `build_omnilens_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
+  - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역기를 사용한다.
@@ -79,5 +85,5 @@
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
 - 주문 하네스는 외국인 한도 경고, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
 - provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
-- 인텔리전스 하네스는 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, 데이터 출처를 검증한다.
+- 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, 중복키 생성, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
 - 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.
