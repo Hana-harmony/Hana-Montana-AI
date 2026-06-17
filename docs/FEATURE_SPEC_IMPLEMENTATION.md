@@ -45,7 +45,7 @@
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역기를 사용한다.
   - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
 - 출력 핵심 필드:
-  - `alert_id`, `stock_code`, `news_disclosure_type`
+  - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
   - `summary`, `translated_summary`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
@@ -85,5 +85,5 @@
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
 - 주문 하네스는 외국인 한도 경고, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
 - provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
-- 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, 중복키 생성, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
+- 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, API/WebSocket 중복키 생성, 종목·출처별 중복키 경계, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
 - 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.

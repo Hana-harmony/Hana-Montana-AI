@@ -173,11 +173,13 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert len(record.duplicate_key) == 64
     assert request.stock_universe[0].stock_code == "005930"
     assert response.stock_code == "005930"
+    assert response.duplicate_key
     assert "Samsung Electronics" in response.translated_title
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
     assert websocket_event["partner_id"] == "HK_BROKER"
     assert websocket_event["alert_id"] == response.alert_id
+    assert websocket_event["duplicate_key"] == response.duplicate_key
     assert websocket_event["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"
 
 
@@ -204,7 +206,50 @@ def test_opendart_provider_parser_builds_disclosure_event_request() -> None:
     assert request.provider == "opendart"
     assert response.news_disclosure_type == "DISCLOSURE"
     assert response.stock_code == "272210"
+    assert response.duplicate_key
     assert "CONTRACT" in response.event_tags
+
+
+def test_intelligence_event_duplicate_key_keeps_source_and_stock_boundaries() -> None:
+    get_analyzer.cache_clear()
+    samsung_record = parse_naver_news_row(
+        {
+            "title": "삼성전자 [속보] 영업이익 증가",
+            "description": "실적 개선 기대",
+            "originallink": "https://news.example.com/article/same-title-1",
+            "provider": "naver-news",
+            "stock_code": "005930",
+            "stock_name": "삼성전자",
+        }
+    )
+    hynix_record = parse_naver_news_row(
+        {
+            "title": "SK하이닉스 [속보] 영업이익 증가",
+            "description": "실적 개선 기대",
+            "originallink": "https://news.example.com/article/same-title-2",
+            "provider": "naver-news",
+            "stock_code": "000660",
+            "stock_name": "SK하이닉스",
+        }
+    )
+    disclosure_record = parse_opendart_disclosure_row(
+        {
+            "rcept_no": "20260617000002",
+            "corp_name": "삼성전자",
+            "stock_code": "005930",
+            "report_nm": "삼성전자 [공시] 영업이익 증가",
+        }
+    )
+
+    service = IntelligenceEventService(get_analyzer())
+    samsung_response = service.build_response(build_intelligence_event_request(samsung_record))
+    hynix_response = service.build_response(build_intelligence_event_request(hynix_record))
+    disclosure_response = service.build_response(
+        build_intelligence_event_request(disclosure_record)
+    )
+
+    assert samsung_response.duplicate_key != hynix_response.duplicate_key
+    assert samsung_response.duplicate_key != disclosure_response.duplicate_key
 
 
 def test_intelligence_provider_parser_rejects_invalid_url() -> None:

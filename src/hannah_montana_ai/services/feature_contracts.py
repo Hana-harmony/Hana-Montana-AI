@@ -311,6 +311,7 @@ class IntelligenceEventService:
 
         return IntelligenceEventResponse(
             alert_id=_alert_id(request),
+            duplicate_key=analysis.duplicate_key,
             stock_code=analysis.stock_code,
             stock_name=analysis.stock_name,
             news_disclosure_type=request.source_type,
