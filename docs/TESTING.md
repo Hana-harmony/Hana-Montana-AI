@@ -6,6 +6,7 @@ uv run ruff check .
 uv run mypy
 uv run bandit -c pyproject.toml -r src
 uv run python scripts/verify_secret_hygiene.py
+uv run python scripts/verify_message_conventions.py --pr-title "기능정의서 모델 계약 추가" --pr-body "$(cat .github/PULL_REQUEST_TEMPLATE.md)"
 uv run pytest
 uv run python scripts/build_gold_evaluation_data.py
 uv run python scripts/build_augmented_training_data.py

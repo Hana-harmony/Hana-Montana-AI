@@ -760,3 +760,8 @@
 - 세무 환급 API가 홍콩 투자자 CASE_01, 서류 검증 상태, 배당 7% 환급, 양도세 환급, 3% 선지급 수수료, 사후 환수 플래그를 계산한다.
 - 외국인 지분 boundary, 매매제한 상태, 금융 번역, 세무 환급 선지급 로직을 모델 클래스로 분리하고 각 응답에 model version을 기록한다.
 - `tests/test_feature_definition_contracts.py`로 기능정의서의 세 도메인 JSON 계약을 회귀 테스트에 포함했다.
+
+## 2026-06-17 - PR 및 커밋 메시지 컨벤션 하네스 추가
+- PR 제목·본문 한글 필수 규칙과 PR 템플릿 필드 누락을 검사하는 `verify_message_conventions.py`를 추가했다.
+- PR head 커밋 제목이 Conventional Commit 형식과 한글 제목 규칙을 지키는지 CI에서 검증한다.
+- 메시지 컨벤션 회귀 테스트를 추가해 영어 PR 제목과 영어 커밋 제목을 실패 케이스로 고정했다.
