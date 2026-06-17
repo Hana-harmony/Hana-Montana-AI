@@ -41,13 +41,13 @@ PR_CHECKLIST_REQUIRED_ITEMS = (
 def main() -> None:
     args = _parse_args()
     errors: list[str] = []
+    subjects = _commit_subjects(args.base, args.head) if args.base and args.head else []
 
     if not args.skip_pr:
-        errors.extend(_validate_pr_title(args.pr_title or os.getenv("PR_TITLE", "")))
+        errors.extend(_validate_pr_title(args.pr_title or os.getenv("PR_TITLE", ""), subjects))
         errors.extend(_validate_pr_body(args.pr_body or os.getenv("PR_BODY", "")))
 
-    if args.base and args.head:
-        subjects = _commit_subjects(args.base, args.head)
+    if subjects:
         errors.extend(_validate_commit_subject(subject) for subject in subjects)
 
     errors = [error for error in errors if error]
@@ -70,7 +70,7 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _validate_pr_title(title: str) -> list[str]:
+def _validate_pr_title(title: str, commit_subjects: list[str] | None = None) -> list[str]:
     normalized = title.strip()
     errors: list[str] = []
     if not normalized:
@@ -79,6 +79,11 @@ def _validate_pr_title(title: str) -> list[str]:
         errors.append("PR 제목은 한글을 포함해야 함")
     if _looks_like_english_sentence(normalized):
         errors.append("PR 제목은 영어 문장형으로 작성하면 안 됨")
+    expected_title = _expected_pr_title_from_commits(commit_subjects or [])
+    if expected_title and normalized != expected_title:
+        errors.append(
+            f"PR 제목은 대표 커밋 제목부와 일치해야 함: expected={expected_title}"
+        )
     return errors
 
 
@@ -126,6 +131,15 @@ def _validate_commit_subject(subject: str) -> str:
     if not HANGUL_PATTERN.search(title):
         return f"커밋 제목은 한글을 포함해야 함: {subject}"
     return ""
+
+
+def _expected_pr_title_from_commits(subjects: list[str]) -> str:
+    if len(subjects) != 1:
+        return ""
+    match = COMMIT_SUBJECT_PATTERN.fullmatch(subjects[0].strip())
+    if not match:
+        return ""
+    return match.group("title").strip()
 
 
 def _commit_subjects(base: str, head: str) -> list[str]:

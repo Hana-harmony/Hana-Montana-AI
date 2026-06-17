@@ -18,6 +18,13 @@ def test_pr_title_requires_korean_text() -> None:
     assert _validate_pr_title("기능정의서 모델 계약 추가") == []
 
 
+def test_pr_title_matches_single_commit_title_part() -> None:
+    commit_subjects = ["feat(intelligence): 중복 제거 계약 추가"]
+
+    assert _validate_pr_title("인텔리전스 중복 제거 계약 추가", commit_subjects)
+    assert _validate_pr_title("중복 제거 계약 추가", commit_subjects) == []
+
+
 def test_pr_body_requires_korean_template_fields() -> None:
     body = """
 - 배경: 기능정의서 계약을 CI에서 검증해야 함
