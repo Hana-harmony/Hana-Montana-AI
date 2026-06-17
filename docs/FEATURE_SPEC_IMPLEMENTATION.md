@@ -8,6 +8,11 @@
 ## 1. 한국 주식 주문
 - endpoint: `POST /api/v1/stocks/order-status`
 - 입력: KIS/KRX/PredictEngine에서 동기화된 종목 마스터, 현재가, 상·하한가, VI 플래그, 외국인 보유수량, 외국인 한도율, 장중 외국인 순매수 추정량.
+- 파서:
+  - `parse_kis_master_csv`: KIS 종목 마스터 파일의 종목코드, 국문명, 영문명, 시장, 발행주식수, 상·하한가 기준가를 정규화한다.
+  - `parse_kis_realtime_packet`: KIS 실시간 현재가/VI/단일가 패킷을 정규화한다.
+  - `parse_krx_foreign_holding_row`: KRX 전일 확정 외국인 보유수량, 보유율, 한도소진율을 정규화한다.
+  - `build_stock_order_status_request`: 세 provider row의 종목코드 일치성을 검증하고 모델 입력을 생성한다.
 - 계산:
   - 외국인 보유율 = `foreign_owned_quantity / issued_shares * 100`
   - 외국인 한도소진율 = `foreign_owned_quantity / foreign_limit_quantity * 100`
@@ -45,6 +50,9 @@
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/refund-status`
 - 입력: 투자자 ID, 거주지 국가, 과세연도, OCR/위변조 검증 완료 서류, 배당·매도 거래 원장.
+- 파서:
+  - `parse_tax_document_rows`: MTS 업로드/OCR 결과 row를 서류 검증 모델 입력으로 정규화한다.
+  - `parse_tax_transaction_rows`: 옴니버스 하위 계좌 거래 원장을 배당·매도 세무 거래 입력으로 정규화한다.
 - CASE_01 판정:
   - 거주지 국가가 `HK`
   - 모든 거래가 상장주식 장내거래
@@ -70,5 +78,6 @@
 ## 하네스 보강
 - `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
 - 주문 하네스는 외국인 한도 경고, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
+- provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
 - 인텔리전스 하네스는 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, 데이터 출처를 검증한다.
-- 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그를 검증한다.
+- 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.
