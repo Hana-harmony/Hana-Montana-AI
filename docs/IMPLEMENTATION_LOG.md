@@ -747,3 +747,16 @@
 - `audited_gold_readiness`는 기존 coverage validation을 유지해 사람이 승인한 stock review gold 기준을 별도로 추적한다.
 - 현재 모델은 stock-candidate pseudo coverage 781종목으로 bootstrap service readiness를 `pass`한다.
 - 사람 승인 coverage gold는 아직 0건이라 audited gold readiness는 계속 `fail`이다.
+
+## 2026-06-13 - 실시간 뉴스 smoke/drift 평가 배치 추가
+- `build_live_news_evaluation_batch.py`가 국내주식 universe에서 종목을 랜덤 표본 추출하고 Naver 최신 뉴스로 라벨 없는 운영 표본을 만든다.
+- 배치 row는 쿼리 종목, 모델 예측 종목, 이벤트·감성·중요도 confidence, 추후 검수용 `final_*` 필드를 함께 기록한다.
+- `reports/live-news-evaluation-report.json`은 provider status, emitted row 수, 종목 매칭률, 예측 라벨 분포를 기록한다.
+- 이 배치는 라벨 없는 smoke/drift 점검용이며 사람이 `final_*` 라벨을 채우기 전까지 F1이나 supervised gold로 취급하지 않는다.
+
+## 2026-06-17 - 기능정의서 기반 API 계약 하네스 추가
+- 국내주식 주문 상태 API가 외국인 보유율, 한도소진율, 예측 지분율 바운더리, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
+- 뉴스·공시 인텔리전스 이벤트 API가 기존 NLP 분석 결과에 번역 제목·요약과 WebSocket 이벤트용 필드를 패킹한다.
+- 세무 환급 API가 홍콩 투자자 CASE_01, 서류 검증 상태, 배당 7% 환급, 양도세 환급, 3% 선지급 수수료, 사후 환수 플래그를 계산한다.
+- 외국인 지분 boundary, 매매제한 상태, 금융 번역, 세무 환급 선지급 로직을 모델 클래스로 분리하고 각 응답에 model version을 기록한다.
+- `tests/test_feature_definition_contracts.py`로 기능정의서의 세 도메인 JSON 계약을 회귀 테스트에 포함했다.

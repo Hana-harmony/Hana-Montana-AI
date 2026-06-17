@@ -76,6 +76,7 @@
 - gold coverage validation 리포트: `reports/stock-gold-coverage-validation-report.json`
 - confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - stock candidate quota experiment 리포트: `reports/stock-candidate-quota-experiment.json`
+- 실시간 뉴스 smoke/drift 리포트: `reports/live-news-evaluation-report.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
 - 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
 - gold 승격 리포트: `reports/stock-gold-promotion-report.json`
@@ -111,6 +112,7 @@
 - gold 검수 배치도 `needs_human_review` 상태이며, 사람이 승인하기 전까지 supervised 학습셋이나 evaluation gold로 편입하지 않는다.
 - gold coverage review plan도 `needs_human_review` 상태이며, 장기 검수 순서를 정하는 산출물이지 자동 정답셋이 아니다.
 - coverage active review packet의 모델 제안 라벨과 confidence도 검수 보조 정보이며 자동 정답셋이 아니다.
+- 실시간 뉴스 evaluation batch도 라벨 없는 운영 표본이므로 drift와 confidence 점검에만 쓰고, `final_*` 라벨 승인 전까지 F1이나 supervised gold로 취급하지 않는다.
 - `human_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - coverage packet에서 승격된 gold row는 source review wave/stage/reason과 모델 제안 lineage를 함께 보존한다.
 - coverage validation 리포트는 승격 전 승인 가능 row가 학습 1,500개 종목, 평가 500개 종목, wave별 100개 종목 목표를 채우는지 검사한다.

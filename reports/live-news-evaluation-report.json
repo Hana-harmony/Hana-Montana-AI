@@ -1,0 +1,50 @@
+{
+  "schema_version": "live-news-evaluation-report/v1",
+  "row_schema_version": "live-news-evaluation-row/v1",
+  "generated_at": "2026-06-13T01:42:41.989162+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260612005235",
+  "stock_universe_path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/reference/korea_stock_universe.csv",
+  "output_path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/evaluation/live_news_evaluation_batch.jsonl",
+  "requested_stock_sample_size": 5,
+  "selected_stock_count": 5,
+  "query_count": 25,
+  "raw_collected_count": 22,
+  "emitted_row_count": 10,
+  "provider_status_totals": {
+    "providers": [
+      "naver-news"
+    ],
+    "completed": true,
+    "attempted_requests": 11,
+    "successful_requests": 11,
+    "rate_limited_requests": 0,
+    "failed_requests": 0,
+    "collected_count": 22,
+    "errors": []
+  },
+  "predicted_stock_null_count": 10,
+  "sampled_stock_primary_match_count": 0,
+  "sampled_stock_related_match_count": 7,
+  "sampled_stock_model_match_count": 7,
+  "sampled_stock_model_match_rate": 0.7,
+  "event_top_label_distribution": {
+    "CONTRACT": 5,
+    "MACRO": 2,
+    "RISK": 2,
+    "GENERAL_MARKET": 1
+  },
+  "sentiment_distribution": {
+    "NEUTRAL": 3,
+    "NEGATIVE": 1,
+    "POSITIVE": 6
+  },
+  "importance_distribution": {
+    "MEDIUM": 5,
+    "HIGH": 5
+  },
+  "evaluation_policy": {
+    "status": "unlabeled_live_smoke",
+    "f1_available": false,
+    "description": "실시간 뉴스 배치는 라벨 없는 운영 표본이다. final_* 라벨을 채워 gold로 승격하기 전까지 F1이 아니라 drift, confidence, 종목 매칭 점검에만 쓴다."
+  }
+}

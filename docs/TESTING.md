@@ -24,6 +24,7 @@ uv run python scripts/validate_stock_gold_review_batch.py
 uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
+uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 --max-news-per-query 2 --sample-limit 10
 ```
 
 ## 현재 테스트 범위
@@ -70,7 +71,9 @@ uv run python scripts/train_stock_linker_model.py
 - 모델 confidence calibration report가 평가셋별 확률 calibration과 고신뢰 오답을 결정적으로 기록하는지 검증
 - pseudo-label promotion monitoring report가 distillation·release 리포트와 동기화되어 있고 라벨별 확장 결정을 고정하는지 검증
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
+- 실시간 Naver 뉴스 표본 배치가 라벨 없는 smoke/drift row와 provider status, confidence 분포를 기록하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
+- 기능정의서 기반 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 JSON 계약 검증
 
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 3,609건 supervised 샘플, 1,125건 pseudo-label 샘플, 722건 supervised holdout 검증 결과를 기록한다.
@@ -100,6 +103,7 @@ uv run python scripts/train_stock_linker_model.py
 - `reports/stock-gold-promotion-report.json`은 승인된 검수 row 중 최종 검수 필드를 통과한 row만 학습·평가 gold 출력으로 편입했는지 기록한다.
 - `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
+- `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률을 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
 - 전 종목 실서비스 coverage gate는 현재 `fail`이며, 다음 데이터 확장 PR의 기준선으로 사용한다.
 
 ## 추가 예정
