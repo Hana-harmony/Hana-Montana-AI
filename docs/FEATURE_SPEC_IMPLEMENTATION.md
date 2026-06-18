@@ -74,17 +74,22 @@
   - 배당 환급 = 총 배당금 × 7%
   - 양도세 환급 = `min(총 매도지급액 × 11%, 양도차익 × 22%)`
   - 최종 환급 가능액 = `min(총 기납부 원천세, 배당 환급 + 양도세 환급)`
+  - 국세/지방세 표시용 분해 = 환급 가능액의 10%를 지방세 환급액, 나머지를 국세 환급액으로 패킹
   - 즉시 선지급 수수료 = 환급 가능액 × `instant_payout_fee_rate`
+  - 환급 진행 상태 = 서류 대기, 수동 검토, 환급 없음, 즉시 선지급 가능, 분기 환급 가능 중 하나로 산출
 - 모델:
   - `TaxRefundAdvanceModel`: CASE_01 판정, 서류 검증 gate, 환급 가능액, 선지급액, 사후 환수 플래그 산출
 - 출력 핵심 필드:
   - `tax_case_type`
+  - `tax_year`, `refund_workflow_status`, `government_verification_ref`
   - `total_withheld_tax`
   - `eligible_refund_amount`
+  - `national_tax_refund_amount`, `local_tax_refund_amount`
   - `instant_payout_fee_rate`
   - `instant_payout_amount`
   - `compliance_sandbox_flag`
   - `clawback_required_if_rejected`
+  - `required_next_actions`, `risk_disclosure_message`
   - `tax_model_version`, `document_model_version`
 
 ## 하네스 보강
@@ -92,4 +97,4 @@
 - 주문 하네스는 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 제한 사유, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
 - provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, KRX 외국인 보유 row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
 - 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, API/WebSocket 중복키 생성, 종목·출처별 중복키 경계, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
-- 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.
+- 세무 하네스는 CASE_01 판정, 서류 검증, 배당 7%, 양도세 `min(11%, 22%)`, 국세/지방세 분해, 진행 상태, 다음 조치, 3% 선지급 수수료, 사후 환수 플래그와 세무 provider row 파싱을 검증한다.

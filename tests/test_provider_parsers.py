@@ -188,8 +188,42 @@ def test_tax_provider_parsers_build_tax_refund_model_inputs() -> None:
     )
 
     assert response.tax_case_type == "CASE_01"
+    assert response.refund_workflow_status == "ELIGIBLE_FOR_INSTANT_PAYOUT"
     assert response.eligible_refund_amount == 320_000
+    assert response.national_tax_refund_amount == 288_000
+    assert response.local_tax_refund_amount == 32_000
     assert response.instant_payout_amount == 310_400
+    assert response.required_next_actions == ["CONFIRM_INSTANT_PAYOUT_TERMS"]
+
+
+def test_tax_refund_status_requires_documents_before_workflow_payout() -> None:
+    response = TaxRefundStatusService().build_response(
+        TaxRefundStatusRequest(
+            investor_id="HK_USER_PENDING",
+            tax_residency_country="HK",
+            tax_year="2023-2024",
+            documents=[],
+            transactions=[
+                {
+                    "transaction_type": "DIVIDEND",
+                    "gross_dividend_amount": 1_000_000,
+                    "withheld_tax": 220_000,
+                    "listed_market_trade": True,
+                    "ownership_rate_percent": 0.2,
+                }
+            ],
+            instant_payout_requested=True,
+        )
+    )
+
+    assert response.refund_workflow_status == "DOCUMENTS_PENDING"
+    assert response.eligible_refund_amount == 0
+    assert response.instant_payout_amount == 0
+    assert response.compliance_sandbox_flag == "N"
+    assert response.required_next_actions == [
+        "UPLOAD_RESIDENCE_CERTIFICATE",
+        "UPLOAD_TREATY_APPLICATION",
+    ]
 
 
 def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:

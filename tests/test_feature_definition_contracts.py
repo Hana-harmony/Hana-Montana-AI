@@ -152,17 +152,24 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["investor_id"] == "HK_USER_1234"
+    assert payload["tax_year"] == "2023-2024"
     assert payload["tax_case_type"] == "CASE_01"
+    assert payload["refund_workflow_status"] == "ELIGIBLE_FOR_INSTANT_PAYOUT"
+    assert re.fullmatch(r"TX-[0-9A-F]{10}", payload["government_verification_ref"])
     assert payload["document_verification_status"] == "VERIFIED"
     assert payload["required_documents_completed"] is True
     assert payload["total_withheld_tax"] == 440_000
     assert payload["dividend_refund_amount"] == 70_000
     assert payload["capital_gains_refund_amount"] == 250_000
     assert payload["eligible_refund_amount"] == 320_000
+    assert payload["national_tax_refund_amount"] == 288_000
+    assert payload["local_tax_refund_amount"] == 32_000
     assert payload["instant_payout_fee_rate"] == 3.0
     assert payload["instant_payout_fee_amount"] == 9_600
     assert payload["instant_payout_amount"] == 310_400
     assert payload["compliance_sandbox_flag"] == "Y"
     assert payload["clawback_required_if_rejected"] is True
+    assert payload["required_next_actions"] == ["CONFIRM_INSTANT_PAYOUT_TERMS"]
+    assert "자동 환수" in payload["risk_disclosure_message"]
     assert payload["tax_model_version"] == "hk-treaty-refund-case-engine-v1"
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"

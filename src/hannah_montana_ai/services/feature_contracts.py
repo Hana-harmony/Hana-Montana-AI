@@ -17,6 +17,7 @@ from hannah_montana_ai.domain.schemas import (
     TaxCaseType,
     TaxRefundStatusRequest,
     TaxRefundStatusResponse,
+    TaxRefundWorkflowStatus,
 )
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 
@@ -31,6 +32,7 @@ TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
 TRANSLATION_MODEL_VERSION = "local-financial-glossary-v1"
 TAX_REFUND_MODEL_VERSION = "hk-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
+LOCAL_TAX_REFUND_SHARE = 0.10
 
 FINANCIAL_TRANSLATION_TERMS = {
     "삼성전자": "Samsung Electronics",
@@ -100,15 +102,21 @@ class TranslationPrediction:
 class TaxRefundPrediction:
     tax_case_type: TaxCaseType
     document_status: Literal["VERIFIED", "PENDING"]
+    workflow_status: TaxRefundWorkflowStatus
+    government_verification_ref: str
     required_documents_completed: bool
     total_withheld_tax: int
     dividend_refund_amount: int
     capital_gains_refund_amount: int
     eligible_refund_amount: int
+    national_tax_refund_amount: int
+    local_tax_refund_amount: int
     instant_payout_fee_amount: int
     instant_payout_amount: int
     compliance_sandbox_flag: Literal["Y", "N"]
     clawback_required_if_rejected: bool
+    required_next_actions: list[str]
+    risk_disclosure_message: str
     review_message: str
     tax_model_version: str
     document_model_version: str
@@ -229,6 +237,8 @@ class TaxRefundAdvanceModel:
             total_withheld_tax,
             dividend_refund_amount + capital_gains_refund_amount,
         )
+        local_tax_refund_amount = round(eligible_refund_amount * LOCAL_TAX_REFUND_SHARE)
+        national_tax_refund_amount = max(0, eligible_refund_amount - local_tax_refund_amount)
         instant_payout_fee_amount = (
             round(eligible_refund_amount * request.instant_payout_fee_rate / 100)
             if request.instant_payout_requested
@@ -242,18 +252,35 @@ class TaxRefundAdvanceModel:
             and tax_case_type == "CASE_01"
             else "N"
         )
+        workflow_status = _tax_refund_workflow_status(
+            required_documents_completed,
+            tax_case_type,
+            eligible_refund_amount,
+            request.instant_payout_requested,
+        )
         return TaxRefundPrediction(
             tax_case_type=tax_case_type,
             document_status=document_status,
+            workflow_status=workflow_status,
+            government_verification_ref=_government_verification_ref(request),
             required_documents_completed=required_documents_completed,
             total_withheld_tax=total_withheld_tax,
             dividend_refund_amount=dividend_refund_amount,
             capital_gains_refund_amount=capital_gains_refund_amount,
             eligible_refund_amount=eligible_refund_amount,
+            national_tax_refund_amount=national_tax_refund_amount,
+            local_tax_refund_amount=local_tax_refund_amount,
             instant_payout_fee_amount=instant_payout_fee_amount,
             instant_payout_amount=instant_payout_amount,
             compliance_sandbox_flag=compliance_sandbox_flag,
             clawback_required_if_rejected=compliance_sandbox_flag == "Y",
+            required_next_actions=_tax_required_next_actions(
+                required_documents_completed,
+                tax_case_type,
+                eligible_refund_amount,
+                workflow_status,
+            ),
+            risk_disclosure_message=_tax_risk_disclosure_message(compliance_sandbox_flag),
             review_message=_tax_review_message(
                 required_documents_completed,
                 tax_case_type,
@@ -366,18 +393,25 @@ class TaxRefundStatusService:
         prediction = self._tax_refund_model.predict(request)
         return TaxRefundStatusResponse(
             investor_id=request.investor_id,
+            tax_year=request.tax_year,
             tax_case_type=prediction.tax_case_type,
+            refund_workflow_status=prediction.workflow_status,
+            government_verification_ref=prediction.government_verification_ref,
             document_verification_status=prediction.document_status,
             required_documents_completed=prediction.required_documents_completed,
             total_withheld_tax=prediction.total_withheld_tax,
             dividend_refund_amount=prediction.dividend_refund_amount,
             capital_gains_refund_amount=prediction.capital_gains_refund_amount,
             eligible_refund_amount=prediction.eligible_refund_amount,
+            national_tax_refund_amount=prediction.national_tax_refund_amount,
+            local_tax_refund_amount=prediction.local_tax_refund_amount,
             instant_payout_fee_rate=round(request.instant_payout_fee_rate, 2),
             instant_payout_fee_amount=prediction.instant_payout_fee_amount,
             instant_payout_amount=prediction.instant_payout_amount,
             compliance_sandbox_flag=prediction.compliance_sandbox_flag,
             clawback_required_if_rejected=prediction.clawback_required_if_rejected,
+            required_next_actions=prediction.required_next_actions,
+            risk_disclosure_message=prediction.risk_disclosure_message,
             tax_model_version=prediction.tax_model_version,
             document_model_version=prediction.document_model_version,
             review_message=prediction.review_message,
@@ -541,6 +575,51 @@ def _capital_gains_refund_amount(request: TaxRefundStatusRequest) -> int:
             capital_gain * CAPITAL_GAINS_PROFIT_RATE,
         )
     )
+
+
+def _government_verification_ref(request: TaxRefundStatusRequest) -> str:
+    payload = f"{request.investor_id}:{request.tax_residency_country}:{request.tax_year}"
+    return f"TX-{sha256(payload.encode()).hexdigest()[:10].upper()}"
+
+
+def _tax_refund_workflow_status(
+    required_documents_completed: bool,
+    tax_case_type: TaxCaseType,
+    eligible_refund_amount: int,
+    instant_payout_requested: bool,
+) -> TaxRefundWorkflowStatus:
+    if not required_documents_completed:
+        return "DOCUMENTS_PENDING"
+    if tax_case_type != "CASE_01":
+        return "REVIEW_REQUIRED"
+    if eligible_refund_amount <= 0:
+        return "NO_REFUND_AVAILABLE"
+    if instant_payout_requested:
+        return "ELIGIBLE_FOR_INSTANT_PAYOUT"
+    return "QUARTERLY_REFUND_READY"
+
+
+def _tax_required_next_actions(
+    required_documents_completed: bool,
+    tax_case_type: TaxCaseType,
+    eligible_refund_amount: int,
+    workflow_status: TaxRefundWorkflowStatus,
+) -> list[str]:
+    if not required_documents_completed:
+        return ["UPLOAD_RESIDENCE_CERTIFICATE", "UPLOAD_TREATY_APPLICATION"]
+    if tax_case_type != "CASE_01":
+        return ["MANUAL_TAX_REVIEW_REQUIRED"]
+    if eligible_refund_amount <= 0:
+        return ["WAIT_FOR_ELIGIBLE_TAX_EVENT"]
+    if workflow_status == "ELIGIBLE_FOR_INSTANT_PAYOUT":
+        return ["CONFIRM_INSTANT_PAYOUT_TERMS"]
+    return ["SUBMIT_QUARTERLY_REFUND_BATCH"]
+
+
+def _tax_risk_disclosure_message(compliance_sandbox_flag: Literal["Y", "N"]) -> str:
+    if compliance_sandbox_flag == "Y":
+        return "국세청 검토 결과 면세 자격 거부 시 선지급 금액은 자동 환수될 수 있습니다."
+    return "분기 사후 환급 선택 시 국세청 검토 완료 후 환급금이 확정됩니다."
 
 
 def _tax_review_message(
