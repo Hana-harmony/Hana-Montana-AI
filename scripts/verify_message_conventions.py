@@ -75,14 +75,15 @@ def _validate_pr_title(title: str, commit_subjects: list[str] | None = None) -> 
     errors: list[str] = []
     if not normalized:
         return ["PR 제목이 비어 있음"]
-    if not HANGUL_PATTERN.search(normalized):
-        errors.append("PR 제목은 한글을 포함해야 함")
+    subject_error = _validate_commit_subject(normalized)
+    if subject_error:
+        errors.append(f"PR 제목 형식 오류: {subject_error}")
     if _looks_like_english_sentence(normalized):
         errors.append("PR 제목은 영어 문장형으로 작성하면 안 됨")
     expected_title = _expected_pr_title_from_commits(commit_subjects or [])
     if expected_title and normalized != expected_title:
         errors.append(
-            f"PR 제목은 대표 커밋 제목부와 일치해야 함: expected={expected_title}"
+            f"PR 제목은 대표 커밋 제목과 일치해야 함: expected={expected_title}"
         )
     return errors
 
@@ -136,10 +137,7 @@ def _validate_commit_subject(subject: str) -> str:
 def _expected_pr_title_from_commits(subjects: list[str]) -> str:
     if len(subjects) != 1:
         return ""
-    match = COMMIT_SUBJECT_PATTERN.fullmatch(subjects[0].strip())
-    if not match:
-        return ""
-    return match.group("title").strip()
+    return subjects[0].strip()
 
 
 def _commit_subjects(base: str, head: str) -> list[str]:
