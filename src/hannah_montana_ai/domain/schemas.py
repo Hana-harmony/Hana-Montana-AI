@@ -13,6 +13,13 @@ YesNoFlag = Literal["Y", "N"]
 ViActivationStatus = YesNoFlag
 TradingSessionStatus = Literal["REGULAR", "SINGLE_PRICE", "PRE_OPEN", "CLOSED"]
 TaxCaseType = Literal["CASE_01", "CASE_REVIEW_REQUIRED"]
+TaxRefundWorkflowStatus = Literal[
+    "DOCUMENTS_PENDING",
+    "REVIEW_REQUIRED",
+    "NO_REFUND_AVAILABLE",
+    "ELIGIBLE_FOR_INSTANT_PAYOUT",
+    "QUARTERLY_REFUND_READY",
+]
 DocumentType = Literal["RESIDENCE_CERTIFICATE", "TREATY_APPLICATION", "PASSPORT", "OTHER"]
 DocumentVerificationStatus = Literal["VERIFIED", "PENDING", "REJECTED"]
 TaxTransactionType = Literal["DIVIDEND", "SELL"]
@@ -170,18 +177,25 @@ class TaxRefundStatusRequest(BaseModel):
 
 class TaxRefundStatusResponse(BaseModel):
     investor_id: str
+    tax_year: str
     tax_case_type: TaxCaseType
+    refund_workflow_status: TaxRefundWorkflowStatus
+    government_verification_ref: str
     document_verification_status: DocumentVerificationStatus
     required_documents_completed: bool
     total_withheld_tax: int
     dividend_refund_amount: int
     capital_gains_refund_amount: int
     eligible_refund_amount: int
+    national_tax_refund_amount: int
+    local_tax_refund_amount: int
     instant_payout_fee_rate: float
     instant_payout_fee_amount: int
     instant_payout_amount: int
     compliance_sandbox_flag: YesNoFlag
     clawback_required_if_rejected: bool
+    required_next_actions: list[str]
+    risk_disclosure_message: str
     tax_model_version: str
     document_model_version: str
     review_message: str
