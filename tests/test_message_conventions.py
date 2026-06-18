@@ -15,14 +15,16 @@ _validate_pr_title = verify_message_conventions._validate_pr_title
 
 def test_pr_title_requires_korean_text() -> None:
     assert _validate_pr_title("Add live news evaluation and feature contracts")
-    assert _validate_pr_title("기능정의서 모델 계약 추가") == []
+    assert _validate_pr_title("feat(model): Add live news evaluation batch")
+    assert _validate_pr_title("feat(model): 기능정의서 모델 계약 추가") == []
 
 
-def test_pr_title_matches_single_commit_title_part() -> None:
+def test_pr_title_matches_single_commit_subject_with_prefix() -> None:
     commit_subjects = ["feat(intelligence): 중복 제거 계약 추가"]
 
-    assert _validate_pr_title("인텔리전스 중복 제거 계약 추가", commit_subjects)
-    assert _validate_pr_title("중복 제거 계약 추가", commit_subjects) == []
+    assert _validate_pr_title("중복 제거 계약 추가", commit_subjects)
+    assert _validate_pr_title("feat(parser): 중복 제거 계약 추가", commit_subjects)
+    assert _validate_pr_title("feat(intelligence): 중복 제거 계약 추가", commit_subjects) == []
 
 
 def test_pr_body_requires_korean_template_fields() -> None:
