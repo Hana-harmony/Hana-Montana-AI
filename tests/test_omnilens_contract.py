@@ -75,14 +75,17 @@ def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> N
 
     assert response.status_code == 200
     payload: dict[str, Any] = response.json()
-    assert set(payload) == EXPECTED_RESPONSE_FIELDS
-    assert payload["stock_code"] == "005930"
-    assert payload["stock_name"] == "삼성전자"
-    assert payload["source_type"] == "DISCLOSURE"
-    assert payload["original_title"] == "삼성전자 공급계약 체결 공시"
-    assert "CONTRACT" in payload["event_tags"]
-    assert payload["related_stocks"] == ["005930"]
-    assert isinstance(payload["holder_target"], bool)
-    assert isinstance(payload["watchlist_target"], bool)
-    assert re.fullmatch(r"[0-9a-f]{64}", payload["duplicate_key"])
-    assert payload["model_version"]
+    assert payload["success"] is True
+    assert payload["code"] == "COMMON_000"
+    data = payload["data"]
+    assert set(data) == EXPECTED_RESPONSE_FIELDS
+    assert data["stock_code"] == "005930"
+    assert data["stock_name"] == "삼성전자"
+    assert data["source_type"] == "DISCLOSURE"
+    assert data["original_title"] == "삼성전자 공급계약 체결 공시"
+    assert "CONTRACT" in data["event_tags"]
+    assert data["related_stocks"] == ["005930"]
+    assert isinstance(data["holder_target"], bool)
+    assert isinstance(data["watchlist_target"], bool)
+    assert re.fullmatch(r"[0-9a-f]{64}", data["duplicate_key"])
+    assert data["model_version"]

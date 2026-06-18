@@ -35,9 +35,31 @@ def test_analyze_alert_returns_financial_labels() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["stock_code"] == "005930"
-    assert payload["sentiment"] == "POSITIVE"
-    assert "EARNINGS" in payload["event_tags"]
+    assert payload["success"] is True
+    assert payload["status"] == 200
+    assert payload["code"] == "COMMON_000"
+    assert payload["data"]["stock_code"] == "005930"
+    assert payload["data"]["sentiment"] == "POSITIVE"
+    assert "EARNINGS" in payload["data"]["event_tags"]
+
+
+def test_validation_error_returns_common_error_shape() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "",
+            "original_url": "not-a-url",
+        },
+    )
+
+    assert response.status_code == 422
+    payload = response.json()
+    assert payload["success"] is False
+    assert payload["status"] == 422
+    assert payload["code"] == "COMMON_002"
+    assert payload["errors"]
 
 
 def test_analyze_alert_uses_internal_stock_universe_when_request_candidates_are_empty() -> None:
@@ -59,8 +81,8 @@ def test_analyze_alert_uses_internal_stock_universe_when_request_candidates_are_
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["stock_code"] == "005930"
-    assert payload["stock_name"] == "삼성전자"
+    assert payload["data"]["stock_code"] == "005930"
+    assert payload["data"]["stock_name"] == "삼성전자"
 
 
 def test_analyze_alert_writes_structured_audit_log_without_raw_content(caplog) -> None:
@@ -91,7 +113,7 @@ def test_analyze_alert_writes_structured_audit_log_without_raw_content(caplog) -
     audit_payload = json.loads(caplog.records[-1].message)
     assert audit_payload["event"] == "analysis_audit"
     assert audit_payload["outcome"] == "success"
-    assert audit_payload["model_version"] == response.json()["model_version"]
+    assert audit_payload["model_version"] == response.json()["data"]["model_version"]
     assert audit_payload["stock_code"] == "005930"
     assert audit_payload["latency_ms"] >= 0
     assert "title_hash" in audit_payload
@@ -106,6 +128,16 @@ def test_health_endpoint_is_available() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_openapi_docs_expose_analysis_contract() -> None:
+    client = TestClient(app)
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["info"]["title"] == "Hannah-Montana-AI"
+    assert "/api/v1/alerts/analyze" in payload["paths"]
 
 
 def test_analyze_alert_detects_critical_disclosure_risk() -> None:
@@ -132,10 +164,10 @@ def test_analyze_alert_detects_critical_disclosure_risk() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["stock_code"] == "123456"
-    assert payload["sentiment"] == "NEGATIVE"
-    assert payload["importance"] == "CRITICAL"
-    assert payload["holder_target"] is True
+    assert payload["data"]["stock_code"] == "123456"
+    assert payload["data"]["sentiment"] == "NEGATIVE"
+    assert payload["data"]["importance"] == "CRITICAL"
+    assert payload["data"]["holder_target"] is True
 
 
 def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypatch, caplog) -> None:
@@ -160,7 +192,11 @@ def test_analyze_alert_fails_closed_when_model_artifact_is_unavailable(monkeypat
     )
 
     assert response.status_code == 503
-    assert response.json() == {"detail": "ML model artifact is unavailable"}
+    payload = response.json()
+    assert payload["success"] is False
+    assert payload["status"] == 503
+    assert payload["code"] == "AI_001"
+    assert payload["message"] == "ML model artifact is unavailable"
     audit_payload = json.loads(caplog.records[-1].message)
     assert audit_payload["event"] == "analysis_audit"
     assert audit_payload["outcome"] == "failure"

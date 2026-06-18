@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      context: .
+    container_name: hannah-montana-ai
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)\""
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 20

@@ -1,5 +1,7 @@
 # 구현 로드맵
 
+전체 구현 순서와 단계별 완료 기준은 `docs/IMPLEMENTATION_SEQUENCE.md`를 따른다.
+
 ## M1 분석 계약 안정화
 - Hana-OmniLens-API 연동 계약 고정
 - 분석 API request/response 버전 관리

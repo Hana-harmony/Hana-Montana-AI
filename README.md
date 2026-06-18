@@ -17,6 +17,13 @@ uv run python scripts/verify_secret_hygiene.py
 uv run uvicorn hannah_montana_ai.main:app --reload
 ```
 
+로컬 Docker 실행:
+```bash
+docker compose -f compose.local.yml up --build
+curl http://localhost:8000/health
+curl http://localhost:8000/docs
+```
+
 ## 학습 파이프라인
 ```bash
 uv run python scripts/collect_training_data.py --reuse-existing-raw --max-news-per-query 1000 --dart-days 365 --dart-pages 10
@@ -49,6 +56,9 @@ AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 �
 - [보안](docs/SECURITY.md)
 - [테스트](docs/TESTING.md)
 - [구현 기록](docs/IMPLEMENTATION_LOG.md)
+- [API 표준](docs/API_STANDARD.md)
+- [전체 구현 순서](docs/IMPLEMENTATION_SEQUENCE.md)
 - [모델 카드](docs/MODEL_CARD.md)
+- [기능 분류와 레포 책임](docs/FEATURE_CLASSIFICATION.md)
 - [로드맵](docs/ROADMAP.md)
 - [깃 전략](docs/GIT_STRATEGY.md)

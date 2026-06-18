@@ -1,8 +1,10 @@
 from functools import lru_cache
 from time import perf_counter
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 
+from hannah_montana_ai.api.common import ApiResponse, success_response
+from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
@@ -45,8 +47,17 @@ def get_tax_refund_status_service() -> TaxRefundStatusService:
     return TaxRefundStatusService()
 
 
-@router.post("/alerts/analyze", response_model=AlertAnalysisResponse)
-def analyze_alert(request: AlertAnalysisRequest) -> AlertAnalysisResponse:
+@router.post(
+    "/alerts/analyze",
+    response_model=ApiResponse[AlertAnalysisResponse],
+    summary="Analyze Korean stock news or disclosure alert",
+    responses={
+        422: {"description": "COMMON_002 validation failure"},
+        500: {"description": "COMMON_999 unexpected server error"},
+        503: {"description": "AI_001 model unavailable"},
+    },
+)
+def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisResponse]:
     started_at = perf_counter()
     audit_logger = get_audit_logger()
     try:
@@ -57,9 +68,9 @@ def analyze_alert(request: AlertAnalysisRequest) -> AlertAnalysisResponse:
             latency_ms=_elapsed_ms(started_at),
             failure_reason="model_artifact_unavailable",
         )
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="ML model artifact is unavailable",
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "ML model artifact is unavailable",
         ) from exception
     try:
         response = analyzer.analyze(request)
@@ -76,7 +87,7 @@ def analyze_alert(request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         response=response,
         latency_ms=_elapsed_ms(started_at),
     )
-    return response
+    return success_response(response)
 
 
 @router.post("/stocks/order-status", response_model=StockOrderStatusResponse)
@@ -89,9 +100,9 @@ def build_intelligence_event(request: IntelligenceEventRequest) -> IntelligenceE
     try:
         analyzer = get_analyzer()
     except ModelArtifactError as exception:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="ML model artifact is unavailable",
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "ML model artifact is unavailable",
         ) from exception
     return IntelligenceEventService(analyzer).build_response(request)
 
