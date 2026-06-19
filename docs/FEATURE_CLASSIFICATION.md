@@ -28,5 +28,5 @@
 
 - 기능정의서는 "AI로 번역 및 분석"을 하나의 흐름으로 표현하지만, 현재 설계에서는 분석 모델과 번역 공급자 orchestration을 분리한다.
 - 현재 구현된 AI는 외부 번역 API를 호출하지 않고, 로컬 금융 용어집 기반 번역 보조와 품질 플래그를 제공한다.
-- 종목 매핑, 이벤트 태그, 감성, 중요도는 ML artifact와 내부 stock universe fallback으로 동작하지만, 모델 카드의 audited gold coverage gate가 아직 fail이므로 모델 품질 상태는 별도로 계속 추적한다.
+- 종목 매핑, 이벤트 태그, 감성, 중요도는 ML artifact와 내부 stock universe fallback으로 동작하며, audited gold readiness와 유효 6자리 국내주식 reference coverage는 pass 상태다. 다만 사람 검수 gold 확장은 모델 품질 관리 항목으로 계속 추적한다.
 - 세무 전산화의 OCR/위변조 검증은 외부 OCR 결과와 위변조 signal을 받아 `VERIFIED/PENDING/REJECTED`로 판정하는 내부 모델 API로 구현했다. 실제 문서 원본 저장과 국세청 제출은 외부 백엔드 영역이다.

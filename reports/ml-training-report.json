@@ -1,6 +1,6 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260619093342",
-  "trained_at": "2026-06-19T09:33:42.697354+00:00",
+  "version": "financial-ml-tfidf-logreg-20260619095828",
+  "trained_at": "2026-06-19T09:58:28.773431+00:00",
   "sample_count": 4734,
   "supervised_sample_count": 3609,
   "pseudo_labeled_sample_count": 1125,
@@ -135,10 +135,10 @@
   "supervised_exclusion_report": {
     "policy": "codex_review_approved rows are committed and evaluated as reference coverage data, but are excluded from supervised loss to avoid self-training feedback loops",
     "excluded_count_by_reason": {
-      "codex_review_reference_only": 1500
+      "codex_review_reference_only": 3420
     },
     "excluded_count_by_path": {
-      "data/training/financial_alert_stock_review_gold.jsonl": 1500
+      "data/training/financial_alert_stock_review_gold.jsonl": 3420
     }
   },
   "pseudo_labeling": {

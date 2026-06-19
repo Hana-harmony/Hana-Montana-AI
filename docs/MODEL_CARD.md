@@ -74,6 +74,7 @@
 - gold coverage active review 리포트: `reports/stock-gold-coverage-active-review-report.json`
 - gold coverage promotion 리포트: `reports/stock-gold-coverage-promotion-report.json`
 - gold coverage validation 리포트: `reports/stock-gold-coverage-validation-report.json`
+- full-universe Codex reference coverage 리포트: `reports/full-universe-codex-coverage-report.json`
 - confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - stock candidate quota experiment 리포트: `reports/stock-candidate-quota-experiment.json`
 - 실시간 뉴스 smoke/drift 리포트: `reports/live-news-evaluation-report.json`
@@ -99,13 +100,17 @@
 - coverage active review 학습 wave 수: 13개
 - coverage active review 평가 wave 수: 5개
 - coverage packet 승인 승격 row 수: 학습 1,500건, 평가 500건
+- full-universe Codex reference 보강 row 수: 1,920건
+- 유효 6자리 국내주식 stock review reference coverage 수: 3,920개
+- 유효 6자리 국내주식 stock review reference 누락 수: 0개
 - coverage packet validation 상태: `pass`
 - coverage packet validation 목표: 학습 1,500종목, 평가 500종목, wave별 승인 100종목
 - release service readiness 상태: `pass`
 - audited gold readiness 상태: `pass`
 - 현재 coverage validation 승인 가능 종목 수: 학습 1,500개, 평가 500개
-- supervised/reference 학습 coverage 종목 수: 1,536개
+- supervised/reference 학습 coverage 종목 수: 3,422개
 - evaluation/reference coverage 종목 수: 557개
+- stock review gold train/eval 합집합 기준 유효 6자리 국내주식 coverage 종목 수: 3,920개
 - bootstrap 실서비스 readiness는 현재 `pass`이며, 모델 quality gate와 stock-candidate pseudo coverage 기준을 충족했다.
 - audited gold coverage gate는 현재 `pass`이며, `codex_review_approved` coverage packet이 학습 1,500종목, 평가 500종목, wave별 100종목 기준을 충족한다.
 - 학습 승격 후보 큐는 `needs_human_review` 상태이며, 사람이 검수해 승격하기 전까지 gold label이나 supervised 정답셋으로 취급하지 않는다.
@@ -120,6 +125,7 @@
 - confidence calibration 리포트는 평가셋별 확률 calibration과 고신뢰 오답을 release monitoring 신호로 기록하며 라벨을 생성하거나 승격하지 않는다.
 - 평가와 coverage 스크립트는 승인된 stock review gold 파일을 포함한다.
 - 학습 스크립트는 `codex_review_approved` row를 committed reference/evaluation coverage로 기록하되, 자기 라벨 재주입으로 인한 self-training feedback loop를 막기 위해 supervised loss에서는 제외한다.
+- 현재 `codex_review_approved` reference row 3,420건은 supervised loss에서 제외되고, 전 종목 대응 coverage와 평가/운영 추적용 lineage로만 사용한다.
 - 약지도 라벨은 후보 풀로 유지하고 teacher confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 - 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 검수·균형 corpus만으로 학습한다.
 - 실제 뉴스 학습 gold와 실제 뉴스 평가 gold는 동일 문장을 공유하지 않는다.
@@ -201,7 +207,7 @@
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260619093342`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260619095828`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -219,10 +225,11 @@
 
 ## 한계
 - Naver 뉴스 gold set을 80건으로 확대하고 종목코드 30개를 포함했지만, 분기별 증분 수집과 업종별 샘플 균형은 계속 관리해야 한다.
-- 국내주식 universe 3,967개를 추적하지만 현재 artifact의 supervised 학습 종목 커버리지는 38개라 전 종목급 실서비스 모델로 보기에는 부족하다.
-- raw 후보는 3,613개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 supervised/gold 데이터로 승격하는 것이다.
+- 국내주식 universe 3,967개 중 유효 6자리 숫자 종목코드 3,920개는 stock review reference coverage로 모두 포함한다.
+- 다만 full-universe Codex reference row는 supervised loss에 넣지 않으므로, 실제 종목별 모델 품질은 운영 로그와 사람 검수 gold로 계속 보강해야 한다.
+- raw 후보는 3,613개 종목까지 매칭되므로 다음 단계는 raw 후보를 종목별·라벨별로 검수해 사람이 승인한 supervised/gold 데이터로 승격하는 것이다.
 - 후보 큐는 3,506개 종목을 포함하지만 약지도 기반 검수 대기 데이터이므로 gold label로 직접 사용하지 않는다.
-- coverage review plan은 2,000개 종목의 검수 과제를 만들지만 아직 검수자 승인이 없으므로 supervised coverage gate를 통과시키지 않는다.
+- coverage review plan은 2,000개 종목의 검수 과제였고, 현재 Codex 대리 승인 기준으로 audited readiness는 통과했다.
 - 현재 artifact는 후보 큐 중 781개 종목의 781건만 teacher gate를 통과한 event-model-only pseudo-label로 제한 투입했다.
 - 약지도 라벨은 대규모 bootstrapping 용도이며, teacher confidence gate를 통과한 일부 후보만 artifact 이벤트 모델 학습에 투입한다.
 - 현재 distillation 후보는 supervised teacher가 다시 검증해야 하는 후보 풀이지 최종 정답셋이 아니다.
@@ -234,12 +241,14 @@
 ## 운영 전 필수 보강
 - Naver 뉴스 수집 쿼리 확대와 일 단위 증분 수집
 - `scripts/collect_training_data.py --use-stock-universe-news-queries` 기반 종목 universe 증분 수집
-- `reports/stock-coverage-report.json` 기준 supervised 300개 이상 종목, evaluation 100개 이상 종목 coverage gate 통과
+- `reports/full-universe-codex-coverage-report.json` 기준 유효 6자리 국내주식 reference coverage 누락 0 유지
+- `reports/stock-coverage-report.json` 기준 supervised/reference 3,422개 이상 종목, evaluation/reference 557개 이상 종목 coverage 유지
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`의 사람 검수 승인, 최종 라벨 확정, 정답셋 승격
 - `data/curation/stock_gold_coverage_review_plan.jsonl`의 wave 단위 검수 승인과 stock review gold 증분 승격
 - `data/curation/stock_gold_coverage_active_review_packet.jsonl`의 모델 제안 라벨을 참고한 사람 검수와 최종 라벨 확정
 - `scripts/promote_stock_gold_coverage_review_packet.py` 실행 후 승인된 stock review gold를 포함한 재학습
 - `scripts/validate_stock_gold_coverage_review_packet.py` 기준 coverage packet 승인 gate 통과
+- `scripts/build_full_universe_codex_stock_review_gold.py` 실행 후 full-universe Codex reference coverage 리포트 누락 0 확인
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의
