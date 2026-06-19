@@ -779,6 +779,11 @@
 - `reports/live-news-evaluation-report.json`은 provider status, emitted row 수, 종목 매칭률, 예측 라벨 분포를 기록한다.
 - 이 배치는 라벨 없는 smoke/drift 점검용이며 사람이 `final_*` 라벨을 채우기 전까지 F1이나 supervised gold로 취급하지 않는다.
 
+## 2026-06-20 - 번역 샘플 비교 리포트와 금융 용어집 v2
+- `local-financial-glossary-v2`로 번역 품질 보조 모델 버전을 올리고 실공시 오역 위험이 큰 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 glossary/fallback rule에 추가했다.
+- `build_translation_sample_report.py`가 실제 Naver 뉴스 gold와 OpenDART 공시 gold 표본을 Hannah AI 분석 결과, 로컬 금융용어 번역 보조, glossary, translation quality flag, review finding과 함께 `reports/translation-sample-report.json`으로 기록한다.
+- DeepL/Papago live provider 호출은 Hana-OmniLens-API 책임으로 유지하고, Hannah 리포트는 `external_translation_join_key`로 외부 provider smoke 출력과 비교할 수 있게 했다.
+
 ## 2026-06-17 - 기능정의서 기반 API 계약 하네스 추가
 - 국내주식 주문 상태 API가 외국인 보유율, 한도소진율, 예측 지분율 바운더리, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
 - 뉴스·공시 인텔리전스 이벤트 API가 기존 NLP 분석 결과에 번역 제목·요약과 WebSocket 이벤트용 필드를 패킹한다.

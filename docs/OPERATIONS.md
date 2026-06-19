@@ -53,6 +53,7 @@ uv run python scripts/train_stock_linker_model.py
 uv run python scripts/build_live_news_evaluation_batch.py \
   --stock-sample-size 50 \
   --max-news-per-query 3
+uv run python scripts/build_translation_sample_report.py --sample-limit-per-source 5
 ```
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
 ```bash
@@ -73,6 +74,7 @@ uv run python scripts/collect_training_data.py \
 - `data/raw`, `data/processed`는 학습 재현성에 필요한 데이터이므로 커밋한다.
 - `data/curation/stock_training_candidate_queue.jsonl`은 사람 검수 전 후보 큐이며, 검수 없이 gold label로 승격하지 않는다.
 - `data/curation/stock_gold_training_review_batch.jsonl`와 `data/curation/stock_gold_evaluation_review_batch.jsonl`은 후보 큐에서 뽑은 사람 검수용 배치다.
+- `reports/translation-sample-report.json`은 실제 뉴스·공시 gold 표본의 원문, Hannah 로컬 금융용어 번역 보조, AI 분석 결과, glossary, review finding을 함께 기록한다. DeepL/Papago live provider 결과는 Hana-OmniLens-API smoke 산출물과 `external_translation_join_key`로 조인해 비교한다.
 - 검수 배치는 학습 300개 종목, 평가 100개 종목 목표로 생성하지만 `review_status=needs_human_review`인 동안 supervised/gold 정답셋으로 사용하지 않는다.
 - 사람이 승인한 row는 `review_status=human_review_approved`, Codex 대리 검수 row는 `review_status=codex_review_approved`로 두고 `reviewer_id`, `reviewed_at`, `final_tags`, `final_sentiment`, `final_importance`를 모두 채운 뒤 승격 스크립트를 실행한다.
 - coverage packet은 `scripts/approve_stock_gold_coverage_with_codex.py`로 Codex 대리 승인할 수 있으며, 6자리 숫자 종목코드가 아닌 row는 같은 split/wave의 유효 종목 후보로 backfill한다.

@@ -51,8 +51,10 @@
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
+  - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
   - 실제 DeepL 호출은 Hana-OmniLens-API 어댑터가 담당하며, AI 서비스는 로컬 금융 용어집 번역 보조와 품질 플래그만 생성한다.
+  - `build_translation_sample_report.py`는 실제 뉴스·공시 gold 표본의 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 같은 row에 기록해 DeepL/Papago live smoke 출력과 `external_translation_join_key`로 비교할 수 있게 한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`

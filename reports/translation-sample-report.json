@@ -1,0 +1,672 @@
+{
+  "schema_version": "translation-sample-report/v1",
+  "generated_at": "2026-06-20T00:00:00+00:00",
+  "news_gold_path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+  "disclosure_gold_path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+  "sample_limit_per_source": 5,
+  "sample_count": 10,
+  "summary": {
+    "source_type_counts": {
+      "NEWS": 5,
+      "DISCLOSURE": 5
+    },
+    "translation_status_counts": {
+      "TRANSLATED": 10
+    },
+    "quality_flag_counts": {
+      "FINANCIAL_GLOSSARY_APPLIED": 10
+    },
+    "review_finding_counts": {
+      "SENTIMENT_REVIEW_REQUIRED": 1
+    },
+    "glossary_applied_count": 10,
+    "ai_analysis_clean_match_count": 9
+  },
+  "external_translation_boundary": {
+    "deepl": "Hana-OmniLens-API live adapter",
+    "papago": "legacy provider, not called by Hannah-Montana-AI",
+    "join_key": "external_translation_join_key"
+  },
+  "rows": [
+    {
+      "sample_id": "9f3b6fff3f734f9262d3ad37745be4c0c6d0e4ce1a49d5c371400535fdd0b83a",
+      "external_translation_join_key": "9f3b6fff3f734f9262d3ad37745be4c0c6d0e4ce1a49d5c371400535fdd0b83a",
+      "source_type": "NEWS",
+      "provider": "naver-news",
+      "original_url": "http://weekly.chosun.com/news/articleView.html?idxno=52171",
+      "original_text": "\"한국 증시 아직 싸다\"…골드만삭스, 코스피 1만2000 베팅",
+      "expected": {
+        "tags": [
+          "GENERAL_MARKET"
+        ],
+        "sentiment": "POSITIVE",
+        "importance": "MEDIUM",
+        "stock_code": null,
+        "stock_name": null,
+        "review_note": "실제 Naver News Search 수집 제목. 한국 증시 목표와 투자심리 뉴스."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "\"Korean stock market 아직 싸다\"…골드만삭스, KOSPI 1만2000 베팅",
+        "translated_summary": "\"Korean stock market 아직 싸다\"…골드만삭스, KOSPI 1만2000 베팅.",
+        "glossary_terms": [
+          {
+            "source_term": "한국 증시",
+            "normalized_term": "한국 증시",
+            "english_term": "Korean stock market",
+            "category": "market_state"
+          },
+          {
+            "source_term": "코스피",
+            "normalized_term": "코스피",
+            "english_term": "KOSPI",
+            "category": "index"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": null,
+        "stock_name": null,
+        "event_tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "sentiment": "POSITIVE",
+        "importance": "MEDIUM",
+        "summary": "\"한국 증시 아직 싸다\"…골드만삭스, 코스피 1만2000 베팅.",
+        "duplicate_key": "33a0f65fded0d48be1768d2727585a6dc50c86cbd3fd8c5c45557d99378abebb"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [
+          "MACRO"
+        ],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "d2af3388c6ada5a1852402b0f874afa28b91e7ab52946e3f09a313037d626985",
+      "external_translation_join_key": "d2af3388c6ada5a1852402b0f874afa28b91e7ab52946e3f09a313037d626985",
+      "source_type": "NEWS",
+      "provider": "naver-news",
+      "original_url": "https://www.khan.co.kr/article/202606032319005",
+      "original_text": "1만피도 가시권…“AI 투자 상투? 아직 OK, 빚투는 경계를”",
+      "expected": {
+        "tags": [
+          "GENERAL_MARKET",
+          "RISK"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "HIGH",
+        "stock_code": null,
+        "stock_name": null,
+        "review_note": "실제 뉴스 제목. 시장 상승 전망과 빚투 경고가 함께 있어 RISK 포함."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "1만피도 가시권…“AI 투자 상투? 아직 OK, leveraged retail investing는 경계를”",
+        "translated_summary": "1만피도 가시권…“AI 투자 상투? 아직 OK, leveraged retail investing는 경계를”.",
+        "glossary_terms": [
+          {
+            "source_term": "빚투",
+            "normalized_term": "빚투",
+            "english_term": "leveraged retail investing",
+            "category": "risk"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": null,
+        "stock_name": null,
+        "event_tags": [
+          "GENERAL_MARKET",
+          "RISK"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "HIGH",
+        "summary": "1만피도 가시권…“AI 투자 상투? 아직 OK, 빚투는 경계를”.",
+        "duplicate_key": "82eec8eb858f6a9c8c82f8498c12fa1af55ef8e5763f557e5de48954bf86c149"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "1a2656a9ecb0084cae6a13ee6d3fd0e215ec93ab36c18e49ce5c5a00b08827ac",
+      "external_translation_join_key": "1a2656a9ecb0084cae6a13ee6d3fd0e215ec93ab36c18e49ce5c5a00b08827ac",
+      "source_type": "NEWS",
+      "provider": "naver-news",
+      "original_url": "https://www.kado.net/news/articleView.html?idxno=2053742",
+      "original_text": "골드만삭스 \"코스피 1만2000선 가능\"…목표치 33% 상향",
+      "expected": {
+        "tags": [
+          "GENERAL_MARKET"
+        ],
+        "sentiment": "POSITIVE",
+        "importance": "MEDIUM",
+        "stock_code": null,
+        "stock_name": null,
+        "review_note": "실제 뉴스 제목. 지수 목표 상향 뉴스."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "골드만삭스 \"KOSPI 1만2000선 가능\"…target estimate 33% upward revision",
+        "translated_summary": "골드만삭스 \"KOSPI 1만2000선 가능\"…target estimate 33% upward revision.",
+        "glossary_terms": [
+          {
+            "source_term": "코스피",
+            "normalized_term": "코스피",
+            "english_term": "KOSPI",
+            "category": "index"
+          },
+          {
+            "source_term": "목표치",
+            "normalized_term": "목표치",
+            "english_term": "target estimate",
+            "category": "market_state"
+          },
+          {
+            "source_term": "상향",
+            "normalized_term": "상향",
+            "english_term": "upward revision",
+            "category": "sentiment"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": null,
+        "stock_name": null,
+        "event_tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "sentiment": "POSITIVE",
+        "importance": "MEDIUM",
+        "summary": "골드만삭스 \"코스피 1만2000선 가능\"…목표치 33% 상향.",
+        "duplicate_key": "c0262f9df3ec9382a01cd41e29e1d54a333045f046296ee1f1eabcdbc5ca0329"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [
+          "MACRO"
+        ],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "64efc0d6481500da7d1c4def08ebc56ae01151b099062695caed9505c8f2b372",
+      "external_translation_join_key": "64efc0d6481500da7d1c4def08ebc56ae01151b099062695caed9505c8f2b372",
+      "source_type": "NEWS",
+      "provider": "naver-news",
+      "original_url": "https://www.g-enews.com/view.php?ud=202606032100171616fbbec65dfb_1",
+      "original_text": "코스피 8800·환율 1530 동행시대, 자산 지킬 4대 외환 지표",
+      "expected": {
+        "tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "MEDIUM",
+        "stock_code": null,
+        "stock_name": null,
+        "review_note": "실제 뉴스 제목. 지수와 환율을 함께 다루는 시장·거시 뉴스."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "KOSPI 8800·exchange rate 1530 동행시대, 자산 지킬 4대 foreign exchange indicator",
+        "translated_summary": "KOSPI 8800·exchange rate 1530 동행시대, 자산 지킬 4대 foreign exchange indicator.",
+        "glossary_terms": [
+          {
+            "source_term": "외환 지표",
+            "normalized_term": "외환 지표",
+            "english_term": "foreign exchange indicator",
+            "category": "fx"
+          },
+          {
+            "source_term": "코스피",
+            "normalized_term": "코스피",
+            "english_term": "KOSPI",
+            "category": "index"
+          },
+          {
+            "source_term": "환율",
+            "normalized_term": "환율",
+            "english_term": "exchange rate",
+            "category": "fx"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": null,
+        "stock_name": null,
+        "event_tags": [
+          "GENERAL_MARKET",
+          "MACRO"
+        ],
+        "sentiment": "POSITIVE",
+        "importance": "MEDIUM",
+        "summary": "코스피 8800·환율 1530 동행시대, 자산 지킬 4대 외환 지표.",
+        "duplicate_key": "c5da7892d4e14753bbc073fc3e467236aaf585909e75f9a434f7eeb72138920c"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": false,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": [
+        "SENTIMENT_REVIEW_REQUIRED"
+      ]
+    },
+    {
+      "sample_id": "0ae447811133394dda3a3bdd6e14967f6b642b655b5307aedded9ed394bcb55c",
+      "external_translation_join_key": "0ae447811133394dda3a3bdd6e14967f6b642b655b5307aedded9ed394bcb55c",
+      "source_type": "NEWS",
+      "provider": "naver-news",
+      "original_url": "http://www.yonhapnewstv.co.kr/news/MYH20260604035256bjp",
+      "original_text": "지방선거 이후 증시 향방은…과세 개편도 관심",
+      "expected": {
+        "tags": [
+          "GENERAL_MARKET"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "MEDIUM",
+        "stock_code": null,
+        "stock_name": null,
+        "review_note": "실제 뉴스 제목. 정책과 증시 방향성 중심의 시장 뉴스."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "지방선거 이후 Korean stock market 향방은…tax reform도 관심",
+        "translated_summary": "지방선거 이후 Korean stock market 향방은…tax reform도 관심.",
+        "glossary_terms": [
+          {
+            "source_term": "증시",
+            "normalized_term": "한국 증시",
+            "english_term": "Korean stock market",
+            "category": "market_state"
+          },
+          {
+            "source_term": "과세 개편",
+            "normalized_term": "과세 개편",
+            "english_term": "tax reform",
+            "category": "tax"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": null,
+        "stock_name": null,
+        "event_tags": [
+          "GENERAL_MARKET"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "MEDIUM",
+        "summary": "지방선거 이후 증시 향방은…과세 개편도 관심.",
+        "duplicate_key": "d9c8207e6dc0ff8a43eb3b33a3b0d154adfff8cde7f62453980f8764b7894ee8"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "de6046847140be8faa524f16f00400d8bb757b46c739596ecc1f09ead69fe573",
+      "external_translation_join_key": "de6046847140be8faa524f16f00400d8bb757b46c739596ecc1f09ead69fe573",
+      "source_type": "DISCLOSURE",
+      "provider": "opendart",
+      "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602900924",
+      "original_text": "한국첨단소재 타법인주식및출자증권취득결정",
+      "expected": {
+        "tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "HIGH",
+        "stock_code": "062970",
+        "stock_name": "한국첨단소재",
+        "review_note": "실제 OpenDART 공시 제목. 타법인 지분 취득은 기업 구조·투자 이벤트로 검수."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "한국첨단소재 decision to acquire shares and equity securities of another corporation",
+        "translated_summary": "한국첨단소재 decision to acquire shares and equity securities of another corporation.",
+        "glossary_terms": [
+          {
+            "source_term": "타법인주식및출자증권취득결정",
+            "normalized_term": "타법인주식및출자증권취득결정",
+            "english_term": "decision to acquire shares and equity securities of another corporation",
+            "category": "disclosure"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": "062970",
+        "stock_name": "한국첨단소재",
+        "event_tags": [
+          "CORPORATE_ACTION",
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "HIGH",
+        "summary": "한국첨단소재 타법인주식및출자증권취득결정.",
+        "duplicate_key": "710de7d899c0de15cb8e8abb2c260d6c0155d10f746f6190bd71b67bffa05b34"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "b8f4a6fbe00492277129ea039fe86bd96d578e719f70e666f5f45da1020192fa",
+      "external_translation_join_key": "b8f4a6fbe00492277129ea039fe86bd96d578e719f70e666f5f45da1020192fa",
+      "source_type": "DISCLOSURE",
+      "provider": "opendart",
+      "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602900867",
+      "original_text": "하이드로리튬 소송등의제기ㆍ신청(일정금액이상의청구)",
+      "expected": {
+        "tags": [
+          "RISK",
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "CRITICAL",
+        "stock_code": "101670",
+        "stock_name": "하이드로리튬",
+        "review_note": "실제 OpenDART 공시 제목. 일정 금액 이상 청구 소송은 보유자 대상 중요 리스크로 검수."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "하이드로리튬 filing or application of lawsuit(claim above a material amount)",
+        "translated_summary": "하이드로리튬 filing or application of lawsuit(claim above a material amount).",
+        "glossary_terms": [
+          {
+            "source_term": "일정금액이상의청구",
+            "normalized_term": "일정금액이상의청구",
+            "english_term": "claim above a material amount",
+            "category": "disclosure"
+          },
+          {
+            "source_term": "소송등의제기ㆍ신청",
+            "normalized_term": "소송등의제기ㆍ신청",
+            "english_term": "filing or application of lawsuit",
+            "category": "disclosure"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": "101670",
+        "stock_name": "하이드로리튬",
+        "event_tags": [
+          "DISCLOSURE",
+          "RISK"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "CRITICAL",
+        "summary": "하이드로리튬 소송등의제기ㆍ신청(일정금액이상의청구).",
+        "duplicate_key": "5b4389ddc5ba7d99b27a7193d233db5ac8824c27733d526b3dfb2bd2eadf729e"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "c1c99f5fd661f203c73e2695d8ea4eb4a1e39669c2537983de39ed674dea3fb3",
+      "external_translation_join_key": "c1c99f5fd661f203c73e2695d8ea4eb4a1e39669c2537983de39ed674dea3fb3",
+      "source_type": "DISCLOSURE",
+      "provider": "opendart",
+      "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602900871",
+      "original_text": "비덴트 주권매매거래정지기간변경(상장폐지사유발생)",
+      "expected": {
+        "tags": [
+          "RISK",
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "CRITICAL",
+        "stock_code": "121800",
+        "stock_name": "비덴트",
+        "review_note": "실제 OpenDART 공시 제목. 상장폐지 사유 발생은 치명도 높은 리스크로 검수."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "비덴트 share trading halt period change(delisting cause occurred)",
+        "translated_summary": "비덴트 share trading halt period change(delisting cause occurred).",
+        "glossary_terms": [
+          {
+            "source_term": "주권매매거래정지기간변경",
+            "normalized_term": "주권매매거래정지기간변경",
+            "english_term": "share trading halt period change",
+            "category": "market_state"
+          },
+          {
+            "source_term": "상장폐지사유발생",
+            "normalized_term": "상장폐지사유발생",
+            "english_term": "delisting cause occurred",
+            "category": "disclosure"
+          },
+          {
+            "source_term": "상장폐지",
+            "normalized_term": "상장폐지",
+            "english_term": "delisting",
+            "category": "disclosure"
+          },
+          {
+            "source_term": "거래정지",
+            "normalized_term": "거래정지",
+            "english_term": "trading halt",
+            "category": "market_state"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": "121800",
+        "stock_name": "비덴트",
+        "event_tags": [
+          "DISCLOSURE",
+          "RISK"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "CRITICAL",
+        "summary": "비덴트 주권매매거래정지기간변경(상장폐지사유발생).",
+        "duplicate_key": "aa9a5b54f3ed04cbb30174e926e48a9a5795ad897033fc5841b5b28af7d5ac4a"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "7b221fb23d8b60c5815e0cd6875e4f3d10769762588cb497f6bd5478a92232e5",
+      "external_translation_join_key": "7b221fb23d8b60c5815e0cd6875e4f3d10769762588cb497f6bd5478a92232e5",
+      "source_type": "DISCLOSURE",
+      "provider": "opendart",
+      "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602800860",
+      "original_text": "달바글로벌 임시주주총회결과",
+      "expected": {
+        "tags": [
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "LOW",
+        "stock_code": "483650",
+        "stock_name": "달바글로벌",
+        "review_note": "실제 OpenDART 공시 제목. 정례적 지배구조 공시는 낮은 중요도 공시로 검수."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "달바글로벌 extraordinary shareholders meeting result",
+        "translated_summary": "달바글로벌 extraordinary shareholders meeting result.",
+        "glossary_terms": [
+          {
+            "source_term": "임시주주총회결과",
+            "normalized_term": "임시주주총회결과",
+            "english_term": "extraordinary shareholders meeting result",
+            "category": "disclosure"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": "483650",
+        "stock_name": "달바글로벌",
+        "event_tags": [
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEUTRAL",
+        "importance": "LOW",
+        "summary": "달바글로벌 임시주주총회결과.",
+        "duplicate_key": "dd140514e184a657c456fadf52e17b54bb47cefd6a6e7b283185e3d40fc380c1"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    },
+    {
+      "sample_id": "8916191fdd424bb6a6c12809f83e6388c00fd4a6c56e26114fd05c68c4d4a039",
+      "external_translation_join_key": "8916191fdd424bb6a6c12809f83e6388c00fd4a6c56e26114fd05c68c4d4a039",
+      "source_type": "DISCLOSURE",
+      "provider": "opendart",
+      "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260602800852",
+      "original_text": "광명전기 소송등의판결ㆍ결정",
+      "expected": {
+        "tags": [
+          "RISK",
+          "DISCLOSURE"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "HIGH",
+        "stock_code": "017040",
+        "stock_name": "광명전기",
+        "review_note": "실제 OpenDART 공시 제목. 소송 판결은 불확실성 해소 여부와 별개로 리스크 이벤트로 검수."
+      },
+      "translation": {
+        "provider": "local-financial-glossary",
+        "model_version": "local-financial-glossary-v2",
+        "status": "TRANSLATED",
+        "translated_title": "광명전기 court ruling or decision on lawsuit",
+        "translated_summary": "광명전기 court ruling or decision on lawsuit.",
+        "glossary_terms": [
+          {
+            "source_term": "소송등의판결ㆍ결정",
+            "normalized_term": "소송등의판결ㆍ결정",
+            "english_term": "court ruling or decision on lawsuit",
+            "category": "disclosure"
+          }
+        ],
+        "quality_flags": [
+          "FINANCIAL_GLOSSARY_APPLIED"
+        ]
+      },
+      "ai_analysis": {
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "stock_code": "017040",
+        "stock_name": "광명전기",
+        "event_tags": [
+          "DISCLOSURE",
+          "RISK"
+        ],
+        "sentiment": "NEGATIVE",
+        "importance": "HIGH",
+        "summary": "광명전기 소송등의판결ㆍ결정.",
+        "duplicate_key": "f247ec0288bc005af59e2b4761401f8eff1128f500ce3eadb1b5c4685852f312"
+      },
+      "comparison": {
+        "expected_tags_missing_from_ai": [],
+        "ai_extra_tags": [],
+        "sentiment_match": true,
+        "importance_match": true,
+        "stock_match": true
+      },
+      "review_findings": []
+    }
+  ]
+}

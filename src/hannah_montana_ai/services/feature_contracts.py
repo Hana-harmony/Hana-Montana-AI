@@ -34,7 +34,7 @@ CAPITAL_GAINS_PROFIT_RATE = 0.22
 CASE_01_MAX_OWNERSHIP_RATE = 25.0
 FOREIGN_OWNERSHIP_MODEL_VERSION = "foreign-ownership-boundary-v1"
 TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
-TRANSLATION_MODEL_VERSION = "local-financial-glossary-v1"
+TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
 TAX_REFUND_MODEL_VERSION = "hk-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
@@ -50,7 +50,81 @@ FINANCIAL_TRANSLATION_GLOSSARY = (
     ("거래정지", "trading halt", "market_state", ()),
     ("공급계약", "supply contract", "event", ("단일판매ㆍ공급계약체결",)),
     ("유상증자", "paid-in capital increase", "event", ()),
+    ("한국 증시", "Korean stock market", "market_state", ("증시",)),
+    ("코스피", "KOSPI", "index", ()),
+    ("환율", "exchange rate", "fx", ()),
+    ("외환 지표", "foreign exchange indicator", "fx", ()),
+    ("과세 개편", "tax reform", "tax", ()),
+    ("빚투", "leveraged retail investing", "risk", ()),
+    ("목표치", "target estimate", "market_state", ()),
+    ("상향", "upward revision", "sentiment", ()),
+    (
+        "타법인주식및출자증권취득결정",
+        "decision to acquire shares and equity securities of another corporation",
+        "disclosure",
+        ("타법인 주식 및 출자증권 취득 결정",),
+    ),
+    (
+        "소송등의제기ㆍ신청",
+        "filing or application of lawsuit",
+        "disclosure",
+        ("소송등의제기", "소송 등의 제기", "소송 등의 제기ㆍ신청"),
+    ),
+    (
+        "소송등의판결ㆍ결정",
+        "court ruling or decision on lawsuit",
+        "disclosure",
+        ("소송등의판결", "소송 등의 판결ㆍ결정"),
+    ),
+    (
+        "임시주주총회결과",
+        "extraordinary shareholders meeting result",
+        "disclosure",
+        ("임시 주주총회 결과",),
+    ),
+    (
+        "일정금액이상의청구",
+        "claim above a material amount",
+        "disclosure",
+        ("일정 금액 이상의 청구",),
+    ),
+    (
+        "주권매매거래정지기간변경",
+        "share trading halt period change",
+        "market_state",
+        ("주권 매매거래 정지기간 변경",),
+    ),
+    (
+        "상장폐지사유발생",
+        "delisting cause occurred",
+        "disclosure",
+        ("상장폐지 사유 발생",),
+    ),
+    (
+        "불성실공시법인지정",
+        "designation as an unfaithful disclosure corporation",
+        "disclosure",
+        ("불성실 공시법인 지정",),
+    ),
+    ("투자주의환기종목", "investment caution issue", "market_state", ("투자주의 환기종목",)),
+    ("관리종목", "administrative issue", "market_state", ()),
+    (
+        "자기주식취득",
+        "treasury share acquisition",
+        "capital_action",
+        ("자기주식 취득", "자사주 취득"),
+    ),
+    ("자사주 소각", "treasury share cancellation", "capital_action", ("자기주식 소각",)),
+    ("전환사채", "convertible bond", "capital_action", ("CB",)),
+    ("신주인수권부사채", "bond with warrants", "capital_action", ("BW",)),
     ("영업이익", "operating profit", "metric", ()),
+    ("영업손실", "operating loss", "metric", ()),
+    ("매출액", "revenue", "metric", ()),
+    ("당기순이익", "net income", "metric", ()),
+    ("흑자전환", "turnaround to profit", "sentiment", ()),
+    ("적자전환", "turnaround to loss", "sentiment", ()),
+    ("어닝쇼크", "earnings shock", "event", ()),
+    ("어닝서프라이즈", "earnings surprise", "event", ()),
     ("외국인 보유율", "foreign ownership ratio", "metric", ("외국인지분율",)),
     ("한도소진율", "foreign ownership limit usage ratio", "metric", ()),
     ("실적", "earnings", "event", ()),

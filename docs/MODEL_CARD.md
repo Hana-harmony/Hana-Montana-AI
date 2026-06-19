@@ -146,6 +146,8 @@
 - 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `무상증자`, `타법인주식`, `자기주식처분`, `주주총회`, `소송등`, `상장폐지`, `주주환원`, `주식교환`, `지분인수`, `지분매각`, `리밸런싱`, `공급망`, `생산차질` 같은 한국어 복합 금융 표현을 도메인 token으로 추가한다.
 - 종목 매핑은 request 후보를 먼저 사용하고, 같은 종목코드가 없으면 내부 universe master를 fallback으로 사용한다.
 - 내부 universe fallback은 TF-IDF char n-gram stock linker가 예측한 종목코드를 먼저 확인한 뒤, 대표 종목 오탐 방지를 위해 실제 선두 종목 term 매칭 여부를 검증한다.
+- 번역 품질 보조 모델은 `local-financial-glossary-v2`이며, 실제 공시에서 반복되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 glossary/fallback rule로 정규화한다.
+- `reports/translation-sample-report.json`은 실제 뉴스·공시 gold 표본 기준 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, review finding을 함께 보존한다.
 - stock linker는 전체 universe 3,967개 종목코드와 trainable 종목명을 학습 term으로 사용한다. 현재 전 종목코드 템플릿 정확도는 1.0, trainable 종목명 템플릿 정확도는 0.9921이다.
 - 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.42, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.36, `GENERAL_MARKET` 0.32, `MACRO` 0.24, `RISK` 0.50을 label별 calibration했다.
 - 학습 시 검수·균형 코퍼스를 80:20 holdout으로 나눠 검증한 뒤 전체 코퍼스로 최종 artifact를 재학습한다.
