@@ -17,6 +17,7 @@
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`
 - 내부 endpoint: `POST /api/v1/tax/refund-status`
+- 모든 내부 비즈니스 endpoint는 `ApiResponse` 공통 envelope로 성공/상태/코드/메시지/본문을 함께 반환한다.
 - AI 서비스는 협력사용 `OMNILENS_API_KEY`를 요구하지 않는다.
 - AI 서비스는 별도 토큰을 검증하지 않고 Spring 컨테이너 전용 내부 네트워크에서만 접근 가능해야 한다.
 

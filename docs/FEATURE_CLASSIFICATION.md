@@ -4,12 +4,12 @@
 
 | 기능 | 현재 상태 |
 | --- | --- |
-| 뉴스·공시 종목 매핑 | Partial |
-| 이벤트 태그 분류 | Partial |
-| 감성 분류 | Partial |
-| 중요도 분류 | Partial |
-| 중복 제거 키 생성 | Partial |
-| 간단 요약 생성 | Partial |
+| 뉴스·공시 종목 매핑 | Implemented, audited gold coverage pending |
+| 이벤트 태그 분류 | Implemented, audited gold coverage pending |
+| 감성 분류 | Implemented, audited gold coverage pending |
+| 중요도 분류 | Implemented, audited gold coverage pending |
+| 중복 제거 키 생성 | Implemented |
+| 간단 요약 생성 | Implemented |
 | 금융 용어 normalization과 번역 품질 보조 | Implemented |
 | 세무 OCR/위변조 검증 모델 | Planned, ADR 필요 |
 
@@ -28,4 +28,5 @@
 
 - 기능정의서는 "AI로 번역 및 분석"을 하나의 흐름으로 표현하지만, 현재 설계에서는 분석 모델과 번역 공급자 orchestration을 분리한다.
 - 현재 구현된 AI는 외부 번역 API를 호출하지 않고, 로컬 금융 용어집 기반 번역 보조와 품질 플래그를 제공한다.
+- 종목 매핑, 이벤트 태그, 감성, 중요도는 ML artifact와 내부 stock universe fallback으로 동작하지만, 모델 카드의 audited gold coverage gate가 아직 fail이므로 모델 품질 상태는 별도로 계속 추적한다.
 - 세무 전산화의 OCR/위변조 검증은 모델 API 후보 기능이지만, 개인정보와 규제 리스크가 커서 별도 ADR 이후 구현한다.

@@ -90,13 +90,21 @@ def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisRes
     return success_response(response)
 
 
-@router.post("/stocks/order-status", response_model=StockOrderStatusResponse)
-def stock_order_status(request: StockOrderStatusRequest) -> StockOrderStatusResponse:
-    return get_stock_order_status_service().build_response(request)
+@router.post(
+    "/stocks/order-status",
+    response_model=ApiResponse[StockOrderStatusResponse],
+)
+def stock_order_status(request: StockOrderStatusRequest) -> ApiResponse[StockOrderStatusResponse]:
+    return success_response(get_stock_order_status_service().build_response(request))
 
 
-@router.post("/intelligence/events", response_model=IntelligenceEventResponse)
-def build_intelligence_event(request: IntelligenceEventRequest) -> IntelligenceEventResponse:
+@router.post(
+    "/intelligence/events",
+    response_model=ApiResponse[IntelligenceEventResponse],
+)
+def build_intelligence_event(
+    request: IntelligenceEventRequest,
+) -> ApiResponse[IntelligenceEventResponse]:
     try:
         analyzer = get_analyzer()
     except ModelArtifactError as exception:
@@ -104,12 +112,15 @@ def build_intelligence_event(request: IntelligenceEventRequest) -> IntelligenceE
             ErrorCode.MODEL_UNAVAILABLE,
             "ML model artifact is unavailable",
         ) from exception
-    return IntelligenceEventService(analyzer).build_response(request)
+    return success_response(IntelligenceEventService(analyzer).build_response(request))
 
 
-@router.post("/tax/refund-status", response_model=TaxRefundStatusResponse)
-def tax_refund_status(request: TaxRefundStatusRequest) -> TaxRefundStatusResponse:
-    return get_tax_refund_status_service().build_response(request)
+@router.post(
+    "/tax/refund-status",
+    response_model=ApiResponse[TaxRefundStatusResponse],
+)
+def tax_refund_status(request: TaxRefundStatusRequest) -> ApiResponse[TaxRefundStatusResponse]:
+    return success_response(get_tax_refund_status_service().build_response(request))
 
 
 def _elapsed_ms(started_at: float) -> float:

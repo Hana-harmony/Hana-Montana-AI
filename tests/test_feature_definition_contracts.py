@@ -33,7 +33,11 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
     )
 
     assert response.status_code == 200
-    payload = response.json()
+    envelope = response.json()
+    assert envelope["success"] is True
+    assert envelope["status"] == 200
+    assert envelope["code"] == "COMMON_000"
+    payload = envelope["data"]
     assert payload["stock_code"] == "005930"
     assert payload["foreign_ownership_rate"] == 39.9
     assert payload["foreign_limit_exhaustion_rate"] == 99.75
@@ -84,7 +88,11 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     )
 
     assert response.status_code == 200
-    payload = response.json()
+    envelope = response.json()
+    assert envelope["success"] is True
+    assert envelope["status"] == 200
+    assert envelope["code"] == "COMMON_000"
+    payload = envelope["data"]
     assert re.fullmatch(r"[0-9a-f]{64}", payload["duplicate_key"])
     assert payload["stock_code"] == "005930"
     assert payload["news_disclosure_type"] == "NEWS"
@@ -157,7 +165,11 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     )
 
     assert response.status_code == 200
-    payload = response.json()
+    envelope = response.json()
+    assert envelope["success"] is True
+    assert envelope["status"] == 200
+    assert envelope["code"] == "COMMON_000"
+    payload = envelope["data"]
     assert payload["investor_id"] == "HK_USER_1234"
     assert payload["tax_year"] == "2023-2024"
     assert payload["tax_case_type"] == "CASE_01"
