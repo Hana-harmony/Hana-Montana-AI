@@ -255,11 +255,16 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert response.stock_code == "005930"
     assert response.duplicate_key
     assert "Samsung Electronics" in response.translated_title
+    assert response.glossary_terms
+    assert response.glossary_terms[0].english_term == "Samsung Electronics"
+    assert "FINANCIAL_GLOSSARY_APPLIED" in response.translation_quality_flags
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
     assert websocket_event["partner_id"] == "HK_BROKER"
     assert websocket_event["alert_id"] == response.alert_id
     assert websocket_event["duplicate_key"] == response.duplicate_key
+    assert websocket_event["glossary_terms"][0]["english_term"] == "Samsung Electronics"
+    assert "FINANCIAL_GLOSSARY_APPLIED" in websocket_event["translation_quality_flags"]
     assert websocket_event["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"
 
 

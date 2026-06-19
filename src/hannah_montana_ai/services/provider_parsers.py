@@ -247,6 +247,10 @@ def build_omnilens_websocket_event(
         "event_tags": response.event_tags,
         "is_holder_target": response.is_holder_target,
         "is_watchlist_target": response.is_watchlist_target,
+        "glossary_terms": [
+            term.model_dump(mode="json") for term in response.glossary_terms
+        ],
+        "translation_quality_flags": response.translation_quality_flags,
         "original_url": str(response.original_url),
         "provider": response.provider,
         "published_at": response.published_at,

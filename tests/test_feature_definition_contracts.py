@@ -98,6 +98,13 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "EARNINGS" in payload["event_tags"]
     assert payload["event_tag"] in payload["event_tags"]
     assert payload["is_watchlist_target"] is True
+    assert {
+        "source_term": "영업이익",
+        "normalized_term": "영업이익",
+        "english_term": "operating profit",
+        "category": "metric",
+    } in payload["glossary_terms"]
+    assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"
     assert payload["translation_model_version"] == "local-financial-glossary-v1"
     assert payload["data_source"] == "Naver/OpenDART/NLP/PapagoDeepLAdapter"

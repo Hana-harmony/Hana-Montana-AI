@@ -48,7 +48,9 @@
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
-  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역기를 사용한다.
+  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
+  - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
+  - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
   - 실제 Papago/DeepL 호출은 `PapagoDeepLAdapter` 어댑터 자리로 명시하고, 계약 필드는 동일하게 유지한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
@@ -56,6 +58,7 @@
   - `summary`, `translated_summary`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
   - `is_holder_target`, `is_watchlist_target`
+  - `glossary_terms`, `translation_quality_flags`
   - `translation_provider`, `translation_model_version`, `translation_status`
   - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
 

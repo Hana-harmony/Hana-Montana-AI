@@ -120,6 +120,13 @@ class IntelligenceEventRequest(AlertAnalysisRequest):
     published_at: str = Field(default="", max_length=80)
 
 
+class FinancialGlossaryTerm(BaseModel):
+    source_term: str = Field(min_length=1, max_length=80)
+    normalized_term: str = Field(min_length=1, max_length=80)
+    english_term: str = Field(min_length=1, max_length=120)
+    category: str = Field(min_length=1, max_length=40)
+
+
 class IntelligenceEventResponse(BaseModel):
     alert_id: str
     duplicate_key: str
@@ -137,6 +144,8 @@ class IntelligenceEventResponse(BaseModel):
     related_stocks: list[str]
     is_holder_target: bool
     is_watchlist_target: bool
+    glossary_terms: list[FinancialGlossaryTerm]
+    translation_quality_flags: list[str]
     original_url: HttpUrl
     provider: str
     published_at: str

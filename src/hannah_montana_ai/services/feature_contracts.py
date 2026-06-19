@@ -7,6 +7,7 @@ from typing import Literal
 
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
+    FinancialGlossaryTerm,
     ForeignLimitUsageStatus,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
@@ -34,28 +35,31 @@ TAX_REFUND_MODEL_VERSION = "hk-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
 
-FINANCIAL_TRANSLATION_TERMS = {
-    "삼성전자": "Samsung Electronics",
-    "SK하이닉스": "SK hynix",
-    "한화시스템": "Hanwha Systems",
-    "코웨이": "Coway",
-    "젠큐릭스": "Gencurix",
-    "공시": "disclosure",
-    "뉴스": "news",
-    "실적": "earnings",
-    "영업이익": "operating profit",
-    "증가": "increase",
-    "감소": "decrease",
-    "공급계약": "supply contract",
-    "수주": "order win",
-    "상장폐지": "delisting",
-    "거래정지": "trading halt",
-    "유상증자": "paid-in capital increase",
-    "배당": "dividend",
-    "주가": "stock price",
-    "외국인": "foreign investor",
-    "환급": "refund",
-}
+FINANCIAL_TRANSLATION_GLOSSARY = (
+    ("삼성전자", "Samsung Electronics", "stock", ("삼전", "Samsung Elec")),
+    ("SK하이닉스", "SK hynix", "stock", ("하이닉스",)),
+    ("한화시스템", "Hanwha Systems", "stock", ()),
+    ("코웨이", "Coway", "stock", ()),
+    ("젠큐릭스", "Gencurix", "stock", ()),
+    ("감사의견 거절", "adverse audit opinion", "disclosure", ()),
+    ("상장폐지", "delisting", "disclosure", ()),
+    ("거래정지", "trading halt", "market_state", ()),
+    ("공급계약", "supply contract", "event", ("단일판매ㆍ공급계약체결",)),
+    ("유상증자", "paid-in capital increase", "event", ()),
+    ("영업이익", "operating profit", "metric", ()),
+    ("외국인 보유율", "foreign ownership ratio", "metric", ("외국인지분율",)),
+    ("한도소진율", "foreign ownership limit usage ratio", "metric", ()),
+    ("실적", "earnings", "event", ()),
+    ("수주", "order win", "event", ()),
+    ("배당", "dividend", "event", ()),
+    ("공시", "disclosure", "source", ()),
+    ("뉴스", "news", "source", ()),
+    ("증가", "increase", "sentiment", ()),
+    ("감소", "decrease", "sentiment", ()),
+    ("주가", "stock price", "market_state", ()),
+    ("외국인", "foreign investor", "investor_type", ()),
+    ("환급", "refund", "tax", ()),
+)
 
 
 @dataclass(frozen=True)
@@ -94,6 +98,8 @@ class TranslationPrediction:
     translated_title: str
     translated_summary: str
     translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
+    glossary_terms: list[FinancialGlossaryTerm]
+    quality_flags: list[str]
     provider: str
     model_version: str
 
@@ -198,18 +204,31 @@ class FinancialTranslationModel:
         request: IntelligenceEventRequest,
         summary: str,
     ) -> TranslationPrediction:
-        translated_title = translate_financial_korean_to_english(request.title)
-        translated_summary = translate_financial_korean_to_english(summary)
+        title_translation = translate_financial_korean_to_english(request.title)
+        summary_translation = translate_financial_korean_to_english(summary)
+        glossary_terms = _merge_glossary_terms(
+            title_translation.glossary_terms,
+            summary_translation.glossary_terms,
+        )
+        quality_flags = _translation_quality_flags(
+            request.title,
+            title_translation.translated_text,
+            summary,
+            summary_translation.translated_text,
+            glossary_terms,
+        )
         translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"] = (
             "TRANSLATED"
-            if translated_title != html.unescape(request.title)
-            or translated_summary != html.unescape(summary)
+            if title_translation.translated_text != html.unescape(request.title)
+            or summary_translation.translated_text != html.unescape(summary)
             else "SOURCE_LANGUAGE_FALLBACK"
         )
         return TranslationPrediction(
-            translated_title=translated_title,
-            translated_summary=translated_summary,
+            translated_title=title_translation.translated_text,
+            translated_summary=summary_translation.translated_text,
             translation_status=translation_status,
+            glossary_terms=glossary_terms,
+            quality_flags=quality_flags,
             provider=self.provider,
             model_version=self.version,
         )
@@ -374,6 +393,8 @@ class IntelligenceEventService:
             related_stocks=analysis.related_stocks,
             is_holder_target=analysis.holder_target,
             is_watchlist_target=analysis.watchlist_target,
+            glossary_terms=translation.glossary_terms,
+            translation_quality_flags=translation.quality_flags,
             original_url=request.original_url,
             provider=request.provider,
             published_at=request.published_at,
@@ -418,11 +439,114 @@ class TaxRefundStatusService:
         )
 
 
-def translate_financial_korean_to_english(text: str) -> str:
-    translated = html.unescape(text)
-    for korean, english in FINANCIAL_TRANSLATION_TERMS.items():
-        translated = translated.replace(korean, english)
-    return " ".join(translated.split())
+@dataclass(frozen=True)
+class FinancialTranslationResult:
+    translated_text: str
+    glossary_terms: list[FinancialGlossaryTerm]
+
+
+@dataclass(frozen=True)
+class _GlossaryEntry:
+    normalized_term: str
+    english_term: str
+    category: str
+    aliases: tuple[str, ...]
+
+
+def translate_financial_korean_to_english(text: str) -> FinancialTranslationResult:
+    source_text = html.unescape(text)
+    translated = source_text
+    matched_terms: list[FinancialGlossaryTerm] = []
+    seen_terms: set[tuple[str, str]] = set()
+
+    for entry in _ordered_glossary_entries():
+        for source_term in (entry.normalized_term, *entry.aliases):
+            if source_term not in source_text:
+                continue
+            translated = translated.replace(source_term, entry.english_term)
+            term_key = (entry.normalized_term, entry.english_term)
+            if term_key in seen_terms:
+                continue
+            matched_terms.append(
+                FinancialGlossaryTerm(
+                    source_term=source_term,
+                    normalized_term=entry.normalized_term,
+                    english_term=entry.english_term,
+                    category=entry.category,
+                )
+            )
+            seen_terms.add(term_key)
+
+    return FinancialTranslationResult(
+        translated_text=" ".join(translated.split()),
+        glossary_terms=matched_terms,
+    )
+
+
+def _ordered_glossary_entries() -> tuple[_GlossaryEntry, ...]:
+    entries = tuple(
+        _GlossaryEntry(
+            normalized_term=normalized_term,
+            english_term=english_term,
+            category=category,
+            aliases=aliases,
+        )
+        for normalized_term, english_term, category, aliases in FINANCIAL_TRANSLATION_GLOSSARY
+    )
+    return tuple(
+        sorted(
+            entries,
+            key=lambda entry: max(
+                len(term) for term in (entry.normalized_term, *entry.aliases)
+            ),
+            reverse=True,
+        )
+    )
+
+
+def _merge_glossary_terms(
+    first: list[FinancialGlossaryTerm],
+    second: list[FinancialGlossaryTerm],
+) -> list[FinancialGlossaryTerm]:
+    merged: list[FinancialGlossaryTerm] = []
+    seen_terms: set[tuple[str, str]] = set()
+    for term in [*first, *second]:
+        term_key = (term.normalized_term, term.english_term)
+        if term_key in seen_terms:
+            continue
+        merged.append(term)
+        seen_terms.add(term_key)
+    return merged
+
+
+def _translation_quality_flags(
+    title: str,
+    translated_title: str,
+    summary: str,
+    translated_summary: str,
+    glossary_terms: list[FinancialGlossaryTerm],
+) -> list[str]:
+    flags: list[str] = []
+    if glossary_terms:
+        flags.append("FINANCIAL_GLOSSARY_APPLIED")
+    if _contains_korean_financial_term(title, translated_title) or _contains_korean_financial_term(
+        summary,
+        translated_summary,
+    ):
+        flags.append("UNTRANSLATED_FINANCIAL_TERM_REVIEW_REQUIRED")
+    if not flags:
+        flags.append("SOURCE_LANGUAGE_FALLBACK_REVIEW_REQUIRED")
+    return flags
+
+
+def _contains_korean_financial_term(source_text: str, translated_text: str) -> bool:
+    if source_text == translated_text:
+        return False
+    return any(
+        term in translated_text
+        for normalized_term, _, _, aliases in FINANCIAL_TRANSLATION_GLOSSARY
+        for term in (normalized_term, *aliases)
+    )
 
 
 def _rate(numerator: int, denominator: int) -> float:
