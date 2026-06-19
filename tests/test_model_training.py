@@ -328,6 +328,9 @@ def test_model_release_report_matches_source_reports() -> None:
     assert coverage_check["evaluation_remaining_stock_count_to_target"] == 0
     assert release_report["model_version"] == training_report["version"]
     assert release_report["training"]["sample_count"] == 4734
+    assert training_report["supervised_exclusion_report"][
+        "excluded_count_by_reason"
+    ]["codex_review_reference_only"] == 3_420
     assert release_report["training"]["pseudo_labeled_sample_count"] == 1125
     assert release_report["quality_gates"]["real_news_gold"]["sample_count"] == 80
     assert release_report["pseudo_labeling"]["weak_label_accepted_count"] == 344

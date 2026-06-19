@@ -31,17 +31,46 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     pseudo_coverage = report["event_model_pseudo_training_coverage"]
 
     assert report["coverage_gates"]["overall_status"] == "pass"
-    assert report["training_stock_count"] == 1_536
+    assert report["training_stock_count"] == 3_422
     assert report["evaluation_stock_count"] == 557
     assert pseudo_coverage["status"] == "promoted_to_event_student_training"
     assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
     assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 781
     assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 781
     assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
-    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 1_536
+    assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 3_422
     assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 294
     assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 266
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
+
+
+def test_codex_reference_gold_covers_all_valid_numeric_korean_stocks() -> None:
+    universe_rows = _read_jsonl_from_csv(Path("data/reference/korea_stock_universe.csv"))
+    valid_stock_codes = {
+        str(row["stock_code"])
+        for row in universe_rows
+        if str(row["stock_code"]).isdigit() and len(str(row["stock_code"])) == 6
+    }
+    training_rows = _read_jsonl(Path("data/training/financial_alert_stock_review_gold.jsonl"))
+    evaluation_rows = _read_jsonl(
+        Path("data/evaluation/financial_alert_stock_review_gold.jsonl")
+    )
+    covered_stock_codes = _valid_stock_codes(training_rows) | _valid_stock_codes(
+        evaluation_rows
+    )
+    report = json.loads(
+        Path("reports/full-universe-codex-coverage-report.json").read_text()
+    )
+
+    assert len(valid_stock_codes) == 3_920
+    assert valid_stock_codes <= covered_stock_codes
+    assert report["schema_version"] == "full-universe-codex-coverage/v1"
+    assert report["valid_numeric_universe_count"] == 3_920
+    assert report["generated_codex_reference_row_count"] == 1_920
+    assert report["full_coverage_stock_count"] == 3_920
+    assert report["missing_stock_count_after_generation"] == 0
+    assert report["review_status"] == "codex_review_approved"
+    assert "excluded from supervised loss" in report["supervised_loss_policy"]
 
 
 def test_stock_collection_shard_plan_targets_missing_candidate_coverage() -> None:
@@ -298,6 +327,22 @@ def _read_jsonl(path: Path) -> list[dict[str, object]]:
         for line in path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+
+
+def _read_jsonl_from_csv(path: Path) -> list[dict[str, object]]:
+    import csv
+
+    with path.open(newline="", encoding="utf-8") as file:
+        return [dict(row) for row in csv.DictReader(file)]
+
+
+def _valid_stock_codes(rows: list[dict[str, object]]) -> set[str]:
+    return {
+        str(row["stock_code"])
+        for row in rows
+        if str(row.get("stock_code", "")).isdigit()
+        and len(str(row.get("stock_code", ""))) == 6
+    }
 
 
 def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:

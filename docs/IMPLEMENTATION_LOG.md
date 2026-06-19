@@ -1,5 +1,14 @@
 # 구현 기록
 
+## 2026-06-19 유효 6자리 국내주식 전체 Codex reference coverage 확장
+- `scripts/build_full_universe_codex_stock_review_gold.py`를 추가해 `data/reference/korea_stock_universe.csv`의 유효 6자리 숫자 종목코드 3,920개 중 stock review gold train/eval 합집합에 없는 1,920개 종목을 Codex reference row로 보강한다.
+- 생성 row는 `codex_review_approved`, `reviewer_id=codex-gpt-5`, `source_review_stage=full_universe_codex_reference` lineage를 남기고 `data/training/financial_alert_stock_review_gold.jsonl`에 커밋한다.
+- `reports/full-universe-codex-coverage-report.json`은 유효 종목 3,920개, 생성 1,920건, 전체 coverage 3,920개, 누락 0개를 기록한다.
+- 학습 스크립트는 Codex reference row 3,420건을 supervised loss에서 제외해 자기 라벨 재주입을 막고, 기존 supervised 3,609건과 pseudo-label 1,125건으로 artifact를 재생성한다.
+- 새 모델 버전은 `financial-ml-tfidf-logreg-20260619095828`이며 release/service/audited readiness는 모두 `pass`다.
+- `reports/stock-coverage-report.json` 기준 supervised/reference 학습 coverage는 3,422개 종목, evaluation/reference coverage는 557개 종목으로 갱신됐다.
+- 회귀 테스트는 stock review gold train/eval 합집합이 유효 6자리 국내주식 3,920개 전체를 덮고 full-universe report의 누락 수가 0인지 검증한다.
+
 ## 2026-06-19 Codex 대리 검수 기반 coverage gold 승격
 - `codex_review_approved`를 승인 가능한 검수 상태로 추가하고, 기존 `human_review_approved`와 동일하게 검수자 메타데이터와 최종 이벤트·감성·중요도 라벨 검증을 통과한 row만 gold 파일로 승격한다.
 - `scripts/approve_stock_gold_coverage_with_codex.py`를 추가해 coverage active review packet 2,000건을 Codex 대리 검수 상태로 승인한다.

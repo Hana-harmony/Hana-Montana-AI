@@ -79,6 +79,7 @@ uv run python scripts/collect_training_data.py \
 - `scripts/validate_stock_gold_review_batch.py`를 먼저 실행해 승인 가능한 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 확인한다.
 - `scripts/build_stock_gold_active_review_report.py`는 모델 제안 라벨과 불확실성으로 사람이 먼저 볼 row를 정렬한다.
 - 승격 스크립트는 승인 row만 `data/training/financial_alert_stock_review_gold.jsonl`와 `data/evaluation/financial_alert_stock_review_gold.jsonl`에 기록한다.
+- 유효 6자리 국내주식 전체 reference coverage는 `scripts/build_full_universe_codex_stock_review_gold.py`로 보강한다. 이 스크립트는 stock review gold train/eval 합집합에 없는 종목만 `codex_review_approved` reference row로 추가하고 `reports/full-universe-codex-coverage-report.json`에 누락 수를 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
 - 현재 artifact는 68,710건 수집 후보 중 weak-label 344건과 종목 후보 큐 781건을 이벤트 모델 학습에 반영했다.
@@ -95,6 +96,7 @@ uv run python scripts/build_stock_gold_review_batch.py
 uv run python scripts/validate_stock_gold_review_batch.py
 uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
+uv run python scripts/build_full_universe_codex_stock_review_gold.py
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_confidence_calibration_report.py
@@ -118,6 +120,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## Coverage report 해석
 - `reports/stock-coverage-report.json`의 `training_stock_count`와 `evaluation_stock_count`는 승인된 stock review gold를 포함한 supervised/reference coverage다.
+- `reports/full-universe-codex-coverage-report.json`은 유효 6자리 국내주식 3,920개가 stock review gold train/eval reference coverage에 모두 포함되는지 검증한다.
+- `codex_review_approved` full-universe reference row는 커밋된 coverage lineage로 쓰지만, self-training feedback loop를 막기 위해 supervised loss에서는 제외한다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
 - 현재 event model pseudo training coverage는 781건, 781개 종목이며 supervised/reference coverage와 별도로 해석한다.
 - `reports/model-release-report.json`의 `service_readiness`는 bootstrap 운영 판단이며, release quality gate와 stock-candidate pseudo coverage를 기준으로 한다.
@@ -134,8 +138,8 @@ uv run python scripts/build_pseudo_label_monitoring_report.py
 
 ## 운영 전 보강
 - drift 감시
-- supervised 학습 데이터 300개 이상 종목 coverage 확보
-- evaluation gold 100개 이상 종목 coverage 확보
+- full-universe Codex reference coverage 누락 0 유지
+- 사람이 검수한 supervised/evaluation gold label 증분 확대
 - 후보 큐 3,506개 종목에서 종목·라벨별 human review batch 운영
 - 재학습 기준과 rollback 절차
 - 배포 환경별 Secret Manager 연동 완료 후 secret rotation runbook 작성

@@ -95,11 +95,12 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 1.0, 감성 accuracy 1.0, 중요도 accuracy 0.9667, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9625, 이벤트 macro F1 0.9108, 감성 accuracy 0.9125, 중요도 accuracy 0.9250, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260619093342`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260619095828`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 - `reports/model-release-report.json`은 bootstrap service readiness와 `human_review_approved`/`codex_review_approved` coverage gold 기반 audited readiness를 모두 `pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,204건, teacher 탈락 4,007건, quota 보류 72건, 최종 승격 1,125건을 `overall_status=pass`로 기록한다.
-- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,613개 종목, training/reference 1,536개 종목, evaluation/reference 557개 종목을 기록한다.
+- `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,613개 종목, training/reference 3,422개 종목, evaluation/reference 557개 종목을 기록한다.
 - `reports/stock-coverage-report.json`은 event-model-only pseudo 학습 coverage 781건, 781개 종목도 별도 섹션으로 기록한다.
+- `reports/full-universe-codex-coverage-report.json`은 유효 6자리 국내주식 3,920개, Codex reference 보강 1,920건, 전체 coverage 3,920개, 누락 0개를 기록한다.
 - `reports/stock-collection-shard-plan.json`은 후보 큐와 gold가 없는 458개 종목, 5개 shard, 2,290개 Naver 쿼리를 기록한다.
 - stock collection shard plan은 351개 `no_raw_no_candidate` 종목을 raw가 이미 있는 종목보다 먼저 수집 대상으로 둔다.
 - `reports/stock-candidate-quota-experiment.json`은 calibrated current release 781건/781종목이 gate를 통과했고, risk/contract 확장 profile은 895건/709종목까지 확장됐지만 실제 뉴스 gold macro F1 gate를 통과하지 못했음을 기록한다.
@@ -111,7 +112,7 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
 - `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률을 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
-- 전 종목 실서비스 coverage gate는 현재 `fail`이며, 다음 데이터 확장 PR의 기준선으로 사용한다.
+- 전 종목 reference coverage gate는 현재 `pass`이며, 다음 확장은 운영 알림 로그와 사람 검수 gold 품질 보강을 기준선으로 사용한다.
 
 ## 추가 예정
 - 배포 네트워크에서 외부 접근 차단 확인
