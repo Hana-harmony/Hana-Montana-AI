@@ -1,15 +1,15 @@
 {
   "schema_version": "stock-coverage-report/v1",
-  "generated_at": "2026-06-19T09:35:22.024677+00:00",
+  "generated_at": "2026-06-19T09:59:41.496166+00:00",
   "universe_path": "data/reference/korea_stock_universe.csv",
   "universe_count": 3967,
-  "training_stock_count": 1536,
+  "training_stock_count": 3422,
   "evaluation_stock_count": 557,
   "raw_matched_stock_count": 3613,
-  "training_coverage_ratio": 0.38719435341567937,
+  "training_coverage_ratio": 0.8626165868414419,
   "evaluation_coverage_ratio": 0.1404083690446181,
   "raw_coverage_ratio": 0.9107638013612301,
-  "training_sample_count": 5109,
+  "training_sample_count": 7029,
   "evaluation_sample_count": 1378,
   "raw_sample_count": 68710,
   "top_training_stocks": [
@@ -21,12 +21,12 @@
     {
       "stock_code": "005930",
       "stock_name": "삼성전자",
-      "sample_count": 403
+      "sample_count": 404
     },
     {
       "stock_code": "005380",
       "stock_name": "현대자동차",
-      "sample_count": 403
+      "sample_count": 404
     },
     {
       "stock_code": "000270",
@@ -36,82 +36,82 @@
     {
       "stock_code": "066570",
       "stock_name": "LG전자",
-      "sample_count": 221
+      "sample_count": 222
     },
     {
       "stock_code": "009450",
       "stock_name": "경동나비엔",
-      "sample_count": 220
+      "sample_count": 221
     },
     {
       "stock_code": "329180",
       "stock_name": "HD현대중공업",
-      "sample_count": 220
+      "sample_count": 221
     },
     {
       "stock_code": "034020",
       "stock_name": "두산에너빌리티",
-      "sample_count": 220
+      "sample_count": 221
     },
     {
       "stock_code": "035420",
       "stock_name": "NAVER",
-      "sample_count": 183
+      "sample_count": 184
     },
     {
       "stock_code": "035720",
       "stock_name": "카카오",
-      "sample_count": 182
+      "sample_count": 183
     },
     {
       "stock_code": "068270",
       "stock_name": "셀트리온",
-      "sample_count": 182
+      "sample_count": 183
     },
     {
       "stock_code": "207940",
       "stock_name": "삼성바이오로직스",
-      "sample_count": 181
+      "sample_count": 182
     },
     {
       "stock_code": "105560",
       "stock_name": "KB금융",
-      "sample_count": 181
+      "sample_count": 182
     },
     {
       "stock_code": "373220",
       "stock_name": "LG에너지솔루션",
-      "sample_count": 3
+      "sample_count": 4
     },
     {
       "stock_code": "051910",
       "stock_name": "LG화학",
-      "sample_count": 2
+      "sample_count": 3
     },
     {
       "stock_code": "005490",
       "stock_name": "POSCO홀딩스",
-      "sample_count": 2
+      "sample_count": 3
     },
     {
       "stock_code": "293490",
       "stock_name": "카카오게임즈",
-      "sample_count": 2
-    },
-    {
-      "stock_code": "123456",
-      "stock_name": "",
-      "sample_count": 1
+      "sample_count": 3
     },
     {
       "stock_code": "003490",
       "stock_name": "대한항공",
-      "sample_count": 1
+      "sample_count": 2
     },
     {
       "stock_code": "036570",
       "stock_name": "NC",
-      "sample_count": 1
+      "sample_count": 2
+    },
+    {
+      "stock_code": "015760",
+      "stock_name": "한국전력공사",
+      "sample_count": 2
     }
   ],
   "top_raw_stocks": [
@@ -230,7 +230,7 @@
         "status": "pass"
       },
       "training_stock_count": {
-        "actual": 1536,
+        "actual": 3422,
         "minimum": 300,
         "status": "pass"
       },
@@ -257,7 +257,7 @@
       "GENERAL_MARKET": 0
     },
     "stock_candidate_per_stock_quota": 1,
-    "effective_event_training_stock_count_lower_bound": 1536,
+    "effective_event_training_stock_count_lower_bound": 3422,
     "interpretation": "pseudo event labels are model-training coverage, not supervised gold coverage"
   }
 }

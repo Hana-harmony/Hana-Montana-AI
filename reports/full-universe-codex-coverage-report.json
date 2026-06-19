@@ -1,0 +1,15 @@
+{
+  "schema_version": "full-universe-codex-coverage/v1",
+  "universe_path": "data/reference/korea_stock_universe.csv",
+  "training_output_path": "data/training/financial_alert_stock_review_gold.jsonl",
+  "evaluation_output_path": "data/evaluation/financial_alert_stock_review_gold.jsonl",
+  "valid_numeric_universe_count": 3920,
+  "existing_covered_stock_count": 2000,
+  "generated_codex_reference_row_count": 1920,
+  "training_stock_count": 3420,
+  "evaluation_stock_count": 500,
+  "full_coverage_stock_count": 3920,
+  "missing_stock_count_after_generation": 0,
+  "review_status": "codex_review_approved",
+  "supervised_loss_policy": "codex_review_approved rows are committed as reference/evaluation coverage and excluded from supervised loss by train_ml_model"
+}
