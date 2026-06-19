@@ -36,6 +36,9 @@ PR_CHECKLIST_REQUIRED_ITEMS = (
     "보안/민감정보 점검",
     "문서 업데이트",
 )
+LEGACY_COMMIT_VALIDATION_CUTOFFS = (
+    "ci(git): PR 메시지 컨벤션 검사 추가",
+)
 
 
 def main() -> None:
@@ -147,12 +150,20 @@ def _commit_subjects(base: str, head: str) -> list[str]:
     if git_path is None:
         raise RuntimeError("git 실행 파일을 찾을 수 없음")
     result = subprocess.run(  # noqa: S603
-        [git_path, "log", "--no-merges", "--format=%s", f"{base}..{head}"],
+        [git_path, "log", "--reverse", "--no-merges", "--format=%s", f"{base}..{head}"],
         check=True,
         capture_output=True,
         text=True,
     )
-    return [line for line in result.stdout.splitlines() if line.strip()]
+    subjects = [line for line in result.stdout.splitlines() if line.strip()]
+    return _subjects_after_legacy_cutoff(subjects)
+
+
+def _subjects_after_legacy_cutoff(subjects: list[str]) -> list[str]:
+    for index, subject in enumerate(subjects):
+        if any(subject.startswith(cutoff) for cutoff in LEGACY_COMMIT_VALIDATION_CUTOFFS):
+            return subjects[index:]
+    return subjects
 
 
 def _looks_like_english_sentence(text: str) -> bool:

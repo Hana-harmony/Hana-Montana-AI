@@ -12,6 +12,7 @@ _validate_commit_subject = verify_message_conventions._validate_commit_subject
 _commit_subjects = verify_message_conventions._commit_subjects
 _validate_pr_body = verify_message_conventions._validate_pr_body
 _validate_pr_title = verify_message_conventions._validate_pr_title
+_subjects_after_legacy_cutoff = verify_message_conventions._subjects_after_legacy_cutoff
 
 
 def test_pr_title_requires_korean_text() -> None:
@@ -87,3 +88,14 @@ def test_commit_subject_collection_skips_merge_commits(monkeypatch) -> None:
         "fix(api): 비즈니스 응답 envelope 계약 통일"
     ]
     assert "--no-merges" in seen_command
+    assert "--reverse" in seen_command
+
+
+def test_commit_subject_collection_skips_legacy_subjects_before_convention() -> None:
+    subjects = [
+        "feat(model): add holdout validation report",
+        "ci(git): PR 메시지 컨벤션 검사 추가 (#78)",
+        "feat(parser): provider 입력 파서 하네스 추가 (#79)",
+    ]
+
+    assert _subjects_after_legacy_cutoff(subjects) == subjects[1:]
