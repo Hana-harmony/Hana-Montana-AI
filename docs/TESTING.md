@@ -77,6 +77,7 @@ uv run python scripts/build_live_news_evaluation_batch.py --stock-sample-size 5 
 - 기능정의서 기반 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 JSON 계약 검증
 - 주문 상태 API가 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 주문 제한 사유를 산출하는지 검증
 - 세무 환급 API가 정부 참조번호, 국세/지방세 분해, 환급 진행 상태, 다음 조치, 사후 환수 고지를 산출하는지 검증
+- 세무 서류 검증 API가 OCR confidence, 위변조 risk, 필수 field 누락 여부로 검증 상태와 manual review 여부를 산출하는지 검증
 - KIS 종목 마스터, KIS 실시간 패킷, KRX 외국인 보유 row, Naver/OpenDART 인텔리전스 row, 세무 서류·거래 row 파싱 검증
 - 인텔리전스 provider row가 모델 입력, API/WebSocket 중복키, 종목·출처별 중복키 경계, 번역·요약 응답, WebSocket 이벤트 패킷으로 연결되는지 검증
 

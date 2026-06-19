@@ -22,6 +22,7 @@ TaxRefundWorkflowStatus = Literal[
 ]
 DocumentType = Literal["RESIDENCE_CERTIFICATE", "TREATY_APPLICATION", "PASSPORT", "OTHER"]
 DocumentVerificationStatus = Literal["VERIFIED", "PENDING", "REJECTED"]
+DocumentRiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
 TaxTransactionType = Literal["DIVIDEND", "SELL"]
 
 
@@ -162,6 +163,31 @@ class TaxDocumentInput(BaseModel):
     verification_status: DocumentVerificationStatus
     ocr_confidence: float = Field(ge=0.0, le=1.0)
     fraud_risk_score: float = Field(ge=0.0, le=1.0)
+
+
+class TaxDocumentVerificationRequest(BaseModel):
+    document_type: DocumentType
+    file_name: str = Field(min_length=1, max_length=180)
+    extracted_text: str = Field(default="", max_length=8000)
+    ocr_confidence: float = Field(ge=0.0, le=1.0)
+    fraud_signal_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    expected_investor_id: str | None = Field(default=None, max_length=80)
+    expected_residency_country: str | None = Field(default=None, min_length=2, max_length=2)
+    extracted_fields: dict[str, str] = Field(default_factory=dict, max_length=30)
+
+
+class TaxDocumentVerificationResponse(BaseModel):
+    document_type: DocumentType
+    file_name: str
+    verification_status: DocumentVerificationStatus
+    ocr_confidence: float
+    fraud_risk_score: float
+    risk_level: DocumentRiskLevel
+    manual_review_required: bool
+    extracted_fields: dict[str, str]
+    missing_required_fields: list[str]
+    rejection_reasons: list[str]
+    document_model_version: str
 
 
 class TaxTransactionInput(BaseModel):

@@ -47,3 +47,10 @@
 
 - Swagger UI: `/docs`
 - OpenAPI JSON: `/openapi.json`
+
+## Tax Document Verification
+
+- `POST /api/v1/tax/documents/verify`
+- 외부 OCR/MTS upload gateway가 추출한 텍스트와 위변조 signal을 받아 공통 envelope로 서류 검증 결과를 반환한다.
+- 응답 `data.verification_status`는 `VERIFIED`, `PENDING`, `REJECTED` 중 하나이며, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`을 포함한다.
+- 이 endpoint는 원본 파일을 저장하거나 국세청 제출을 수행하지 않는다.

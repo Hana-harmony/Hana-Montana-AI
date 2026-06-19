@@ -795,3 +795,8 @@
 - PR 제목도 커밋 제목과 동일한 `type(scope): 한글 제목` 형식을 요구하도록 메시지 하네스를 변경했다.
 - 단일 커밋 PR에서는 PR 제목이 대표 커밋 제목 전체와 일치해야 통과하도록 회귀 테스트를 갱신했다.
 - Git 전략과 테스트 문서의 PR 제목 예시를 prefix 포함 형식으로 수정했다.
+
+## 2026-06-19 - 세무 서류 OCR/위변조 검증 모델 API
+- `/api/v1/tax/documents/verify`를 추가해 외부 OCR 결과와 위변조 signal을 `VERIFIED`, `PENDING`, `REJECTED` 상태로 판정한다.
+- OCR confidence, fraud risk, 필수 field 누락, manual review 여부, rejection reason, document model version을 공통 응답 envelope으로 반환한다.
+- CASE_01 환급 모델이 소비하는 `ocr-fraud-risk-gate-v1` 문서 검증 결과를 API 계약 테스트로 고정했다.

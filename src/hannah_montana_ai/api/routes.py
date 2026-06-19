@@ -12,6 +12,8 @@ from hannah_montana_ai.domain.schemas import (
     IntelligenceEventResponse,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
+    TaxDocumentVerificationRequest,
+    TaxDocumentVerificationResponse,
     TaxRefundStatusRequest,
     TaxRefundStatusResponse,
 )
@@ -20,6 +22,7 @@ from hannah_montana_ai.services.audit import AnalysisAuditLogger
 from hannah_montana_ai.services.feature_contracts import (
     IntelligenceEventService,
     StockOrderStatusService,
+    TaxDocumentVerificationService,
     TaxRefundStatusService,
 )
 from hannah_montana_ai.services.model import ModelArtifactError
@@ -45,6 +48,11 @@ def get_stock_order_status_service() -> StockOrderStatusService:
 @lru_cache
 def get_tax_refund_status_service() -> TaxRefundStatusService:
     return TaxRefundStatusService()
+
+
+@lru_cache
+def get_tax_document_verification_service() -> TaxDocumentVerificationService:
+    return TaxDocumentVerificationService()
 
 
 @router.post(
@@ -121,6 +129,16 @@ def build_intelligence_event(
 )
 def tax_refund_status(request: TaxRefundStatusRequest) -> ApiResponse[TaxRefundStatusResponse]:
     return success_response(get_tax_refund_status_service().build_response(request))
+
+
+@router.post(
+    "/tax/documents/verify",
+    response_model=ApiResponse[TaxDocumentVerificationResponse],
+)
+def tax_document_verify(
+    request: TaxDocumentVerificationRequest,
+) -> ApiResponse[TaxDocumentVerificationResponse]:
+    return success_response(get_tax_document_verification_service().build_response(request))
 
 
 def _elapsed_ms(started_at: float) -> float:

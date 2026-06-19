@@ -16,6 +16,7 @@
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`
+- 내부 endpoint: `POST /api/v1/tax/documents/verify`
 - 내부 endpoint: `POST /api/v1/tax/refund-status`
 - 모든 내부 비즈니스 endpoint는 `ApiResponse` 공통 envelope로 성공/상태/코드/메시지/본문을 함께 반환한다.
 - AI 서비스는 협력사용 `OMNILENS_API_KEY`를 요구하지 않는다.
@@ -30,4 +31,5 @@
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 canonical title을 SHA-256으로 해시한다.
 - 주문 상태 계약은 외부 KIS/KRX/PredictEngine 입력값을 받아 외국인 보유율, 한도소진율, 예측 지분율 구간, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
 - 인텔리전스 이벤트 계약은 기존 분석 결과에 번역 제목·요약, 금융 용어집 정규화 결과, 번역 품질 플래그를 붙여 현지 MTS WebSocket 패킷 형태로 패킹한다.
+- 세무 서류 검증 계약은 외부 OCR 결과와 위변조 signal을 표준 `VERIFIED/PENDING/REJECTED` 결과로 판정한다.
 - 세무 환급 계약은 OCR/위변조 검증 결과와 거래 원장을 입력받아 CASE_01 여부, 환급 가능액, 선지급 수수료, 사후 환수 플래그를 계산한다.

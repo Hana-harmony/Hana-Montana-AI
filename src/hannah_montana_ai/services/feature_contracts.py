@@ -7,6 +7,8 @@ from typing import Literal
 
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
+    DocumentRiskLevel,
+    DocumentVerificationStatus,
     FinancialGlossaryTerm,
     ForeignLimitUsageStatus,
     IntelligenceEventRequest,
@@ -16,6 +18,8 @@ from hannah_montana_ai.domain.schemas import (
     StockOrderStatusRequest,
     StockOrderStatusResponse,
     TaxCaseType,
+    TaxDocumentVerificationRequest,
+    TaxDocumentVerificationResponse,
     TaxRefundStatusRequest,
     TaxRefundStatusResponse,
     TaxRefundWorkflowStatus,
@@ -128,6 +132,18 @@ class TaxRefundPrediction:
     document_model_version: str
 
 
+@dataclass(frozen=True)
+class TaxDocumentVerificationPrediction:
+    verification_status: DocumentVerificationStatus
+    fraud_risk_score: float
+    risk_level: DocumentRiskLevel
+    manual_review_required: bool
+    extracted_fields: dict[str, str]
+    missing_required_fields: list[str]
+    rejection_reasons: list[str]
+    document_model_version: str
+
+
 class ForeignOwnershipBoundaryModel:
     version = FOREIGN_OWNERSHIP_MODEL_VERSION
 
@@ -231,6 +247,34 @@ class FinancialTranslationModel:
             quality_flags=quality_flags,
             provider=self.provider,
             model_version=self.version,
+        )
+
+
+class TaxDocumentVerificationModel:
+    version = DOCUMENT_VERIFICATION_MODEL_VERSION
+
+    def predict(self, request: TaxDocumentVerificationRequest) -> TaxDocumentVerificationPrediction:
+        extracted_fields = _normalize_document_fields(request)
+        missing_required_fields = _missing_required_document_fields(request, extracted_fields)
+        rejection_reasons = _document_rejection_reasons(
+            request,
+            missing_required_fields,
+        )
+        risk_level = _document_risk_level(request.ocr_confidence, request.fraud_signal_score)
+        verification_status = _document_verification_status(
+            request,
+            missing_required_fields,
+            rejection_reasons,
+        )
+        return TaxDocumentVerificationPrediction(
+            verification_status=verification_status,
+            fraud_risk_score=round(request.fraud_signal_score, 4),
+            risk_level=risk_level,
+            manual_review_required=verification_status != "VERIFIED",
+            extracted_fields=extracted_fields,
+            missing_required_fields=missing_required_fields,
+            rejection_reasons=rejection_reasons,
+            document_model_version=self.version,
         )
 
 
@@ -549,6 +593,30 @@ def _contains_korean_financial_term(source_text: str, translated_text: str) -> b
     )
 
 
+class TaxDocumentVerificationService:
+    def __init__(self, model: TaxDocumentVerificationModel | None = None) -> None:
+        self._model = model or TaxDocumentVerificationModel()
+
+    def build_response(
+        self,
+        request: TaxDocumentVerificationRequest,
+    ) -> TaxDocumentVerificationResponse:
+        prediction = self._model.predict(request)
+        return TaxDocumentVerificationResponse(
+            document_type=request.document_type,
+            file_name=request.file_name,
+            verification_status=prediction.verification_status,
+            ocr_confidence=round(request.ocr_confidence, 4),
+            fraud_risk_score=prediction.fraud_risk_score,
+            risk_level=prediction.risk_level,
+            manual_review_required=prediction.manual_review_required,
+            extracted_fields=prediction.extracted_fields,
+            missing_required_fields=prediction.missing_required_fields,
+            rejection_reasons=prediction.rejection_reasons,
+            document_model_version=prediction.document_model_version,
+        )
+
+
 def _rate(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
@@ -655,6 +723,93 @@ def _required_documents_completed(request: TaxRefundStatusRequest) -> bool:
         and document.fraud_risk_score <= 0.2
     }
     return required_types.issubset(verified_types)
+
+
+def _normalize_document_fields(request: TaxDocumentVerificationRequest) -> dict[str, str]:
+    fields = {
+        key.strip().lower(): value.strip()
+        for key, value in request.extracted_fields.items()
+        if key.strip() and value.strip()
+    }
+    normalized_text = request.extracted_text.lower()
+    fields.setdefault("document_type", request.document_type)
+    if request.expected_investor_id and request.expected_investor_id.lower() in normalized_text:
+        fields.setdefault("investor_id", request.expected_investor_id)
+    if request.expected_residency_country and _country_present(
+        normalized_text,
+        request.expected_residency_country,
+    ):
+        fields.setdefault("residency_country", request.expected_residency_country.upper())
+    return fields
+
+
+def _missing_required_document_fields(
+    request: TaxDocumentVerificationRequest,
+    extracted_fields: dict[str, str],
+) -> list[str]:
+    required_fields = ["document_type"]
+    if request.document_type == "RESIDENCE_CERTIFICATE":
+        required_fields.extend(["investor_id", "residency_country"])
+    elif request.document_type == "TREATY_APPLICATION":
+        required_fields.extend(["investor_id", "treaty_application_marker"])
+    missing = [field for field in required_fields if field not in extracted_fields]
+    normalized_text = request.extracted_text.lower()
+    if request.document_type == "TREATY_APPLICATION" and "treaty_application_marker" in missing:
+        if any(keyword in normalized_text for keyword in ("treaty", "제한세율", "조세조약")):
+            missing.remove("treaty_application_marker")
+    if request.document_type == "RESIDENCE_CERTIFICATE" and "residency_country" in missing:
+        if request.expected_residency_country and _country_present(
+            normalized_text,
+            request.expected_residency_country,
+        ):
+            missing.remove("residency_country")
+    return missing
+
+
+def _document_rejection_reasons(
+    request: TaxDocumentVerificationRequest,
+    missing_required_fields: list[str],
+) -> list[str]:
+    reasons: list[str] = []
+    if request.ocr_confidence < 0.5:
+        reasons.append("OCR_CONFIDENCE_TOO_LOW")
+    if request.fraud_signal_score >= 0.7:
+        reasons.append("HIGH_FORGERY_RISK")
+    if not request.extracted_text.strip() and not request.extracted_fields:
+        reasons.append("NO_EXTRACTED_CONTENT")
+    if missing_required_fields and request.ocr_confidence < 0.65:
+        reasons.append("REQUIRED_FIELDS_UNREADABLE")
+    return reasons
+
+
+def _document_risk_level(ocr_confidence: float, fraud_signal_score: float) -> DocumentRiskLevel:
+    if ocr_confidence < 0.65 or fraud_signal_score >= 0.5:
+        return "HIGH"
+    if ocr_confidence < 0.8 or fraud_signal_score > 0.2:
+        return "MEDIUM"
+    return "LOW"
+
+
+def _document_verification_status(
+    request: TaxDocumentVerificationRequest,
+    missing_required_fields: list[str],
+    rejection_reasons: list[str],
+) -> DocumentVerificationStatus:
+    if rejection_reasons:
+        return "REJECTED"
+    if missing_required_fields or request.ocr_confidence < 0.8 or request.fraud_signal_score > 0.2:
+        return "PENDING"
+    return "VERIFIED"
+
+
+def _country_present(normalized_text: str, country: str) -> bool:
+    country = country.upper()
+    country_aliases = {
+        "HK": ("hk", "hong kong", "홍콩"),
+        "US": ("us", "usa", "united states", "미국"),
+    }
+    aliases = country_aliases.get(country, (country.lower(),))
+    return any(alias in normalized_text for alias in aliases)
 
 
 def _tax_case_type(request: TaxRefundStatusRequest) -> TaxCaseType:

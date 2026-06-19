@@ -192,3 +192,60 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert "자동 환수" in payload["risk_disclosure_message"]
     assert payload["tax_model_version"] == "hk-treaty-refund-case-engine-v1"
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
+
+
+def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/tax/documents/verify",
+        json={
+            "document_type": "RESIDENCE_CERTIFICATE",
+            "file_name": "cert_res_2024.pdf",
+            "extracted_text": "Certificate of Resident Status Hong Kong HK_USER_1234",
+            "ocr_confidence": 0.94,
+            "fraud_signal_score": 0.03,
+            "expected_investor_id": "HK_USER_1234",
+            "expected_residency_country": "HK",
+        },
+    )
+
+    assert response.status_code == 200
+    envelope = response.json()
+    assert envelope["success"] is True
+    assert envelope["status"] == 200
+    assert envelope["code"] == "COMMON_000"
+    payload = envelope["data"]
+    assert payload["document_type"] == "RESIDENCE_CERTIFICATE"
+    assert payload["verification_status"] == "VERIFIED"
+    assert payload["ocr_confidence"] == 0.94
+    assert payload["fraud_risk_score"] == 0.03
+    assert payload["risk_level"] == "LOW"
+    assert payload["manual_review_required"] is False
+    assert payload["extracted_fields"]["investor_id"] == "HK_USER_1234"
+    assert payload["extracted_fields"]["residency_country"] == "HK"
+    assert payload["missing_required_fields"] == []
+    assert payload["rejection_reasons"] == []
+    assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
+
+
+def test_tax_document_verification_rejects_high_forgery_risk() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/tax/documents/verify",
+        json={
+            "document_type": "TREATY_APPLICATION",
+            "file_name": "treaty_application.jpg",
+            "extracted_text": "Treaty application HK_USER_1234",
+            "ocr_confidence": 0.91,
+            "fraud_signal_score": 0.81,
+            "expected_investor_id": "HK_USER_1234",
+            "expected_residency_country": "HK",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["verification_status"] == "REJECTED"
+    assert payload["risk_level"] == "HIGH"
+    assert payload["manual_review_required"] is True
+    assert "HIGH_FORGERY_RISK" in payload["rejection_reasons"]

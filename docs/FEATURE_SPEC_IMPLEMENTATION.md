@@ -64,6 +64,10 @@
   - `data_source="Naver/OpenDART/NLP/PapagoDeepLAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
+- endpoint: `POST /api/v1/tax/documents/verify`
+  - 입력: 서류 유형, 파일명, OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 투자자 ID/거주지 국가.
+  - 처리: OCR confidence와 fraud signal score, 필수 field 누락 여부로 `VERIFIED`, `PENDING`, `REJECTED`를 산출한다.
+  - 출력: `verification_status`, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`.
 - endpoint: `POST /api/v1/tax/refund-status`
 - 입력: 투자자 ID, 거주지 국가, 과세연도, OCR/위변조 검증 완료 서류, 배당·매도 거래 원장.
 - 파서:
