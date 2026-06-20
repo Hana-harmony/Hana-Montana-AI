@@ -78,6 +78,7 @@
 - confidence calibration 리포트: `reports/model-confidence-calibration.json`
 - stock candidate quota experiment 리포트: `reports/stock-candidate-quota-experiment.json`
 - 실시간 뉴스 smoke/drift 리포트: `reports/live-news-evaluation-report.json`
+- 실시간 뉴스 최신성 status 리포트: `reports/live-news-monitoring-status.json`
 - 승인된 학습 gold 승격 파일: `data/training/financial_alert_stock_review_gold.jsonl`
 - 승인된 평가 gold 승격 파일: `data/evaluation/financial_alert_stock_review_gold.jsonl`
 - gold 승격 리포트: `reports/stock-gold-promotion-report.json`
@@ -255,3 +256,4 @@
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의. 최신 모델로 생성한 `reports/live-news-evaluation-report.json`에서 confidence 분포, 종목 미매칭률, label distribution drift를 같이 확인한다.
+- `reports/live-news-monitoring-status.json`이 `overall_status=stale`이면 해당 live-news smoke 리포트는 최신 release 품질 근거에서 제외하고, 운영 Naver credential로 배치를 다시 생성한다.

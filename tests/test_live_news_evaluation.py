@@ -5,7 +5,9 @@ from hannah_montana_ai.training.collector import ProviderCollectionStatus, RawCo
 from hannah_montana_ai.training.live_news_evaluation import (
     LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION,
     LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION,
+    LIVE_NEWS_MONITORING_STATUS_SCHEMA_VERSION,
     build_live_news_evaluation_batch,
+    build_live_news_monitoring_status,
     build_live_news_queries,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry
@@ -132,3 +134,90 @@ def test_live_news_evaluation_batch_records_unlabeled_model_review_rows() -> Non
     assert batch.report["sampled_stock_related_match_count"] == 1
     assert batch.report["sampled_stock_model_match_rate"] == 1.0
     assert batch.report["provider_status_totals"]["attempted_requests"] == 1
+    assert batch.report["confidence_summary"]["event_confidence"] == {
+        "count": 1,
+        "average": 0.82,
+        "minimum": 0.82,
+        "maximum": 0.82,
+    }
+    assert batch.report["confidence_summary"]["stock_match_confidence"] == {
+        "count": 1,
+        "average": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0,
+    }
+
+
+def test_live_news_monitoring_status_marks_stale_report() -> None:
+    live_report = {
+        "schema_version": "live-news-evaluation-report/v1",
+        "row_schema_version": "live-news-evaluation-row/v1",
+        "generated_at": "2026-06-13T01:42:41.989162+00:00",
+        "model_version": "financial-ml-tfidf-logreg-20260612005235",
+        "emitted_row_count": 10,
+        "sampled_stock_model_match_rate": 0.7,
+    }
+    release_report = {
+        "schema_version": "model-release-report/v1",
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+    }
+
+    status = build_live_news_monitoring_status(
+        live_report=live_report,
+        release_report=release_report,
+    )
+
+    assert status["schema_version"] == LIVE_NEWS_MONITORING_STATUS_SCHEMA_VERSION
+    assert status["overall_status"] == "stale"
+    assert status["checks"] == {
+        "report_schema_current": False,
+        "row_schema_current": False,
+        "model_version_current": False,
+        "confidence_summary_present": False,
+        "emitted_rows_present": True,
+    }
+    assert status["policy"]["confidence_usage"] == "observe_only"
+
+
+def test_live_news_monitoring_status_passes_current_report() -> None:
+    live_report = {
+        "schema_version": LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION,
+        "row_schema_version": LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION,
+        "generated_at": "2026-06-20T00:00:00+00:00",
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+        "emitted_row_count": 1,
+        "sampled_stock_model_match_rate": 1.0,
+        "confidence_summary": {
+            "event_confidence": {"count": 1, "average": 0.82, "minimum": 0.82, "maximum": 0.82},
+            "sentiment_confidence": {
+                "count": 1,
+                "average": 0.8,
+                "minimum": 0.8,
+                "maximum": 0.8,
+            },
+            "importance_confidence": {
+                "count": 1,
+                "average": 0.85,
+                "minimum": 0.85,
+                "maximum": 0.85,
+            },
+            "stock_match_confidence": {
+                "count": 1,
+                "average": 1.0,
+                "minimum": 1.0,
+                "maximum": 1.0,
+            },
+        },
+    }
+    release_report = {
+        "schema_version": "model-release-report/v1",
+        "model_version": "financial-ml-tfidf-logreg-20260619095828",
+    }
+
+    status = build_live_news_monitoring_status(
+        live_report=live_report,
+        release_report=release_report,
+    )
+
+    assert status["overall_status"] == "pass"
+    assert all(status["checks"].values())

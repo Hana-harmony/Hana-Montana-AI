@@ -21,7 +21,14 @@ from hannah_montana_ai.training.weak_labeler import RawCollectedAlert
 
 LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION = "live-news-evaluation-row/v2"
 LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION = "live-news-evaluation-report/v2"
+LIVE_NEWS_MONITORING_STATUS_SCHEMA_VERSION = "live-news-monitoring-status/v1"
 DEFAULT_LIVE_NEWS_INTENTS = ("주가", "실적", "공시", "수주", "전망")
+LIVE_NEWS_CONFIDENCE_FIELDS = (
+    "event_confidence",
+    "sentiment_confidence",
+    "importance_confidence",
+    "stock_match_confidence",
+)
 
 
 class FinancialModel(Protocol):
@@ -199,12 +206,74 @@ def build_live_news_evaluation_report(
         "event_top_label_distribution": dict(Counter(row["event_top_label"] for row in rows)),
         "sentiment_distribution": dict(Counter(row["predicted_sentiment"] for row in rows)),
         "importance_distribution": dict(Counter(row["predicted_importance"] for row in rows)),
+        "confidence_summary": _confidence_summary(rows),
         "evaluation_policy": {
             "status": "unlabeled_live_smoke",
             "f1_available": False,
             "description": (
                 "실시간 뉴스 배치는 라벨 없는 운영 표본이다. final_* 라벨을 채워 gold로 "
                 "승격하기 전까지 F1이 아니라 drift, confidence, 종목 매칭 점검에만 쓴다."
+            ),
+        },
+    }
+
+
+def build_live_news_monitoring_status(
+    *,
+    live_report: dict[str, Any],
+    release_report: dict[str, Any],
+    generated_at: datetime | None = None,
+) -> dict[str, Any]:
+    timestamp = (generated_at or datetime.now(UTC)).isoformat()
+    live_model_version = str(live_report.get("model_version") or "")
+    release_model_version = str(release_report.get("model_version") or "")
+    checks = {
+        "report_schema_current": (
+            live_report.get("schema_version") == LIVE_NEWS_EVALUATION_REPORT_SCHEMA_VERSION
+        ),
+        "row_schema_current": (
+            live_report.get("row_schema_version") == LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION
+        ),
+        "model_version_current": (
+            bool(live_model_version)
+            and bool(release_model_version)
+            and live_model_version == release_model_version
+        ),
+        "confidence_summary_present": _confidence_summary_present(live_report),
+        "emitted_rows_present": int(live_report.get("emitted_row_count") or 0) > 0,
+    }
+    stale = not (
+        checks["report_schema_current"]
+        and checks["row_schema_current"]
+        and checks["model_version_current"]
+    )
+    overall_status = "pass" if all(checks.values()) else "stale" if stale else "attention"
+
+    return {
+        "schema_version": LIVE_NEWS_MONITORING_STATUS_SCHEMA_VERSION,
+        "generated_at": timestamp,
+        "overall_status": overall_status,
+        "checks": checks,
+        "live_report": {
+            "schema_version": live_report.get("schema_version"),
+            "row_schema_version": live_report.get("row_schema_version"),
+            "generated_at": live_report.get("generated_at"),
+            "model_version": live_model_version,
+            "emitted_row_count": int(live_report.get("emitted_row_count") or 0),
+            "sampled_stock_model_match_rate": live_report.get(
+                "sampled_stock_model_match_rate"
+            ),
+        },
+        "current_release": {
+            "schema_version": release_report.get("schema_version"),
+            "model_version": release_model_version,
+        },
+        "required_action": _monitoring_required_action(overall_status),
+        "policy": {
+            "confidence_usage": "observe_only",
+            "description": (
+                "confidence 값은 운영 품질 관측과 downstream 노출 정책 입력으로만 제공하며 "
+                "Hannah가 신뢰도 기반 자동 차단 여부를 결정하지 않는다."
             ),
         },
     }
@@ -372,3 +441,56 @@ def _provider_status_totals(statuses: Sequence[ProviderCollectionStatus]) -> dic
         "collected_count": totals["collected_count"],
         "errors": errors,
     }
+
+
+def _confidence_summary(rows: Sequence[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {
+        field: _numeric_summary(
+            [
+                float(value)
+                for row in rows
+                if isinstance((value := row.get(field)), (int, float))
+                and not isinstance(value, bool)
+            ]
+        )
+        for field in LIVE_NEWS_CONFIDENCE_FIELDS
+    }
+
+
+def _numeric_summary(values: Sequence[float]) -> dict[str, Any]:
+    if not values:
+        return {"count": 0, "average": None, "minimum": None, "maximum": None}
+    return {
+        "count": len(values),
+        "average": round(sum(values) / len(values), 6),
+        "minimum": round(min(values), 6),
+        "maximum": round(max(values), 6),
+    }
+
+
+def _confidence_summary_present(live_report: dict[str, Any]) -> bool:
+    summary = live_report.get("confidence_summary")
+    if not isinstance(summary, dict):
+        return False
+    for field in LIVE_NEWS_CONFIDENCE_FIELDS:
+        field_summary = summary.get(field)
+        if not isinstance(field_summary, dict):
+            return False
+        if int(field_summary.get("count") or 0) <= 0:
+            return False
+    return True
+
+
+def _monitoring_required_action(overall_status: str) -> str:
+    if overall_status == "pass":
+        return "추가 조치 없음. 최신 release 기준 실시간 뉴스 smoke/drift 리포트가 유효하다."
+    if overall_status == "stale":
+        return (
+            "Naver credential이 있는 운영 환경에서 "
+            "scripts/build_live_news_evaluation_batch.py를 재실행한 뒤 "
+            "scripts/build_live_news_monitoring_status.py로 최신성 상태를 갱신한다."
+        )
+    return (
+        "리포트는 최신 모델 기준이지만 confidence summary 또는 row 수가 부족하므로 "
+        "실시간 뉴스 표본 수집 상태를 확인한다."
+    )
