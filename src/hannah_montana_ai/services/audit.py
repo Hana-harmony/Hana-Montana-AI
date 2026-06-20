@@ -1,5 +1,6 @@
 import json
 import logging
+from collections.abc import Sequence
 from hashlib import sha256
 from typing import Literal
 
@@ -27,6 +28,12 @@ class AnalysisAuditLogger:
             event_tags=response.event_tags,
             sentiment=response.sentiment,
             importance=response.importance,
+            event_confidence=response.event_confidence,
+            sentiment_confidence=response.sentiment_confidence,
+            importance_confidence=response.importance_confidence,
+            stock_match_confidence=response.stock_match_confidence,
+            review_required=response.review_required,
+            review_reasons=response.review_reasons,
             failure_reason=None,
         )
 
@@ -45,6 +52,12 @@ class AnalysisAuditLogger:
             event_tags=[],
             sentiment=None,
             importance=None,
+            event_confidence=None,
+            sentiment_confidence=None,
+            importance_confidence=None,
+            stock_match_confidence=None,
+            review_required=None,
+            review_reasons=[],
             failure_reason=failure_reason,
         )
 
@@ -58,6 +71,12 @@ class AnalysisAuditLogger:
         event_tags: list[str],
         sentiment: str | None,
         importance: str | None,
+        event_confidence: float | None,
+        sentiment_confidence: float | None,
+        importance_confidence: float | None,
+        stock_match_confidence: float | None,
+        review_required: bool | None,
+        review_reasons: Sequence[str],
         failure_reason: str | None,
     ) -> None:
         payload: dict[str, object] = {
@@ -80,6 +99,18 @@ class AnalysisAuditLogger:
             payload["sentiment"] = sentiment
         if importance is not None:
             payload["importance"] = importance
+        if event_confidence is not None:
+            payload["event_confidence"] = event_confidence
+        if sentiment_confidence is not None:
+            payload["sentiment_confidence"] = sentiment_confidence
+        if importance_confidence is not None:
+            payload["importance_confidence"] = importance_confidence
+        if stock_match_confidence is not None:
+            payload["stock_match_confidence"] = stock_match_confidence
+        if review_required is not None:
+            payload["review_required"] = review_required
+        if review_reasons:
+            payload["review_reasons"] = list(review_reasons)
         if failure_reason is not None:
             payload["failure_reason"] = failure_reason
 

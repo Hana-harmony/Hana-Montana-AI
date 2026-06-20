@@ -115,6 +115,12 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"
     assert payload["translation_model_version"] == "local-financial-glossary-v2"
+    assert 0.0 <= payload["event_confidence"] <= 1.0
+    assert 0.0 <= payload["sentiment_confidence"] <= 1.0
+    assert 0.0 <= payload["importance_confidence"] <= 1.0
+    assert payload["stock_match_confidence"] == 1.0
+    assert isinstance(payload["review_required"], bool)
+    assert isinstance(payload["review_reasons"], list)
     assert payload["data_source"] == "Naver/OpenDART/NLP/DeepLTranslationAdapter"
 
 

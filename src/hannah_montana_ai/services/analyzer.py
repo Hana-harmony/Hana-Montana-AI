@@ -1,5 +1,6 @@
 import re
 from collections.abc import Sequence
+from dataclasses import dataclass
 from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
@@ -9,6 +10,9 @@ from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
+    Importance,
+    ReviewReason,
+    Sentiment,
     StockCandidate,
 )
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
@@ -19,6 +23,17 @@ from hannah_montana_ai.training.stock_universe import (
     load_stock_universe,
     normalize_stock_term,
 )
+
+MIN_EVENT_CONFIDENCE = 0.58
+MIN_SENTIMENT_CONFIDENCE = 0.72
+MIN_IMPORTANCE_CONFIDENCE = 0.68
+MIN_STOCK_MATCH_CONFIDENCE = 0.90
+
+
+@dataclass(frozen=True)
+class StockMatchResult:
+    stock: StockCandidate | StockUniverseEntry | None
+    confidence: float
 
 
 class AlertAnalyzer:
@@ -68,13 +83,20 @@ class AlertAnalyzer:
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         text = f"{request.title} {request.snippet}"
-        primary_stock = self._match_primary_stock_from_request_or_internal(
+        primary_stock_match = self._match_primary_stock_from_request_or_internal(
             text,
             request.stock_universe,
         )
+        primary_stock = primary_stock_match.stock
+        event_probabilities = self.model.event_tag_probabilities(text, request.source_type)
         event_tags = self.model.predict_event_tags(text, request.source_type)
-        sentiment = self.model.classify_sentiment(text)
-        importance = self.model.classify_importance(text, request.source_type)
+        sentiment_probabilities = self.model.sentiment_probabilities(text)
+        sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
+        importance_probabilities = self.model.importance_probabilities(text, request.source_type)
+        importance = cast(
+            Importance,
+            self._top_label(importance_probabilities, fallback="MEDIUM"),
+        )
         related_stocks = self._match_related_stocks_from_request_or_internal(
             text,
             request.stock_universe,
@@ -82,6 +104,16 @@ class AlertAnalyzer:
 
         stock_code = primary_stock.stock_code if primary_stock else None
         stock_name = primary_stock.stock_name if primary_stock else None
+        event_confidence = self._event_confidence(event_tags, event_probabilities)
+        sentiment_confidence = sentiment_probabilities.get(sentiment, 0.0)
+        importance_confidence = importance_probabilities.get(importance, 0.0)
+        review_reasons = self._review_reasons(
+            stock_code=stock_code,
+            stock_match_confidence=primary_stock_match.confidence,
+            event_confidence=event_confidence,
+            sentiment_confidence=sentiment_confidence,
+            importance_confidence=importance_confidence,
+        )
 
         return AlertAnalysisResponse(
             stock_code=stock_code,
@@ -97,6 +129,12 @@ class AlertAnalyzer:
             watchlist_target=self.rule_engine.watchlist_target(importance),
             duplicate_key=self._duplicate_key(request.source_type, request.title, stock_code),
             model_version=self.model.version,
+            event_confidence=round(event_confidence, 6),
+            sentiment_confidence=round(sentiment_confidence, 6),
+            importance_confidence=round(importance_confidence, 6),
+            stock_match_confidence=round(primary_stock_match.confidence, 6),
+            review_required=bool(review_reasons),
+            review_reasons=review_reasons,
         )
 
     def _match_primary_stock(
@@ -117,26 +155,30 @@ class AlertAnalyzer:
         self,
         text: str,
         request_universe: list[StockCandidate],
-    ) -> StockCandidate | StockUniverseEntry | None:
+    ) -> StockMatchResult:
         request_match = self._match_primary_stock(
             text,
             request_universe,
             allow_short_terms=True,
         )
         if request_match is not None:
-            return request_match
+            return StockMatchResult(request_match, 1.0)
         ml_match = self._match_leading_internal_stock_with_ml(text)
         if ml_match is not None:
             return ml_match
-        return self._match_leading_internal_stock(text)
+        internal_match = self._match_leading_internal_stock(text)
+        if internal_match is not None:
+            return StockMatchResult(internal_match, 0.94)
+        return StockMatchResult(None, 0.0)
 
     def _match_leading_internal_stock_with_ml(
         self,
         text: str,
-    ) -> StockUniverseEntry | None:
-        stock_code = self.stock_linker.predict_stock_code(text)
-        if stock_code is None:
+    ) -> StockMatchResult | None:
+        prediction = self.stock_linker.predict_stock_code_with_score(text)
+        if prediction is None:
             return None
+        stock_code, score = prediction
         stock = self._internal_stock_by_code.get(stock_code)
         if stock is None:
             return None
@@ -147,7 +189,7 @@ class AlertAnalyzer:
         )
         if position != 0:
             return None
-        return stock
+        return StockMatchResult(stock, min(max(score, 0.0), 1.0))
 
     def _match_leading_internal_stock(
         self,
@@ -257,6 +299,42 @@ class AlertAnalyzer:
         if value.isdigit() and len(value) == 6:
             return True
         return len(value) >= 3
+
+    def _event_confidence(
+        self,
+        event_tags: list[str],
+        event_probabilities: dict[str, float],
+    ) -> float:
+        if not event_tags:
+            return 0.0
+        return max(event_probabilities.get(tag, 0.0) for tag in event_tags)
+
+    def _top_label(self, probabilities: dict[str, float], *, fallback: str) -> str:
+        if not probabilities:
+            return fallback
+        return max(probabilities.items(), key=lambda item: item[1])[0]
+
+    def _review_reasons(
+        self,
+        *,
+        stock_code: str | None,
+        stock_match_confidence: float,
+        event_confidence: float,
+        sentiment_confidence: float,
+        importance_confidence: float,
+    ) -> list[ReviewReason]:
+        reasons: list[ReviewReason] = []
+        if stock_code is None:
+            reasons.append("STOCK_NOT_MATCHED")
+        elif stock_match_confidence < MIN_STOCK_MATCH_CONFIDENCE:
+            reasons.append("LOW_STOCK_CONFIDENCE")
+        if event_confidence < MIN_EVENT_CONFIDENCE:
+            reasons.append("LOW_EVENT_CONFIDENCE")
+        if sentiment_confidence < MIN_SENTIMENT_CONFIDENCE:
+            reasons.append("LOW_SENTIMENT_CONFIDENCE")
+        if importance_confidence < MIN_IMPORTANCE_CONFIDENCE:
+            reasons.append("LOW_IMPORTANCE_CONFIDENCE")
+        return reasons
 
     def _duplicate_key(self, source_type: str, title: str, stock_code: str | None) -> str:
         normalized = self._normalize_duplicate_title(title)

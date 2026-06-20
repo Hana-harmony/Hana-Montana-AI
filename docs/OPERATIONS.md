@@ -48,7 +48,8 @@ uv run python scripts/build_stock_gold_active_review_report.py
 uv run python scripts/promote_stock_gold_review_batch.py
 uv run python scripts/train_stock_linker_model.py
 ```
-- 실시간 뉴스 smoke/drift 배치는 라벨 없는 운영 표본을 만든다. 이 결과는 `final_*` 라벨을 채워 gold로 승격하기 전까지 F1이 아니라 confidence, 종목 매칭, drift 점검용이다.
+- 실시간 뉴스 smoke/drift 배치는 라벨 없는 운영 표본을 만든다. 이 결과는 `final_*` 라벨을 채워 gold로 승격하기 전까지 F1이 아니라 confidence, 종목 매칭, `review_required` 비율, drift 점검용이다.
+- 운영 자동 발송은 `review_required=false`인 분석 결과만 후보로 사용한다. `STOCK_NOT_MATCHED`, `LOW_STOCK_CONFIDENCE`, `LOW_EVENT_CONFIDENCE`, `LOW_SENTIMENT_CONFIDENCE`, `LOW_IMPORTANCE_CONFIDENCE` 사유가 있으면 사람 검수 또는 fallback 큐로 보낸다.
 ```bash
 uv run python scripts/build_live_news_evaluation_batch.py \
   --stock-sample-size 50 \

@@ -5,6 +5,13 @@ from pydantic import BaseModel, Field, HttpUrl
 SourceType = Literal["NEWS", "DISCLOSURE"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+ReviewReason = Literal[
+    "STOCK_NOT_MATCHED",
+    "LOW_STOCK_CONFIDENCE",
+    "LOW_EVENT_CONFIDENCE",
+    "LOW_SENTIMENT_CONFIDENCE",
+    "LOW_IMPORTANCE_CONFIDENCE",
+]
 MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
 PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
 ForeignLimitUsageStatus = Literal["NORMAL", "CAUTION", "LIMIT_REACHED"]
@@ -55,6 +62,12 @@ class AlertAnalysisResponse(BaseModel):
     watchlist_target: bool
     duplicate_key: str
     model_version: str
+    event_confidence: float = Field(ge=0.0, le=1.0)
+    sentiment_confidence: float = Field(ge=0.0, le=1.0)
+    importance_confidence: float = Field(ge=0.0, le=1.0)
+    stock_match_confidence: float = Field(ge=0.0, le=1.0)
+    review_required: bool
+    review_reasons: list[ReviewReason] = Field(default_factory=list)
 
 
 class StockOrderStatusRequest(BaseModel):
@@ -154,6 +167,12 @@ class IntelligenceEventResponse(BaseModel):
     translation_model_version: str
     translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
     model_version: str
+    event_confidence: float = Field(ge=0.0, le=1.0)
+    sentiment_confidence: float = Field(ge=0.0, le=1.0)
+    importance_confidence: float = Field(ge=0.0, le=1.0)
+    stock_match_confidence: float = Field(ge=0.0, le=1.0)
+    review_required: bool
+    review_reasons: list[ReviewReason] = Field(default_factory=list)
     data_source: str
 
 

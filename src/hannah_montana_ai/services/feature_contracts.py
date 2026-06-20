@@ -520,6 +520,12 @@ class IntelligenceEventService:
             translation_model_version=translation.model_version,
             translation_status=translation.translation_status,
             model_version=analysis.model_version,
+            event_confidence=analysis.event_confidence,
+            sentiment_confidence=analysis.sentiment_confidence,
+            importance_confidence=analysis.importance_confidence,
+            stock_match_confidence=analysis.stock_match_confidence,
+            review_required=analysis.review_required,
+            review_reasons=analysis.review_reasons,
             data_source="Naver/OpenDART/NLP/DeepLTranslationAdapter",
         )
 
