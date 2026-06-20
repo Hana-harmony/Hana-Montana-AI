@@ -793,8 +793,13 @@
 ## 2026-06-20 - 실시간 뉴스 smoke/drift 최신성 status
 - `live_news_evaluation.py`에 `confidence_summary`와 `build_live_news_monitoring_status`를 추가해 live-news 리포트가 최신 release 모델, schema, confidence summary를 만족하는지 검증한다.
 - `scripts/build_live_news_monitoring_status.py`는 외부 API 호출 없이 커밋된 live-news 리포트와 model release 리포트를 비교해 `reports/live-news-monitoring-status.json`을 생성한다.
-- 현재 커밋된 live-news 리포트는 v1 schema와 `financial-ml-tfidf-logreg-20260612005235` 모델 기준이라 최신 `financial-ml-tfidf-logreg-20260619095828` release 대비 `overall_status=stale`로 기록한다.
+- Naver live-news smoke 배치를 최신 `financial-ml-tfidf-logreg-20260619095828` 모델로 재생성해 `overall_status=pass`로 전환했다.
 - confidence는 운영 품질 관측 신호로만 기록하며, 신뢰도 기반 자동 차단은 수행하지 않는다.
+
+## 2026-06-20 - query-scoped live-news primary stock 보강
+- live-news smoke 배치는 종목별 쿼리로 수집한 표본이므로 sampled stock을 request `stock_universe` candidate로 분석기에 전달한다.
+- 전역 analyzer의 internal universe fallback은 기존처럼 보수적으로 유지하고, query-scoped candidate 매칭만 primary confidence 1.0으로 기록한다.
+- 최신 live-news smoke 표본은 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록한다.
 
 ## 2026-06-17 - 기능정의서 기반 API 계약 하네스 추가
 - 국내주식 주문 상태 API가 외국인 보유율, 한도소진율, 예측 지분율 바운더리, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.

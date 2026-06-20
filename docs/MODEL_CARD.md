@@ -256,4 +256,4 @@
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
 - 모델 drift 감시와 재학습 기준 정의. 최신 모델로 생성한 `reports/live-news-evaluation-report.json`에서 confidence 분포, 종목 미매칭률, label distribution drift를 같이 확인한다.
-- `reports/live-news-monitoring-status.json`이 `overall_status=stale`이면 해당 live-news smoke 리포트는 최신 release 품질 근거에서 제외하고, 운영 Naver credential로 배치를 다시 생성한다.
+- 최신 `reports/live-news-monitoring-status.json`은 `overall_status=pass`이며, live-news smoke 표본 기준 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록한다. `stale`이면 해당 리포트는 최신 release 품질 근거에서 제외하고 운영 Naver credential로 배치를 다시 생성한다.

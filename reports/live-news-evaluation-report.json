@@ -1,46 +1,72 @@
 {
-  "schema_version": "live-news-evaluation-report/v1",
-  "row_schema_version": "live-news-evaluation-row/v1",
-  "generated_at": "2026-06-13T01:42:41.989162+00:00",
-  "model_version": "financial-ml-tfidf-logreg-20260612005235",
-  "stock_universe_path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/reference/korea_stock_universe.csv",
-  "output_path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/evaluation/live_news_evaluation_batch.jsonl",
+  "schema_version": "live-news-evaluation-report/v2",
+  "row_schema_version": "live-news-evaluation-row/v2",
+  "generated_at": "2026-06-20T02:35:26.958588+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260619095828",
+  "stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "output_path": "data/evaluation/live_news_evaluation_batch.jsonl",
   "requested_stock_sample_size": 5,
   "selected_stock_count": 5,
   "query_count": 25,
-  "raw_collected_count": 22,
+  "raw_collected_count": 12,
   "emitted_row_count": 10,
   "provider_status_totals": {
     "providers": [
       "naver-news"
     ],
     "completed": true,
-    "attempted_requests": 11,
-    "successful_requests": 11,
+    "attempted_requests": 6,
+    "successful_requests": 6,
     "rate_limited_requests": 0,
     "failed_requests": 0,
-    "collected_count": 22,
+    "collected_count": 12,
     "errors": []
   },
-  "predicted_stock_null_count": 10,
-  "sampled_stock_primary_match_count": 0,
-  "sampled_stock_related_match_count": 7,
-  "sampled_stock_model_match_count": 7,
-  "sampled_stock_model_match_rate": 0.7,
+  "predicted_stock_null_count": 0,
+  "sampled_stock_primary_match_count": 10,
+  "sampled_stock_related_match_count": 10,
+  "sampled_stock_model_match_count": 10,
+  "sampled_stock_model_match_rate": 1.0,
   "event_top_label_distribution": {
-    "CONTRACT": 5,
-    "MACRO": 2,
-    "RISK": 2,
-    "GENERAL_MARKET": 1
+    "GENERAL_MARKET": 2,
+    "EARNINGS": 1,
+    "RISK": 3,
+    "CONTRACT": 4
   },
   "sentiment_distribution": {
-    "NEUTRAL": 3,
-    "NEGATIVE": 1,
-    "POSITIVE": 6
+    "POSITIVE": 5,
+    "NEUTRAL": 4,
+    "NEGATIVE": 1
   },
   "importance_distribution": {
     "MEDIUM": 5,
     "HIGH": 5
+  },
+  "confidence_summary": {
+    "event_confidence": {
+      "count": 10,
+      "average": 0.593669,
+      "minimum": 0.241989,
+      "maximum": 0.959065
+    },
+    "sentiment_confidence": {
+      "count": 10,
+      "average": 0.474333,
+      "minimum": 0.346474,
+      "maximum": 0.747069
+    },
+    "importance_confidence": {
+      "count": 10,
+      "average": 0.627131,
+      "minimum": 0.448132,
+      "maximum": 0.881494
+    },
+    "stock_match_confidence": {
+      "count": 10,
+      "average": 1.0,
+      "minimum": 1.0,
+      "maximum": 1.0
+    }
   },
   "evaluation_policy": {
     "status": "unlabeled_live_smoke",

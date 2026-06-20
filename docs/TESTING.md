@@ -115,7 +115,8 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
 - `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률을 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
-- `reports/live-news-monitoring-status.json`은 현재 커밋된 실시간 뉴스 리포트가 최신 release 모델과 schema보다 오래된 상태라 `overall_status=stale`을 기록한다. 최신성 검증은 `uv run python scripts/build_live_news_monitoring_status.py`로 재생성한다.
+- `reports/live-news-monitoring-status.json`은 현재 커밋된 실시간 뉴스 리포트가 최신 release 모델과 schema, confidence summary를 만족해 `overall_status=pass`를 기록한다. 최신성 검증은 `uv run python scripts/build_live_news_monitoring_status.py`로 재생성한다.
+- 최신 live-news smoke 표본은 `predicted_stock_null_count=0`, `sampled_stock_primary_match_count=10`, `sampled_stock_model_match_rate=1.0`, `stock_match_confidence.average=1.0`을 기록해 query-scoped stock candidate 기반 primary/related 종목 매핑이 모두 유효함을 확인한다.
 - 전 종목 reference coverage gate는 현재 `pass`이며, 다음 확장은 운영 알림 로그와 사람 검수 gold 품질 보강을 기준선으로 사용한다.
 
 ## 추가 예정

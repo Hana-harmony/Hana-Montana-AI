@@ -9,7 +9,11 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any, Protocol, cast
 
-from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, AlertAnalysisResponse
+from hannah_montana_ai.domain.schemas import (
+    AlertAnalysisRequest,
+    AlertAnalysisResponse,
+    StockCandidate,
+)
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.training.collector import (
     ProviderCollectionStatus,
@@ -188,8 +192,8 @@ def build_live_news_evaluation_report(
         "row_schema_version": LIVE_NEWS_EVALUATION_ROW_SCHEMA_VERSION,
         "generated_at": generated_at,
         "model_version": model_version,
-        "stock_universe_path": str(stock_universe_path),
-        "output_path": str(output_path),
+        "stock_universe_path": _path_for_report(stock_universe_path),
+        "output_path": _path_for_report(output_path),
         "requested_stock_sample_size": requested_stock_sample_size,
         "selected_stock_count": selected_stock_count,
         "query_count": query_count,
@@ -327,6 +331,13 @@ def _build_row(
         title=alert.title,
         snippet=alert.snippet,
         original_url=cast(Any, alert.original_url),
+        stock_universe=[
+            StockCandidate(
+                stock_code=live_query.sampled_stock_code,
+                stock_name=live_query.sampled_stock_name,
+                stock_name_en=live_query.sampled_stock_name,
+            )
+        ],
     )
     response = analyzer.analyze(request)
     text = alert.text
@@ -494,3 +505,12 @@ def _monitoring_required_action(overall_status: str) -> str:
         "리포트는 최신 모델 기준이지만 confidence summary 또는 row 수가 부족하므로 "
         "실시간 뉴스 표본 수집 상태를 확인한다."
     )
+
+
+def _path_for_report(path: Path) -> str:
+    if not path.is_absolute():
+        return str(path)
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(path)

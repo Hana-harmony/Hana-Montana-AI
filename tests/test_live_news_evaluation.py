@@ -31,6 +31,8 @@ class FakeAnalyzer:
     model = FakeModel()
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
+        assert request.stock_universe[0].stock_code == "005930"
+        assert request.stock_universe[0].stock_name == "삼성전자"
         return AlertAnalysisResponse(
             stock_code="005930",
             stock_name="삼성전자",

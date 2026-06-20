@@ -56,7 +56,7 @@ uv run python scripts/build_live_news_evaluation_batch.py \
 uv run python scripts/build_live_news_monitoring_status.py
 uv run python scripts/build_translation_sample_report.py --sample-limit-per-source 5
 ```
-- `reports/live-news-monitoring-status.json`은 `reports/live-news-evaluation-report.json`이 현재 release 모델 버전, row/report schema, confidence summary를 만족하는지 검증한다. `overall_status=stale`이면 최신 모델 품질 근거로 쓰지 않고 운영 credential이 있는 환경에서 실시간 뉴스 배치를 다시 생성한다.
+- `reports/live-news-monitoring-status.json`은 `reports/live-news-evaluation-report.json`이 현재 release 모델 버전, row/report schema, confidence summary를 만족하는지 검증한다. `overall_status=pass`일 때만 최신 live-news smoke/drift 근거로 사용하고, `stale`이면 운영 credential이 있는 환경에서 실시간 뉴스 배치를 다시 생성한다.
 - 종목 universe 기반 Naver 수집은 아래처럼 실행한다. 전체 universe를 한 번에 수집하면 provider rate limit이 커지므로 운영에서는 일 단위 shard로 나눠 실행한다.
 ```bash
 uv run python scripts/collect_training_data.py \

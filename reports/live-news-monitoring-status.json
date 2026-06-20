@@ -1,27 +1,27 @@
 {
   "schema_version": "live-news-monitoring-status/v1",
-  "generated_at": "2026-06-20T02:15:34.313958+00:00",
-  "overall_status": "stale",
+  "generated_at": "2026-06-20T02:35:30.026268+00:00",
+  "overall_status": "pass",
   "checks": {
-    "report_schema_current": false,
-    "row_schema_current": false,
-    "model_version_current": false,
-    "confidence_summary_present": false,
+    "report_schema_current": true,
+    "row_schema_current": true,
+    "model_version_current": true,
+    "confidence_summary_present": true,
     "emitted_rows_present": true
   },
   "live_report": {
-    "schema_version": "live-news-evaluation-report/v1",
-    "row_schema_version": "live-news-evaluation-row/v1",
-    "generated_at": "2026-06-13T01:42:41.989162+00:00",
-    "model_version": "financial-ml-tfidf-logreg-20260612005235",
+    "schema_version": "live-news-evaluation-report/v2",
+    "row_schema_version": "live-news-evaluation-row/v2",
+    "generated_at": "2026-06-20T02:35:26.958588+00:00",
+    "model_version": "financial-ml-tfidf-logreg-20260619095828",
     "emitted_row_count": 10,
-    "sampled_stock_model_match_rate": 0.7
+    "sampled_stock_model_match_rate": 1.0
   },
   "current_release": {
     "schema_version": "model-release-report/v1",
     "model_version": "financial-ml-tfidf-logreg-20260619095828"
   },
-  "required_action": "Naver credential이 있는 운영 환경에서 scripts/build_live_news_evaluation_batch.py를 재실행한 뒤 scripts/build_live_news_monitoring_status.py로 최신성 상태를 갱신한다.",
+  "required_action": "추가 조치 없음. 최신 release 기준 실시간 뉴스 smoke/drift 리포트가 유효하다.",
   "policy": {
     "confidence_usage": "observe_only",
     "description": "confidence 값은 운영 품질 관측과 downstream 노출 정책 입력으로만 제공하며 Hannah가 신뢰도 기반 자동 차단 여부를 결정하지 않는다."
