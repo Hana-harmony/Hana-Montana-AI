@@ -276,7 +276,7 @@ def build_live_news_monitoring_status(
         "policy": {
             "confidence_usage": "observe_only",
             "description": (
-                "confidence 값은 운영 품질 관측과 downstream 노출 정책 입력으로만 제공하며 "
+                "confidence 값은 운영 품질 관측과 UI 표시용 메타데이터로만 제공하며 "
                 "Hannah가 신뢰도 기반 자동 차단 여부를 결정하지 않는다."
             ),
         },

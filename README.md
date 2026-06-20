@@ -43,7 +43,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 수집된 대량 weak-label 후보는 supervised teacher 모델의 confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
 학습 결과는 `reports/ml-training-report.json`의 80:20 holdout 검증, `reports/ml-model-evaluation.json`의 gold 평가셋 지표, `reports/model-release-report.json`의 버전별 release gate, `reports/pseudo-label-promotion-monitoring.json`의 pseudo-label 운영 상태로 기록한다.
 번역 품질 보조 결과는 `reports/translation-sample-report.json`에 실제 뉴스·공시 gold 원문, 로컬 glossary 번역, AI 분석 결과, review finding을 함께 기록한다.
-분석 응답은 이벤트·감성·중요도·종목 매핑 confidence를 포함해 downstream이 품질 관측과 노출 정책에 활용할 수 있게 한다.
+분석 응답은 이벤트·감성·중요도·종목 매핑 confidence를 포함한다. 이 값은 품질 관측과 UI 표시용 메타데이터이며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
 
 AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
 
