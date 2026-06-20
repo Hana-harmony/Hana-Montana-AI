@@ -39,8 +39,6 @@ class FakeAnalyzer:
             sentiment_confidence=0.86,
             importance_confidence=0.88,
             stock_match_confidence=1.0 if stock_code else 0.0,
-            review_required=stock_code is None,
-            review_reasons=[] if stock_code else ["STOCK_NOT_MATCHED"],
         )
 
 

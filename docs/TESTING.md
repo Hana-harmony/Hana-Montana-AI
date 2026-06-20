@@ -113,7 +113,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - `reports/stock-gold-promotion-report.json`은 승인된 검수 row 중 최종 검수 필드를 통과한 row만 학습·평가 gold 출력으로 편입했는지 기록한다.
 - `reports/stock-linker-training-report.json`은 stock linker 학습 term 7,649건, 3,967개 종목을 기록하며 coverage gate를 `pass`로 기록한다.
 - stock linker ML은 전체 종목코드 템플릿 accuracy 1.0, trainable 종목명 템플릿 accuracy 0.9921을 기록한다.
-- `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률, `review_required_rate`를 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
+- `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률을 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
 - 전 종목 reference coverage gate는 현재 `pass`이며, 다음 확장은 운영 알림 로그와 사람 검수 gold 품질 보강을 기준선으로 사용한다.
 
 ## 추가 예정

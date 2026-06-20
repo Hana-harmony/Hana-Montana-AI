@@ -118,7 +118,7 @@
 - gold coverage review plan도 `needs_human_review` 상태이며, 장기 검수 순서를 정하는 산출물이지 자동 정답셋이 아니다.
 - coverage active review packet의 모델 제안 라벨과 confidence는 Codex 대리 검수의 입력 신호로 사용되며, 승인 lineage를 함께 보존한다.
 - 실시간 뉴스 evaluation batch도 라벨 없는 운영 표본이므로 drift와 confidence 점검에만 쓰고, `final_*` 라벨 승인 전까지 F1이나 supervised gold로 취급하지 않는다.
-- serving 응답은 이벤트·감성·중요도·종목 매핑 confidence와 `review_required`, `review_reasons`를 함께 반환한다. 자동 발송 후보는 `review_required=false`인 경우로 제한하고, 검수 사유가 있으면 사람 검수 또는 fallback 큐로 보낸다.
+- serving 응답은 이벤트·감성·중요도·종목 매핑 confidence를 함께 반환한다. 이 값은 downstream 품질 관측과 노출 정책 입력으로만 제공하며, Hannah가 신뢰도 기반 자동 차단 여부를 결정하지 않는다.
 - `human_review_approved` 또는 `codex_review_approved` 상태와 검수자 메타데이터, 최종 이벤트·감성·중요도 라벨이 모두 있는 검수 row만 별도 stock review gold 파일로 승격된다.
 - coverage packet에서 승격된 gold row는 source review wave/stage/reason과 모델 제안 lineage를 함께 보존한다.
 - coverage validation 리포트는 승격 전 승인 가능 row가 학습 1,500개 종목, 평가 500개 종목, wave별 100개 종목 목표를 채우는지 검사한다.
@@ -254,4 +254,4 @@
 - `scripts/build_full_universe_codex_stock_review_gold.py` 실행 후 full-universe Codex reference coverage 리포트 누락 0 확인
 - 사람이 검수한 gold label과 약지도 label의 품질 비교
 - 실제 뉴스 gold label set 월별 증분 확대와 drift 감시
-- 모델 drift 감시와 재학습 기준 정의. 최신 모델로 생성한 `reports/live-news-evaluation-report.json`에서 `review_required_rate`, 종목 미매칭률, label distribution drift를 같이 확인한다.
+- 모델 drift 감시와 재학습 기준 정의. 최신 모델로 생성한 `reports/live-news-evaluation-report.json`에서 confidence 분포, 종목 미매칭률, label distribution drift를 같이 확인한다.

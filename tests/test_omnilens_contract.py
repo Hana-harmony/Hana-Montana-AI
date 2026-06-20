@@ -41,8 +41,6 @@ EXPECTED_RESPONSE_FIELDS = {
     "sentiment_confidence",
     "importance_confidence",
     "stock_match_confidence",
-    "review_required",
-    "review_reasons",
 }
 
 
@@ -97,7 +95,5 @@ def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> N
     assert 0.0 <= data["sentiment_confidence"] <= 1.0
     assert 0.0 <= data["importance_confidence"] <= 1.0
     assert data["stock_match_confidence"] == 1.0
-    assert isinstance(data["review_required"], bool)
-    assert isinstance(data["review_reasons"], list)
     assert re.fullmatch(r"[0-9a-f]{64}", data["duplicate_key"])
     assert data["model_version"]

@@ -11,7 +11,6 @@ from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
     Importance,
-    ReviewReason,
     Sentiment,
     StockCandidate,
 )
@@ -23,11 +22,6 @@ from hannah_montana_ai.training.stock_universe import (
     load_stock_universe,
     normalize_stock_term,
 )
-
-MIN_EVENT_CONFIDENCE = 0.58
-MIN_SENTIMENT_CONFIDENCE = 0.72
-MIN_IMPORTANCE_CONFIDENCE = 0.68
-MIN_STOCK_MATCH_CONFIDENCE = 0.90
 
 
 @dataclass(frozen=True)
@@ -107,13 +101,6 @@ class AlertAnalyzer:
         event_confidence = self._event_confidence(event_tags, event_probabilities)
         sentiment_confidence = sentiment_probabilities.get(sentiment, 0.0)
         importance_confidence = importance_probabilities.get(importance, 0.0)
-        review_reasons = self._review_reasons(
-            stock_code=stock_code,
-            stock_match_confidence=primary_stock_match.confidence,
-            event_confidence=event_confidence,
-            sentiment_confidence=sentiment_confidence,
-            importance_confidence=importance_confidence,
-        )
 
         return AlertAnalysisResponse(
             stock_code=stock_code,
@@ -133,8 +120,6 @@ class AlertAnalyzer:
             sentiment_confidence=round(sentiment_confidence, 6),
             importance_confidence=round(importance_confidence, 6),
             stock_match_confidence=round(primary_stock_match.confidence, 6),
-            review_required=bool(review_reasons),
-            review_reasons=review_reasons,
         )
 
     def _match_primary_stock(
@@ -313,28 +298,6 @@ class AlertAnalyzer:
         if not probabilities:
             return fallback
         return max(probabilities.items(), key=lambda item: item[1])[0]
-
-    def _review_reasons(
-        self,
-        *,
-        stock_code: str | None,
-        stock_match_confidence: float,
-        event_confidence: float,
-        sentiment_confidence: float,
-        importance_confidence: float,
-    ) -> list[ReviewReason]:
-        reasons: list[ReviewReason] = []
-        if stock_code is None:
-            reasons.append("STOCK_NOT_MATCHED")
-        elif stock_match_confidence < MIN_STOCK_MATCH_CONFIDENCE:
-            reasons.append("LOW_STOCK_CONFIDENCE")
-        if event_confidence < MIN_EVENT_CONFIDENCE:
-            reasons.append("LOW_EVENT_CONFIDENCE")
-        if sentiment_confidence < MIN_SENTIMENT_CONFIDENCE:
-            reasons.append("LOW_SENTIMENT_CONFIDENCE")
-        if importance_confidence < MIN_IMPORTANCE_CONFIDENCE:
-            reasons.append("LOW_IMPORTANCE_CONFIDENCE")
-        return reasons
 
     def _duplicate_key(self, source_type: str, title: str, stock_code: str | None) -> str:
         normalized = self._normalize_duplicate_title(title)

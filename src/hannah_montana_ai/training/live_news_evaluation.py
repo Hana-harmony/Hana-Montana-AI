@@ -173,7 +173,6 @@ def build_live_news_evaluation_report(
     related_matched_count = sum(1 for row in rows if row["sampled_stock_related_matched"])
     matched_count = sum(1 for row in rows if row["sampled_stock_model_matched"])
     null_stock_count = sum(1 for row in rows if row["predicted_stock_code"] is None)
-    review_required_count = sum(1 for row in rows if row["review_required"])
     emitted_count = len(rows)
     raw_collected_count = sum(status.collected_count for status in statuses)
 
@@ -191,11 +190,6 @@ def build_live_news_evaluation_report(
         "emitted_row_count": emitted_count,
         "provider_status_totals": _provider_status_totals(statuses),
         "predicted_stock_null_count": null_stock_count,
-        "review_required_count": review_required_count,
-        "auto_publish_candidate_count": emitted_count - review_required_count,
-        "review_required_rate": (
-            round(review_required_count / emitted_count, 6) if emitted_count else 0.0
-        ),
         "sampled_stock_primary_match_count": primary_matched_count,
         "sampled_stock_related_match_count": related_matched_count,
         "sampled_stock_model_match_count": matched_count,
@@ -205,9 +199,6 @@ def build_live_news_evaluation_report(
         "event_top_label_distribution": dict(Counter(row["event_top_label"] for row in rows)),
         "sentiment_distribution": dict(Counter(row["predicted_sentiment"] for row in rows)),
         "importance_distribution": dict(Counter(row["predicted_importance"] for row in rows)),
-        "review_reason_distribution": dict(
-            Counter(reason for row in rows for reason in row["review_reasons"])
-        ),
         "evaluation_policy": {
             "status": "unlabeled_live_smoke",
             "f1_available": False,
@@ -321,8 +312,6 @@ def _build_row(
         "importance_top_label": importance_top_label,
         "importance_top_confidence": importance_top_confidence,
         "importance_confidence": response.importance_confidence,
-        "review_required": response.review_required,
-        "review_reasons": response.review_reasons,
         "final_stock_code": "",
         "final_tags": [],
         "final_sentiment": "",

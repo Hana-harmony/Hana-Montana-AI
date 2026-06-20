@@ -784,11 +784,11 @@
 - `build_translation_sample_report.py`가 실제 Naver 뉴스 gold와 OpenDART 공시 gold 표본을 Hannah AI 분석 결과, 로컬 금융용어 번역 보조, glossary, translation quality flag, review finding과 함께 `reports/translation-sample-report.json`으로 기록한다.
 - DeepL/Papago live provider 호출은 Hana-OmniLens-API 책임으로 유지하고, Hannah 리포트는 `external_translation_join_key`로 외부 provider smoke 출력과 비교할 수 있게 했다.
 
-## 2026-06-20 - AI confidence serving guardrail
-- `/api/v1/alerts/analyze` 응답에 `event_confidence`, `sentiment_confidence`, `importance_confidence`, `stock_match_confidence`, `review_required`, `review_reasons`를 추가했다.
-- review reason은 `STOCK_NOT_MATCHED`, `LOW_STOCK_CONFIDENCE`, `LOW_EVENT_CONFIDENCE`, `LOW_SENTIMENT_CONFIDENCE`, `LOW_IMPORTANCE_CONFIDENCE`로 고정한다.
-- 실시간 뉴스 smoke/drift row와 report에 `review_required_rate`, 자동 발송 후보 수, review reason 분포를 기록해 운영 중 자동 발송 차단 기준을 추적한다.
-- audit log에는 원문을 남기지 않고 confidence와 검수 플래그만 추가 기록한다.
+## 2026-06-20 - AI confidence serving metadata
+- `/api/v1/alerts/analyze` 응답에 `event_confidence`, `sentiment_confidence`, `importance_confidence`, `stock_match_confidence`를 추가했다.
+- 실시간 뉴스 smoke/drift row와 report에 분석 confidence를 기록해 운영 중 품질 관측과 drift 점검에 사용한다.
+- audit log에는 원문을 남기지 않고 confidence만 추가 기록한다.
+- Hannah는 confidence 값을 제공하지만 신뢰도 기반 자동 차단 여부를 결정하지 않는다.
 
 ## 2026-06-17 - 기능정의서 기반 API 계약 하네스 추가
 - 국내주식 주문 상태 API가 외국인 보유율, 한도소진율, 예측 지분율 바운더리, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.

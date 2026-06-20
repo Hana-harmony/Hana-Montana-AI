@@ -45,8 +45,6 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert 0.0 <= payload["data"]["sentiment_confidence"] <= 1.0
     assert 0.0 <= payload["data"]["importance_confidence"] <= 1.0
     assert payload["data"]["stock_match_confidence"] == 1.0
-    assert "review_required" in payload["data"]
-    assert "review_reasons" in payload["data"]
 
 
 def test_validation_error_returns_common_error_shape() -> None:
@@ -123,7 +121,6 @@ def test_analyze_alert_writes_structured_audit_log_without_raw_content(caplog) -
     assert audit_payload["stock_code"] == "005930"
     assert audit_payload["stock_match_confidence"] == 1.0
     assert "event_confidence" in audit_payload
-    assert "review_required" in audit_payload
     assert audit_payload["latency_ms"] >= 0
     assert "title_hash" in audit_payload
     assert "original_url_hash" in audit_payload
