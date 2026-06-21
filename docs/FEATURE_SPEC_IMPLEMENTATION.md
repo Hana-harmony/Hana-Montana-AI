@@ -50,7 +50,8 @@
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
-  - v2에서는 전문을 우선 사용해 자연어 What/Why/Impact 3줄 요약을 만든다. 전문이 없거나 권리 정책상 저장할 수 없으면 제목/snippet 기반 v1 요약으로 fallback하고 `content_availability`를 명시한다.
+  - v2에서는 전문을 우선 사용해 이벤트/감성/중요도 모델 입력과 자연어 What/Why/Impact 3줄 요약을 만든다. 전문이 없거나 권리 정책상 저장할 수 없으면 제목/snippet 기반 v1 요약으로 fallback하고 `content_availability`를 명시한다.
+  - 학습은 `data/training/financial_alert_full_content_gold.jsonl`의 권리 안전 전문 gold를 포함해 수행하고, 각 row는 `FULL_TEXT`, `source_license_policy`, `content_hash` lineage를 가져야 한다.
   - 중복 제거는 canonical URL, normalized title, content hash, 전문 기반 duplicate key를 함께 사용한다.
   - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.

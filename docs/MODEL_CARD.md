@@ -42,6 +42,7 @@
 - 합성 증강 corpus: `data/training/financial_alert_augmented.jsonl`
 - 뉴스 제목체 증강 corpus: `data/training/financial_alert_news_style_augmented.jsonl`
 - 사람이 검수한 실제 뉴스 학습 gold: `data/training/financial_alert_real_news_gold.jsonl`
+- 권리 안전 기사·공시 전문 학습 gold: `data/training/financial_alert_full_content_gold.jsonl`
 - curated gold benchmark: `data/evaluation/financial_alert_eval.jsonl`
 - 사람이 검수한 실공시 gold: `data/evaluation/financial_alert_real_disclosure_gold.jsonl`
 - 사람이 검수한 실제 뉴스 평가 gold: `data/evaluation/financial_alert_real_news_gold.jsonl`
@@ -142,7 +143,8 @@
 
 ## 학습 방식
 - `scripts/collect_training_data.py`가 Naver News Search와 OpenDART에서 원문 제목·snippet·링크를 수집한다.
-- full-content v2 학습 파이프라인은 Naver News Search를 발견 단계로만 사용하고, Hana-OmniLens-API가 권리 확인 후 저장한 전문/이미지 metadata와 OpenDART 원문을 추가 feature로 사용한다.
+- full-content v2 학습 파이프라인은 Naver News Search를 발견 단계로만 사용하고, Hana-OmniLens-API가 권리 확인 후 저장한 전문/이미지 metadata, OpenDART 원문, 권리 안전 자체 전문 gold를 모델 입력 feature로 사용한다.
+- `LabeledAlert`는 `title`, `snippet`, `full_content`, `content_availability`, `source_license_policy`, `content_hash`를 보존하며, 학습·평가 시 전문이 있으면 `title + snippet + full_content`를 우선 사용한다.
 - 기존 제목/snippet v1 artifact는 폐기하지 않고 full-content v2의 fallback, 회귀 비교, teacher 후보로 유지한다.
 - `weak_labeler.py`가 수집 원문에 약지도 라벨을 부여해 학습 후보를 만든다.
 - `weak_distiller.py`가 약지도 후보의 노이즈를 제거하고 고신호 후보를 선별한다.

@@ -868,3 +868,8 @@
 - `AlertAnalysisResponse`와 `IntelligenceEventResponse`에 `summary_lines`, `content_availability`, 원문/번역 전문, 이미지 URL, `cluster_key`를 추가했다.
 - 분석기는 제목/snippet/full content를 함께 사용하고, 전문이 있으면 `FULL_TEXT`, 없으면 `SUMMARY_ONLY`로 응답한다.
 - What/Why/Impact 요약은 로컬 금융 rule engine으로 생성하며 기존 제목/snippet v1 모델은 fallback과 회귀 비교 기준으로 유지한다.
+
+## 2026-06-22 - 기사·공시 전문 기반 학습 전환
+- `LabeledAlert` 학습 row가 `title`, `snippet`, `full_content`, `content_availability`, `source_license_policy`, `content_hash`를 보존하도록 확장한다.
+- 권리 안전 전문 gold 파일 `data/training/financial_alert_full_content_gold.jsonl`을 학습 소스에 추가하고, 전문이 있는 row는 `title + snippet + full_content`를 모델 입력으로 사용한다.
+- release 리포트는 전문 학습 row 수, 라이선스 정책, 전문 availability를 lineage로 기록해 제목/snippet-only artifact와 구분한다.
