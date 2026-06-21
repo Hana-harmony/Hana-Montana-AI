@@ -326,11 +326,13 @@ class AlertAnalyzer:
         stock_code: str | None,
         duplicate_key: str,
     ) -> str:
+        source = request.source_type.upper()
+        stock = stock_code or "UNKNOWN"
         if request.content_hash:
-            raw_key = f"{request.source_type.upper()}:{stock_code or 'UNKNOWN'}:{request.content_hash}"
+            raw_key = f"{source}:{stock}:{request.content_hash}"
             return sha256(raw_key.encode("utf-8")).hexdigest()
         if request.content:
-            raw_key = f"{request.source_type.upper()}:{stock_code or 'UNKNOWN'}:{request.content[:600]}"
+            raw_key = f"{source}:{stock}:{request.content[:600]}"
             return sha256(raw_key.encode("utf-8")).hexdigest()
         return duplicate_key
 
