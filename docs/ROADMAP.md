@@ -27,7 +27,7 @@
 - 추론 latency 모니터링 완료
 - audit log 완료
 - 배포 환경별 secret 관리 완료
-- full-content news v2 분석 계약: 전문 입력, What/Why/Impact 3줄 요약, content availability, 전문 기반 duplicate key, v1 fallback 회귀 비교 Planned
+- full-content news v2 분석 계약: 전문 입력, What/Why/Impact 3줄 요약, content availability, 전문 기반 cluster key, v1 fallback 회귀 비교 Done for schema/rule engine
 
 ## M4 전 종목 커버리지 확장
 - OpenDART 고유번호 기반 국내주식 universe 3,967개 추적 완료

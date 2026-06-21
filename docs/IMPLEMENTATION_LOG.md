@@ -861,3 +861,9 @@
 - 현재 release 모델을 제목/snippet 기반 v1 baseline과 fallback으로 보존하기로 정리했다.
 - v2 분석 계약은 전문 입력, 이미지 URL metadata, content availability, What/Why/Impact 3줄 요약, 전문 기반 duplicate key를 추가한다.
 - Naver News Search는 발견 데이터이며, 전문 학습 데이터는 Hana-OmniLens-API가 권리 확인 후 저장한 dataset export만 사용하도록 문서화했다.
+
+## 2026-06-21 - 전문 기반 What/Why/Impact 분석 schema
+- `AlertAnalysisRequest`에 `content`, `image_urls`, `canonical_url`, `content_hash`, `source_license_policy`를 추가했다.
+- `AlertAnalysisResponse`와 `IntelligenceEventResponse`에 `summary_lines`, `content_availability`, 원문/번역 전문, 이미지 URL, `cluster_key`를 추가했다.
+- 분석기는 제목/snippet/full content를 함께 사용하고, 전문이 있으면 `FULL_TEXT`, 없으면 `SUMMARY_ONLY`로 응답한다.
+- What/Why/Impact 요약은 로컬 금융 rule engine으로 생성하며 기존 제목/snippet v1 모델은 fallback과 회귀 비교 기준으로 유지한다.

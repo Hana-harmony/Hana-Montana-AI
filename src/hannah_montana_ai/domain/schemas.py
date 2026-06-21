@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, HttpUrl
 SourceType = Literal["NEWS", "DISCLOSURE"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+ContentAvailability = Literal["FULL_TEXT", "SUMMARY_ONLY", "UNAVAILABLE"]
 MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
 PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
 ForeignLimitUsageStatus = Literal["NORMAL", "CAUTION", "LIMIT_REACHED"]
@@ -38,8 +39,19 @@ class AlertAnalysisRequest(BaseModel):
     source_type: SourceType
     title: str = Field(min_length=1, max_length=300)
     snippet: str = Field(default="", max_length=1000)
+    content: str = Field(default="", max_length=20000)
+    image_urls: list[str] = Field(default_factory=list, max_length=20)
+    canonical_url: str = Field(default="", max_length=1000)
+    content_hash: str = Field(default="", max_length=128)
+    source_license_policy: str = Field(default="DISCOVERY_ONLY", max_length=80)
     original_url: HttpUrl
     stock_universe: list[StockCandidate] = Field(default_factory=list, max_length=50)
+
+
+class SummaryLines(BaseModel):
+    what: str = Field(default="", max_length=500)
+    why: str = Field(default="", max_length=500)
+    impact: str = Field(default="", max_length=500)
 
 
 class AlertAnalysisResponse(BaseModel):
@@ -48,6 +60,10 @@ class AlertAnalysisResponse(BaseModel):
     source_type: SourceType
     original_title: str
     summary: str
+    summary_lines: SummaryLines = Field(default_factory=SummaryLines)
+    content_availability: ContentAvailability = "SUMMARY_ONLY"
+    original_content: str = Field(default="", max_length=20000)
+    image_urls: list[str] = Field(default_factory=list)
     event_tags: list[str]
     sentiment: Sentiment
     importance: Importance
@@ -55,6 +71,7 @@ class AlertAnalysisResponse(BaseModel):
     holder_target: bool
     watchlist_target: bool
     duplicate_key: str
+    cluster_key: str = ""
     model_version: str
     event_confidence: float = Field(ge=0.0, le=1.0)
     sentiment_confidence: float = Field(ge=0.0, le=1.0)
@@ -182,7 +199,12 @@ class IntelligenceEventResponse(BaseModel):
     original_title: str
     translated_title: str
     summary: str
+    summary_lines: SummaryLines = Field(default_factory=SummaryLines)
     translated_summary: str
+    original_content: str = ""
+    translated_content: str = ""
+    image_urls: list[str] = Field(default_factory=list)
+    content_availability: ContentAvailability = "SUMMARY_ONLY"
     sentiment: Sentiment
     importance: Importance
     event_tag: str
@@ -190,6 +212,7 @@ class IntelligenceEventResponse(BaseModel):
     related_stocks: list[str]
     is_holder_target: bool
     is_watchlist_target: bool
+    cluster_key: str = ""
     glossary_terms: list[FinancialGlossaryTerm]
     translation_quality_flags: list[str]
     original_url: HttpUrl

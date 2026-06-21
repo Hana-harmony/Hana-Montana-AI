@@ -175,6 +175,7 @@ class OrderAvailabilityPrediction:
 class TranslationPrediction:
     translated_title: str
     translated_summary: str
+    translated_content: str
     translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
     glossary_terms: list[FinancialGlossaryTerm]
     quality_flags: list[str]
@@ -296,9 +297,11 @@ class FinancialTranslationModel:
     ) -> TranslationPrediction:
         title_translation = translate_financial_korean_to_english(request.title)
         summary_translation = translate_financial_korean_to_english(summary)
+        content_translation = translate_financial_korean_to_english(request.content)
         glossary_terms = _merge_glossary_terms(
             title_translation.glossary_terms,
             summary_translation.glossary_terms,
+            content_translation.glossary_terms,
         )
         quality_flags = _translation_quality_flags(
             request.title,
@@ -311,11 +314,13 @@ class FinancialTranslationModel:
             "TRANSLATED"
             if title_translation.translated_text != html.unescape(request.title)
             or summary_translation.translated_text != html.unescape(summary)
+            or content_translation.translated_text != html.unescape(request.content)
             else "SOURCE_LANGUAGE_FALLBACK"
         )
         return TranslationPrediction(
             translated_title=title_translation.translated_text,
             translated_summary=summary_translation.translated_text,
+            translated_content=content_translation.translated_text,
             translation_status=translation_status,
             glossary_terms=glossary_terms,
             quality_flags=quality_flags,
@@ -488,6 +493,11 @@ class IntelligenceEventService:
             source_type=request.source_type,
             title=request.title,
             snippet=request.snippet,
+            content=request.content,
+            image_urls=request.image_urls,
+            canonical_url=request.canonical_url,
+            content_hash=request.content_hash,
+            source_license_policy=request.source_license_policy,
             original_url=request.original_url,
             stock_universe=request.stock_universe,
         )
@@ -503,7 +513,12 @@ class IntelligenceEventService:
             original_title=request.title,
             translated_title=translation.translated_title,
             summary=analysis.summary,
+            summary_lines=analysis.summary_lines,
             translated_summary=translation.translated_summary,
+            original_content=analysis.original_content,
+            translated_content=translation.translated_content,
+            image_urls=analysis.image_urls,
+            content_availability=analysis.content_availability,
             sentiment=analysis.sentiment,
             importance=analysis.importance,
             event_tag=analysis.event_tags[0],
@@ -511,6 +526,7 @@ class IntelligenceEventService:
             related_stocks=analysis.related_stocks,
             is_holder_target=analysis.holder_target,
             is_watchlist_target=analysis.watchlist_target,
+            cluster_key=analysis.cluster_key,
             glossary_terms=translation.glossary_terms,
             translation_quality_flags=translation.quality_flags,
             original_url=request.original_url,
@@ -627,17 +643,17 @@ def _ordered_glossary_entries() -> tuple[_GlossaryEntry, ...]:
 
 
 def _merge_glossary_terms(
-    first: list[FinancialGlossaryTerm],
-    second: list[FinancialGlossaryTerm],
+    *term_groups: list[FinancialGlossaryTerm],
 ) -> list[FinancialGlossaryTerm]:
     merged: list[FinancialGlossaryTerm] = []
     seen_terms: set[tuple[str, str]] = set()
-    for term in [*first, *second]:
-        term_key = (term.normalized_term, term.english_term)
-        if term_key in seen_terms:
-            continue
-        merged.append(term)
-        seen_terms.add(term_key)
+    for terms in term_groups:
+        for term in terms:
+            term_key = (term.normalized_term, term.english_term)
+            if term_key in seen_terms:
+                continue
+            merged.append(term)
+            seen_terms.add(term_key)
     return merged
 
 

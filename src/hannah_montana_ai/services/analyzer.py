@@ -76,7 +76,7 @@ class AlertAnalyzer:
         }
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
-        text = f"{request.title} {request.snippet}"
+        text = f"{request.title} {request.snippet} {request.content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
             text,
             request.stock_universe,
@@ -101,20 +101,36 @@ class AlertAnalyzer:
         event_confidence = self._event_confidence(event_tags, event_probabilities)
         sentiment_confidence = sentiment_probabilities.get(sentiment, 0.0)
         importance_confidence = importance_probabilities.get(importance, 0.0)
+        summary_lines = self.rule_engine.summarize_what_why_impact(
+            request.title,
+            request.snippet,
+            request.content,
+            importance,
+            sentiment,
+        )
+        summary = "\n".join(
+            line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
+        )
+        duplicate_key = self._duplicate_key(request.source_type, request.title, stock_code)
 
         return AlertAnalysisResponse(
             stock_code=stock_code,
             stock_name=stock_name,
             source_type=request.source_type,
             original_title=request.title,
-            summary=self.rule_engine.summarize(request.title, request.snippet),
+            summary=summary,
+            summary_lines=summary_lines,
+            content_availability="FULL_TEXT" if request.content else "SUMMARY_ONLY",
+            original_content=request.content,
+            image_urls=request.image_urls,
             event_tags=event_tags,
             sentiment=sentiment,
             importance=importance,
             related_stocks=related_stocks,
             holder_target=self.rule_engine.holder_target(importance),
             watchlist_target=self.rule_engine.watchlist_target(importance),
-            duplicate_key=self._duplicate_key(request.source_type, request.title, stock_code),
+            duplicate_key=duplicate_key,
+            cluster_key=self._cluster_key(request, stock_code, duplicate_key),
             model_version=self.model.version,
             event_confidence=round(event_confidence, 6),
             sentiment_confidence=round(sentiment_confidence, 6),
@@ -303,6 +319,20 @@ class AlertAnalyzer:
         normalized = self._normalize_duplicate_title(title)
         raw_key = f"{source_type.upper()}:{stock_code or 'UNKNOWN'}:{normalized}"
         return sha256(raw_key.encode("utf-8")).hexdigest()
+
+    def _cluster_key(
+        self,
+        request: AlertAnalysisRequest,
+        stock_code: str | None,
+        duplicate_key: str,
+    ) -> str:
+        if request.content_hash:
+            raw_key = f"{request.source_type.upper()}:{stock_code or 'UNKNOWN'}:{request.content_hash}"
+            return sha256(raw_key.encode("utf-8")).hexdigest()
+        if request.content:
+            raw_key = f"{request.source_type.upper()}:{stock_code or 'UNKNOWN'}:{request.content[:600]}"
+            return sha256(raw_key.encode("utf-8")).hexdigest()
+        return duplicate_key
 
     def _normalize_duplicate_title(self, title: str) -> str:
         canonical_title = self._strip_duplicate_bracket_noise(title)
