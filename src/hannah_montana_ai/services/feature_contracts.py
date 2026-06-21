@@ -35,7 +35,7 @@ CASE_01_MAX_OWNERSHIP_RATE = 25.0
 FOREIGN_OWNERSHIP_MODEL_VERSION = "foreign-ownership-boundary-v1"
 TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
 TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
-TAX_REFUND_MODEL_VERSION = "hk-treaty-refund-case-engine-v1"
+TAX_REFUND_MODEL_VERSION = "us-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
 
@@ -883,7 +883,6 @@ def _document_verification_status(
 def _country_present(normalized_text: str, country: str) -> bool:
     country = country.upper()
     country_aliases = {
-        "HK": ("hk", "hong kong", "홍콩"),
         "US": ("us", "usa", "united states", "미국"),
     }
     aliases = country_aliases.get(country, (country.lower(),))
@@ -891,7 +890,7 @@ def _country_present(normalized_text: str, country: str) -> bool:
 
 
 def _tax_case_type(request: TaxRefundStatusRequest) -> TaxCaseType:
-    if request.tax_residency_country != "HK":
+    if request.tax_residency_country != "US":
         return "CASE_REVIEW_REQUIRED"
     if any(not transaction.listed_market_trade for transaction in request.transactions):
         return "CASE_REVIEW_REQUIRED"
@@ -990,4 +989,4 @@ def _tax_review_message(
         return "상장주식 장내거래 및 25% 미만 지분율 조건을 추가 검토해야 합니다."
     if eligible_refund_amount <= 0:
         return "현재 선지급 가능한 환급금이 없습니다."
-    return "CASE_01 요건을 충족하여 샌드박스 선지급 가능 상태입니다."
+    return "한미 조세조약 CASE_01 요건을 충족하여 샌드박스 선지급 가능 상태입니다."

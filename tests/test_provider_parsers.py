@@ -44,8 +44,8 @@ def test_provider_parsers_build_stock_order_model_input_from_kis_and_krx_rows() 
         foreign_holding=foreign_holding,
         foreign_limit_rate=40.0,
         intraday_foreign_net_buy_quantity=50_000,
-        local_currency="HKD",
-        local_fx_rate=0.0058,
+        local_currency="USD",
+        local_fx_rate=0.00072,
     )
     response = StockOrderStatusService().build_response(request)
 
@@ -177,8 +177,8 @@ def test_tax_provider_parsers_build_tax_refund_model_inputs() -> None:
 
     response = TaxRefundStatusService().build_response(
         TaxRefundStatusRequest(
-            investor_id="HK_USER_1234",
-            tax_residency_country="HK",
+            investor_id="US_USER_1234",
+            tax_residency_country="US",
             tax_year="2023-2024",
             documents=documents,
             transactions=transactions,
@@ -199,8 +199,8 @@ def test_tax_provider_parsers_build_tax_refund_model_inputs() -> None:
 def test_tax_refund_status_requires_documents_before_workflow_payout() -> None:
     response = TaxRefundStatusService().build_response(
         TaxRefundStatusRequest(
-            investor_id="HK_USER_PENDING",
-            tax_residency_country="HK",
+            investor_id="US_USER_PENDING",
+            tax_residency_country="US",
             tax_year="2023-2024",
             documents=[],
             transactions=[
@@ -246,7 +246,7 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     response = IntelligenceEventService(get_analyzer()).build_response(request)
     websocket_event = build_omnilens_websocket_event(
         response,
-        partner_id="HK_BROKER",
+        partner_id="US_BROKER",
     )
 
     assert record.source_type == "NEWS"
@@ -260,7 +260,7 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert "FINANCIAL_GLOSSARY_APPLIED" in response.translation_quality_flags
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
-    assert websocket_event["partner_id"] == "HK_BROKER"
+    assert websocket_event["partner_id"] == "US_BROKER"
     assert websocket_event["alert_id"] == response.alert_id
     assert websocket_event["duplicate_key"] == response.duplicate_key
     assert websocket_event["glossary_terms"][0]["english_term"] == "Samsung Electronics"

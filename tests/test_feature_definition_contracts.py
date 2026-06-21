@@ -27,8 +27,8 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
             "lower_limit_price": 45_500,
             "dynamic_vi_activated": True,
             "trading_session_status": "SINGLE_PRICE",
-            "local_currency": "HKD",
-            "local_fx_rate": 0.0058,
+            "local_currency": "USD",
+            "local_fx_rate": 0.00072,
         },
     )
 
@@ -57,7 +57,7 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
         "REALTIME_EXECUTION_LIMITED",
         "FOREIGN_LIMIT_CAUTION",
     ]
-    assert payload["local_current_price"] == 490.1
+    assert payload["local_current_price"] == 60.84
     assert payload["prediction_model_version"] == "foreign-ownership-boundary-v1"
     assert payload["trading_state_model_version"] == "krx-vi-price-limit-state-v1"
     assert payload["data_source"] == "KIS/PredictEngine"
@@ -127,8 +127,8 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     response = client.post(
         "/api/v1/tax/refund-status",
         json={
-            "investor_id": "HK_USER_1234",
-            "tax_residency_country": "HK",
+            "investor_id": "US_USER_1234",
+            "tax_residency_country": "US",
             "tax_year": "2023-2024",
             "instant_payout_requested": True,
             "instant_payout_fee_rate": 3.0,
@@ -174,7 +174,7 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert envelope["status"] == 200
     assert envelope["code"] == "COMMON_000"
     payload = envelope["data"]
-    assert payload["investor_id"] == "HK_USER_1234"
+    assert payload["investor_id"] == "US_USER_1234"
     assert payload["tax_year"] == "2023-2024"
     assert payload["tax_case_type"] == "CASE_01"
     assert payload["refund_workflow_status"] == "ELIGIBLE_FOR_INSTANT_PAYOUT"
@@ -194,7 +194,7 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert payload["clawback_required_if_rejected"] is True
     assert payload["required_next_actions"] == ["CONFIRM_INSTANT_PAYOUT_TERMS"]
     assert "자동 환수" in payload["risk_disclosure_message"]
-    assert payload["tax_model_version"] == "hk-treaty-refund-case-engine-v1"
+    assert payload["tax_model_version"] == "us-treaty-refund-case-engine-v1"
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
 
 
@@ -205,11 +205,11 @@ def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None
         json={
             "document_type": "RESIDENCE_CERTIFICATE",
             "file_name": "cert_res_2024.pdf",
-            "extracted_text": "Certificate of Resident Status Hong Kong HK_USER_1234",
+            "extracted_text": "Certificate of Resident Status United States US_USER_1234",
             "ocr_confidence": 0.94,
             "fraud_signal_score": 0.03,
-            "expected_investor_id": "HK_USER_1234",
-            "expected_residency_country": "HK",
+            "expected_investor_id": "US_USER_1234",
+            "expected_residency_country": "US",
         },
     )
 
@@ -225,8 +225,8 @@ def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None
     assert payload["fraud_risk_score"] == 0.03
     assert payload["risk_level"] == "LOW"
     assert payload["manual_review_required"] is False
-    assert payload["extracted_fields"]["investor_id"] == "HK_USER_1234"
-    assert payload["extracted_fields"]["residency_country"] == "HK"
+    assert payload["extracted_fields"]["investor_id"] == "US_USER_1234"
+    assert payload["extracted_fields"]["residency_country"] == "US"
     assert payload["missing_required_fields"] == []
     assert payload["rejection_reasons"] == []
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
@@ -239,11 +239,11 @@ def test_tax_document_verification_rejects_high_forgery_risk() -> None:
         json={
             "document_type": "TREATY_APPLICATION",
             "file_name": "treaty_application.jpg",
-            "extracted_text": "Treaty application HK_USER_1234",
+            "extracted_text": "Treaty application US_USER_1234",
             "ocr_confidence": 0.91,
             "fraud_signal_score": 0.81,
-            "expected_investor_id": "HK_USER_1234",
-            "expected_residency_country": "HK",
+            "expected_investor_id": "US_USER_1234",
+            "expected_residency_country": "US",
         },
     )
 

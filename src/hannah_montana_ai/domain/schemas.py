@@ -251,7 +251,7 @@ class TaxTransactionInput(BaseModel):
 
 class TaxRefundStatusRequest(BaseModel):
     investor_id: str = Field(min_length=1, max_length=80)
-    tax_residency_country: str = Field(default="HK", min_length=2, max_length=2)
+    tax_residency_country: str = Field(default="US", min_length=2, max_length=2)
     tax_year: str = Field(min_length=4, max_length=20)
     documents: list[TaxDocumentInput] = Field(default_factory=list, max_length=20)
     transactions: list[TaxTransactionInput] = Field(default_factory=list, max_length=500)
