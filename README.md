@@ -48,7 +48,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 번역 품질 보조 결과는 `reports/translation-sample-report.json`에 실제 뉴스·공시 gold 원문, 로컬 glossary 번역, AI 분석 결과, review finding을 함께 기록한다.
 분석 응답은 이벤트·감성·중요도·종목 매핑 confidence를 포함한다. 이 값은 품질 관측과 UI 표시용 메타데이터이며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
 
-현재 운영 모델은 Naver News Search 발견 데이터와 OpenDART 공시검색 row를 v1 baseline으로 유지하되, v2에서는 사용 허가된 뉴스 원문과 OpenDART document 전문 507건을 저장·학습한다. 사람이 검수하지 않은 전문 약한 라벨은 이벤트/종목 맥락 학습에만 쓰고 감성·중요도 supervised loss에서는 제외한다.
+현재 운영 모델은 Naver News Search 발견 데이터와 OpenDART 공시검색 row를 v1 baseline으로 유지하되, v2에서는 사용 허가된 뉴스 원문과 OpenDART document 전문 673건을 저장한다. 사람이 검수하지 않은 전문 약한 라벨 659건은 이벤트·감성·중요도 supervised loss에서 제외하고, 전문은 요약/분석 입력 품질 검증과 검수 후보 생성에 사용한다.
 
 AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
 

@@ -64,6 +64,108 @@ class AlertAnalyzer:
     )
     _MACRO_CONTEXT_TERMS = ("수출", "업황", "공급망", "환율", "금리", "물가")
     _GENERAL_MARKET_CONTEXT_TERMS = ("시총", "주가 급등", "증시")
+    _RISK_CONTEXT_TERMS = (
+        "감사의견 거절",
+        "거래정지",
+        "리스크",
+        "변동성",
+        "생산차질",
+        "소송",
+        "소액주주",
+        "우려",
+        "적자",
+        "차질",
+        "철회",
+        "흔들",
+    )
+    _CORPORATE_ACTION_CONTEXT_TERMS = (
+        "리밸런싱",
+        "매각",
+        "분할",
+        "사업재편",
+        "인수",
+        "주식교환",
+        "지분 인수",
+        "지분인수",
+        "지분 취득",
+        "지분취득",
+        "지분투자",
+        "최대주주",
+        "합병",
+    )
+    _EARNINGS_CONTEXT_TERMS = (
+        "사상 최대",
+        "수익성",
+        "순이익",
+        "성장 재편",
+        "실적 개선",
+        "영업이익",
+        "적자",
+        "턴어라운드",
+        "호황",
+        "흑자",
+    )
+    _NEGATIVE_SENTIMENT_CONTEXT_TERMS = (
+        "감소",
+        "경계",
+        "리스크",
+        "변동성",
+        "생산차질",
+        "손실",
+        "압박",
+        "우려",
+        "적자",
+        "차질",
+        "철회",
+        "하락",
+        "흔들",
+    )
+    _NEUTRAL_SENTIMENT_CONTEXT_TERMS = (
+        "될까",
+        "변수",
+        "압박",
+        "재검토",
+        "정체",
+        "흔들림",
+    )
+    _SEVERE_NEGATIVE_SENTIMENT_CONTEXT_TERMS = (
+        "감사의견 거절",
+        "거래정지",
+        "생산차질",
+        "손실",
+        "소송",
+        "우려",
+        "적자",
+        "차질",
+        "철회",
+        "하락",
+    )
+    _POSITIVE_SENTIMENT_CONTEXT_TERMS = (
+        "개선",
+        "계약",
+        "성장",
+        "수주",
+        "증가",
+        "들썩",
+        "등극",
+        "청신호",
+        "주목",
+        "지분 인수",
+        "지분인수",
+        "지분투자",
+        "턴어라운드",
+        "호실적",
+        "흑자",
+    )
+    _STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
+    _INTERNAL_STOCK_MATCH_EXCLUDED_NAMES = frozenset(
+        {
+            "국민은행",
+            "신한은행",
+            "우리은행",
+            "하나은행",
+        }
+    )
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -78,8 +180,10 @@ class AlertAnalyzer:
         }
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
-        text = f"{request.title} {request.snippet} {request.content}".strip()
+        analysis_content = self.rule_engine.clean_article_text(request.content, request.title)
+        text = f"{request.title} {request.snippet} {analysis_content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
+            request.title,
             text,
             request.stock_universe,
         )
@@ -92,11 +196,13 @@ class AlertAnalyzer:
         )
         sentiment_probabilities = self.model.sentiment_probabilities(text)
         sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
+        sentiment = self._augment_sentiment(text, sentiment)
         importance_probabilities = self.model.importance_probabilities(text, request.source_type)
         importance = cast(
             Importance,
             self._top_label(importance_probabilities, fallback="MEDIUM"),
         )
+        importance = self._augment_importance(text, request.source_type, importance)
         related_stocks = self._match_related_stocks_from_request_or_internal(
             text,
             request.stock_universe,
@@ -110,7 +216,7 @@ class AlertAnalyzer:
         summary_lines = self.rule_engine.summarize_what_why_impact(
             request.title,
             request.snippet,
-            request.content,
+            analysis_content,
             importance,
             sentiment,
         )
@@ -156,20 +262,30 @@ class AlertAnalyzer:
             stock_universe,
             allow_short_terms=allow_short_terms,
         )
-        return matches[0][1] if matches else None
+        return sorted(matches, key=lambda match: match[0])[0][1] if matches else None
 
     def _match_primary_stock_from_request_or_internal(
         self,
+        title: str,
         text: str,
         request_universe: list[StockCandidate],
     ) -> StockMatchResult:
-        request_match = self._match_primary_stock(
+        title_match = self._best_primary_stock_match(
+            title,
+            request_universe,
+            prefer_request=True,
+        )
+        if title_match is not None:
+            confidence = 1.0 if title_match in request_universe else 0.97
+            return StockMatchResult(title_match, confidence)
+        exact_match = self._best_primary_stock_match(
             text,
             request_universe,
-            allow_short_terms=True,
+            prefer_request=True,
         )
-        if request_match is not None:
-            return StockMatchResult(request_match, 1.0)
+        if exact_match is not None:
+            confidence = 1.0 if exact_match in request_universe else 0.96
+            return StockMatchResult(exact_match, confidence)
         ml_match = self._match_leading_internal_stock_with_ml(text)
         if ml_match is not None:
             return ml_match
@@ -177,6 +293,22 @@ class AlertAnalyzer:
         if internal_match is not None:
             return StockMatchResult(internal_match, 0.94)
         return StockMatchResult(None, 0.0)
+
+    def _best_primary_stock_match(
+        self,
+        text: str,
+        request_universe: list[StockCandidate],
+        *,
+        prefer_request: bool = False,
+    ) -> StockCandidate | StockUniverseEntry | None:
+        request_matches = self._stock_matches(text, request_universe, allow_short_terms=True)
+        if prefer_request and request_matches:
+            return request_matches[0][1]
+        matches = [
+            *request_matches,
+            *self._stock_matches(text, self._internal_stock_universe),
+        ]
+        return sorted(matches, key=lambda match: match[0])[0][1] if matches else None
 
     def _match_leading_internal_stock_with_ml(
         self,
@@ -274,15 +406,39 @@ class AlertAnalyzer:
         allow_short_terms: bool = False,
     ) -> int | None:
         candidates = [stock.stock_code, stock.stock_name, stock.stock_name_en, *stock.aliases]
-        positions = [
-            normalized_text.find(normalized_candidate)
-            for candidate in candidates
-            if candidate
-            if (normalized_candidate := normalize_stock_term(candidate))
-            if allow_short_terms or self._is_usable_stock_match_term(normalized_candidate)
-        ]
-        found_positions = [position for position in positions if position >= 0]
+        found_positions: list[int] = []
+        for candidate in candidates:
+            if not candidate:
+                continue
+            normalized_candidate = normalize_stock_term(candidate)
+            if not normalized_candidate:
+                continue
+            if not allow_short_terms and not self._is_usable_stock_match_term(
+                normalized_candidate
+            ):
+                continue
+            start = 0
+            while True:
+                position = normalized_text.find(normalized_candidate, start)
+                if position < 0:
+                    break
+                if not self._is_stock_attribution_context(
+                    normalized_text,
+                    position,
+                    len(normalized_candidate),
+                ):
+                    found_positions.append(position)
+                start = position + len(normalized_candidate)
         return min(found_positions) if found_positions else None
+
+    def _is_stock_attribution_context(
+        self,
+        normalized_text: str,
+        position: int,
+        length: int,
+    ) -> bool:
+        context = normalized_text[position : position + length + 24]
+        return any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS)
 
     def _stock_universe_for_request(
         self,
@@ -305,6 +461,8 @@ class AlertAnalyzer:
     def _is_usable_stock_match_term(self, value: str) -> bool:
         if value.isdigit() and len(value) == 6:
             return True
+        if value.isascii() and value.isalpha() and len(value) < 4:
+            return False
         return len(value) >= 3
 
     def _event_confidence(
@@ -322,15 +480,90 @@ class AlertAnalyzer:
         source_type: str,
         event_tags: list[str],
     ) -> list[str]:
-        if source_type != "NEWS":
-            return event_tags
-
         tag_set = set(event_tags)
-        if self._has_macro_context(text):
-            tag_set.add("MACRO")
-        if any(term in text for term in self._GENERAL_MARKET_CONTEXT_TERMS):
-            tag_set.add("GENERAL_MARKET")
+        if source_type == "NEWS":
+            tag_set.discard("DISCLOSURE")
+            if "EARNINGS" in tag_set and "실적 없는" in text:
+                tag_set.remove("EARNINGS")
+            if self._has_macro_context(text):
+                tag_set.add("MACRO")
+            if any(term in text for term in self._GENERAL_MARKET_CONTEXT_TERMS):
+                tag_set.add("GENERAL_MARKET")
+        if any(term in text for term in self._RISK_CONTEXT_TERMS):
+            tag_set.add("RISK")
+        if any(term in text for term in self._CORPORATE_ACTION_CONTEXT_TERMS):
+            tag_set.add("CORPORATE_ACTION")
+        if any(term in text for term in self._EARNINGS_CONTEXT_TERMS):
+            tag_set.add("EARNINGS")
         return sorted(tag_set)
+
+    def _augment_sentiment(self, text: str, sentiment: Sentiment) -> Sentiment:
+        negative_score = sum(
+            1 for term in self._NEGATIVE_SENTIMENT_CONTEXT_TERMS if term in text
+        )
+        positive_score = sum(
+            1 for term in self._POSITIVE_SENTIMENT_CONTEXT_TERMS if term in text
+        )
+        has_severe_negative = any(
+            term in text for term in self._SEVERE_NEGATIVE_SENTIMENT_CONTEXT_TERMS
+        )
+        if negative_score > positive_score and (has_severe_negative or negative_score >= 2):
+            return "NEGATIVE"
+        has_neutral_context = any(
+            term in text for term in self._NEUTRAL_SENTIMENT_CONTEXT_TERMS
+        )
+        if sentiment == "POSITIVE" and has_neutral_context and not has_severe_negative:
+            return "NEUTRAL"
+        if positive_score > negative_score and sentiment != "NEGATIVE":
+            return "POSITIVE"
+        return sentiment
+
+    def _augment_importance(
+        self,
+        text: str,
+        source_type: str,
+        importance: Importance,
+    ) -> Importance:
+        rule_importance = self._rule_importance_floor(text, source_type)
+        priority = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+        elevated = (
+            rule_importance
+            if priority[rule_importance] > priority[importance]
+            else importance
+        )
+        return self._cap_importance(text, elevated)
+
+    def _rule_importance_floor(self, text: str, source_type: str) -> Importance:
+        if self.rule_engine._contains_any(text, self.rule_engine.critical_keywords):
+            return "CRITICAL"
+        high_signal_terms = (
+            "공급계약",
+            "거래정지",
+            "분할",
+            "상장폐지",
+            "생산차질",
+            "유상증자",
+            "자사주",
+            "주식교환",
+            "합병",
+            "횡령",
+            "배임",
+        )
+        if any(term in text for term in high_signal_terms):
+            return "HIGH"
+        if len(text) > 80:
+            return "MEDIUM"
+        return "LOW"
+
+    def _cap_importance(self, text: str, importance: Importance) -> Importance:
+        if importance != "CRITICAL":
+            return importance
+        if "소송" not in text:
+            return importance
+        critical_terms = ("감사의견 거절", "거래정지", "상장폐지", "일정금액", "횡령", "배임")
+        if any(term in text for term in critical_terms):
+            return importance
+        return "HIGH"
 
     def _has_macro_context(self, text: str) -> bool:
         if any(term in text for term in self._MACRO_CONTEXT_TERMS):
@@ -389,4 +622,8 @@ class AlertAnalyzer:
 def _load_internal_stock_universe(
     stock_universe_path: Path,
 ) -> tuple[StockUniverseEntry, ...]:
-    return tuple(load_stock_universe(stock_universe_path))
+    return tuple(
+        stock
+        for stock in load_stock_universe(stock_universe_path)
+        if stock.stock_name not in AlertAnalyzer._INTERNAL_STOCK_MATCH_EXCLUDED_NAMES
+    )

@@ -2,15 +2,15 @@
   "source_path": "data/processed/weak_labeled_alerts.jsonl",
   "status": "promoted_to_student_training",
   "candidate_count": 68710,
-  "accepted_count": 1018,
+  "accepted_count": 1028,
   "rejected_count": 63506,
   "accepted_count_by_primary_label": {
     "CAPITAL_ACTION": 120,
     "CONTRACT": 422,
-    "CORPORATE_ACTION": 66,
-    "EARNINGS": 12,
-    "MACRO": 7,
-    "RISK": 391
+    "CORPORATE_ACTION": 63,
+    "EARNINGS": 17,
+    "MACRO": 10,
+    "RISK": 396
   },
   "rejected_count_by_reason": {
     "disclosure_noise": 11302,
@@ -55,10 +55,10 @@
     "GENERAL_MARKET": 0
   },
   "promotion_method": "supervised_teacher_confidence_filter",
-  "teacher_training_sample_count": 4116,
+  "teacher_training_sample_count": 4282,
   "rejected_count_by_teacher_reason": {
-    "low_teacher_confidence": 4257,
-    "teacher_weak_event_disagreement": 3
+    "low_teacher_confidence": 4241,
+    "teacher_weak_event_disagreement": 7
   },
   "pseudo_sample_influence_control": "weak_and_stock_candidate_pseudo_labels_are_event_model_only",
   "event_probability_threshold": 0.42,
@@ -69,22 +69,22 @@
     "status": "promoted_to_event_student_training",
     "source_path": "data/curation/stock_training_candidate_queue.jsonl",
     "candidate_count": 15720,
-    "accepted_count": 676,
-    "accepted_stock_count": 676,
+    "accepted_count": 687,
+    "accepted_stock_count": 687,
     "accepted_count_by_primary_label": {
-      "RISK": 251,
+      "RISK": 256,
       "CONTRACT": 242,
       "CAPITAL_ACTION": 120,
-      "CORPORATE_ACTION": 44,
-      "EARNINGS": 12,
-      "MACRO": 7,
+      "CORPORATE_ACTION": 42,
+      "EARNINGS": 17,
+      "MACRO": 10,
       "DISCLOSURE": 0,
       "GENERAL_MARKET": 0
     },
     "rejected_count_by_reason": {
-      "low_teacher_confidence": 7955,
-      "per_stock_quota_filled": 3474,
-      "teacher_candidate_event_disagreement": 140,
+      "low_teacher_confidence": 7873,
+      "per_stock_quota_filled": 3534,
+      "teacher_candidate_event_disagreement": 144,
       "teacher_zero_quota_label": 27,
       "zero_quota_label": 2833
     },

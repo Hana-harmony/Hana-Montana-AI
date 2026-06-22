@@ -1,0 +1,220 @@
+{
+  "schema_version": "live-news-quality-audit-report/v1",
+  "row_schema_version": "live-news-quality-audit-row/v1",
+  "generated_at": "2026-06-22T03:57:30.817204+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260622034109",
+  "stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "output_path": "data/evaluation/live_news_quality_audit.jsonl",
+  "requested_stock_sample_size": 30,
+  "selected_stock_count": 30,
+  "query_count": 150,
+  "emitted_row_count": 80,
+  "quality_pass_count": 63,
+  "quality_pass_rate": 0.7875,
+  "query_relevant_row_count": 64,
+  "query_relevant_quality_pass_count": 63,
+  "query_relevant_quality_pass_rate": 0.984375,
+  "average_quality_score": 86.8125,
+  "full_content_count": 58,
+  "full_content_rate": 0.725,
+  "sampled_stock_model_match_count": 64,
+  "sampled_stock_model_match_rate": 0.8,
+  "quality_finding_counts": {
+    "CONTENT_BOILERPLATE": 41,
+    "LOW_EVENT_CONFIDENCE": 7,
+    "LOW_IMPORTANCE_CONFIDENCE": 12,
+    "LOW_SENTIMENT_CONFIDENCE": 21,
+    "MISSING_FULL_CONTENT": 22,
+    "PREDICTED_STOCK_NULL": 5,
+    "QUERY_STOCK_ABSENT": 16
+  },
+  "provider_status_totals": {
+    "providers": [
+      "naver-news"
+    ],
+    "completed": true,
+    "attempted_requests": 98,
+    "successful_requests": 98,
+    "rate_limited_requests": 0,
+    "failed_requests": 0,
+    "collected_count": 98,
+    "errors": []
+  },
+  "worst_rows": [
+    {
+      "quality_score": 54,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "LOW_SENTIMENT_CONFIDENCE",
+        "PREDICTED_STOCK_NULL",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "그린생명과학",
+      "predicted_stock_name": null,
+      "title": "전국 유일 바이오 특화 오송 'AI 데이터센터' 구축 본격화…내년 첫 연...",
+      "original_url": "https://www.inews365.com/news/article.html?no=924260",
+      "summary_lines": {
+        "what": "이 센터가 가동되면 항체 발굴 등에 필요한 플랫폼이 구축돼 신약 개발 업체들의 글로벌 경쟁력이 한층 강화될 전망이다.",
+        "why": "상대적으로 높은 가격을 보이는 백화점 선물세트는 물가 상승 영향으로 구성 상품들의 시세가 전반적으로 오른 영향이 크다.",
+        "impact": "특히 AI 바이오 데이터센터는 오송이 'AI 바이오 혁신 거점'으로 새롭게 태어나는데 핵심 인프라가 될 전망이다."
+      }
+    },
+    {
+      "quality_score": 59,
+      "quality_findings": [
+        "MISSING_FULL_CONTENT",
+        "PREDICTED_STOCK_NULL",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "위너지스",
+      "predicted_stock_name": null,
+      "title": "브로드컴, 비트코인 시총 넘어서…구글 TPU 생태계 수혜",
+      "original_url": "https://www.mk.co.kr/article/11476347",
+      "summary_lines": {
+        "what": "(AI) 위너 ’로 부상하며 수혜가 전망됐고, 아마존이 500억달러(약 73조원) 규모 AI 인프라 투자 소식을 밝히면서 데이터센터용 칩 수주 기대감이 커졌다.",
+        "why": "브로드컴 주가 는 연초 대비 62.9% 상승했다.",
+        "impact": "영향은 high 중요도와 positive 감성으로 분류되어 보유·관심 종목 사용자 확인이 필요합니다."
+      }
+    },
+    {
+      "quality_score": 59,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "PREDICTED_STOCK_NULL",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "위너지스",
+      "predicted_stock_name": null,
+      "title": "[가디언 특약] I조 프랑스: '음바페, 뎀벨레, 올리세 레츠고!' 영원한 우...",
+      "original_url": "http://www.footballist.co.kr/news/articleView.html?idxno=210918",
+      "summary_lines": {
+        "what": "▲ 주목할 선수: 워렌 자이르에메리 자이르에메리는 아직 20세에 불과하지만, 이미 커리어의 극적인 상승과 하락을 모두 경험했다.",
+        "why": "개막 앞두고 2030 월드컵까지 재계약 ‘더 해먹어야 한다’ 모드리치, 광대뼈 골절에도 ‘월드컵 반드시 뛴다’ 굳은 각오!",
+        "impact": "특히 대표 응원단인 '이레지스티블 프랑세(Irrésistibles Français)' 소속 약 650명이 세네갈과의 첫 경기부터 함께할 전망이다."
+      }
+    },
+    {
+      "quality_score": 59,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "PREDICTED_STOCK_NULL",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "이에스산업",
+      "predicted_stock_name": null,
+      "title": "이에스 케이블-광천우리맛김, 2026년 글로벌 강소기업 1000+ 프로젝트 선...",
+      "original_url": "http://www.chungnamilbo.co.kr/news/articleView.html?idxno=894790",
+      "summary_lines": {
+        "what": "글로벌 강소기업 1000+ 프로젝트는 수출 성장 가능성과 혁신 역량을 갖춘 중소기업을 발굴하여 세계시장을 선도하는 수출기업으로 육성하기 위한 중소벤처기업부의 대표적인 수출 지원사업이다.",
+        "why": "아울러, 이번 지정으로써 군에서는 ㈜이에스케이블과 광천우리맛김이 글로벌 강소기업 1000+ 프로젝트 지정 기업에 이름을 올리게 됐다.",
+        "impact": "㈜이에스케이블은 광섬유·광케이블 제조 분야에서 지속적인 기술 개발과 품질 혁신을 통해 경쟁력을 강화해 왔으며 국내를 넘어 해외시장으로 수출을 확대하며 글로벌 경쟁력을 높여왔다."
+      }
+    },
+    {
+      "quality_score": 62,
+      "quality_findings": [
+        "LOW_SENTIMENT_CONFIDENCE",
+        "PREDICTED_STOCK_NULL",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "이에스산업",
+      "predicted_stock_name": null,
+      "title": "[뷰티 트렌드] 루디언트, 뷰티 특화 약국 채널 '레디영' 입점… 오프라...",
+      "original_url": "https://www.ibabynews.com/news/articleView.html?idxno=151645",
+      "summary_lines": {
+        "what": "80프로 인건비 지원을 받으니 경력교사로서 원장님 눈치~~더많이일해야한다는부담감이 너무크네요.원입장에서는아무래도급여때문에신규교사를선호하죠 사립에서도같은월급에경력많은교사가아무래도더많은책임을지느뉘ㅣ했는데ㅠ100프로지원되면경력교사들의프로페셔널함을발휘할수있는기회가더많아질듯해요.눈치안보고일하고싶네요.",
+        "why": "정신건강의학과나 상담센터의 문턱이 높게 느껴지는 청년들에게 일상 속에서 자연스럽게 다가가는 이런 생활 밀착형 정책이 더 많아졌으면 좋겠습니다.",
+        "impact": "청년들이 가장 자주 찾는 공간인 '편의점'을 거점으로 삼아 마음 건강을 돌본다는 아이디어가 정말 신선하고 실효성 있어 보입니다."
+      }
+    },
+    {
+      "quality_score": 67,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "LOW_IMPORTANCE_CONFIDENCE",
+        "LOW_SENTIMENT_CONFIDENCE",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "NH농협증권",
+      "predicted_stock_name": "미래에셋증권",
+      "title": "[N2 모닝 경제 브리핑-6월 22일] 美 증시, '노예해방기념일' 휴장…주요...",
+      "original_url": "https://www.news2day.co.kr/article/20260622500009",
+      "summary_lines": {
+        "what": "[N2 모닝 경제 브리핑-6월 22일] 美 증시, '노예해방기념일' 휴장…주요.... ■ 주요 기업 공시 (19일) - 미래에셋 증권 : &quot;상장폐지설 재점화된 미래에셋생명&quot; 관련, 검토 및 결정 사항... 남해화학 : NH농협 은행과 원재료 구입을 위한 외국환 약정 체결 - 동일기연 : 주식분할 사유로...",
+        "why": "[N2 모닝 경제 브리핑-6월 22일] 美 증시, '노예해방기념일' 휴장…주요...와 관련된 핵심 배경은 원문에서 확인된 최신 공시·뉴스 맥락입니다.",
+        "impact": "영향은 critical 중요도와 negative 감성으로 분류되어 보유·관심 종목 사용자 확인이 필요합니다."
+      }
+    },
+    {
+      "quality_score": 72,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "LOW_SENTIMENT_CONFIDENCE",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "NH농협증권",
+      "predicted_stock_name": "삼성전자",
+      "title": "삼성전자 외인 지분율 47.6%…연중 최저 하이닉스도 감소",
+      "original_url": "https://www.sedaily.com/article/20058396?ref=naver",
+      "summary_lines": {
+        "what": "[주요 이슈 브리핑] 외국인, 기계적 매도 압박 해소… 삼성전자(005930) ·하이닉스 복귀 여력 확대: MSCI·FTSE 리밸런싱이 19일 마무리되면서 향후 2개월간 패시브 강제 매도 압박이 사라진 상황이다.",
+        "why": "전기차·ESS 동반 성장…배터리 3사 실적 회복 ‘시동’ - 핵심 요약: LG에너지솔루션은 2분기 매출 7조 1470억 원, 영업이익 2075억 원으로 2개 분기 만에 흑자 전환이 전망되며, 삼성SDI와 SK온도 영업손실 규모가 빠르게 축소되는 양상이다.",
+        "impact": "차익실현·리밸런싱에…삼전닉스 외인 비중 연중 최저 - 핵심 요약: 19일 기준 삼성전자 외국인 지분율은 연초 52.4%에서 47.6%로, SK하이닉스는 53.8%에서 51.3%로 낮아져 연중 최저치를 기록했다."
+      }
+    },
+    {
+      "quality_score": 72,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "LOW_IMPORTANCE_CONFIDENCE",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "그린생명과학",
+      "predicted_stock_name": "HD현대마린엔진",
+      "title": "[주요공시] HD현대마린엔진, 알엔티엑스, HLB 생명과학 , 휴림로봇, 휴림로...",
+      "original_url": "https://www.kdpress.co.kr/news/articleView.html?idxno=205723",
+      "summary_lines": {
+        "what": "HD현대마린엔진 (KOSPI, 071970)은 중국 Wuhu Shipyard Co., Ltd.와 선박엔진 공급계약을 체결했다.",
+        "why": "금일 장 마감 후 양사의 신규 대형 공급계약 공시는 확인되지 않았지만, 삼성전자는 직전 1분기 확정실적에서 연결 기준 매출 133조8734억원, 영업이익 57조2328억원, 당기순이익 47조2253억원을 공시했고, 보통주와 우선주 모두 1주당 372원의 분기배당을 결정한 상태다.",
+        "impact": "공시 흐름은 대형 건설 수주, 서버·위성·반도체 장비 공급계약, 교환사채·전환사채·유상증자, 유형자산 양수, 단기차입, 최대주주 변경 및 주식담보, 감자·거래정지, 불성실공시법인 지정예고로 나뉘었다."
+      }
+    },
+    {
+      "quality_score": 72,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "LOW_SENTIMENT_CONFIDENCE",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "이에스산업",
+      "predicted_stock_name": "유안타증권",
+      "title": "LS일렉트릭, 사조 물류센터 전력 절감 맡는다…고효율 설비 패키지 첫 ...",
+      "original_url": "http://www.biztribune.co.kr/news/articleView.html?idxno=354939",
+      "summary_lines": {
+        "what": "사조그룹이 설비를 고효율 기기로 교체한 뒤 절감된 에너지 비용으로 투자비를 회수할 수 있도록 하는 방식이다.",
+        "why": "산업 현장의 에너지 절감 수요와 전력 인프라 투자 확대가 맞물리면서 LS일렉트릭의 고효율 전동기·인버터 패키지와 에너지관리 솔루션의 활용처도 넓어질 수 있다는 분석이다.",
+        "impact": "대신증권은 반도체 제조업체향 배전기기 매출 회복과 초고압 변압기 증설 효과, 미국·베트남 법인 호실적 등을 실적 개선 요인으로 제시했다."
+      }
+    },
+    {
+      "quality_score": 77,
+      "quality_findings": [
+        "CONTENT_BOILERPLATE",
+        "QUERY_STOCK_ABSENT"
+      ],
+      "sampled_stock_name": "위너지스",
+      "predicted_stock_name": "이수앱지스",
+      "title": "제60회 무역의날 수출의탑 수상기업 명단",
+      "original_url": "https://www.smarttoday.co.kr/news/articleView.html?idxno=39219",
+      "summary_lines": {
+        "what": "수출의탑은 지난해 7월1일부터 올해 6월30일까지의 수출 실적을 기반으로 선정하고 있다.",
+        "why": "올해 1704개 기업이 100만달러 이상 수출 실적으로 수출의탑을 수상했다.",
+        "impact": "금액별 수출의탑 수상기업 명단은 다음과 같다."
+      }
+    }
+  ],
+  "policy": {
+    "llm_usage": "disabled",
+    "description": "최신 뉴스 품질 감사는 LLM 없이 전문 정제, 금융 ML 분류, 규칙 기반 What/Why/Impact 요약의 운영 품질을 관측한다."
+  }
+}
