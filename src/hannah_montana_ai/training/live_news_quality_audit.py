@@ -55,7 +55,7 @@ class LiveNewsQualityAuditBatch:
 
 
 NewsCollector = Callable[..., RawCollectionResult]
-ArticleContentFetcher = Callable[[str], ArticleContent | None]
+ArticleContentFetcher = Callable[[str, str], ArticleContent | None]
 
 
 def build_live_news_quality_audit_batch(
@@ -101,7 +101,9 @@ def build_live_news_quality_audit_batch(
             if alert.content_hash in seen_hashes:
                 continue
             seen_hashes.add(alert.content_hash)
-            full_content = content_fetcher(alert.original_url) if content_fetcher else None
+            full_content = (
+                content_fetcher(alert.original_url, alert.title) if content_fetcher else None
+            )
             if require_query_stock_match and not _stock_text_matched(
                 alert,
                 live_query.sampled_stock_name,

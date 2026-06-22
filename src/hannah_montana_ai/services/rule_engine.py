@@ -296,6 +296,8 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", sentence).strip()
         if len(normalized) < 24 or len(normalized) > 500:
             return False
+        if len(re.findall(r"\[[^\]]{2,24}\]", normalized)) >= 2:
+            return False
         if re.search(r"\S+@\S+", normalized):
             return False
         if any(keyword in normalized for keyword in self.boilerplate_keywords):
@@ -344,6 +346,10 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", text).strip()
         normalized = re.sub(r"\S+@\S+", "", normalized).strip()
         normalized = re.sub(r"^/?사진=[^ ]+\s*", "", normalized).strip()
-        normalized = re.sub(r"^[가-힣A-Za-z0-9_. -]{2,24}=[가-힣]{2,4}\s*기자\s*", "", normalized).strip()
+        normalized = re.sub(
+            r"^[가-힣A-Za-z0-9_. -]{2,24}=[가-힣]{2,4}\s*기자\s*",
+            "",
+            normalized,
+        ).strip()
         normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
         return normalized[:300]

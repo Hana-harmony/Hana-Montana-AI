@@ -102,6 +102,8 @@ BOILERPLATE_TERMS = (
     "메뉴 열기",
     "메뉴 닫기",
     "본문 바로가기",
+    "주메뉴 바로가기",
+    "하단메뉴 바로가기",
     "검색 열기",
     "검색 닫기",
     "뉴스스탠드",
@@ -114,6 +116,7 @@ BOILERPLATE_TERMS = (
     "복사하기",
     "스크롤 이동 상태바",
     "관련태그",
+    "관련기사",
     "많이 본 뉴스",
     "실시간 속보 랭킹뉴스",
     "K-Artprice",
@@ -123,6 +126,9 @@ BOILERPLATE_TERMS = (
     "월드컵24시",
     "더중앙플러스",
     "최신 기사",
+    "최신뉴스",
+    "인스타그램",
+    "유튜브",
     "share flutter_dash",
     "format_size",
     "사진 확대",
@@ -352,7 +358,7 @@ def write_shard(path: Path, shard_dir: Path, index: int, lines: list[str]) -> st
     return str(shard_path.relative_to(path.parent))
 
 
-def fetch_news_content(url: str) -> FullContent | None:
+def fetch_news_content(url: str, expected_title: str = "") -> FullContent | None:
     safe_url = safe_http_url(url)
     if not safe_url:
         return None
@@ -360,7 +366,7 @@ def fetch_news_content(url: str) -> FullContent | None:
         html = fetch_bytes(safe_url).decode("utf-8", errors="replace")
     except (HTTPError, IncompleteRead, OSError, TimeoutError, URLError, UnicodeError):
         return None
-    text = extract_article_text(html)
+    text = extract_article_text(html, expected_title=expected_title)
     if len(text) < MIN_CONTENT_CHARS:
         return None
     return FullContent(
@@ -579,7 +585,7 @@ def extract_text(html: str) -> str:
     return parser.text()
 
 
-def extract_article_text(html: str) -> str:
+def extract_article_text(html: str, expected_title: str = "") -> str:
     cleaned = re.sub(
         r"(?is)<(script|style|noscript|iframe|svg|nav|header|footer|aside|form).*?</\1>",
         " ",
@@ -599,21 +605,48 @@ def extract_article_text(html: str) -> str:
     if not candidates:
         return extract_text(cleaned)
 
-    best = max(candidates, key=content_score)
-    return best if content_score(best) > 0 else extract_text(cleaned)
+    best = max(candidates, key=lambda text: content_score(text, expected_title))
+    return best if content_score(best, expected_title) > 0 else extract_text(cleaned)
 
 
-def content_score(text: str) -> int:
+def content_score(text: str, expected_title: str = "") -> int:
     normalized = normalize_text(text)
     if len(normalized) < 90:
         return 0
+    title_terms = title_match_terms(expected_title)
+    title_match_score = sum(1 for term in title_terms if term in normalized) * 220
+    title_absent_penalty = (
+        600 if title_terms and not any(term in normalized for term in title_terms) else 0
+    )
     financial_score = sum(1 for term in FINANCIAL_CONTEXT_TERMS if term in normalized) * 80
     boilerplate_penalty = sum(1 for term in BOILERPLATE_TERMS if term in normalized) * 180
     sentence_score = len(re.split(r"[.!?。]|다\.", normalized)) * 25
     return max(
         0,
-        min(len(normalized), 2_000) + financial_score + sentence_score - boilerplate_penalty,
+        min(len(normalized), 2_000)
+        + title_match_score
+        + financial_score
+        + sentence_score
+        - boilerplate_penalty
+        - title_absent_penalty,
     )
+
+
+def title_match_terms(title: str) -> set[str]:
+    generic_terms = {
+        "단독",
+        "종합",
+        "속보",
+        "특징주",
+        "공시",
+        "오늘뉴스",
+        "이슈",
+    }
+    return {
+        token
+        for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", normalize_text(unescape(title)))
+        if token not in generic_terms
+    }
 
 
 def is_valid_full_content(content: str) -> bool:

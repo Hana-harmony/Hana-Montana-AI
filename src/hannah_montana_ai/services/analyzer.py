@@ -280,6 +280,13 @@ class AlertAnalyzer:
         text: str,
         request_universe: list[StockCandidate],
     ) -> StockMatchResult:
+        ambiguous_replacement = self._longer_internal_match_for_ambiguous_request_title(
+            title,
+            text,
+            request_universe,
+        )
+        if ambiguous_replacement is not None:
+            return StockMatchResult(ambiguous_replacement, 0.97)
         title_match = self._best_primary_stock_match(
             title,
             request_universe,
@@ -326,6 +333,41 @@ class AlertAnalyzer:
             *self._stock_matches(text, self._internal_stock_universe),
         ]
         return sorted(matches, key=lambda match: match[0])[0][1] if matches else None
+
+    def _longer_internal_match_for_ambiguous_request_title(
+        self,
+        title: str,
+        text: str,
+        request_universe: list[StockCandidate],
+    ) -> StockUniverseEntry | None:
+        request_matches = self._stock_matches(title, request_universe, allow_short_terms=True)
+        if not request_matches:
+            return None
+        request_stock = request_matches[0][1]
+        if not self._is_ambiguous_short_request_stock(request_stock):
+            return None
+        for _, internal_stock in self._stock_matches(text, self._internal_stock_universe):
+            if not isinstance(internal_stock, StockUniverseEntry):
+                continue
+            if internal_stock.stock_code == request_stock.stock_code:
+                continue
+            if self._stock_match_specificity(internal_stock) <= self._stock_match_specificity(
+                request_stock
+            ):
+                continue
+            if self._is_shadowing_stock_match(
+                (request_matches[0][0], request_stock),
+                (request_matches[0][0], internal_stock),
+            ) or self._stock_terms_contain(internal_stock, request_stock):
+                return internal_stock
+        return None
+
+    def _is_ambiguous_short_request_stock(
+        self,
+        stock: StockCandidate | StockUniverseEntry,
+    ) -> bool:
+        normalized_name = normalize_stock_term(stock.stock_name)
+        return bool(normalized_name) and len(normalized_name) <= 2
 
     def _match_leading_internal_stock_with_ml(
         self,
@@ -472,6 +514,8 @@ class AlertAnalyzer:
         request_match: tuple[int, StockCandidate | StockUniverseEntry],
         internal_matches: list[tuple[int, StockCandidate | StockUniverseEntry]],
     ) -> StockCandidate | StockUniverseEntry | None:
+        if not self._is_ambiguous_short_request_stock(request_match[1]):
+            return None
         for internal_match in internal_matches:
             if self._is_shadowing_stock_match(request_match, internal_match):
                 return internal_match[1]
@@ -499,9 +543,13 @@ class AlertAnalyzer:
     ) -> bool:
         short_position, short_stock = short_match
         long_position, long_stock = long_match
-        if short_position != long_position or short_stock.stock_code == long_stock.stock_code:
+        if short_stock.stock_code == long_stock.stock_code:
             return False
         if self._stock_match_specificity(long_stock) <= self._stock_match_specificity(
+            short_stock
+        ):
+            return False
+        if short_position != long_position and not self._is_ambiguous_short_request_stock(
             short_stock
         ):
             return False

@@ -51,8 +51,8 @@ def main() -> None:
     print(report_to_json(batch.report), end="")
 
 
-def _fetch_article_content(url: str) -> ArticleContent | None:
-    content = fetch_news_content(url)
+def _fetch_article_content(url: str, title: str) -> ArticleContent | None:
+    content = fetch_news_content(url, expected_title=title)
     if content is None:
         return None
     return ArticleContent(

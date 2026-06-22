@@ -99,7 +99,7 @@ def test_live_news_quality_audit_scores_full_content_summary() -> None:
             status=status,
         )
 
-    def fake_content_fetcher(url: str) -> ArticleContent:
+    def fake_content_fetcher(url: str, _title: str) -> ArticleContent:
         return ArticleContent(
             content=(
                 "삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다. "
@@ -166,7 +166,7 @@ def test_live_news_quality_audit_marks_summary_only_confidence_cap() -> None:
         intents=("실적",),
         analyzer=SummaryOnlyConfidentAnalyzer(),
         news_collector=fake_collector,
-        content_fetcher=lambda _: None,
+        content_fetcher=lambda *_: None,
     )
 
     row = batch.rows[0]
@@ -230,7 +230,7 @@ def test_live_news_quality_audit_flags_noisy_summary() -> None:
         intents=("실적",),
         analyzer=NoisyAnalyzer(),
         news_collector=fake_collector,
-        content_fetcher=lambda _: None,
+        content_fetcher=lambda *_: None,
     )
 
     row = batch.rows[0]
@@ -274,7 +274,7 @@ def test_live_news_quality_audit_can_filter_query_stock_absent_rows() -> None:
             status=status,
         )
 
-    def fake_content_fetcher(url: str) -> ArticleContent:
+    def fake_content_fetcher(url: str, _title: str) -> ArticleContent:
         if "foreign-chip" in url:
             return ArticleContent(
                 content="브로드컴은 AI 인프라 투자 확대 영향으로 매출 전망을 높였다.",
@@ -330,7 +330,7 @@ def test_live_news_quality_audit_filters_broker_research_attribution() -> None:
             status=status,
         )
 
-    def fake_content_fetcher(url: str) -> ArticleContent:
+    def fake_content_fetcher(url: str, _title: str) -> ArticleContent:
         return ArticleContent(
             content=(
                 "오병용 한양증권 연구원은 엘앤씨바이오의 신제품 성장세가 "
@@ -379,6 +379,34 @@ def test_python_full_content_extractor_prefers_article_container() -> None:
     assert "TC본더 수요 증가" in text
     assert "전체 메뉴" not in text
     assert "이용약관" not in text
+
+
+def test_python_full_content_extractor_prefers_title_matching_candidate() -> None:
+    html = """
+    <html>
+      <body>
+        <div class="content">
+          <p>사진 '내란 가담' 박성재 1심 징역 25년형.</p>
+          <p>서울중앙지법은 내란 중요임무 종사 혐의와 직권남용 혐의를 판단했다.</p>
+          <p>정치권은 판결 리스크와 후속 수사 전망을 주목하고 있다.</p>
+        </div>
+        <article>
+          <h1>한투운용, 반도체 AI 전력 ETF 2종 상장</h1>
+          <p>한국투자신탁운용은 반도체와 AI 전력 인프라에 투자하는 ETF 2종을 상장했다.</p>
+          <p>삼성전자와 SK하이닉스 등 반도체 공급망 투자 수요가 배경이다.</p>
+          <p>투자자는 ETF 편입 종목과 시장 변동성을 함께 확인해야 한다.</p>
+        </article>
+      </body>
+    </html>
+    """
+
+    text = _load_full_content_script().extract_article_text(
+        html,
+        expected_title="한투운용, 반도체 AI 전력 ETF 2종 상장",
+    )
+
+    assert "ETF 2종을 상장" in text
+    assert "내란 가담" not in text
 
 
 def test_full_content_builder_reuses_existing_licensed_rows() -> None:

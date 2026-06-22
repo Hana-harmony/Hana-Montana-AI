@@ -166,6 +166,33 @@ def test_summary_removes_ad_and_related_article_tail() -> None:
     assert "영업이익" in joined or "메모리 가격" in joined
 
 
+def test_summary_ignores_related_story_bracket_cluster() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "SK하이닉스는 AI 인프라 투자 확대의 최대 수혜 기업으로 평가받으며 "
+        "시가총액 1위에 올라섰다. "
+        "HBM 공급 우위와 메모리 반도체 수요 증가가 주가 상승의 핵심 배경이다. "
+        "투자자는 메모리 가격과 영업이익 전망 변화를 확인해야 한다. "
+        "[CEO 위클리] 르망과 바티칸 그리고 데이터센터 "
+        "[비즈 인사이트] 삼성은 삼성전자그룹 SK는 하이닉스그룹 "
+        "[게임 앤 플랫폼] 신작만으론 부족하다 검찰 압수수색했다는데 왜?"
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "SK하이닉스, 시총 1위 등극",
+        "",
+        content,
+        "HIGH",
+        "POSITIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert "CEO 위클리" not in joined
+    assert "게임 앤 플랫폼" not in joined
+    assert "압수수색" not in joined
+    assert "HBM" in joined or "메모리" in joined
+
+
 def test_summary_only_response_caps_model_confidence() -> None:
     analyzer = AlertAnalyzer()
     response = analyzer.analyze(
