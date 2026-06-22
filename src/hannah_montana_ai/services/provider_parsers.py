@@ -65,6 +65,11 @@ class IntelligenceProviderRecord:
     source_type: SourceType
     title: str
     snippet: str
+    content: str
+    image_urls: list[str]
+    canonical_url: str
+    content_hash: str
+    source_license_policy: str
     original_url: str
     provider: str
     published_at: str
@@ -171,6 +176,13 @@ def parse_naver_news_row(row: Mapping[str, str]) -> IntelligenceProviderRecord:
         source_type="NEWS",
         title=title,
         snippet=snippet,
+        content=_clean_text(_first(row, "content", "body", "본문", "원문")),
+        image_urls=_image_urls(row),
+        canonical_url=_clean_text(_first(row, "canonical_url", "canonicalUrl", "대표URL")),
+        content_hash=_clean_text(_first(row, "content_hash", "contentHash", "본문해시")),
+        source_license_policy=_clean_text(
+            _first(row, "source_license_policy", "license_policy", default="DISCOVERY_ONLY")
+        ),
         original_url=original_url,
         provider=_clean_text(_first(row, "provider", "언론사", default="naver-news")),
         published_at=_clean_text(_first(row, "published_at", "pubDate", "발행시각")),
@@ -191,6 +203,13 @@ def parse_opendart_disclosure_row(row: Mapping[str, str]) -> IntelligenceProvide
         source_type="DISCLOSURE",
         title=title,
         snippet=_clean_text(_first(row, "snippet", "corp_name", "회사명")),
+        content=_clean_text(_first(row, "content", "body", "document_text", "본문", "원문")),
+        image_urls=_image_urls(row),
+        canonical_url=_clean_text(_first(row, "canonical_url", "canonicalUrl", "대표URL")),
+        content_hash=_clean_text(_first(row, "content_hash", "contentHash", "본문해시")),
+        source_license_policy=_clean_text(
+            _first(row, "source_license_policy", "license_policy", default="DISCOVERY_ONLY")
+        ),
         original_url=_required_url(original_url),
         provider=_clean_text(_first(row, "provider", default="opendart")),
         published_at=_clean_text(_first(row, "rcept_dt", "접수일자", "published_at")),
@@ -211,6 +230,11 @@ def build_intelligence_event_request(
             "source_type": record.source_type,
             "title": record.title,
             "snippet": record.snippet,
+            "content": record.content,
+            "image_urls": record.image_urls,
+            "canonical_url": record.canonical_url,
+            "content_hash": record.content_hash,
+            "source_license_policy": record.source_license_policy,
             "original_url": record.original_url,
             "provider": record.provider,
             "published_at": record.published_at,
@@ -244,6 +268,9 @@ def build_omnilens_websocket_event(
         "translated_summary": response.translated_summary,
         "original_content": response.original_content,
         "translated_content": response.translated_content,
+        "original_body": response.original_body,
+        "translated_body": response.translated_body,
+        "body_source_type": response.body_source_type,
         "image_urls": response.image_urls,
         "content_availability": response.content_availability,
         "sentiment": response.sentiment,
@@ -324,6 +351,11 @@ def _with_duplicate_key(record: IntelligenceProviderRecord) -> IntelligenceProvi
         source_type=record.source_type,
         title=record.title,
         snippet=record.snippet,
+        content=record.content,
+        image_urls=record.image_urls,
+        canonical_url=record.canonical_url,
+        content_hash=record.content_hash,
+        source_license_policy=record.source_license_policy,
         original_url=record.original_url,
         provider=record.provider,
         published_at=record.published_at,
@@ -331,6 +363,22 @@ def _with_duplicate_key(record: IntelligenceProviderRecord) -> IntelligenceProvi
         duplicate_key=_intelligence_duplicate_key(record),
         stock_universe=record.stock_universe,
     )
+
+
+def _image_urls(row: Mapping[str, str]) -> list[str]:
+    raw_value = _clean_text(_first(row, "image_urls", "imageUrls", "이미지URL"))
+    if not raw_value:
+        return []
+    if raw_value.startswith("["):
+        loaded = json.loads(raw_value)
+        if not isinstance(loaded, list):
+            raise ProviderParseError("image_urls JSON payload는 배열이어야 함")
+        return [_required_url(str(value)) for value in loaded if str(value).strip()]
+    return [
+        _required_url(value)
+        for value in (part.strip() for part in raw_value.split(","))
+        if value
+    ]
 
 
 def _intelligence_duplicate_key(record: IntelligenceProviderRecord) -> str:

@@ -43,8 +43,8 @@
 - 입력 v1: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
 - 입력 v2: v1 필드에 Hana-OmniLens-API가 사용 허가 원문 URL과 OpenDART document에서 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
 - 파서:
-  - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보를 정규화한다.
-  - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자를 정규화하고 DART 원문 링크를 구성한다.
+  - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보와 사용 허가된 전문·이미지·canonical URL·본문 hash를 정규화한다.
+  - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자와 공시 전문을 정규화하고 DART 원문 링크를 구성한다.
   - `build_intelligence_event_request`: provider row를 `IntelligenceEventRequest`로 변환한다.
   - `build_omnilens_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
@@ -63,7 +63,8 @@
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
   - `summary`, `summary_lines.what`, `summary_lines.why`, `summary_lines.impact`, `translated_summary`
-  - `original_content`, `translated_content`, `image_urls`, `content_availability`
+  - `original_content`, `translated_content`, `original_body`, `translated_body`
+  - `image_urls`, `content_availability`, `body_source_type`
   - `sentiment`, `importance`, `event_tag`, `event_tags`
   - `is_holder_target`, `is_watchlist_target`
   - `glossary_terms`, `translation_quality_flags`

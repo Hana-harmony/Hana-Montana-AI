@@ -935,3 +935,8 @@
 - `[오늘의 주요공시]` 같은 여러 종목 roundup 제목에서는 제목 대신 snippet/본문 문맥을 우선해 What/Why/Impact 요약을 생성하도록 정제했다.
 - 1,000건 최신 query-relevant live quality audit에서 quality pass rate 0.991, full-content rate 0.69, sampled stock model match rate 0.999, `SUMMARY_BOILERPLATE` 0건을 기록했다.
 - `reports/model-release-report.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`은 새 모델 기준 모두 `pass`를 기록했다.
+
+## 2026-06-22 - 원문 본문 번역 API 계약 명시
+- 인텔리전스 provider parser가 사용 허가된 뉴스·공시 전문, 이미지, canonical URL, content hash, license policy를 `IntelligenceEventRequest`로 전달하도록 보강했다.
+- 응답과 WebSocket payload에 `original_body`, `translated_body`, `body_source_type`를 추가해 원문 본문 번역과 요약 번역 계약을 분리해 검증한다.
+- 기능정의 하네스와 provider 하네스에서 전문 입력 시 `FULL_TEXT` 본문 출처와 원문/번역 본문 필드를 검증한다.

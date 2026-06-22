@@ -73,6 +73,10 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
             "source_type": "NEWS",
             "title": "삼성전자 2분기 영업이익 증가",
             "snippet": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+            "content": (
+                "삼성전자는 반도체 수요 회복과 공급계약 증가로 "
+                "영업이익 개선이 예상된다고 밝혔다."
+            ),
             "original_url": "https://example.com/news/intelligence-1",
             "provider": "naver-news",
             "published_at": "2026-06-17T09:00:00+09:00",
@@ -101,6 +105,13 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "operating profit" in payload["translated_title"]
     assert payload["summary"]
     assert payload["translated_summary"]
+    assert payload["original_content"] == payload["original_body"]
+    assert "삼성전자는 반도체 수요 회복" in payload["original_body"]
+    assert payload["translated_content"] == payload["translated_body"]
+    assert "Samsung Electronics" in payload["translated_body"]
+    assert "operating profit" in payload["translated_body"]
+    assert payload["content_availability"] == "FULL_TEXT"
+    assert payload["body_source_type"] == "FULL_TEXT"
     assert payload["sentiment"] == "POSITIVE"
     assert payload["importance"] in {"MEDIUM", "HIGH"}
     assert "EARNINGS" in payload["event_tags"]
