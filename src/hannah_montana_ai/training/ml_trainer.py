@@ -120,13 +120,21 @@ STOCK_CANDIDATE_PER_STOCK_QUOTA = 1
 EVENT_PROBABILITY_THRESHOLD = 0.30
 EVENT_LABEL_THRESHOLDS = {
     "CONTRACT": 0.46,
-    "CORPORATE_ACTION": 0.18,
+    "CORPORATE_ACTION": 0.50,
     "EARNINGS": 0.40,
-    "GENERAL_MARKET": 0.22,
-    "MACRO": 0.30,
-    "RISK": 0.50,
+    "GENERAL_MARKET": 0.30,
+    "MACRO": 0.54,
+    "RISK": 0.34,
 }
 CODEX_REVIEW_APPROVED_STATUS = "codex_review_approved"
+HUMAN_TRUSTED_REVIEW_STATUSES = {
+    "human_review_approved",
+    "analyst_review_approved",
+}
+WEAK_FULL_CONTENT_LABEL_POLICIES = {
+    "licensed_naver_original_full_text_v1",
+    "opendart_public_disclosure_text_v1",
+}
 
 
 @dataclass(frozen=True)
@@ -146,6 +154,7 @@ class MlTrainingReport:
     supervised_exclusion_report: dict[str, Any] = field(default_factory=dict)
     pseudo_labeling: dict[str, Any] = field(default_factory=dict)
     full_content_training: dict[str, Any] = field(default_factory=dict)
+    sentiment_importance_training: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -164,6 +173,7 @@ class MlTrainingReport:
             "supervised_exclusion_report": self.supervised_exclusion_report,
             "pseudo_labeling": self.pseudo_labeling,
             "full_content_training": self.full_content_training,
+            "sentiment_importance_training": self.sentiment_importance_training,
         }
 
 
@@ -233,15 +243,27 @@ def train_ml_model(
         stock_candidate_config,
     )
     samples = [*supervised_samples, *pseudo_label_result.samples]
+    sentiment_importance_samples = _sentiment_importance_training_samples(
+        supervised_samples
+    )
+    sentiment_importance_report = _sentiment_importance_training_report(
+        supervised_samples,
+        sentiment_importance_samples,
+    )
 
     event_texts = [_event_text(sample.model_text, sample.source_type) for sample in samples]
-    supervised_texts = [sample.model_text for sample in supervised_samples]
+    supervised_texts = [sample.model_text for sample in sentiment_importance_samples]
     supervised_importance_texts = [
-        _importance_text(sample.model_text, sample.source_type) for sample in supervised_samples
+        _importance_text(sample.model_text, sample.source_type)
+        for sample in sentiment_importance_samples
     ]
     event_targets = [sample.tags for sample in samples]
-    supervised_sentiment_targets = [sample.sentiment for sample in supervised_samples]
-    supervised_importance_targets = [sample.importance for sample in supervised_samples]
+    supervised_sentiment_targets = [
+        sample.sentiment for sample in sentiment_importance_samples
+    ]
+    supervised_importance_targets = [
+        sample.importance for sample in sentiment_importance_samples
+    ]
 
     event_binarizer = MultiLabelBinarizer()
     event_matrix = event_binarizer.fit_transform(event_targets)
@@ -296,6 +318,7 @@ def train_ml_model(
         "supervised_exclusion_report": supervised_exclusion_report,
         "pseudo_labeling": pseudo_label_result.report,
         "full_content_training": _full_content_training_report(supervised_samples),
+        "sentiment_importance_training": sentiment_importance_report,
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(artifact, model_path)
@@ -316,6 +339,7 @@ def train_ml_model(
         supervised_exclusion_report=supervised_exclusion_report,
         pseudo_labeling=pseudo_label_result.report,
         full_content_training=artifact["full_content_training"],
+        sentiment_importance_training=sentiment_importance_report,
     )
 
 
@@ -346,6 +370,57 @@ def _load_supervised_samples(paths: list[Path]) -> tuple[list[LabeledAlert], dic
         ),
         "excluded_count_by_reason": dict(sorted(excluded_by_reason.items())),
         "excluded_count_by_path": dict(sorted(excluded_by_path.items())),
+    }
+
+
+def _sentiment_importance_training_samples(
+    samples: Sequence[LabeledAlert],
+) -> list[LabeledAlert]:
+    trusted_samples = [
+        sample for sample in samples if not _has_weak_full_content_labels(sample)
+    ]
+    if _has_minimum_single_label_coverage(trusted_samples):
+        return trusted_samples
+    return list(samples)
+
+
+def _has_weak_full_content_labels(sample: LabeledAlert) -> bool:
+    if sample.source_review_status in HUMAN_TRUSTED_REVIEW_STATUSES:
+        return False
+    return (
+        sample.content_availability == "FULL_TEXT"
+        and sample.source_license_policy in WEAK_FULL_CONTENT_LABEL_POLICIES
+    )
+
+
+def _has_minimum_single_label_coverage(samples: Sequence[LabeledAlert]) -> bool:
+    sentiment_labels = {sample.sentiment for sample in samples}
+    importance_labels = {sample.importance for sample in samples}
+    return len(sentiment_labels) >= 2 and len(importance_labels) >= 2
+
+
+def _sentiment_importance_training_report(
+    supervised_samples: Sequence[LabeledAlert],
+    sentiment_importance_samples: Sequence[LabeledAlert],
+) -> dict[str, Any]:
+    excluded_samples = [
+        sample for sample in supervised_samples if _has_weak_full_content_labels(sample)
+    ]
+    excluded_by_policy = Counter(
+        sample.source_license_policy or "unspecified" for sample in excluded_samples
+    )
+    return {
+        "policy": (
+            "실제 원문 전문은 이벤트/종목 맥락 학습에 사용하고, 사람이 검수하지 않은 "
+            "수집 라벨은 감성/중요도 supervised loss에서 제외한다."
+        ),
+        "training_sample_count": len(sentiment_importance_samples),
+        "excluded_weak_full_content_label_count": len(excluded_samples),
+        "excluded_count_by_source_license_policy": dict(
+            sorted(excluded_by_policy.items())
+        ),
+        "fallback_used": len(sentiment_importance_samples) == len(supervised_samples)
+        and bool(excluded_samples),
     }
 
 
@@ -630,6 +705,7 @@ def _load_stock_candidate_samples(path: Path) -> list[LabeledAlert]:
 
 
 def _fit_teacher(samples: Sequence[LabeledAlert]) -> dict[str, Any]:
+    sentiment_importance_samples = _sentiment_importance_training_samples(samples)
     event_binarizer = MultiLabelBinarizer()
     event_matrix = event_binarizer.fit_transform([sample.tags for sample in samples])
 
@@ -642,12 +718,15 @@ def _fit_teacher(samples: Sequence[LabeledAlert]) -> dict[str, Any]:
         event_matrix,
     )
     sentiment_model.fit(
-        [sample.model_text for sample in samples],
-        [sample.sentiment for sample in samples],
+        [sample.model_text for sample in sentiment_importance_samples],
+        [sample.sentiment for sample in sentiment_importance_samples],
     )
     importance_model.fit(
-        [_importance_text(sample.model_text, sample.source_type) for sample in samples],
-        [sample.importance for sample in samples],
+        [
+            _importance_text(sample.model_text, sample.source_type)
+            for sample in sentiment_importance_samples
+        ],
+        [sample.importance for sample in sentiment_importance_samples],
     )
     return {
         "event_model": event_model,
@@ -847,18 +926,27 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     event_model = _event_model()
     sentiment_model = _single_label_model()
     importance_model = _importance_model()
+    sentiment_importance_train_samples = _sentiment_importance_training_samples(
+        train_samples
+    )
+    sentiment_importance_validation_samples = _sentiment_importance_training_samples(
+        validation_samples
+    )
 
     event_model.fit(
         [_event_text(sample.model_text, sample.source_type) for sample in train_samples],
         event_train_matrix,
     )
     sentiment_model.fit(
-        [sample.model_text for sample in train_samples],
-        [sample.sentiment for sample in train_samples],
+        [sample.model_text for sample in sentiment_importance_train_samples],
+        [sample.sentiment for sample in sentiment_importance_train_samples],
     )
     importance_model.fit(
-        [_importance_text(sample.model_text, sample.source_type) for sample in train_samples],
-        [sample.importance for sample in train_samples],
+        [
+            _importance_text(sample.model_text, sample.source_type)
+            for sample in sentiment_importance_train_samples
+        ],
+        [sample.importance for sample in sentiment_importance_train_samples],
     )
 
     probabilities = event_model.predict_proba(
@@ -872,19 +960,25 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     expected_event_tags = [set(sample.tags) for sample in validation_samples]
 
     predicted_sentiments = list(
-        sentiment_model.predict([sample.model_text for sample in validation_samples])
+        sentiment_model.predict(
+            [sample.model_text for sample in sentiment_importance_validation_samples]
+        )
     )
-    expected_sentiments = [sample.sentiment for sample in validation_samples]
+    expected_sentiments = [
+        sample.sentiment for sample in sentiment_importance_validation_samples
+    ]
 
     predicted_importance = list(
         importance_model.predict(
             [
                 _importance_text(sample.model_text, sample.source_type)
-                for sample in validation_samples
+                for sample in sentiment_importance_validation_samples
             ]
         )
     )
-    expected_importance = [sample.importance for sample in validation_samples]
+    expected_importance = [
+        sample.importance for sample in sentiment_importance_validation_samples
+    ]
 
     event_metrics = _event_label_metrics(expected_event_tags, predicted_event_tags)
     return MlValidationReport(
@@ -995,12 +1089,15 @@ def _macro_f1(metrics: dict[str, dict[str, float | int]]) -> float:
     return sum(float(metric["f1"]) for metric in metrics.values()) / len(metrics)
 
 
-def _accuracy(expected: list[str], predicted: list[str]) -> float:
+def _accuracy(expected: Sequence[str], predicted: Sequence[str]) -> float:
     hits = sum(1 for left, right in zip(expected, predicted, strict=True) if left == right)
     return _safe_divide(hits, len(expected))
 
 
-def _confusion_matrix(expected: list[str], predicted: list[str]) -> dict[str, dict[str, int]]:
+def _confusion_matrix(
+    expected: Sequence[str],
+    predicted: Sequence[str],
+) -> dict[str, dict[str, int]]:
     matrix: dict[str, dict[str, int]] = {}
     for expected_label, predicted_label in zip(expected, predicted, strict=True):
         matrix.setdefault(expected_label, {})

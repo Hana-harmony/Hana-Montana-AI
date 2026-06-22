@@ -69,6 +69,10 @@ def build_model_release_report(
             "weak_label_source": distillation_report.get("source_path"),
             "committed_data_policy": "raw_and_processed_training_data_are_tracked",
             "full_content_training": training_report.get("full_content_training", {}),
+            "sentiment_importance_training": training_report.get(
+                "sentiment_importance_training",
+                {},
+            ),
         },
         "training": {
             "sample_count": training_report["sample_count"],

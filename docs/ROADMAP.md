@@ -36,7 +36,8 @@
 - 후보 큐와 gold가 없는 458개 누락 종목을 5개 shard로 나누는 수집 plan 완료
 - shard 기반 Naver News Search 수집으로 raw 후보 68,710건, raw 매칭 3,613개 종목까지 확장 완료
 - raw 후보에서 종목·라벨 균형 학습 승격 후보 큐 15,720건, 3,506개 종목 생성 완료
-- 종목 후보 큐 중 teacher gate와 release gate를 통과한 687건, 687개 종목을 event-model-only pseudo-label로 제한 승격 완료
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 676건, 676개 종목을 event-model-only pseudo-label로 제한 승격 완료
+- 실제 뉴스·공시 원문 전문 507건을 저장·학습하고, 사람이 검수하지 않은 전문 약한 라벨은 감성·중요도 supervised loss에서 제외 완료
 - stock candidate quota experiment로 이전 release, risk/contract 확장, calibrated current release의 gold gate 통과와 current release best profile 선정을 기록 완료
 - 후보 큐에서 학습 300개 종목, 평가 100개 종목 검수 배치 생성 완료
 - 검수자 메타데이터와 최종 라벨이 있는 `human_review_approved` 또는 `codex_review_approved` row만 학습·평가 gold 파일로 편입하는 승격 파이프라인 완료

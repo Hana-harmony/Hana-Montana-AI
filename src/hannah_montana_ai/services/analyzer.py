@@ -62,6 +62,8 @@ class AlertAnalyzer:
         re.compile(r"\s*[-|/]\s*[가-힣]{2,4}\s*기자\s*$"),
         re.compile(r"\s+[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\s*$", re.IGNORECASE),
     )
+    _MACRO_CONTEXT_TERMS = ("수출", "업황", "공급망", "환율", "금리", "물가")
+    _GENERAL_MARKET_CONTEXT_TERMS = ("시총", "주가 급등", "증시")
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -83,7 +85,11 @@ class AlertAnalyzer:
         )
         primary_stock = primary_stock_match.stock
         event_probabilities = self.model.event_tag_probabilities(text, request.source_type)
-        event_tags = self.model.predict_event_tags(text, request.source_type)
+        event_tags = self._augment_event_tags(
+            text,
+            request.source_type,
+            self.model.predict_event_tags(text, request.source_type),
+        )
         sentiment_probabilities = self.model.sentiment_probabilities(text)
         sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
         importance_probabilities = self.model.importance_probabilities(text, request.source_type)
@@ -309,6 +315,27 @@ class AlertAnalyzer:
         if not event_tags:
             return 0.0
         return max(event_probabilities.get(tag, 0.0) for tag in event_tags)
+
+    def _augment_event_tags(
+        self,
+        text: str,
+        source_type: str,
+        event_tags: list[str],
+    ) -> list[str]:
+        if source_type != "NEWS":
+            return event_tags
+
+        tag_set = set(event_tags)
+        if self._has_macro_context(text):
+            tag_set.add("MACRO")
+        if any(term in text for term in self._GENERAL_MARKET_CONTEXT_TERMS):
+            tag_set.add("GENERAL_MARKET")
+        return sorted(tag_set)
+
+    def _has_macro_context(self, text: str) -> bool:
+        if any(term in text for term in self._MACRO_CONTEXT_TERMS):
+            return True
+        return "정책" in text and ("지원" in text or "중소기업" in text)
 
     def _top_label(self, probabilities: dict[str, float], *, fallback: str) -> str:
         if not probabilities:

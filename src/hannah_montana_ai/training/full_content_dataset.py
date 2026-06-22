@@ -10,6 +10,7 @@ FULL_CONTENT_DATASET_REPORT_SCHEMA_VERSION = "full-content-training-dataset/v1"
 ALLOWED_LICENSE_POLICIES = {
     "internal_rights_safe_full_article_v1",
     "internal_rights_safe_disclosure_text_v1",
+    "licensed_naver_original_full_text_v1",
     "licensed_partner_full_text_v1",
     "opendart_public_disclosure_text_v1",
 }

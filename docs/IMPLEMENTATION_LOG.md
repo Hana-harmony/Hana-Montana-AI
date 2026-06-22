@@ -1,12 +1,15 @@
 # 구현 기록
 
 ## 2026-06-22 기사·공시 전문 기반 학습 v2 완료
-- `data/training/financial_alert_full_content_gold.jsonl`에 권리 안전 기사·공시 전문 gold 14건을 추가하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
+- `data/training/financial_alert_full_content_gold.jsonl`에 실제 기사·공시 전문 507건을 저장하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
+- 전문 데이터셋은 뉴스 전문 369건, OpenDART document 전문 138건으로 구성되며 기존 내부 회귀 seed를 함께 보존한다.
 - 학습 입력은 전문이 있으면 `title + snippet + full_content`를 우선 사용하며, 전문이 없는 기존 row는 제목·snippet fallback으로 유지한다.
-- 새 모델 `financial-ml-tfidf-logreg-20260621225355`은 supervised 3,623건과 teacher-gated pseudo-label 1,028건을 합친 4,651건으로 학습했다.
-- 종목 후보 큐 중 teacher gate와 release gate를 통과한 687건, 687개 종목을 event-model-only pseudo-label로 제한 승격했다.
-- 이벤트 threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.18, `EARNINGS` 0.40, `GENERAL_MARKET` 0.22, `MACRO` 0.30, `RISK` 0.50으로 calibration했다.
-- 80건 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9170, 감성 accuracy 0.9000, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
+- 사람이 검수하지 않은 전문 약한 라벨 493건은 이벤트/종목 맥락 학습에는 사용하되 감성·중요도 supervised loss에서는 제외한다.
+- 새 모델 `financial-ml-tfidf-logreg-20260622012451`은 supervised 4,116건과 teacher-gated pseudo-label 1,018건을 합친 5,134건으로 학습했다.
+- 종목 후보 큐 중 teacher gate와 release gate를 통과한 676건, 676개 종목을 event-model-only pseudo-label로 제한 승격했다.
+- 이벤트 threshold는 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.50, `EARNINGS` 0.40, `GENERAL_MARKET` 0.30, `MACRO` 0.54, `RISK` 0.34로 calibration했다.
+- 뉴스 분석 후처리는 `수출`, `업황`, `공급망`, `환율`, `금리`, `물가`, `정책+지원/중소기업`, `시총`, `주가 급등`, `증시` 문맥을 보조 이벤트 태그로 반영한다.
+- 80건 실제 뉴스 gold 기준 이벤트 recall 0.9625, macro F1 0.9373, 감성 accuracy 0.9000, 중요도 accuracy 0.9250, 종목 accuracy 1.0으로 gate를 통과했다.
 - `reports/model-release-report.json`, `reports/model-confidence-calibration.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`을 새 모델 버전으로 재생성했고 전체 상태는 `pass`다.
 
 ## 2026-06-20 서비스 readiness 통합 gate 추가
