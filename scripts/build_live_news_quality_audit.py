@@ -41,6 +41,7 @@ def main() -> None:
         max_retries=args.max_retries,
         sample_limit=args.sample_limit,
         content_fetcher=_fetch_article_content,
+        require_query_stock_match=args.require_query_stock_match,
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,6 +78,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--sleep-seconds", type=float, default=0.2)
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--sample-limit", type=int)
+    parser.add_argument(
+        "--require-query-stock-match",
+        action="store_true",
+        help=(
+            "제목, snippet, 전문에서 query 대상 종목명이 확인된 기사만 품질 감사 row로 남긴다."
+        ),
+    )
     return parser.parse_args()
 
 

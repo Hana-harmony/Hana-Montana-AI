@@ -193,6 +193,75 @@ def test_live_news_quality_audit_flags_noisy_summary() -> None:
     assert batch.report["quality_finding_counts"]["SUMMARY_BOILERPLATE"] == 1
 
 
+def test_live_news_quality_audit_can_filter_query_stock_absent_rows() -> None:
+    universe = [StockUniverseEntry(stock_code="005930", stock_name="삼성전자")]
+
+    def fake_collector(**kwargs: object) -> RawCollectionResult:
+        status = ProviderCollectionStatus(
+            provider="naver-news",
+            attempted_requests=1,
+            successful_requests=1,
+            collected_count=2,
+        )
+        return RawCollectionResult(
+            alerts=[
+                RawCollectedAlert(
+                    source_type="NEWS",
+                    title="브로드컴, AI 반도체 수요 확대로 급등",
+                    snippet="미국 기술주 투자 심리가 개선됐다.",
+                    original_url="https://example.com/news/foreign-chip",
+                    published_at="Mon, 22 Jun 2026 10:00:00 +0900",
+                    provider="naver-news",
+                ),
+                RawCollectedAlert(
+                    source_type="NEWS",
+                    title="삼성전자, HBM 공급 확대 기대",
+                    snippet="삼성전자 반도체 실적 개선 전망이 제기됐다.",
+                    original_url="https://example.com/news/samsung-hbm",
+                    published_at="Mon, 22 Jun 2026 10:01:00 +0900",
+                    provider="naver-news",
+                ),
+            ],
+            status=status,
+        )
+
+    def fake_content_fetcher(url: str) -> ArticleContent:
+        if "foreign-chip" in url:
+            return ArticleContent(
+                content="브로드컴은 AI 인프라 투자 확대 영향으로 매출 전망을 높였다.",
+                canonical_url=url,
+                image_urls=[],
+                source_license_policy="licensed_naver_original_full_text_v1",
+            )
+        return ArticleContent(
+            content=(
+                "삼성전자는 HBM 공급 확대와 메모리 가격 반등으로 반도체 실적 "
+                "개선 기대가 커졌다고 밝혔다."
+            ),
+            canonical_url=url,
+            image_urls=[],
+            source_license_policy="licensed_naver_original_full_text_v1",
+        )
+
+    batch = build_live_news_quality_audit_batch(
+        stock_universe=universe,
+        stock_universe_path=Path("data/reference/korea_stock_universe.csv"),
+        output_path=Path("data/evaluation/live_news_quality_audit.jsonl"),
+        stock_sample_size=1,
+        max_news_per_query=2,
+        intents=("실적",),
+        analyzer=FakeAnalyzer(),
+        news_collector=fake_collector,
+        content_fetcher=fake_content_fetcher,
+        require_query_stock_match=True,
+    )
+
+    assert len(batch.rows) == 1
+    assert batch.rows[0]["title"] == "삼성전자, HBM 공급 확대 기대"
+    assert batch.report["filtered_query_stock_absent_count"] == 1
+    assert batch.report["emitted_row_count"] == 1
+
+
 def test_python_full_content_extractor_prefers_article_container() -> None:
     html = """
     <html>
