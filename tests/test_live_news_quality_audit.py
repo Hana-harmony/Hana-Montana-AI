@@ -294,3 +294,11 @@ def test_full_content_builder_reuses_existing_licensed_rows() -> None:
     assert module.is_reusable_full_content_policy("opendart_public_disclosure_text_v1")
     assert module.is_reusable_full_content_policy("internal_rights_safe_full_article_v1")
     assert not module.is_reusable_full_content_policy("NAVER_SEARCH_SNIPPET_ONLY")
+
+
+def test_full_content_builder_stops_at_target_row_count() -> None:
+    module = _load_full_content_script()
+
+    assert module.target_reached({"a": {}, "b": {}}, 2)
+    assert not module.target_reached({"a": {}}, 2)
+    assert not module.target_reached({"a": {}, "b": {}}, 0)

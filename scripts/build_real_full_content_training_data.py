@@ -176,6 +176,7 @@ def main() -> None:
     parser.add_argument("--max-news", type=int, default=600)
     parser.add_argument("--max-disclosures", type=int, default=200)
     parser.add_argument("--per-label-limit", type=int, default=70)
+    parser.add_argument("--target-row-count", type=int, default=0)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -205,6 +206,9 @@ def main() -> None:
 
     accepted_news_labels: Counter[str] = Counter()
     for alert in [alert for alert in raw_alerts if alert.source_type == "NEWS"]:
+        if target_reached(rows, args.target_row_count):
+            status["target_row_count_reached"] += 1
+            break
         if status["news_attempted"] >= args.max_news:
             break
         label = pre_label(alert)
@@ -244,6 +248,9 @@ def main() -> None:
         for alert in raw_alerts
         if alert.source_type == "DISCLOSURE" and is_training_disclosure_candidate(alert)
     ]:
+        if target_reached(rows, args.target_row_count):
+            status["target_row_count_reached"] += 1
+            break
         if status["disclosure_attempted"] >= args.max_disclosures:
             break
         if not dart_api_key:
@@ -413,6 +420,10 @@ def is_valid_full_content(content: str) -> bool:
         "조회된 자료가 없습니다",
     )
     return not any(marker in content for marker in provider_error_markers)
+
+
+def target_reached(rows: dict[str, dict[str, Any]], target_row_count: int) -> bool:
+    return target_row_count > 0 and len(rows) >= target_row_count
 
 
 def is_reusable_full_content_policy(policy: str) -> bool:
