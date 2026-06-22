@@ -30,6 +30,7 @@ from hannah_montana_ai.training.weak_labeler import RawCollectedAlert
 
 LIVE_NEWS_QUALITY_AUDIT_ROW_SCHEMA_VERSION = "live-news-quality-audit-row/v1"
 LIVE_NEWS_QUALITY_AUDIT_REPORT_SCHEMA_VERSION = "live-news-quality-audit-report/v1"
+STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
 
 
 class AnalyzerLike(Protocol):
@@ -433,6 +434,7 @@ def _has_critical_finding(findings: Sequence[str]) -> bool:
             "SUMMARY_BOILERPLATE",
             "PREDICTED_STOCK_NULL",
             "QUERY_STOCK_ABSENT",
+            "SAMPLED_STOCK_NOT_MATCHED",
         }
         for finding in findings
     )
@@ -459,7 +461,16 @@ def _stock_text_matched(
     text = alert.text
     if full_content:
         text = f"{text} {full_content.content}"
-    return normalized_name in normalize_stock_term(text)
+    normalized_text = normalize_stock_term(text)
+    start = 0
+    while True:
+        position = normalized_text.find(normalized_name, start)
+        if position < 0:
+            return False
+        context = normalized_text[position : position + len(normalized_name) + 24]
+        if not any(term in context for term in STOCK_ATTRIBUTION_CONTEXT_TERMS):
+            return True
+        start = position + len(normalized_name)
 
 
 def _provider_status_totals(statuses: Sequence[ProviderCollectionStatus]) -> dict[str, Any]:

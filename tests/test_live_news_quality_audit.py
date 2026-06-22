@@ -262,6 +262,53 @@ def test_live_news_quality_audit_can_filter_query_stock_absent_rows() -> None:
     assert batch.report["emitted_row_count"] == 1
 
 
+def test_live_news_quality_audit_filters_broker_research_attribution() -> None:
+    universe = [StockUniverseEntry(stock_code="001750", stock_name="한양증권")]
+
+    def fake_collector(**kwargs: object) -> RawCollectionResult:
+        status = ProviderCollectionStatus(provider="naver-news", collected_count=1)
+        return RawCollectionResult(
+            alerts=[
+                RawCollectedAlert(
+                    source_type="NEWS",
+                    title="엘앤씨바이오, 신제품 성장 기대",
+                    snippet="한양증권 연구원은 바이오 업종 전망을 제시했다.",
+                    original_url="https://example.com/news/broker-report",
+                    published_at="Mon, 22 Jun 2026 10:02:00 +0900",
+                    provider="naver-news",
+                )
+            ],
+            status=status,
+        )
+
+    def fake_content_fetcher(url: str) -> ArticleContent:
+        return ArticleContent(
+            content=(
+                "오병용 한양증권 연구원은 엘앤씨바이오의 신제품 성장세가 "
+                "내년 실적 개선을 이끌 수 있다고 평가했다."
+            ),
+            canonical_url=url,
+            image_urls=[],
+            source_license_policy="licensed_naver_original_full_text_v1",
+        )
+
+    batch = build_live_news_quality_audit_batch(
+        stock_universe=universe,
+        stock_universe_path=Path("data/reference/korea_stock_universe.csv"),
+        output_path=Path("data/evaluation/live_news_quality_audit.jsonl"),
+        stock_sample_size=1,
+        max_news_per_query=1,
+        intents=("실적",),
+        analyzer=FakeAnalyzer(),
+        news_collector=fake_collector,
+        content_fetcher=fake_content_fetcher,
+        require_query_stock_match=True,
+    )
+
+    assert batch.rows == []
+    assert batch.report["filtered_query_stock_absent_count"] == 1
+
+
 def test_python_full_content_extractor_prefers_article_container() -> None:
     html = """
     <html>
