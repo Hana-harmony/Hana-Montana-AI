@@ -969,9 +969,10 @@ def _full_content_training_report(samples: Sequence[LabeledAlert]) -> dict[str, 
 
 
 def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
-    stratify_labels = _safe_stratify_labels(samples)
+    validation_candidates = _event_training_samples(samples)
+    stratify_labels = _safe_stratify_labels(validation_candidates)
     train_samples, validation_samples = train_test_split(
-        samples,
+        validation_candidates,
         test_size=0.2,
         random_state=42,
         stratify=stratify_labels,
