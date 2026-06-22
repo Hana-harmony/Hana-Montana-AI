@@ -479,8 +479,8 @@ def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
 
     assert monitoring_report == expected
     assert monitoring_report["overall_status"] == "pass"
-    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 70287
-    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5218
+    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 83105
+    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5250
     assert monitoring_report["candidate_funnel"]["promoted_count"] == release_report[
         "pseudo_labeling"
     ]["accepted_count"]

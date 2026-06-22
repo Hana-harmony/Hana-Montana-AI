@@ -905,3 +905,11 @@
 - 최신 `feature` 기반 `feat/service-scale-news-training` 브랜치에서 전문 데이터셋 5,000건 이상 1차 확대를 시작했다.
 - 서비스 승격 전 기준은 최신 미학습 live quality audit 1,000건 이상, query-relevant pass rate와 sampled stock match rate 동시 관측, 본문 추출 실패·중복·종목 불일치 제외 사유 리포트화로 둔다.
 - 장기 운영 기준은 종목·업종·이벤트가 균형 잡힌 10,000건 이상 전문 gold/검수 후보와 월별 drift 재학습 루프로 관리한다.
+
+## 2026-06-22 - 서비스급 전문 5,000건 학습 및 1,000건 live audit
+- Naver News Search raw 후보를 83,105건으로 늘리고, 전문 학습/검수 후보를 뉴스 4,727건과 공시 273건 등 총 5,000건으로 확대했다.
+- 대량 전문 수집을 위해 기사 전문 fetch를 worker/batch 단위 병렬 처리로 보강하고, 깨진 chunk 응답은 실패 카운트로 격리했다.
+- 검수되지 않은 전문 약한 라벨 4,984건은 supervised loss뿐 아니라 holdout 정답에서도 제외해 평가 오염을 막았다.
+- 새 모델 `financial-ml-tfidf-logreg-20260622073857`은 이벤트 학습 4,649건, supervised 8,607건, teacher-gated pseudo-label 1,026건 기준으로 재학습했다.
+- 80건 실제 뉴스 gold 기준 이벤트 recall 0.9875, macro F1 0.9221, 감성 accuracy 0.9750, 중요도 accuracy 0.9625, 종목 accuracy 1.0으로 gate를 통과했다.
+- 1,000건 최신 query-relevant live quality audit에서 quality pass rate 0.99, full-content rate 0.682, sampled stock model match rate 0.999, provider failed/rate limit 0건을 기록했다.

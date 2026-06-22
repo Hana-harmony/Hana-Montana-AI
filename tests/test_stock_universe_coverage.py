@@ -32,15 +32,15 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
 
     assert report["coverage_gates"]["overall_status"] == "pass"
     assert report["training_stock_count"] == 3_422
-    assert report["evaluation_stock_count"] == 557
+    assert report["evaluation_stock_count"] == 559
     assert pseudo_coverage["status"] == "promoted_to_event_student_training"
     assert pseudo_coverage["source_path"] == "reports/ml-training-report.json"
-    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 781
-    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 781
+    assert pseudo_coverage["stock_candidate_event_training_sample_count"] == 687
+    assert pseudo_coverage["stock_candidate_event_training_stock_count"] == 687
     assert pseudo_coverage["stock_candidate_per_stock_quota"] == 1
     assert pseudo_coverage["effective_event_training_stock_count_lower_bound"] == 3_422
-    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 294
-    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 266
+    assert pseudo_coverage["stock_candidate_label_distribution"]["RISK"] == 256
+    assert pseudo_coverage["stock_candidate_label_distribution"]["CONTRACT"] == 242
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
 
 
