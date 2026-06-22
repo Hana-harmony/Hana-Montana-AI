@@ -76,6 +76,100 @@ def test_request_stock_candidates_take_primary_mapping_priority() -> None:
     assert "123456" in response.related_stocks
 
 
+def test_longer_stock_name_wins_over_short_request_candidate_collision() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "SK하이닉스, 삼성전자 제치고 시총 1위 등극",
+            "snippet": "HBM 수요와 반도체 수출 호조가 주가 상승 배경으로 꼽힌다.",
+            "original_url": "https://example.com/news/sk-hynix-market-cap",
+            "stock_universe": [
+                {
+                    "stock_code": "034730",
+                    "stock_name": "SK",
+                    "stock_name_en": "SK Inc.",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code == "000660"
+    assert response.stock_name == "SK하이닉스"
+    assert response.related_stocks[0] == "000660"
+
+
+def test_longer_internal_stock_wins_when_short_request_candidate_is_ambiguous() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "메모리 시장 4배 폭발…삼성·SK 영업익 급증 전망",
+            "snippet": "올해 삼성전자와 SK하이닉스의 합산 영업이익 추정치가 크게 늘었다.",
+            "original_url": "https://example.com/news/memory-cycle",
+            "stock_universe": [
+                {
+                    "stock_code": "034730",
+                    "stock_name": "SK",
+                    "stock_name_en": "SK Inc.",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code == "000660"
+    assert response.stock_name == "SK하이닉스"
+    assert "034730" not in response.related_stocks
+
+
+def test_non_ambiguous_request_stock_is_not_shadowed_by_spaced_business_unit() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "셀트리온 제약 부문 매출 증가와 영업이익률 개선",
+            "snippet": "셀트리온의 제약 부문 수익성이 개선됐다는 분석이다.",
+            "original_url": "https://example.com/news/celltrion-pharma-unit",
+            "stock_universe": [
+                {
+                    "stock_code": "068270",
+                    "stock_name": "셀트리온",
+                    "stock_name_en": "Celltrion",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code == "068270"
+    assert response.stock_name == "셀트리온"
+
+
+def test_request_stock_candidates_ignore_excluded_legacy_bank_names() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "하나은행, 수출입 기업 대상 환율 교육 확대",
+            "snippet": "은행권 교육 프로그램으로 상장사 투자 이벤트가 아니다.",
+            "original_url": "https://example.com/news/hana-bank",
+            "stock_universe": [
+                {
+                    "stock_code": "004940",
+                    "stock_name": "하나은행",
+                    "stock_name_en": "Hana Bank",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code is None
+    assert "004940" not in response.related_stocks
+
+
 def test_duplicate_key_ignores_spacing_case_and_punctuation() -> None:
     analyzer = AlertAnalyzer()
     first = analyzer._duplicate_key("NEWS", "Samsung Elec, 실적 개선!", "005930")

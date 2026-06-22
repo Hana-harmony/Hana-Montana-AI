@@ -1,5 +1,14 @@
 # 구현 기록
 
+## 2026-06-22 라이브 뉴스 분석 품질 보강
+- 최신 미학습 Naver 뉴스 샘플에서 종목 매칭, 본문 정제, 요약 품질을 재점검했다.
+- 발견된 보강 대상은 `SK` 같은 짧은 종목명이 `SK하이닉스`보다 먼저 잡히는 과매칭, 광고·푸터·관련기사 문구가 What/Why/Impact 요약에 섞이는 문제, 전문 수집 실패(`SUMMARY_ONLY`) 케이스의 confidence 과신이다.
+- serving analyzer는 제목·본문에서 더 긴 고유 종목명을 우선하고, 짧은 요청 후보명은 더 긴 종목명 내부 부분 문자열이면 대표 종목 후보에서 감점한다.
+- article cleaner는 언론사 광고, 관련기사, 최신뉴스 위젯, 공유·입력 UI 문구를 제거하고, 요약기는 제목 문맥과 금융 문맥을 함께 만족하는 문장을 우선 사용한다.
+- full-content extractor는 URL만 보지 않고 Naver 검색 결과 제목을 함께 받아 제목과 맞는 article 후보를 우선한다. 잘못된 금융 기사 블록이 같은 페이지에 함께 있을 때 엉뚱한 전문을 학습·분석 입력으로 쓰는 문제를 줄인다.
+- related stocks에서도 `SK` 같은 짧은 후보가 `SK하이닉스` 같은 명시적 긴 종목명에 shadow되면 제거한다.
+- 전문이 없는 `SUMMARY_ONLY` 응답은 이벤트·감성·중요도 confidence를 보수적으로 보정해 현지 거래소가 UI에서 품질을 판단할 수 있게 한다. confidence는 여전히 observe-only이며 자동 차단 정책으로 쓰지 않는다.
+
 ## 2026-06-22 기사·공시 전문 기반 학습 v2 완료
 - `data/training/financial_alert_full_content_gold.jsonl`에 실제 기사·공시 전문 1,050건을 저장하고 `source_license_policy`, `content_hash`, `content_availability` lineage를 검증한다.
 - 전문 데이터셋은 뉴스 전문 855건, OpenDART document 전문 195건으로 구성되며 기존 내부 회귀 seed를 함께 보존한다.

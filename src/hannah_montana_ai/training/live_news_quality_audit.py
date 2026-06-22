@@ -55,7 +55,7 @@ class LiveNewsQualityAuditBatch:
 
 
 NewsCollector = Callable[..., RawCollectionResult]
-ArticleContentFetcher = Callable[[str], ArticleContent | None]
+ArticleContentFetcher = Callable[[str, str], ArticleContent | None]
 
 
 def build_live_news_quality_audit_batch(
@@ -101,7 +101,9 @@ def build_live_news_quality_audit_batch(
             if alert.content_hash in seen_hashes:
                 continue
             seen_hashes.add(alert.content_hash)
-            full_content = content_fetcher(alert.original_url) if content_fetcher else None
+            full_content = (
+                content_fetcher(alert.original_url, alert.title) if content_fetcher else None
+            )
             if require_query_stock_match and not _stock_text_matched(
                 alert,
                 live_query.sampled_stock_name,
@@ -376,6 +378,12 @@ def _quality_findings(
 
     if full_content is None:
         findings.append("MISSING_FULL_CONTENT")
+        if max(
+            response.event_confidence,
+            response.sentiment_confidence,
+            response.importance_confidence,
+        ) >= 0.55:
+            findings.append("SUMMARY_ONLY_CONFIDENCE_CAPPED")
     if any(not line for line in lines):
         findings.append("SUMMARY_LINE_EMPTY")
     if len(line_set) < len(lines):
@@ -409,6 +417,7 @@ def _quality_findings(
 def _quality_score(findings: Sequence[str]) -> int:
     penalty = {
         "MISSING_FULL_CONTENT": 8,
+        "SUMMARY_ONLY_CONFIDENCE_CAPPED": 6,
         "SUMMARY_LINE_EMPTY": 35,
         "SUMMARY_LINE_DUPLICATED": 22,
         "SUMMARY_BOILERPLATE": 28,
