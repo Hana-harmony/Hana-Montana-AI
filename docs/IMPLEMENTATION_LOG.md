@@ -913,3 +913,16 @@
 - 새 모델 `financial-ml-tfidf-logreg-20260622073857`은 이벤트 학습 4,649건, supervised 8,607건, teacher-gated pseudo-label 1,026건 기준으로 재학습했다.
 - 80건 실제 뉴스 gold 기준 이벤트 recall 0.9875, macro F1 0.9221, 감성 accuracy 0.9750, 중요도 accuracy 0.9625, 종목 accuracy 1.0으로 gate를 통과했다.
 - 1,000건 최신 query-relevant live quality audit에서 quality pass rate 0.99, full-content rate 0.682, sampled stock model match rate 0.999, provider failed/rate limit 0건을 기록했다.
+
+## 2026-06-22 - 서비스급 전문 20,000건 확장 학습 시작
+- 최신 `feature` 기반 `feat/service-scale-news-training-20k` 브랜치에서 5,000건 기준선을 20,000건 이상 전문 후보로 확장한다.
+- 기존 재사용 가능한 전문 row는 보존하고 신규 원문 fetch는 실패·중복·본문 부족·종목 불일치·라벨 quota 제외 사유를 리포트로 남긴다.
+- 재학습 후 release/readiness gate와 1,000건 이상 live quality audit을 다시 통과해야 feature와 main 승격 대상으로 본다.
+
+## 2026-06-22 - 서비스급 전문 20,000건 재학습 및 요약 품질 보강
+- 전문 학습/검수 후보를 뉴스 19,727건과 공시 273건 등 총 20,000건으로 확대했다.
+- 신규 원문 fetch는 40,000건 시도, 16,042건 추가, 6,159건 fetch 실패, 3,547건 기존 URL 재사용, 에러 0건으로 종료했다.
+- 새 모델 `financial-ml-tfidf-logreg-20260622090407`은 full text 입력 19,959건을 포함하고, 검수되지 않은 전문 약한 라벨 19,945건은 이벤트·감성·중요도 학습과 holdout 정답에서 제외했다.
+- `[오늘의 주요공시]` 같은 여러 종목 roundup 제목에서는 제목 대신 snippet/본문 문맥을 우선해 What/Why/Impact 요약을 생성하도록 정제했다.
+- 1,000건 최신 query-relevant live quality audit에서 quality pass rate 0.991, full-content rate 0.69, sampled stock model match rate 0.999, `SUMMARY_BOILERPLATE` 0건을 기록했다.
+- `reports/model-release-report.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`은 새 모델 기준 모두 `pass`를 기록했다.

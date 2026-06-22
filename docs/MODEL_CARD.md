@@ -1,7 +1,7 @@
 # 금융 NLP ML 모델 카드
 
 ## 모델명
-`financial-ml-tfidf-logreg-20260622073857`
+`financial-ml-tfidf-logreg-20260622090407`
 
 ## 목적
 - 한국 주식 뉴스·공시의 이벤트 태그, 감성, 중요도를 자체 ML 모델로 분류한다.
@@ -55,8 +55,8 @@
 - 합성 증강 샘플 수: 1,656건
 - 뉴스 제목체 증강 샘플 수: 1,872건
 - 실제 뉴스 학습 gold 샘플 수: 63건
-- 실제 원문 기사·공시 전문 학습 gold 샘플 수: 5,000건
-- 전문 학습 gold 구성: 뉴스 전문 4,727건, OpenDART document 전문 273건, 기존 내부 회귀 seed
+- 실제 원문 기사·공시 전문 학습 gold 샘플 수: 20,000건
+- 전문 학습 gold 구성: 뉴스 전문 19,727건, OpenDART document 전문 273건, 기존 내부 회귀 seed
 - 전문 학습 source license policy: `licensed_naver_original_full_text_v1`, `opendart_public_disclosure_text_v1`, 내부 회귀 seed
 - 전문 확장 학습 정책: 관련 종목이 제목·snippet·전문에서 확인된 기사만 live query-relevant gate와 학습 승격 후보에 포함한다.
 - 요약 품질 정책: What/Why/Impact 3줄은 중복, boilerplate, fallback, 종목 불일치, 낮은 confidence를 별도 quality finding으로 기록하고 release 판단에서 관측한다.
@@ -231,7 +231,7 @@
 
 ## Release gate
 - 위치: `reports/model-release-report.json`
-- 현재 모델 버전: `financial-ml-tfidf-logreg-20260622073857`
+- 현재 모델 버전: `financial-ml-tfidf-logreg-20260622090407`
 - 전체 상태: `pass`
 - release gate는 holdout, 768건 benchmark, 30건 OpenDART 실공시 gold, 80건 Naver 실제 뉴스 gold 평가를 모두 포함한다.
 - pseudo-label consistency check는 distillation 리포트의 승격 수와 학습 리포트의 pseudo-label 학습 수가 일치하는지 검증한다.
@@ -264,11 +264,11 @@
 
 ## 서비스 readiness gate
 - `reports/service-readiness-report.json`은 현재 release, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration, confidence observe-only 정책을 집계한다.
-- 최신 `reports/service-readiness-report.json`은 `overall_status=pass`이며, 모델 버전 `financial-ml-tfidf-logreg-20260622073857` 기준 전체 readiness check가 통과한다.
+- 최신 `reports/service-readiness-report.json`은 `overall_status=pass`이며, 모델 버전 `financial-ml-tfidf-logreg-20260622090407` 기준 전체 readiness check가 통과한다.
 - `reports/full-universe-codex-coverage-report.json` 기준 유효 6자리 국내주식 reference coverage 누락은 0이다.
 - `reports/stock-coverage-report.json` 기준 supervised/reference coverage는 3,422개 종목, evaluation/reference coverage는 559개 종목이다.
 - 최신 `reports/live-news-monitoring-status.json`은 `overall_status=pass`이며, live-news smoke 표본 100건 기준 `sampled_stock_model_match_rate=0.8`을 기록한다. 이 리포트는 라벨 없는 검색 노이즈 포함 drift 관측용이다.
-- 최신 `reports/live-news-quality-audit-report.json`은 1,000건 최신 query-relevant Naver 표본에서 전체 quality pass rate 0.99, query-relevant quality pass rate 0.99, full-content rate 0.682, sampled stock model match rate 0.999를 기록한다.
+- 최신 `reports/live-news-quality-audit-report.json`은 1,000건 최신 query-relevant Naver 표본에서 전체 quality pass rate 0.991, query-relevant quality pass rate 0.991, full-content rate 0.69, sampled stock model match rate 0.999를 기록한다.
 - service readiness gate는 confidence를 품질 관측과 UI 표시용 메타데이터로만 인정하며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
 
 ## 지속 운영 관리
@@ -276,3 +276,4 @@
 - Naver 뉴스 수집 쿼리와 일 단위 shard 수집을 운영 credential 환경에서 계속 수행한다.
 - 사람이 검수한 gold label과 약지도 label 품질을 비교해 사람 검수 supervised/evaluation gold를 보강한다.
 - live-news report가 `stale`이면 최신 release 품질 근거에서 제외하고 운영 Naver credential로 배치를 다시 생성한다.
+- 최신 대량 학습 배치는 5,000건 전문 기준선을 20,000건 전문 후보로 확장했고, 재학습 후 live quality audit 1,000건과 release/readiness gate를 다시 통과했다.

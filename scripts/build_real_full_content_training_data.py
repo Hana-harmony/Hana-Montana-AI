@@ -21,6 +21,7 @@ from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from hannah_montana_ai.training.collector import load_local_env, read_raw_alerts
+from hannah_montana_ai.training.dataset import JSONL_SHARD_MANIFEST_SCHEMA_VERSION
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseMatcher,
     attach_stock_metadata,
@@ -46,6 +47,7 @@ MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
 REQUEST_TIMEOUT_SECONDS = 4.0
+MAX_OUTPUT_SHARD_BYTES = 95_000_000
 CONTENT_SELECTOR_PATTERN = re.compile(
     r"""(?is)<(?P<tag>article|section|div)\b(?P<attrs>[^>]*)>(?P<body>.*?)</(?P=tag)>"""
 )
@@ -269,7 +271,7 @@ def main() -> None:
         rows.values(),
         key=lambda row: (row["source_type"], row["content_hash"]),
     )
-    write_jsonl(args.output_path, sorted_rows)
+    write_sharded_jsonl(args.output_path, sorted_rows)
     report = build_report(args.output_path, sorted_rows, status, errors)
     args.report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
@@ -281,11 +283,73 @@ def main() -> None:
 def read_existing_rows(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
+    rows: list[dict[str, Any]] = []
+    for jsonl_path in resolve_jsonl_paths(path):
+        with jsonl_path.open(encoding="utf-8") as file:
+            rows.extend(json.loads(line) for line in file if line.strip())
+    return rows
+
+
+def resolve_jsonl_paths(path: Path) -> list[Path]:
+    with path.open(encoding="utf-8") as file:
+        first_line = file.readline().strip()
+    if not first_line:
+        return [path]
+    try:
+        payload = json.loads(first_line)
+    except json.JSONDecodeError:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return [path]
+    shard_paths = payload.get("dataset_shards") if isinstance(payload, dict) else None
+    if not isinstance(shard_paths, list):
+        return [path]
     return [
-        json.loads(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        path.parent / shard_path
+        for shard_path in shard_paths
+        if isinstance(shard_path, str)
     ]
+
+
+def write_sharded_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [json.dumps(row, ensure_ascii=False) + "\n" for row in rows]
+    if sum(len(line.encode("utf-8")) for line in lines) <= MAX_OUTPUT_SHARD_BYTES:
+        path.write_text("".join(lines), encoding="utf-8")
+        return
+
+    shard_dir = path.with_name(f"{path.stem}_shards")
+    shard_dir.mkdir(parents=True, exist_ok=True)
+    for old_shard in shard_dir.glob("*.jsonl"):
+        old_shard.unlink()
+
+    shard_paths: list[str] = []
+    current_lines: list[str] = []
+    current_bytes = 0
+    for line in lines:
+        line_bytes = len(line.encode("utf-8"))
+        if current_lines and current_bytes + line_bytes > MAX_OUTPUT_SHARD_BYTES:
+            shard_paths.append(write_shard(path, shard_dir, len(shard_paths) + 1, current_lines))
+            current_lines = []
+            current_bytes = 0
+        current_lines.append(line)
+        current_bytes += line_bytes
+    if current_lines:
+        shard_paths.append(write_shard(path, shard_dir, len(shard_paths) + 1, current_lines))
+
+    manifest = {
+        "schema_version": JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+        "row_count": len(rows),
+        "dataset_shards": shard_paths,
+    }
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def write_shard(path: Path, shard_dir: Path, index: int, lines: list[str]) -> str:
+    shard_path = shard_dir / f"part-{index:04d}.jsonl"
+    shard_path.write_text("".join(lines), encoding="utf-8")
+    return str(shard_path.relative_to(path.parent))
 
 
 def fetch_news_content(url: str) -> FullContent | None:

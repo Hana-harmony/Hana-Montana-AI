@@ -92,7 +92,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 ## 현재 ML 검증 기준
 - `reports/ml-training-report.json`은 8,607건 supervised 샘플, 1,026건 pseudo-label 샘플, trusted holdout 725건 검증 결과를 기록한다.
 - `reports/weak-distillation-report.json`은 83,105건 약지도 후보 중 5,250건을 고신호 후보로 선별하고, teacher gate를 통과한 weak-label 339건과 종목 후보 687건을 이벤트 모델 학습에 승격한 결과를 기록한다.
-- `reports/real-full-content-training-dataset-report.json`은 실제 원문 전문 5,000건이 `FULL_TEXT`, `source_license_policy`, `content_hash` lineage를 갖추는지 검증한다.
+- `reports/real-full-content-training-dataset-report.json`은 실제 원문 전문 20,000건이 `FULL_TEXT`, `source_license_policy`, `content_hash` lineage를 갖추는지 검증한다.
 - holdout 최소 기준은 이벤트 macro F1 0.8, 감성 accuracy 0.8, 중요도 accuracy 0.8 이상이다.
 - 현재 holdout 결과는 이벤트 macro F1 0.9944, 감성 accuracy 0.9945, 중요도 accuracy 0.9945이다.
 - `reports/ml-model-evaluation.json`은 768건 benchmark 평가셋 결과를 별도로 기록한다.
@@ -103,7 +103,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - 현재 실공시 gold 결과는 이벤트 recall 1.0, 이벤트 macro F1 0.9867, 감성 accuracy 1.0, 중요도 accuracy 1.0, 종목 accuracy 1.0이다.
 - 실제 뉴스 gold 최소 기준은 이벤트 recall 0.9, 이벤트 macro F1 0.9, 감성 accuracy 0.9, 중요도 accuracy 0.9, 종목 accuracy 1.0이다.
 - 현재 실제 뉴스 gold 결과는 이벤트 recall 0.9875, 이벤트 macro F1 0.9221, 감성 accuracy 0.9750, 중요도 accuracy 0.9625, 종목 accuracy 1.0이다.
-- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260622073857`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
+- `reports/model-release-report.json`은 현재 모델 버전 `financial-ml-tfidf-logreg-20260622090407`의 전체 release gate와 pseudo-label consistency check를 `overall_status=pass`로 기록한다.
 - `reports/model-release-report.json`은 bootstrap service readiness와 `human_review_approved`/`codex_review_approved` coverage gold 기반 audited readiness를 모두 `pass`로 기록한다.
 - `reports/pseudo-label-promotion-monitoring.json`은 고신호 후보 5,218건, teacher 탈락 4,264건, quota 보류 0건, 최종 승격 1,027건을 `overall_status=pass`로 기록한다.
 - `reports/stock-coverage-report.json`은 universe 3,967개, raw 매칭 3,624개 종목, training/reference 3,422개 종목, evaluation/reference 559개 종목을 기록한다.
@@ -122,7 +122,8 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - `reports/live-news-evaluation-report.json`은 실시간 뉴스 표본의 provider status, 모델 confidence, 종목 매칭률을 기록한다. 이 배치는 아직 라벨이 없으므로 F1 계산 대상이 아니다.
 - `reports/live-news-monitoring-status.json`은 현재 커밋된 실시간 뉴스 리포트가 최신 release 모델과 schema, confidence summary를 만족해 `overall_status=pass`를 기록한다. 최신성 검증은 `uv run python scripts/build_live_news_monitoring_status.py`로 재생성한다.
 - 최신 live-news smoke 표본 100건은 라벨 없는 검색 노이즈 포함 drift 관측용으로 `sampled_stock_model_match_rate=0.8`을 기록한다.
-- 최신 live-news quality audit 1,000건 표본은 전체 quality pass rate 0.99, query-relevant quality pass rate 0.99, full-content rate 0.682, sampled stock model match rate 0.999를 기록한다.
+- 최신 live-news quality audit 1,000건 표본은 전체 quality pass rate 0.991, query-relevant quality pass rate 0.991, full-content rate 0.69, sampled stock model match rate 0.999를 기록한다.
+- 20,000건 전문 확장 배치는 기존 5,000건 기준선보다 full-content 후보 수가 증가했고, 약한 전문 라벨이 holdout 정답으로 섞이지 않으며, release/readiness/live quality audit이 모두 pass임을 확인한 뒤 승격한다.
 - 전 종목 reference coverage gate는 현재 `pass`이며, 다음 확장은 운영 알림 로그와 사람 검수 gold 품질 보강을 기준선으로 사용한다.
 - `reports/service-readiness-report.json`은 현재 release, live-news smoke/drift, 전 종목 reference coverage, stock linker, pseudo-label monitoring, confidence calibration, confidence observe-only 정책을 집계해 `overall_status=pass`를 기록한다.
 

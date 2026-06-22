@@ -1,8 +1,11 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType
+
+JSONL_SHARD_MANIFEST_SCHEMA_VERSION = "jsonl-shard-manifest/v1"
 
 
 @dataclass(frozen=True)
@@ -41,10 +44,7 @@ class LabeledAlert:
 
 def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
     samples: list[LabeledAlert] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        payload = json.loads(line)
+    for payload in load_jsonl_payloads(path):
         samples.append(
             LabeledAlert(
                 text=payload["text"],
@@ -67,3 +67,38 @@ def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
             )
         )
     return samples
+
+
+def load_jsonl_payloads(path: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for jsonl_path in resolve_jsonl_paths(path):
+        with jsonl_path.open(encoding="utf-8") as file:
+            for line in file:
+                if line.strip():
+                    rows.append(json.loads(line))
+    return rows
+
+
+def resolve_jsonl_paths(path: Path) -> list[Path]:
+    if not path.exists():
+        return []
+    first_line = ""
+    with path.open(encoding="utf-8") as file:
+        first_line = file.readline().strip()
+    if not first_line:
+        return [path]
+    try:
+        payload = json.loads(first_line)
+    except json.JSONDecodeError:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return [path]
+    shard_paths = payload.get("dataset_shards") if isinstance(payload, dict) else None
+    if not isinstance(shard_paths, list):
+        return [path]
+    return [
+        (path.parent / shard_path).resolve()
+        for shard_path in shard_paths
+        if isinstance(shard_path, str)
+    ]

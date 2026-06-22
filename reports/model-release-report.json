@@ -1,11 +1,11 @@
 {
   "schema_version": "model-release-report/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260622073857",
-  "report_created_at": "2026-06-22T07:38:57.558713+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260622090407",
+  "report_created_at": "2026-06-22T09:04:07.841239+00:00",
   "overall_status": "pass",
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-    "trained_at": "2026-06-22T07:38:57.558713+00:00",
+    "trained_at": "2026-06-22T09:04:07.841239+00:00",
     "event_probability_threshold": 0.3,
     "event_label_thresholds": {
       "CONTRACT": 0.46,
@@ -29,15 +29,15 @@
     "committed_data_policy": "raw_and_processed_training_data_are_tracked",
     "full_content_training": {
       "status": "enabled",
-      "full_text_sample_count": 4998,
+      "full_text_sample_count": 19959,
       "full_text_source_type_count": {
         "DISCLOSURE": 273,
-        "NEWS": 4725
+        "NEWS": 19686
       },
       "source_license_policy_count": {
         "internal_rights_safe_disclosure_text_v1": 4,
         "internal_rights_safe_full_article_v1": 10,
-        "licensed_naver_original_full_text_v1": 4715,
+        "licensed_naver_original_full_text_v1": 19676,
         "opendart_public_disclosure_text_v1": 269
       },
       "minimum_full_text_characters": 180,
@@ -46,9 +46,9 @@
     "sentiment_importance_training": {
       "policy": "사람이 검수하지 않은 전문 수집 라벨은 감성/중요도 supervised loss에서 제외한다.",
       "training_sample_count": 3623,
-      "excluded_weak_full_content_label_count": 4984,
+      "excluded_weak_full_content_label_count": 19945,
       "excluded_count_by_source_license_policy": {
-        "licensed_naver_original_full_text_v1": 4715,
+        "licensed_naver_original_full_text_v1": 19676,
         "opendart_public_disclosure_text_v1": 269
       },
       "fallback_used": false
@@ -56,7 +56,7 @@
   },
   "training": {
     "sample_count": 4649,
-    "supervised_sample_count": 8607,
+    "supervised_sample_count": 23568,
     "pseudo_labeled_sample_count": 1026,
     "event_label_distribution": {
       "EARNINGS": 750,
@@ -107,7 +107,7 @@
       "teacher_weak_event_disagreement": 5
     },
     "promotion_method": "supervised_teacher_confidence_filter",
-    "teacher_training_sample_count": 8607,
+    "teacher_training_sample_count": 23568,
     "student_event_training_sample_count": 1026,
     "minimum_event_confidence": 0.58,
     "minimum_sentiment_confidence": 0.72,
@@ -301,8 +301,8 @@
       "status": "pass"
     },
     "teacher_sample_count_matches_supervised": {
-      "expected": 8607,
-      "actual": 8607,
+      "expected": 23568,
+      "actual": 23568,
       "status": "pass"
     }
   },
