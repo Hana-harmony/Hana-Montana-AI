@@ -1,8 +1,8 @@
 {
-  "version": "financial-ml-tfidf-logreg-20260622073857",
-  "trained_at": "2026-06-22T07:38:57.558713+00:00",
+  "version": "financial-ml-tfidf-logreg-20260622090407",
+  "trained_at": "2026-06-22T09:04:07.841239+00:00",
   "sample_count": 4649,
-  "supervised_sample_count": 8607,
+  "supervised_sample_count": 23568,
   "pseudo_labeled_sample_count": 1026,
   "training_sources": [
     "data/training/financial_alert_corpus.jsonl",
@@ -135,7 +135,7 @@
     "policy": "codex_review_approved rows are committed and evaluated as reference coverage data, but are excluded from supervised loss to avoid self-training feedback loops",
     "excluded_count_by_reason": {
       "codex_review_reference_only": 3420,
-      "duplicate_text": 2
+      "duplicate_text": 41
     },
     "excluded_count_by_path": {
       "data/training/financial_alert_stock_review_gold.jsonl": 3420
@@ -198,7 +198,7 @@
       "GENERAL_MARKET": 0
     },
     "promotion_method": "supervised_teacher_confidence_filter",
-    "teacher_training_sample_count": 8607,
+    "teacher_training_sample_count": 23568,
     "rejected_count_by_teacher_reason": {
       "low_teacher_confidence": 4383,
       "teacher_weak_event_disagreement": 5
@@ -248,15 +248,15 @@
   },
   "full_content_training": {
     "status": "enabled",
-    "full_text_sample_count": 4998,
+    "full_text_sample_count": 19959,
     "full_text_source_type_count": {
       "DISCLOSURE": 273,
-      "NEWS": 4725
+      "NEWS": 19686
     },
     "source_license_policy_count": {
       "internal_rights_safe_disclosure_text_v1": 4,
       "internal_rights_safe_full_article_v1": 10,
-      "licensed_naver_original_full_text_v1": 4715,
+      "licensed_naver_original_full_text_v1": 19676,
       "opendart_public_disclosure_text_v1": 269
     },
     "minimum_full_text_characters": 180,
@@ -267,9 +267,9 @@
     "supervised_training_sample_count": 3623,
     "pseudo_training_sample_count": 1026,
     "training_sample_count": 4649,
-    "excluded_weak_full_content_label_count": 4984,
+    "excluded_weak_full_content_label_count": 19945,
     "excluded_count_by_source_license_policy": {
-      "licensed_naver_original_full_text_v1": 4715,
+      "licensed_naver_original_full_text_v1": 19676,
       "opendart_public_disclosure_text_v1": 269
     },
     "fallback_used": false
@@ -277,9 +277,9 @@
   "sentiment_importance_training": {
     "policy": "사람이 검수하지 않은 전문 수집 라벨은 감성/중요도 supervised loss에서 제외한다.",
     "training_sample_count": 3623,
-    "excluded_weak_full_content_label_count": 4984,
+    "excluded_weak_full_content_label_count": 19945,
     "excluded_count_by_source_license_policy": {
-      "licensed_naver_original_full_text_v1": 4715,
+      "licensed_naver_original_full_text_v1": 19676,
       "opendart_public_disclosure_text_v1": 269
     },
     "fallback_used": false

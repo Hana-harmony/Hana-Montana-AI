@@ -1,8 +1,8 @@
 {
   "schema_version": "live-news-evaluation-report/v2",
   "row_schema_version": "live-news-evaluation-row/v2",
-  "generated_at": "2026-06-22T08:04:07.848655+00:00",
-  "model_version": "financial-ml-tfidf-logreg-20260622073857",
+  "generated_at": "2026-06-22T09:04:44.559970+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260622090407",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
   "output_path": "data/evaluation/live_news_evaluation_batch.jsonl",
   "requested_stock_sample_size": 50,
@@ -22,24 +22,23 @@
     "collected_count": 128,
     "errors": []
   },
-  "predicted_stock_null_count": 6,
+  "predicted_stock_null_count": 8,
   "sampled_stock_primary_match_count": 50,
-  "sampled_stock_related_match_count": 80,
-  "sampled_stock_model_match_count": 80,
-  "sampled_stock_model_match_rate": 0.8,
+  "sampled_stock_related_match_count": 76,
+  "sampled_stock_model_match_count": 76,
+  "sampled_stock_model_match_rate": 0.76,
   "event_top_label_distribution": {
-    "GENERAL_MARKET": 4,
-    "RISK": 37,
-    "CONTRACT": 47,
-    "EARNINGS": 6,
-    "CAPITAL_ACTION": 3,
-    "CORPORATE_ACTION": 1,
-    "MACRO": 2
+    "GENERAL_MARKET": 6,
+    "RISK": 39,
+    "CONTRACT": 45,
+    "EARNINGS": 5,
+    "MACRO": 3,
+    "CAPITAL_ACTION": 2
   },
   "sentiment_distribution": {
     "NEGATIVE": 23,
-    "POSITIVE": 61,
-    "NEUTRAL": 16
+    "POSITIVE": 59,
+    "NEUTRAL": 18
   },
   "importance_distribution": {
     "MEDIUM": 49,
@@ -49,25 +48,25 @@
   "confidence_summary": {
     "event_confidence": {
       "count": 100,
-      "average": 0.519866,
+      "average": 0.527797,
       "minimum": 0.295399,
       "maximum": 0.965906
     },
     "sentiment_confidence": {
       "count": 100,
-      "average": 0.476293,
+      "average": 0.474221,
       "minimum": 0.146667,
       "maximum": 0.819951
     },
     "importance_confidence": {
       "count": 100,
-      "average": 0.575357,
+      "average": 0.567916,
       "minimum": 0.214281,
       "maximum": 0.877985
     },
     "stock_match_confidence": {
       "count": 100,
-      "average": 0.9262,
+      "average": 0.9067,
       "minimum": 0.0,
       "maximum": 1.0
     }
