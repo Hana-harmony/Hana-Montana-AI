@@ -96,6 +96,10 @@ class FinancialRuleEngine:
         "오늘의 증시일정",
         "오늘의 주요공시",
         "오늘의 IR",
+        "기자 이름을 클릭",
+        "구글 번역",
+        "아래는 위 기사",
+        "이투데이 마켓",
         "share flutter_dash",
         "format_size",
         "사진 확대",
@@ -138,17 +142,32 @@ class FinancialRuleEngine:
     ) -> SummaryLines:
         article_sentences = self._article_sentences(content or snippet)
         ranked_sentences = self._ranked_article_sentences(article_sentences, title)
+        title_terms = self._title_terms(title)
+        related_ranked_sentences = [
+            sentence
+            for sentence in ranked_sentences
+            if any(term in sentence for term in title_terms)
+        ]
+        summary_candidates = (
+            related_ranked_sentences
+            if len(related_ranked_sentences) >= 2
+            else ranked_sentences
+        )
         what = self._first_title_context_sentence(article_sentences, title)
         if not what:
-            what = ranked_sentences[0] if ranked_sentences else self.summarize(title, snippet)
+            what = (
+                summary_candidates[0]
+                if summary_candidates
+                else self.summarize(title, snippet)
+            )
         why = self._first_matching_sentence(
-            ranked_sentences,
+            summary_candidates,
             ("때문", "영향", "증가", "감소", "계약", "실적", "공시", "수주", "투자", "소송"),
         )
         if not why or self._line(why) == self._line(what):
-            why = self._first_distinct_sentence(ranked_sentences, excluded={what})
+            why = self._first_distinct_sentence(summary_candidates, excluded={what})
         impact_sentence = self._first_matching_sentence(
-            ranked_sentences,
+            summary_candidates,
             ("주가", "매출", "영업이익", "손익", "리스크", "전망", "시장", "투자자", "거래"),
         )
         if not impact_sentence or self._line(impact_sentence) in {
@@ -156,7 +175,7 @@ class FinancialRuleEngine:
             self._line(why),
         }:
             impact_sentence = self._first_distinct_sentence(
-                ranked_sentences,
+                summary_candidates,
                 excluded={what, why},
             )
         if not why:
@@ -183,11 +202,7 @@ class FinancialRuleEngine:
         sentences = self._article_sentences(content)
         if not sentences:
             return re.sub(r"\s+", " ", content).strip()
-        title_terms = {
-            token
-            for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", title)
-            if token not in {"단독", "종합", "속보", "특징주"}
-        }
+        title_terms = self._title_terms(title)
         ranked = sorted(
             sentences,
             key=lambda sentence: self._sentence_score(sentence, title_terms),
@@ -232,11 +247,7 @@ class FinancialRuleEngine:
             for sentence in sentences
             if self._is_article_sentence(sentence)
         ]
-        title_terms = {
-            token
-            for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", title)
-            if token not in {"단독", "종합", "속보", "특징주"}
-        }
+        title_terms = self._title_terms(title)
         return sorted(
             sentences,
             key=lambda sentence: self._sentence_score(sentence, title_terms),
@@ -244,11 +255,7 @@ class FinancialRuleEngine:
         )
 
     def _first_title_context_sentence(self, sentences: list[str], title: str) -> str:
-        title_terms = {
-            token
-            for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", title)
-            if token not in {"단독", "종합", "속보", "특징주"}
-        }
+        title_terms = self._title_terms(title)
         for sentence in sentences:
             if any(term in sentence for term in title_terms) and self._contains_any(
                 sentence,
@@ -279,8 +286,17 @@ class FinancialRuleEngine:
         score = min(len(sentence), 180)
         score += self._count_keywords(sentence, self.financial_context_keywords) * 60
         score += sum(1 for term in title_terms if term in sentence) * 35
+        if title_terms and not any(term in sentence for term in title_terms):
+            score -= 90
         score -= self._count_keywords(sentence, self.boilerplate_keywords) * 120
         return score
+
+    def _title_terms(self, title: str) -> set[str]:
+        return {
+            token
+            for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", title)
+            if token not in {"단독", "종합", "속보", "특징주"}
+        }
 
     def _first_matching_sentence(self, sentences: list[str], keywords: tuple[str, ...]) -> str:
         for sentence in sentences:
