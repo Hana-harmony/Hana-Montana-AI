@@ -93,10 +93,11 @@ uv run python scripts/collect_training_data.py \
 - 유효 6자리 국내주식 전체 reference coverage는 `scripts/build_full_universe_codex_stock_review_gold.py`로 보강한다. 이 스크립트는 stock review gold train/eval 합집합에 없는 종목만 `codex_review_approved` reference row로 추가하고 `reports/full-universe-codex-coverage-report.json`에 누락 수를 기록한다.
 - 외부 API 키, access token, 로컬 실행 비밀값은 학습 데이터에 포함하지 않는다.
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
-- 현재 artifact는 68,710건 수집 후보 중 weak-label 342건과 종목 후보 큐 676건을 이벤트 모델 학습에 반영했다.
-- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 676건이 676개 종목에 분산되도록 한다.
-- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 369건과 OpenDART document 전문 138건을 포함한 507건이다.
-- 감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 사람이 검수하지 않은 실제 전문 약한 라벨 493건을 supervised loss에서 제외한다.
+- 현재 artifact는 68,710건 수집 후보 중 weak-label 341건과 종목 후보 큐 687건을 이벤트 모델 학습에 반영했다.
+- 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 687건이 687개 종목에 분산되도록 한다.
+- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 478건과 OpenDART document 전문 195건을 포함한 673건이다.
+- 이벤트·감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 사람이 검수하지 않은 실제 전문 약한 라벨 659건을 supervised loss에서 제외한다.
+- 실시간 최신 뉴스 품질 감사는 `scripts/build_live_news_quality_audit.py`로 실행하며, 라벨 없는 최신 Naver 표본에서 query-relevant pass rate와 본문 추출 품질을 관측한다.
 
 ## 모델 release report
 ```bash
@@ -116,6 +117,7 @@ uv run python scripts/build_stock_candidate_quota_experiment.py
 uv run python scripts/build_model_release_report.py
 uv run python scripts/build_pseudo_label_monitoring_report.py
 uv run python scripts/build_service_readiness_report.py
+uv run python scripts/build_live_news_quality_audit.py --stock-sample-size 30 --max-news-per-query 1 --sample-limit 80
 ```
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.
@@ -126,7 +128,7 @@ uv run python scripts/build_service_readiness_report.py
 
 ## Pseudo-label gate 모니터링
 - `reports/pseudo-label-promotion-monitoring.json`은 raw 후보, 고신호 후보, teacher 탈락, quota 보류, 최종 승격 수를 funnel 형태로 기록한다.
-- 현재 68,710건 raw 후보 중 5,204건이 고신호 후보이고, teacher gate에서 4,260건이 탈락하며 weak-label 342건과 종목 후보 676건만 student 이벤트 모델 학습에 승격된다.
+- 현재 68,710건 raw 후보 중 5,204건이 고신호 후보이고, teacher gate에서 4,248건이 탈락하며 weak-label 341건과 종목 후보 687건만 student 이벤트 모델 학습에 승격된다.
 - `RISK`, `CONTRACT`, `CORPORATE_ACTION`, `EARNINGS`, `MACRO`는 현재 active label이며 quota 여유가 남아 추가 후보 품질을 모니터링한다.
 - `CAPITAL_ACTION`은 현재 quota를 채웠고, `DISCLOSURE`는 실제 뉴스 gold gate 실험 전까지 학습 투입을 보류한다.
 - `GENERAL_MARKET`은 고신호 후보 풀이 작아 현재 확장 대상이 아니다.
@@ -136,14 +138,14 @@ uv run python scripts/build_service_readiness_report.py
 - `reports/full-universe-codex-coverage-report.json`은 유효 6자리 국내주식 3,920개가 stock review gold train/eval reference coverage에 모두 포함되는지 검증한다.
 - `codex_review_approved` full-universe reference row는 커밋된 coverage lineage로 쓰지만, self-training feedback loop를 막기 위해 supervised loss에서는 제외한다.
 - `event_model_pseudo_training_coverage`는 teacher-gated event-model-only pseudo-label coverage다.
-- 현재 event model pseudo training coverage는 676건, 676개 종목이며 supervised/reference coverage와 별도로 해석한다.
+- 현재 event model pseudo training coverage는 687건, 687개 종목이며 supervised/reference coverage와 별도로 해석한다.
 - `reports/model-release-report.json`의 `service_readiness`는 bootstrap 운영 판단이며, release quality gate와 stock-candidate pseudo coverage를 기준으로 한다.
 - `audited_gold_readiness`는 `human_review_approved` 또는 `codex_review_approved` coverage gold 기준이며, bootstrap 운영 판단과 별도로 관리한다.
 - `reports/service-readiness-report.json`은 release gate, audited gold readiness, live-news monitoring, full-universe reference coverage, stock linker coverage, pseudo-label monitoring, confidence calibration을 최종 운영 readiness gate로 집계한다.
 - service readiness gate는 confidence 값을 `observe_only` 정책으로만 인정하며 Hannah가 신뢰도 기반 자동 차단 결정을 만들면 실패해야 한다.
 - `reports/stock-collection-shard-plan.json`은 candidate queue, supervised training gold, evaluation gold가 모두 없는 종목을 shard 단위 수집 대상으로 기록한다.
 - 현재 shard plan은 351개 `no_raw_no_candidate` 종목과 107개 `raw_without_candidate` 종목을 우선 수집 대상으로 둔다.
-- `reports/stock-candidate-quota-experiment.json`은 quota 탐색 참고 리포트이며, 현재 release는 full-content v2 재학습 리포트의 676건/676종목 bootstrap coverage와 실제 뉴스 gold gate 통과를 기준으로 한다.
+- `reports/stock-candidate-quota-experiment.json`은 quota 탐색 참고 리포트이며, 현재 release는 full-content v2 재학습 리포트의 687건/687종목 bootstrap coverage와 실제 뉴스 gold gate 통과를 기준으로 한다.
 - `reports/stock-gold-review-batch-report.json`은 학습 검수 배치 300개 종목과 평가 검수 배치 100개 종목을 기록한다.
 - 검수 배치의 학습·평가 종목은 서로 겹치지 않으며, 사람이 승인하기 전까지 coverage gate 통과 수치에 포함하지 않는다.
 - `reports/stock-gold-review-validation-report.json`은 현재 검수 배치에서 승격 가능한 승인 row가 학습 300개 종목, 평가 100개 종목 목표를 만족하는지 기록한다.

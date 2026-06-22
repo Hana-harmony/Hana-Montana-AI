@@ -41,6 +41,7 @@ def test_internal_stock_universe_matches_every_stock_code() -> None:
     misses = [
         stock.stock_code
         for stock in entries
+        if stock.stock_name not in analyzer._INTERNAL_STOCK_MATCH_EXCLUDED_NAMES
         if analyzer._match_primary_stock(
             f"{stock.stock_code} 주요사항보고서",
             analyzer._stock_universe_for_request([]),

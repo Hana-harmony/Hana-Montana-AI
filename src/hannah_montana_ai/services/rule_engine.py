@@ -69,9 +69,36 @@ class FinancialRuleEngine:
         "여중생",
         "불륜",
         "관련기사",
+        "관련태그",
         "좋아요",
         "나빠요",
         "©",
+        "복사하기",
+        "스크롤 이동 상태바",
+        "글자크기 설정",
+        "기자의 본문 내용",
+        "추천키워드",
+        "실시간 속보 랭킹뉴스",
+        "기자채널 다른기사",
+        "전체기사",
+        "전체메뉴",
+        "전체메뉴닫기",
+        "mail to",
+        "K-Artprice",
+        "프라임뉴시스",
+        "위클리뉴시스",
+        "제휴 콘텐츠",
+        "월드컵24시",
+        "더중앙플러스",
+        "최신 기사",
+        "share flutter_dash",
+        "format_size",
+        "사진 확대",
+        "기자 입력",
+        "회원용",
+        "나만의 AI 비서",
+        "증권 홈",
+        "오늘 나온 보고서",
     )
 
     def classify_sentiment(self, text: str) -> Sentiment:
@@ -113,10 +140,20 @@ class FinancialRuleEngine:
             ranked_sentences,
             ("때문", "영향", "증가", "감소", "계약", "실적", "공시", "수주", "투자", "소송"),
         )
+        if not why or self._line(why) == self._line(what):
+            why = self._first_distinct_sentence(ranked_sentences, excluded={what})
         impact_sentence = self._first_matching_sentence(
             ranked_sentences,
             ("주가", "매출", "영업이익", "손익", "리스크", "전망", "시장", "투자자", "거래"),
         )
+        if not impact_sentence or self._line(impact_sentence) in {
+            self._line(what),
+            self._line(why),
+        }:
+            impact_sentence = self._first_distinct_sentence(
+                ranked_sentences,
+                excluded={what, why},
+            )
         if not why:
             why = f"{title}와 관련된 핵심 배경은 원문에서 확인된 최신 공시·뉴스 맥락입니다."
         if not impact_sentence:
@@ -222,6 +259,8 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", sentence).strip()
         if len(normalized) < 24 or len(normalized) > 500:
             return False
+        if re.search(r"\S+@\S+", normalized):
+            return False
         if any(keyword in normalized for keyword in self.boilerplate_keywords):
             return False
         if normalized.count(" ") > 38 and not self._contains_any(
@@ -241,6 +280,13 @@ class FinancialRuleEngine:
     def _first_matching_sentence(self, sentences: list[str], keywords: tuple[str, ...]) -> str:
         for sentence in sentences:
             if self._contains_any(sentence, keywords):
+                return sentence
+        return ""
+
+    def _first_distinct_sentence(self, sentences: list[str], excluded: set[str]) -> str:
+        excluded_lines = {self._line(text) for text in excluded if text}
+        for sentence in sentences:
+            if self._line(sentence) not in excluded_lines:
                 return sentence
         return ""
 

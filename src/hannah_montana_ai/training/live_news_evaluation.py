@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -406,7 +407,11 @@ def _sample_stocks(
     stock_sample_size: int,
     seed: int,
 ) -> list[StockUniverseEntry]:
-    eligible = [stock for stock in stock_universe if stock.stock_code and stock.stock_name]
+    eligible = [
+        stock
+        for stock in stock_universe
+        if re.fullmatch(r"\d{6}", stock.stock_code) and stock.stock_name
+    ]
     if stock_sample_size >= len(eligible):
         return eligible
     ranked = sorted(

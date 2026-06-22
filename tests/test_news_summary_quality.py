@@ -51,6 +51,30 @@ def test_clean_article_text_keeps_financial_sentences_in_original_order() -> Non
     assert "영업이익" in cleaned
 
 
+def test_summary_uses_distinct_article_lines_before_fallback() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "신한투자증권은 신한 SOL증권 이용 고객을 대상으로 하반기 증시 전망 "
+        "설문조사 결과를 발표했다고 밝혔다. "
+        "응답자 다수는 고위험·고수익 투자 상품 선호가 커졌다고 답했다. "
+        "증권사는 시장 변동성 확대에 따라 투자자별 위험 관리가 중요하다고 설명했다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "신한투자증권, 증시 전망 설문 결과 발표",
+        "",
+        content,
+        "HIGH",
+        "POSITIVE",
+    )
+
+    lines = {summary.what, summary.why, summary.impact}
+    assert len(lines) == 3
+    assert "설문조사" in summary.what
+    assert any("고위험" in line for line in lines)
+    assert any("시장 변동성" in line or "투자자" in line for line in lines)
+
+
 def test_analyzer_prefers_first_internal_stock_over_limited_request_universe() -> None:
     analyzer = AlertAnalyzer()
     response = analyzer.analyze(
@@ -76,3 +100,77 @@ def test_analyzer_prefers_first_internal_stock_over_limited_request_universe() -
 
     assert response.stock_code == "402340"
     assert response.stock_name == "SK스퀘어"
+
+
+def test_analyzer_allows_short_requested_stock_name() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="세동, 정기주총서 정관 변경·사외이사 선임안 가결",
+            snippet="세동은 주주총회에서 사외이사 선임안을 의결했다.",
+            original_url="https://news.example.com/saedong",
+            stock_universe=[
+                StockCandidate(
+                    stock_code="053060",
+                    stock_name="세동",
+                    stock_name_en="Saedong",
+                )
+            ],
+        )
+    )
+
+    assert response.stock_code == "053060"
+    assert response.stock_name == "세동"
+
+
+def test_analyzer_ignores_short_english_internal_stock_noise() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="전국 바이오 데이터센터 구축 본격화…new growth 기대",
+            snippet="AI 데이터센터와 바이오 연구 인프라 투자 확대가 이어지고 있다.",
+            original_url="https://news.example.com/ai-bio",
+        )
+    )
+
+    assert response.stock_code != "160550"
+
+
+def test_analyzer_does_not_match_legacy_bank_entity_as_listed_stock() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="환율 변동 대응력 키운다…하나은행, 수출입 아카데미",
+            snippet="수출입 기업 실무자를 대상으로 환율 교육을 진행한다.",
+            original_url="https://news.example.com/hana-bank-academy",
+        )
+    )
+
+    assert response.stock_code is None
+    assert "002860" not in response.related_stocks
+    assert "004940" not in response.related_stocks
+
+
+def test_news_analysis_does_not_emit_disclosure_tag() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="HLB제약, 1200억 유상증자 결정 공시",
+            snippet="신공장 건설과 연구소 확대에 자금을 투입한다.",
+            original_url="https://news.example.com/hlb-capital-action",
+            stock_universe=[
+                StockCandidate(
+                    stock_code="047920",
+                    stock_name="HLB제약",
+                    stock_name_en="HLB Pharmaceutical",
+                )
+            ],
+        )
+    )
+
+    assert "CAPITAL_ACTION" in response.event_tags
+    assert "DISCLOSURE" not in response.event_tags

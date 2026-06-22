@@ -38,6 +38,90 @@ MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
 REQUEST_TIMEOUT_SECONDS = 4.0
+CONTENT_SELECTOR_PATTERN = re.compile(
+    r"""(?is)<(?P<tag>article|section|div)\b(?P<attrs>[^>]*)>(?P<body>.*?)</(?P=tag)>"""
+)
+CONTENT_ATTRIBUTE_TERMS = (
+    "article",
+    "articlebody",
+    "article_body",
+    "article_txt",
+    "articletext",
+    "articlecontent",
+    "article_content",
+    "article-view-content",
+    "article_view",
+    "articlecont",
+    "news_body",
+    "news-view",
+    "view_content",
+    "view_cont",
+    "view-article",
+    "contents_view",
+    "content",
+)
+FINANCIAL_CONTEXT_TERMS = (
+    "주가",
+    "시총",
+    "증시",
+    "시장",
+    "매출",
+    "영업이익",
+    "실적",
+    "계약",
+    "수주",
+    "투자",
+    "반도체",
+    "배터리",
+    "공시",
+    "거래",
+    "외국인",
+    "환율",
+    "금리",
+    "전망",
+    "리스크",
+    "상승",
+    "하락",
+    "급등",
+    "급락",
+)
+BOILERPLATE_TERMS = (
+    "로그인",
+    "회원가입",
+    "전체 메뉴",
+    "메뉴 열기",
+    "메뉴 닫기",
+    "본문 바로가기",
+    "검색 열기",
+    "검색 닫기",
+    "뉴스스탠드",
+    "구독설정",
+    "지면PDF",
+    "운세",
+    "이용약관",
+    "개인정보",
+    "저작권",
+    "복사하기",
+    "스크롤 이동 상태바",
+    "관련태그",
+    "많이 본 뉴스",
+    "실시간 속보 랭킹뉴스",
+    "K-Artprice",
+    "프라임뉴시스",
+    "위클리뉴시스",
+    "제휴 콘텐츠",
+    "월드컵24시",
+    "더중앙플러스",
+    "최신 기사",
+    "share flutter_dash",
+    "format_size",
+    "사진 확대",
+    "기자 입력",
+    "회원용",
+    "나만의 AI 비서",
+    "증권 홈",
+    "오늘 나온 보고서",
+)
 PRIMARY_LABEL_PRIORITY = (
     "RISK",
     "CAPITAL_ACTION",
@@ -205,7 +289,7 @@ def fetch_news_content(url: str) -> FullContent | None:
         html = fetch_bytes(safe_url).decode("utf-8", errors="replace")
     except (HTTPError, OSError, TimeoutError, URLError, UnicodeError):
         return None
-    text = extract_text(html)
+    text = extract_article_text(html)
     if len(text) < MIN_CONTENT_CHARS:
         return None
     return FullContent(
@@ -262,6 +346,43 @@ def extract_text(html: str) -> str:
     parser = TextExtractor()
     parser.feed(cleaned)
     return parser.text()
+
+
+def extract_article_text(html: str) -> str:
+    cleaned = re.sub(
+        r"(?is)<(script|style|noscript|iframe|svg|nav|header|footer|aside|form).*?</\1>",
+        " ",
+        html,
+    )
+    candidates: list[str] = []
+    for match in CONTENT_SELECTOR_PATTERN.finditer(cleaned):
+        attrs = normalize_text(unescape(match.group("attrs"))).lower()
+        compact_attrs = re.sub(r"[^a-z0-9가-힣_-]+", "", attrs)
+        if match.group("tag").lower() == "article" or any(
+            term in compact_attrs for term in CONTENT_ATTRIBUTE_TERMS
+        ):
+            text = extract_text(match.group("body"))
+            if text:
+                candidates.append(text)
+
+    if not candidates:
+        return extract_text(cleaned)
+
+    best = max(candidates, key=content_score)
+    return best if content_score(best) > 0 else extract_text(cleaned)
+
+
+def content_score(text: str) -> int:
+    normalized = normalize_text(text)
+    if len(normalized) < 90:
+        return 0
+    financial_score = sum(1 for term in FINANCIAL_CONTEXT_TERMS if term in normalized) * 80
+    boilerplate_penalty = sum(1 for term in BOILERPLATE_TERMS if term in normalized) * 180
+    sentence_score = len(re.split(r"[.!?。]|다\.", normalized)) * 25
+    return max(
+        0,
+        min(len(normalized), 2_000) + financial_score + sentence_score - boilerplate_penalty,
+    )
 
 
 def is_valid_full_content(content: str) -> bool:

@@ -154,6 +154,7 @@ class MlTrainingReport:
     supervised_exclusion_report: dict[str, Any] = field(default_factory=dict)
     pseudo_labeling: dict[str, Any] = field(default_factory=dict)
     full_content_training: dict[str, Any] = field(default_factory=dict)
+    event_training: dict[str, Any] = field(default_factory=dict)
     sentiment_importance_training: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -173,6 +174,7 @@ class MlTrainingReport:
             "supervised_exclusion_report": self.supervised_exclusion_report,
             "pseudo_labeling": self.pseudo_labeling,
             "full_content_training": self.full_content_training,
+            "event_training": self.event_training,
             "sentiment_importance_training": self.sentiment_importance_training,
         }
 
@@ -242,7 +244,13 @@ def train_ml_model(
         stock_candidate_path,
         stock_candidate_config,
     )
-    samples = [*supervised_samples, *pseudo_label_result.samples]
+    event_supervised_samples = _event_training_samples(supervised_samples)
+    event_training_samples = [*event_supervised_samples, *pseudo_label_result.samples]
+    event_training_report = _event_training_report(
+        supervised_samples,
+        event_supervised_samples,
+        pseudo_label_result.samples,
+    )
     sentiment_importance_samples = _sentiment_importance_training_samples(
         supervised_samples
     )
@@ -251,13 +259,16 @@ def train_ml_model(
         sentiment_importance_samples,
     )
 
-    event_texts = [_event_text(sample.model_text, sample.source_type) for sample in samples]
+    event_texts = [
+        _event_text(sample.model_text, sample.source_type)
+        for sample in event_training_samples
+    ]
     supervised_texts = [sample.model_text for sample in sentiment_importance_samples]
     supervised_importance_texts = [
         _importance_text(sample.model_text, sample.source_type)
         for sample in sentiment_importance_samples
     ]
-    event_targets = [sample.tags for sample in samples]
+    event_targets = [sample.tags for sample in event_training_samples]
     supervised_sentiment_targets = [
         sample.sentiment for sample in sentiment_importance_samples
     ]
@@ -311,13 +322,14 @@ def train_ml_model(
         "importance_model": importance_model,
         "event_probability_threshold": EVENT_PROBABILITY_THRESHOLD,
         "event_label_thresholds": effective_event_label_thresholds,
-        "sample_count": len(samples),
+        "sample_count": len(event_training_samples),
         "supervised_sample_count": len(supervised_samples),
         "pseudo_labeled_sample_count": len(pseudo_label_result.samples),
         "training_sources": _training_source_paths(training_paths),
         "supervised_exclusion_report": supervised_exclusion_report,
         "pseudo_labeling": pseudo_label_result.report,
         "full_content_training": _full_content_training_report(supervised_samples),
+        "event_training": event_training_report,
         "sentiment_importance_training": sentiment_importance_report,
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -326,11 +338,11 @@ def train_ml_model(
     return MlTrainingReport(
         version=version,
         trained_at=trained_at,
-        sample_count=len(samples),
+        sample_count=len(event_training_samples),
         supervised_sample_count=len(supervised_samples),
         pseudo_labeled_sample_count=len(pseudo_label_result.samples),
         training_sources=artifact["training_sources"],
-        event_label_distribution=_event_distribution(samples),
+        event_label_distribution=_event_distribution(event_training_samples),
         sentiment_label_distribution=dict(Counter(supervised_sentiment_targets)),
         importance_label_distribution=dict(Counter(supervised_importance_targets)),
         validation=validation,
@@ -339,6 +351,7 @@ def train_ml_model(
         supervised_exclusion_report=supervised_exclusion_report,
         pseudo_labeling=pseudo_label_result.report,
         full_content_training=artifact["full_content_training"],
+        event_training=event_training_report,
         sentiment_importance_training=sentiment_importance_report,
     )
 
@@ -384,6 +397,15 @@ def _sentiment_importance_training_samples(
     return list(samples)
 
 
+def _event_training_samples(samples: Sequence[LabeledAlert]) -> list[LabeledAlert]:
+    trusted_samples = [
+        sample for sample in samples if not _has_weak_full_content_labels(sample)
+    ]
+    if _has_minimum_event_label_coverage(trusted_samples):
+        return trusted_samples
+    return list(samples)
+
+
 def _has_weak_full_content_labels(sample: LabeledAlert) -> bool:
     if sample.source_review_status in HUMAN_TRUSTED_REVIEW_STATUSES:
         return False
@@ -399,6 +421,40 @@ def _has_minimum_single_label_coverage(samples: Sequence[LabeledAlert]) -> bool:
     return len(sentiment_labels) >= 2 and len(importance_labels) >= 2
 
 
+def _has_minimum_event_label_coverage(samples: Sequence[LabeledAlert]) -> bool:
+    label_counts = Counter(label for sample in samples for label in sample.tags)
+    return len(label_counts) >= 4 and min(label_counts.values(), default=0) >= 2
+
+
+def _event_training_report(
+    supervised_samples: Sequence[LabeledAlert],
+    event_supervised_samples: Sequence[LabeledAlert],
+    pseudo_samples: Sequence[LabeledAlert],
+) -> dict[str, Any]:
+    excluded_samples = [
+        sample for sample in supervised_samples if _has_weak_full_content_labels(sample)
+    ]
+    excluded_by_policy = Counter(
+        sample.source_license_policy or "unspecified" for sample in excluded_samples
+    )
+    return {
+        "policy": (
+            "검수되지 않은 전문 수집 라벨은 이벤트 supervised loss에서도 제외한다. "
+            "전문 원문은 요약·분석 입력 품질 검증과 검수 후보 생성에 사용하고, "
+            "라벨 학습은 승인된 gold 및 교사 검증 pseudo label로 제한한다."
+        ),
+        "supervised_training_sample_count": len(event_supervised_samples),
+        "pseudo_training_sample_count": len(pseudo_samples),
+        "training_sample_count": len(event_supervised_samples) + len(pseudo_samples),
+        "excluded_weak_full_content_label_count": len(excluded_samples),
+        "excluded_count_by_source_license_policy": dict(
+            sorted(excluded_by_policy.items())
+        ),
+        "fallback_used": len(event_supervised_samples) == len(supervised_samples)
+        and bool(excluded_samples),
+    }
+
+
 def _sentiment_importance_training_report(
     supervised_samples: Sequence[LabeledAlert],
     sentiment_importance_samples: Sequence[LabeledAlert],
@@ -411,8 +467,8 @@ def _sentiment_importance_training_report(
     )
     return {
         "policy": (
-            "실제 원문 전문은 이벤트/종목 맥락 학습에 사용하고, 사람이 검수하지 않은 "
-            "수집 라벨은 감성/중요도 supervised loss에서 제외한다."
+            "사람이 검수하지 않은 전문 수집 라벨은 감성/중요도 supervised loss에서 "
+            "제외한다."
         ),
         "training_sample_count": len(sentiment_importance_samples),
         "excluded_weak_full_content_label_count": len(excluded_samples),
@@ -705,16 +761,17 @@ def _load_stock_candidate_samples(path: Path) -> list[LabeledAlert]:
 
 
 def _fit_teacher(samples: Sequence[LabeledAlert]) -> dict[str, Any]:
+    event_samples = _event_training_samples(samples)
     sentiment_importance_samples = _sentiment_importance_training_samples(samples)
     event_binarizer = MultiLabelBinarizer()
-    event_matrix = event_binarizer.fit_transform([sample.tags for sample in samples])
+    event_matrix = event_binarizer.fit_transform([sample.tags for sample in event_samples])
 
     event_model = _event_model()
     sentiment_model = _single_label_model()
     importance_model = _importance_model()
 
     event_model.fit(
-        [_event_text(sample.model_text, sample.source_type) for sample in samples],
+        [_event_text(sample.model_text, sample.source_type) for sample in event_samples],
         event_matrix,
     )
     sentiment_model.fit(
@@ -921,7 +978,10 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     )
 
     event_binarizer = MultiLabelBinarizer()
-    event_train_matrix = event_binarizer.fit_transform([sample.tags for sample in train_samples])
+    event_train_samples = _event_training_samples(train_samples)
+    event_train_matrix = event_binarizer.fit_transform(
+        [sample.tags for sample in event_train_samples]
+    )
 
     event_model = _event_model()
     sentiment_model = _single_label_model()
@@ -934,7 +994,10 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     )
 
     event_model.fit(
-        [_event_text(sample.model_text, sample.source_type) for sample in train_samples],
+        [
+            _event_text(sample.model_text, sample.source_type)
+            for sample in event_train_samples
+        ],
         event_train_matrix,
     )
     sentiment_model.fit(
@@ -983,7 +1046,7 @@ def _validate_holdout(samples: list[LabeledAlert]) -> MlValidationReport:
     event_metrics = _event_label_metrics(expected_event_tags, predicted_event_tags)
     return MlValidationReport(
         sample_count=len(validation_samples),
-        train_sample_count=len(train_samples),
+        train_sample_count=len(event_train_samples),
         event_subset_recall=_subset_recall(expected_event_tags, predicted_event_tags),
         event_macro_f1=_macro_f1(event_metrics),
         sentiment_accuracy=_accuracy(expected_sentiments, predicted_sentiments),
