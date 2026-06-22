@@ -109,6 +109,22 @@ class FinancialRuleEngine:
         "증권 홈",
         "오늘 나온 보고서",
     )
+    roundup_title_keywords = (
+        "오늘의 주요공시",
+        "오늘의 공시",
+        "오늘의 증시일정",
+        "오늘의 상승종목",
+        "상승종목",
+    )
+    generic_title_terms = {
+        "오늘의",
+        "주요공시",
+        "증시일정",
+        "상승종목",
+        "장종료",
+        "코스피",
+        "코스닥",
+    }
 
     def classify_sentiment(self, text: str) -> Sentiment:
         negative_score = self._count_keywords(text, self.negative_keywords)
@@ -141,8 +157,9 @@ class FinancialRuleEngine:
         sentiment: Sentiment,
     ) -> SummaryLines:
         article_sentences = self._article_sentences(content or snippet)
-        ranked_sentences = self._ranked_article_sentences(article_sentences, title)
-        title_terms = self._title_terms(title)
+        context_text = f"{title} {snippet}" if self._is_roundup_title(title) else title
+        ranked_sentences = self._ranked_article_sentences(article_sentences, context_text)
+        title_terms = self._title_terms(context_text)
         related_ranked_sentences = [
             sentence
             for sentence in ranked_sentences
@@ -153,12 +170,13 @@ class FinancialRuleEngine:
             if len(related_ranked_sentences) >= 2
             else ranked_sentences
         )
-        what = self._first_title_context_sentence(article_sentences, title)
+        what = self._first_title_context_sentence(article_sentences, context_text)
         if not what:
+            fallback_title = "" if self._is_roundup_title(title) else title
             what = (
                 summary_candidates[0]
                 if summary_candidates
-                else self.summarize(title, snippet)
+                else self.summarize(fallback_title, snippet)
             )
         why = self._first_matching_sentence(
             summary_candidates,
@@ -178,15 +196,19 @@ class FinancialRuleEngine:
                 summary_candidates,
                 excluded={what, why},
             )
+        fallback_subject = "해당 공시·뉴스" if self._is_roundup_title(title) else title
         if not why:
-            why = f"{title}와 관련된 핵심 배경은 원문에서 확인된 최신 공시·뉴스 맥락입니다."
+            why = (
+                f"{fallback_subject}와 관련된 핵심 배경은 "
+                "원문에서 확인된 최신 공시·뉴스 맥락입니다."
+            )
         if not impact_sentence:
             impact_sentence = (
                 f"영향은 {importance.lower()} 중요도와 {sentiment.lower()} 감성으로 분류되어 "
                 "보유·관심 종목 사용자 확인이 필요합니다."
             )
         if self._line(why) == self._line(what):
-            why = f"{title}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
+            why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
         if self._line(impact_sentence) in {self._line(what), self._line(why)}:
             impact_sentence = (
                 f"중요도 {importance.lower()}, 감성 {sentiment.lower()}로 분류되어 "
@@ -291,11 +313,15 @@ class FinancialRuleEngine:
         score -= self._count_keywords(sentence, self.boilerplate_keywords) * 120
         return score
 
+    def _is_roundup_title(self, title: str) -> bool:
+        return self._contains_any(title, self.roundup_title_keywords)
+
     def _title_terms(self, title: str) -> set[str]:
         return {
             token
             for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", title)
             if token not in {"단독", "종합", "속보", "특징주"}
+            and token not in self.generic_title_terms
         }
 
     def _first_matching_sentence(self, sentences: list[str], keywords: tuple[str, ...]) -> str:
@@ -315,4 +341,5 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", text).strip()
         normalized = re.sub(r"\S+@\S+", "", normalized).strip()
         normalized = re.sub(r"^/?사진=[^ ]+\s*", "", normalized).strip()
+        normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
         return normalized[:300]

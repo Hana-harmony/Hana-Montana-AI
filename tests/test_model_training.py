@@ -15,7 +15,10 @@ from hannah_montana_ai.training.calibration import (
     build_model_confidence_calibration_report,
 )
 from hannah_montana_ai.training.collector import should_write_raw_alerts
-from hannah_montana_ai.training.dataset import load_labeled_alerts
+from hannah_montana_ai.training.dataset import (
+    JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+    load_labeled_alerts,
+)
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 from hannah_montana_ai.training.full_content_dataset import (
     build_full_content_dataset_report,
@@ -156,6 +159,60 @@ def test_full_content_training_dataset_is_rights_safe_and_traceable() -> None:
     assert all(sample.content_availability == "FULL_TEXT" for sample in samples)
     assert all(sample.full_content.strip() in sample.model_text for sample in samples)
     assert all(sample.content_hash for sample in samples)
+
+
+def test_labeled_alert_loader_reads_sharded_jsonl_manifest(tmp_path: Path) -> None:
+    shard_dir = tmp_path / "full_content_shards"
+    shard_dir.mkdir()
+    row_a = {
+        "text": "삼성전자 실적 개선",
+        "tags": ["EARNINGS"],
+        "sentiment": "POSITIVE",
+        "importance": "HIGH",
+        "source_type": "NEWS",
+        "content_availability": "FULL_TEXT",
+        "full_content": "삼성전자는 반도체 실적 개선 기대가 커졌다.",
+        "source_license_policy": "licensed_naver_original_full_text_v1",
+        "content_hash": "a",
+    }
+    row_b = row_a | {
+        "text": "SK하이닉스 공급계약",
+        "tags": ["CONTRACT"],
+        "full_content": "SK하이닉스는 장기 공급계약 기대가 커졌다.",
+        "content_hash": "b",
+    }
+    (shard_dir / "part-0001.jsonl").write_text(
+        json.dumps(row_a, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (shard_dir / "part-0002.jsonl").write_text(
+        json.dumps(row_b, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    manifest = tmp_path / "financial_alert_full_content_gold.jsonl"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+                "row_count": 2,
+                "dataset_shards": [
+                    "full_content_shards/part-0001.jsonl",
+                    "full_content_shards/part-0002.jsonl",
+                ],
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    samples = load_labeled_alerts(manifest)
+
+    assert [sample.text for sample in samples] == [
+        "삼성전자 실적 개선",
+        "SK하이닉스 공급계약",
+    ]
+    assert all(sample.content_availability == "FULL_TEXT" for sample in samples)
 
 
 def test_financial_tokenizer_extracts_domain_terms_without_spacing_dependency() -> None:

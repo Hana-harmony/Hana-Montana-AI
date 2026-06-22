@@ -1,6 +1,6 @@
 {
   "schema_version": "live-news-monitoring-status/v1",
-  "generated_at": "2026-06-22T08:04:20.213659+00:00",
+  "generated_at": "2026-06-22T09:05:01.104413+00:00",
   "overall_status": "pass",
   "checks": {
     "report_schema_current": true,
@@ -12,14 +12,14 @@
   "live_report": {
     "schema_version": "live-news-evaluation-report/v2",
     "row_schema_version": "live-news-evaluation-row/v2",
-    "generated_at": "2026-06-22T08:04:07.848655+00:00",
-    "model_version": "financial-ml-tfidf-logreg-20260622073857",
+    "generated_at": "2026-06-22T09:04:44.559970+00:00",
+    "model_version": "financial-ml-tfidf-logreg-20260622090407",
     "emitted_row_count": 100,
-    "sampled_stock_model_match_rate": 0.8
+    "sampled_stock_model_match_rate": 0.76
   },
   "current_release": {
     "schema_version": "model-release-report/v1",
-    "model_version": "financial-ml-tfidf-logreg-20260622073857"
+    "model_version": "financial-ml-tfidf-logreg-20260622090407"
   },
   "required_action": "추가 조치 없음. 최신 release 기준 실시간 뉴스 smoke/drift 리포트가 유효하다.",
   "policy": {

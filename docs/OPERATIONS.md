@@ -95,7 +95,7 @@ uv run python scripts/collect_training_data.py \
 - weak-label 후보는 teacher confidence gate와 라벨별 quota를 통과한 경우에만 pseudo-label로 승격한다.
 - 현재 artifact는 83,105건 수집 후보 중 weak-label 339건과 종목 후보 큐 687건을 이벤트 모델 학습에 반영했다.
 - 종목 후보 큐 승격분은 per-stock quota 1건으로 제한해 687건이 687개 종목에 분산되도록 한다.
-- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 4,727건과 OpenDART document 전문 273건을 포함한 5,000건이다.
+- 실제 원문 전문 학습 데이터는 `scripts/build_real_full_content_training_data.py`로 생성하며, 현재 뉴스 전문 19,727건과 OpenDART document 전문 273건을 포함한 20,000건이다.
 - 이벤트·감성·중요도 모델은 실제 뉴스 gold 회귀를 막기 위해 사람이 검수하지 않은 실제 전문 약한 라벨 1,036건을 supervised loss에서 제외한다.
 - 실시간 최신 뉴스 품질 감사는 `scripts/build_live_news_quality_audit.py`로 실행하며, 라벨 없는 최신 Naver 표본에서 query-relevant pass rate와 본문 추출 품질을 관측한다.
 
@@ -126,7 +126,8 @@ uv run python scripts/build_live_news_quality_audit.py \
 
 ## 전문 분석·요약 추가 학습 원칙
 - 실제 뉴스 전문 추가 학습은 최소 1,000건 이상을 목표로 하되, 관련 종목이 제목·snippet·전문 중 하나에서 확인되지 않는 row는 live 품질 gate와 학습 승격 후보에서 제외한다.
-- 서비스급 대량 학습 반복은 전문 뉴스·공시 5,000건 이상을 1차 목표로 삼고, 운영 전 장기 목표는 종목·업종·이벤트가 균형 잡힌 10,000건 이상 gold/검수 후보로 관리한다.
+- 서비스급 대량 학습 반복은 전문 뉴스·공시 5,000건 이상을 1차 기준선으로 삼고, 최신 release는 종목·업종·이벤트가 더 분산된 20,000건 gold/검수 후보를 기준으로 관리한다.
+- 20,000건 확장 배치는 기존 5,000건 재사용 가능한 전문 row를 보존하고, 신규 기사 전문 fetch 실패·중복·종목 불일치·라벨 quota 제외 사유를 별도 리포트에 남겼다.
 - 대량 반복에서 목표 row 수를 채우지 못하면 수집 실패 수, 중복 URL 재사용 수, 본문 추출 실패 수, 종목 불일치 제외 수를 리포트에 남기고 다음 shard 수집 기준으로 사용한다.
 - live quality audit은 서비스 승격 전 최소 1,000건 이상 최신 미학습 표본으로 실행하고, query-relevant pass rate, full-content rate, sampled stock model match rate를 함께 본다.
 - 기사 원문은 요약 품질 개선과 검수 후보 생성에 사용하고, 이벤트·감성·중요도 정답 라벨은 `human_review_approved`, `codex_review_approved`, teacher confidence gate를 통과한 pseudo label만 학습에 반영한다.

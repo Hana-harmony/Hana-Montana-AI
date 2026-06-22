@@ -1,64 +1,46 @@
 {
   "schema_version": "live-news-quality-audit-report/v1",
   "row_schema_version": "live-news-quality-audit-row/v1",
-  "generated_at": "2026-06-22T07:54:17.489187+00:00",
-  "model_version": "financial-ml-tfidf-logreg-20260622073857",
+  "generated_at": "2026-06-22T09:35:56.288360+00:00",
+  "model_version": "financial-ml-tfidf-logreg-20260622090407",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
   "output_path": "data/evaluation/live_news_quality_audit.jsonl",
   "requested_stock_sample_size": 250,
   "selected_stock_count": 250,
   "query_count": 1250,
-  "filtered_query_stock_absent_count": 247,
+  "filtered_query_stock_absent_count": 241,
   "emitted_row_count": 1000,
-  "quality_pass_count": 990,
-  "quality_pass_rate": 0.99,
+  "quality_pass_count": 991,
+  "quality_pass_rate": 0.991,
   "query_relevant_row_count": 1000,
-  "query_relevant_quality_pass_count": 990,
-  "query_relevant_quality_pass_rate": 0.99,
-  "average_quality_score": 94.806,
-  "full_content_count": 682,
-  "full_content_rate": 0.682,
+  "query_relevant_quality_pass_count": 991,
+  "query_relevant_quality_pass_rate": 0.991,
+  "average_quality_score": 94.86,
+  "full_content_count": 690,
+  "full_content_rate": 0.69,
   "sampled_stock_model_match_count": 999,
   "sampled_stock_model_match_rate": 0.999,
   "quality_finding_counts": {
-    "CONTENT_BOILERPLATE": 67,
+    "CONTENT_BOILERPLATE": 68,
     "LOW_EVENT_CONFIDENCE": 59,
-    "LOW_IMPORTANCE_CONFIDENCE": 124,
-    "LOW_SENTIMENT_CONFIDENCE": 196,
-    "MISSING_FULL_CONTENT": 318,
-    "SAMPLED_STOCK_NOT_MATCHED": 1,
-    "SUMMARY_BOILERPLATE": 1
+    "LOW_IMPORTANCE_CONFIDENCE": 122,
+    "LOW_SENTIMENT_CONFIDENCE": 204,
+    "MISSING_FULL_CONTENT": 310,
+    "SAMPLED_STOCK_NOT_MATCHED": 1
   },
   "provider_status_totals": {
     "providers": [
       "naver-news"
     ],
     "completed": true,
-    "attempted_requests": 973,
-    "successful_requests": 973,
+    "attempted_requests": 963,
+    "successful_requests": 961,
     "rate_limited_requests": 0,
-    "failed_requests": 0,
-    "collected_count": 1913,
+    "failed_requests": 2,
+    "collected_count": 1889,
     "errors": []
   },
   "worst_rows": [
-    {
-      "quality_score": 59,
-      "quality_findings": [
-        "CONTENT_BOILERPLATE",
-        "LOW_IMPORTANCE_CONFIDENCE",
-        "SUMMARY_BOILERPLATE"
-      ],
-      "sampled_stock_name": "레드우즈",
-      "predicted_stock_name": "삼성전자",
-      "title": "[오늘의 주요공시·31일] 삼성전자, 14조5800억 자사주 소각",
-      "original_url": "https://www.safetimes.co.kr/news/articleView.html?idxno=241266",
-      "summary_lines": {
-        "what": "[오늘의 주요공시·31일] 삼성전자, 14조5800억 자사주 소각. 544억 성북구 대광빌라 가로주택정비사업 수주 ▲ 에이티넘인베스트, 1주당 140원 현금배당 결정 ▲ 레드우즈 , 주권 매매거래정지 기간 변경 … 상장폐지 사유 발생 ▲ 케일럼, 하나아이티엠 흡수합병 완료",
-        "why": "[오늘의 주요공시·31일] 삼성전자, 14조5800억 자사주 소각와 관련된 핵심 배경은 원문에서 확인된 최신 공시·뉴스 맥락입니다.",
-        "impact": "영향은 critical 중요도와 positive 감성으로 분류되어 보유·관심 종목 사용자 확인이 필요합니다."
-      }
-    },
     {
       "quality_score": 79,
       "quality_findings": [
@@ -208,7 +190,24 @@
       "summary_lines": {
         "what": "22일 한국거래소에 따르면 오후 12시44분 SK하이닉스의 시가총액은 2091조687억3900만원으로 삼성전자의 2087조121억4600만원을 앞섰다.",
         "why": "병력 자원 감 단독 호남권 ‘제2 산업축’ 주목…한화·LG엔솔·LS·삼성물산 등 투자 검토 배터리·우주항공·희토류·수소 등 신사업 현장 실사ㆍ사업성 타진 광양·새만금·고흥 중심 투자 검토 한국 경제 '제2 산업축' 부상 기대 \"고위급 조율 거쳐 최종 향방 결정\" 정부의 지역 균형발전 드라이브와 지방자치단체의 공세적인 러브콜이 맞물리면서 대기업들의 호남권 투자 검토가 본격화되고 있다.",
-        "impact": "오늘의 상승종목 06.22 장종료 코스피 코스닥 1."
+        "impact": "국방장관 비전투분야 15만명 아웃소싱 구상 후속 美 아카데미 유사⋯명칭은 민군협력기업 사용 권장 안규백 국방장관이 지난해 10월 밝힌 ‘비전투분야 15만 명 아웃소싱’ 구상 후속조치로 군수·경계·교육 등을 민간에 위탁하는 내용의 법안이 추진되고 있다."
+      }
+    },
+    {
+      "quality_score": 82,
+      "quality_findings": [
+        "LOW_IMPORTANCE_CONFIDENCE",
+        "LOW_SENTIMENT_CONFIDENCE",
+        "MISSING_FULL_CONTENT"
+      ],
+      "sampled_stock_name": "AP우주통신",
+      "predicted_stock_name": "AP우주통신",
+      "title": "[ 공시 ] 유가증권 공시 , 코스닥 공시 外",
+      "original_url": "http://www.heraldbiz.com/SITE/data/html_dir/2007/08/29/200708290219.asp",
+      "summary_lines": {
+        "what": "&lt;유가증권시장&gt; ▷ AP우주통신 =2006 사업연도 사업보고서 미제출 및 감사의견 거절로 2007년 9월 12일...",
+        "why": "지에스건설=이집트 정유공장 공사수주 보도에 대한 조회 공시 요구(2007년 8월 29일 18:00까지)...",
+        "impact": "영향은 critical 중요도와 positive 감성으로 분류되어 보유·관심 종목 사용자 확인이 필요합니다."
       }
     }
   ],

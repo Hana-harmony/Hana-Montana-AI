@@ -94,6 +94,28 @@ def test_summary_prefers_title_context_over_unrelated_market_tail() -> None:
     assert "오늘의 증시일정" not in joined
 
 
+def test_summary_uses_snippet_context_for_roundup_disclosure_title() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "삼성전자는 14조5800억원 규모 자사주 소각을 결정했다. "
+        "레드우즈는 상장폐지 사유 발생으로 주권 매매거래정지 기간이 변경됐다. "
+        "투자자는 정리매매 가능성과 거래정지 해제 조건을 확인해야 한다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "[오늘의 주요공시·31일] 삼성전자, 14조5800억 자사주 소각",
+        "레드우즈 주권 매매거래정지 기간 변경 및 상장폐지 사유 발생",
+        content,
+        "CRITICAL",
+        "NEGATIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert "레드우즈" in summary.what
+    assert "상장폐지" in joined or "거래정지" in joined
+    assert "오늘의 주요공시" not in joined
+
+
 def test_summary_uses_distinct_article_lines_before_fallback() -> None:
     engine = FinancialRuleEngine()
     content = (
