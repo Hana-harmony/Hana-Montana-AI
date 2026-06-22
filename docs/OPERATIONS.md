@@ -133,6 +133,7 @@ uv run python scripts/build_live_news_quality_audit.py \
 - 기사 원문은 요약 품질 개선과 검수 후보 생성에 사용하고, 이벤트·감성·중요도 정답 라벨은 `human_review_approved`, `codex_review_approved`, teacher confidence gate를 통과한 pseudo label만 학습에 반영한다.
 - live audit은 전체 pass rate와 query-relevant pass rate를 분리해 기록한다. 운영 판단은 검색 provider 노이즈가 제거된 query-relevant pass rate를 우선 보되, 전체 pass rate는 수집기 검색 품질 개선 지표로 추적한다.
 - What/Why/Impact 요약은 LLM 없이 rule engine과 금융 ML 결과로 생성한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
+- 최신 라이브 표본에서는 짧은 종목명 과매칭, 본문 boilerplate 유입, `SUMMARY_ONLY` 과신을 우선 확인한다. 대표 종목이 긴 고유 종목명보다 짧은 요청 후보명으로 치우치거나, 요약에 광고·푸터·관련기사 문구가 들어가면 release 후보에서 제외한다.
 - 새 모델 artifact는 `reports/model-release-report.json`, `reports/service-readiness-report.json`, `reports/live-news-quality-audit-report.json`이 모두 pass 기준을 만족할 때만 승격한다.
 
 - `reports/model-release-report.json`은 모델 버전, 학습 샘플 수, pseudo-label 승격 내역, holdout·benchmark·실공시·실뉴스 quality gate를 한 파일로 묶는다.

@@ -60,6 +60,7 @@
 - 전문 학습 source license policy: `licensed_naver_original_full_text_v1`, `opendart_public_disclosure_text_v1`, 내부 회귀 seed
 - 전문 확장 학습 정책: 관련 종목이 제목·snippet·전문에서 확인된 기사만 live query-relevant gate와 학습 승격 후보에 포함한다.
 - 요약 품질 정책: What/Why/Impact 3줄은 중복, boilerplate, fallback, 종목 불일치, 낮은 confidence를 별도 quality finding으로 기록하고 release 판단에서 관측한다.
+- 라이브 품질 보강 정책: serving 단계에서 짧은 종목명 과매칭, 광고·푸터·관련기사 노이즈, 전문 수집 실패 과신을 보정한다. `SUMMARY_ONLY` 응답은 정보량이 제한된 상태이므로 confidence를 보수적으로 cap하고, 운영 감사에서 별도 finding으로 추적한다.
 - 약한 전문 라벨 정책: 사람이 검수하지 않은 전문 수집 라벨은 원문 분석·요약 입력과 검수 후보 생성에는 사용하지만 이벤트·감성·중요도 supervised loss에는 넣지 않는다.
 - gold benchmark 샘플 수: 768건
 - 실공시 gold 샘플 수: 30건
@@ -168,6 +169,7 @@
 - 금융 tokenizer는 `잠정실적`, `공급계약`, `유상증자`, `무상증자`, `타법인주식`, `자기주식처분`, `주주총회`, `소송등`, `상장폐지`, `주주환원`, `주식교환`, `지분인수`, `지분매각`, `리밸런싱`, `공급망`, `생산차질` 같은 한국어 복합 금융 표현을 도메인 token으로 추가한다.
 - 종목 매핑은 request 후보를 먼저 사용하고, 같은 종목코드가 없으면 내부 universe master를 fallback으로 사용한다.
 - 내부 universe fallback은 TF-IDF char n-gram stock linker가 예측한 종목코드를 먼저 확인한 뒤, 대표 종목 오탐 방지를 위해 실제 선두 종목 term 매칭 여부를 검증한다.
+- 종목명 매칭은 같은 위치에서 발견된 후보 중 더 긴 고유 종목명을 우선한다. 예를 들어 `SK하이닉스` 기사에서 `SK`가 요청 후보로 들어와도 `SK하이닉스` 전체명이 본문에 있으면 짧은 후보명은 대표 종목으로 승격하지 않는다.
 - 번역 품질 보조 모델은 `local-financial-glossary-v2`이며, 실제 공시에서 반복되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 glossary/fallback rule로 정규화한다.
 - `reports/translation-sample-report.json`은 실제 뉴스·공시 gold 표본 기준 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, review finding을 함께 보존한다.
 - stock linker는 전체 universe 3,967개 종목코드와 trainable 종목명을 학습 term으로 사용한다. 현재 전 종목코드 템플릿 정확도는 1.0, trainable 종목명 템플릿 정확도는 0.9921이다.
