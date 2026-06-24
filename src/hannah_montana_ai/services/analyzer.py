@@ -10,6 +10,7 @@ from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
+    BodySourceType,
     Importance,
     Sentiment,
     StockCandidate,
@@ -244,6 +245,8 @@ class AlertAnalyzer:
             summary_lines=summary_lines,
             content_availability="FULL_TEXT" if has_full_content else "SUMMARY_ONLY",
             original_content=request.content,
+            original_body=request.content,
+            body_source_type=_body_source_type(request.source_type, request.content),
             image_urls=request.image_urls,
             event_tags=event_tags,
             sentiment=sentiment,
@@ -791,3 +794,11 @@ def _load_internal_stock_universe(
         for stock in load_stock_universe(stock_universe_path)
         if stock.stock_name not in AlertAnalyzer._INTERNAL_STOCK_MATCH_EXCLUDED_NAMES
     )
+
+
+def _body_source_type(source_type: str, content: str) -> BodySourceType:
+    if not content:
+        return "PROVIDER_SNIPPET"
+    if source_type == "DISCLOSURE":
+        return "DISCLOSURE_BODY"
+    return "FULL_TEXT"

@@ -232,6 +232,11 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
         {
             "title": "삼성전자 2분기 영업이익 증가",
             "description": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+            "content": "삼성전자는 공급계약 확대와 반도체 수요 회복으로 영업이익 증가를 예상했다.",
+            "image_urls": "https://news.example.com/image/005930.jpg",
+            "canonical_url": "https://news.example.com/article/canonical-005930",
+            "content_hash": "hash-005930-body",
+            "source_license_policy": "PROVIDER_LICENSED_FULL_TEXT",
             "originallink": "https://news.example.com/article/005930-earnings",
             "pubDate": "Wed, 17 Jun 2026 09:00:00 +0900",
             "provider": "naver-news",
@@ -251,10 +256,24 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
 
     assert record.source_type == "NEWS"
     assert len(record.duplicate_key) == 64
+    assert record.content.startswith("삼성전자는 공급계약 확대")
+    assert record.image_urls == ["https://news.example.com/image/005930.jpg"]
+    assert record.canonical_url == "https://news.example.com/article/canonical-005930"
+    assert record.content_hash == "hash-005930-body"
     assert request.stock_universe[0].stock_code == "005930"
+    assert request.content == record.content
+    assert request.image_urls == record.image_urls
+    assert request.canonical_url == record.canonical_url
+    assert request.content_hash == record.content_hash
+    assert request.source_license_policy == "PROVIDER_LICENSED_FULL_TEXT"
     assert response.stock_code == "005930"
     assert response.duplicate_key
     assert "Samsung Electronics" in response.translated_title
+    assert response.original_body == record.content
+    assert response.translated_body == response.translated_content
+    assert "Samsung Electronics" in response.translated_body
+    assert response.body_source_type == "FULL_TEXT"
+    assert response.content_availability == "FULL_TEXT"
     assert response.glossary_terms
     assert response.glossary_terms[0].english_term == "Samsung Electronics"
     assert "FINANCIAL_GLOSSARY_APPLIED" in response.translation_quality_flags
@@ -263,6 +282,10 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert websocket_event["partner_id"] == "US_BROKER"
     assert websocket_event["alert_id"] == response.alert_id
     assert websocket_event["duplicate_key"] == response.duplicate_key
+    assert websocket_event["original_body"] == record.content
+    assert websocket_event["translated_body"] == response.translated_body
+    assert websocket_event["body_source_type"] == "FULL_TEXT"
+    assert websocket_event["content_availability"] == "FULL_TEXT"
     assert websocket_event["glossary_terms"][0]["english_term"] == "Samsung Electronics"
     assert "FINANCIAL_GLOSSARY_APPLIED" in websocket_event["translation_quality_flags"]
     assert websocket_event["data_source"] == "Naver/OpenDART/NLP/DeepLTranslationAdapter"
