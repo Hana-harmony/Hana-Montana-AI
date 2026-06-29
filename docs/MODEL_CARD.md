@@ -34,7 +34,8 @@
 - 학습 universe: `data/reference/korea_stock_universe.csv`의 한국 종목 3,967개와 `data/reference/us_stock_universe.csv`의 미국 listed symbol 12,916개를 함께 학습한다. 미국 universe는 NASDAQ Trader symbol directory의 `nasdaqlisted.txt`, `otherlisted.txt`를 정규화해 생성한다.
 - 모델 구조: 한국·미국 종목명, 시장, 거래소, business keyword, 섹터, 산업, 사업모델, 규모 버킷, 매출, 영업이익, 순이익, anchor profile을 하나의 cross-market profile corpus로 만들고 TF-IDF ngram vectorizer와 cosine similarity 기반 nearest peer retrieval artifact를 저장한다.
 - 재무/규모 feature: `data/reference/global_peer_fundamentals.csv`의 `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`를 로그 스케일 feature로 변환한다. 추론 ranking은 텍스트 유사도 70%, 재무/규모 유사도 30%를 블렌딩한다.
-- 재무 데이터 원천: 한국 재무는 OpenDART `fnlttSinglAcntAll`, 한국 시가총액은 KRX Open API 일별매매정보 `MKTCAP`, 미국 재무는 SEC `companyfacts`와 ticker-CIK mapping을 사용한다.
+- 재무 데이터 원천: 한국 재무는 OpenDART `fnlttSinglAcntAll`, 한국 시가총액은 KRX Open API 일별매매정보 `MKTCAP` 또는 Naver mobile stock JSON `marketValue`, 미국 재무는 SEC `companyfacts`와 ticker-CIK mapping, 미국 시가총액은 NASDAQ quote summary `MarketCap`을 사용한다.
+- 최신 fundamentals coverage: `data/reference/global_peer_fundamentals.csv`는 한국 2,916개, 미국 5,585개, 총 8,501개 row를 포함한다. 시가총액은 7,967개, 매출은 6,837개, 영업이익은 6,986개, 순이익은 7,695개 row에 채워져 있다.
 - eligible peer: 미국 universe 전체를 학습 corpus에 포함하되, ETF/ETN/fund/right/unit/warrant/preferred/note/test issue는 company peer 후보에서 제외한다.
 - anchor 평가: 알테오젠 `196170`은 `HALO` Halozyme Therapeutics top1 매칭을 release gate로 고정한다. 최신 report의 anchor top1 accuracy는 1.0이다.
 - 출력: `"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader"` 같은 팝업 headline, business summary, peer rationale, 섹터, 산업, 사업모델, 규모 버킷, 매출/영업이익/순이익, 재무 데이터 출처, 매칭 근거 배열, confidence, model version.

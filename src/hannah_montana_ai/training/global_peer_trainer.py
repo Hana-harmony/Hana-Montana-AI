@@ -30,6 +30,8 @@ NASDAQ_LISTED_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.tx
 OTHER_LISTED_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt"
 SEC_TICKER_CIK_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
+NASDAQ_QUOTE_SUMMARY_URL = "https://api.nasdaq.com/api/quote/{ticker}/summary?assetclass=stocks"
+NAVER_STOCK_INTEGRATION_URL = "https://m.stock.naver.com/api/stock/{stock_code}/integration"
 OPEN_DART_FINANCIAL_URL = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
 KRX_OPEN_API_BASE_URL = "https://data-dbg.krx.co.kr"
 KRX_DAILY_TRADE_PATHS = (
@@ -240,6 +242,37 @@ def fetch_sec_annual_fundamentals(
         currency="USD",
         source="SEC_COMPANYFACTS",
     )
+
+
+def fetch_nasdaq_market_cap_usd(ticker: str) -> float | None:
+    payload = _download_nasdaq_json(NASDAQ_QUOTE_SUMMARY_URL.format(ticker=ticker.upper()))
+    data = payload.get("data", {})
+    if not isinstance(data, dict):
+        return None
+    summary_data = data.get("summaryData", {})
+    if not isinstance(summary_data, dict):
+        return None
+    market_cap = summary_data.get("MarketCap", {})
+    if not isinstance(market_cap, dict):
+        return None
+    return _parse_optional_float(str(market_cap.get("value", "")))
+
+
+def fetch_naver_korea_market_cap_usd(
+    stock_code: str,
+    krw_usd_rate: float,
+) -> float | None:
+    payload = _download_naver_json(NAVER_STOCK_INTEGRATION_URL.format(stock_code=stock_code))
+    total_infos = payload.get("totalInfos", [])
+    if not isinstance(total_infos, list):
+        return None
+    for item in total_infos:
+        if not isinstance(item, dict):
+            continue
+        if item.get("code") == "marketValue" or item.get("key") == "시총":
+            market_cap_krw = _parse_korean_market_value_krw(str(item.get("value", "")))
+            return None if market_cap_krw is None else market_cap_krw * krw_usd_rate
+    return None
 
 
 def fetch_open_dart_annual_fundamentals(
@@ -509,6 +542,7 @@ def build_global_peer_training_report(
     )
     korea_fundamental_count = sum(1 for profile in korea_profiles if profile.financial_data_source)
     us_fundamental_count = sum(1 for profile in us_profiles if profile.financial_data_source)
+    all_profiles = [*korea_profiles, *us_profiles]
     minimum_korea_universe_count = 3_000
     actual_korea_universe_count = len(korea_profiles)
     minimum_us_universe_count = 5_000
@@ -545,6 +579,16 @@ def build_global_peer_training_report(
         "us_universe_count": len(us_profiles),
         "korea_fundamental_coverage_count": korea_fundamental_count,
         "us_fundamental_coverage_count": us_fundamental_count,
+        "fundamental_field_coverage": {
+            "market_cap_usd": sum(1 for profile in all_profiles if profile.market_cap_usd),
+            "revenue_usd": sum(1 for profile in all_profiles if profile.revenue_usd is not None),
+            "operating_income_usd": sum(
+                1 for profile in all_profiles if profile.operating_income_usd is not None
+            ),
+            "net_income_usd": sum(
+                1 for profile in all_profiles if profile.net_income_usd is not None
+            ),
+        },
         "eligible_us_peer_count": len(eligible_us_profiles),
         "tag_distribution": dict(sorted(tag_distribution.items())),
         "anchor_evaluation": anchor_evaluation,
@@ -825,9 +869,9 @@ def financial_profile_tokens(fundamental: GlobalPeerFundamentals) -> tuple[str, 
         derive_revenue_bucket(fundamental.revenue_usd),
         derive_profitability_bucket(fundamental.revenue_usd, fundamental.operating_income_usd),
     ]
-    if fundamental.market_cap_usd:
+    if fundamental.market_cap_usd and fundamental.market_cap_usd > 0:
         tokens.append(f"marketcap_{int(math.log10(fundamental.market_cap_usd))}")
-    if fundamental.revenue_usd:
+    if fundamental.revenue_usd and fundamental.revenue_usd > 0:
         tokens.append(f"revenue_{int(math.log10(fundamental.revenue_usd))}")
     return tuple(token for token in tokens if not token.startswith("UNKNOWN"))
 
@@ -914,18 +958,27 @@ def clean_security_name(value: str) -> str:
 
 
 def _parse_optional_int(value: str | None) -> int | None:
-    if value is None or not value.strip():
+    if value is None:
         return None
-    return int(value.strip())
+    normalized = value.strip()
+    if not normalized or normalized.lower() in {"none", "null", "nan"}:
+        return None
+    try:
+        return int(normalized)
+    except ValueError:
+        return None
 
 
 def _parse_optional_float(value: str | None) -> float | None:
     if value is None:
         return None
     normalized = value.replace(",", "").strip()
-    if not normalized:
+    if not normalized or normalized.lower() in {"none", "null", "nan"}:
         return None
-    return float(normalized)
+    try:
+        return float(normalized)
+    except ValueError:
+        return None
 
 
 def _format_optional_float(value: float | None) -> str:
@@ -980,6 +1033,8 @@ def _download_json(url: str) -> dict[str, object]:
                 "Hannah-Montana-AI/1.0 contact dev@hana-harmony.local",
             ),
             "Accept": "application/json",
+            "Origin": "https://www.nasdaq.com",
+            "Referer": "https://www.nasdaq.com/",
         },
     )
     with urlopen(request, timeout=30) as response:  # noqa: S310  # nosec B310
@@ -987,6 +1042,49 @@ def _download_json(url: str) -> dict[str, object]:
     decoded = json.loads(payload.decode("utf-8", errors="replace"))
     if not isinstance(decoded, dict):
         raise ValueError("JSON response must be an object")
+    return decoded
+
+
+def _download_nasdaq_json(url: str) -> dict[str, object]:
+    request = Request(  # noqa: S310  # nosec B310
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/126.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://www.nasdaq.com",
+            "Referer": "https://www.nasdaq.com/",
+        },
+    )
+    with urlopen(request, timeout=10) as response:  # noqa: S310  # nosec B310
+        payload = cast(bytes, response.read())
+    decoded = json.loads(payload.decode("utf-8", errors="replace"))
+    if not isinstance(decoded, dict):
+        raise ValueError("NASDAQ JSON response must be an object")
+    return decoded
+
+
+def _download_naver_json(url: str) -> dict[str, object]:
+    request = Request(  # noqa: S310  # nosec B310
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/126.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json, text/plain, */*",
+            "Referer": "https://m.stock.naver.com/",
+        },
+    )
+    with urlopen(request, timeout=10) as response:  # noqa: S310  # nosec B310
+        payload = cast(bytes, response.read())
+    decoded = json.loads(payload.decode("utf-8", errors="replace"))
+    if not isinstance(decoded, dict):
+        raise ValueError("Naver stock JSON response must be an object")
     return decoded
 
 
@@ -1083,6 +1181,23 @@ def _convert_krw_to_usd(value: float | None, krw_usd_rate: float) -> float | Non
     if value is None:
         return None
     return value * krw_usd_rate
+
+
+def _parse_korean_market_value_krw(value: str) -> float | None:
+    normalized = value.replace(",", "").replace(" ", "")
+    if not normalized or normalized in {"-", "N/A"}:
+        return None
+    total = 0.0
+    jo_match = re.search(r"([0-9.]+)조", normalized)
+    eok_match = re.search(r"([0-9.]+)억", normalized)
+    if jo_match:
+        total += float(jo_match.group(1)) * 1_000_000_000_000
+    if eok_match:
+        total += float(eok_match.group(1)) * 100_000_000
+    if total > 0:
+        return total
+    numeric = _parse_optional_float(normalized)
+    return None if numeric is None else numeric
 
 
 def _parse_nasdaq_listed(payload: str) -> list[UsStockUniverseEntry]:

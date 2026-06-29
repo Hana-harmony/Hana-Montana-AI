@@ -32,7 +32,8 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert response.primary_peer.scale_bucket == "MID_CAP"
     assert response.primary_peer.revenue_usd is not None
     assert response.primary_peer.operating_income_usd is not None
-    assert response.primary_peer.financial_data_source == "SEC_COMPANYFACTS"
+    assert "SEC_COMPANYFACTS" in response.primary_peer.financial_data_source
+    assert "NASDAQ_SUMMARY_MARKET_CAP" in response.primary_peer.financial_data_source
     assert response.primary_peer.financial_similarity_score is not None
     assert any("Sector" in factor for factor in response.primary_peer.matched_factors)
     assert any("Scale" in factor for factor in response.primary_peer.matched_factors)

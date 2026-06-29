@@ -38,7 +38,8 @@ docker run --rm --network hana-internal hannah-montana-ai
 - 응답은 외국인 투자자용 영어 headline, summary, primary peer, 후보 peer 목록, confidence, model version을 포함한다.
 - 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`, `financial_data_source`, `financial_similarity_score`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
 - 현재 운영 artifact는 한국 종목 3,967개와 미국 symbol 12,916개를 학습한 `src/hannah_montana_ai/model_store/global_peer_ml.joblib`다.
-- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다. 재무/규모 dataset은 OpenDART, KRX Open API, SEC companyfacts를 사용한다.
+- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다. 재무/규모 dataset은 OpenDART, KRX Open API, Naver mobile stock JSON, SEC companyfacts, NASDAQ quote summary를 사용한다.
+- 전체 fundamentals 수집은 resume/checkpoint 방식이다. 이미 성공한 row는 건너뛰고, 실패하거나 원천에 없는 row만 다시 시도한다.
 ```bash
 uv run python scripts/sync_us_stock_universe.py
 uv run python scripts/sync_global_peer_fundamentals.py

@@ -1,15 +1,21 @@
 {
   "schema_version": "global-peer-matcher/v1",
-  "version": "global-peer-tfidf-20260629165714",
-  "trained_at": "2026-06-29T16:57:14.281282+00:00",
+  "version": "global-peer-tfidf-20260629195637",
+  "trained_at": "2026-06-29T19:56:37.065967+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
   "model_path": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
   "korea_universe_count": 3967,
   "us_universe_count": 12916,
-  "korea_fundamental_coverage_count": 1,
-  "us_fundamental_coverage_count": 1,
+  "korea_fundamental_coverage_count": 2916,
+  "us_fundamental_coverage_count": 5585,
+  "fundamental_field_coverage": {
+    "market_cap_usd": 7967,
+    "revenue_usd": 6837,
+    "operating_income_usd": 6986,
+    "net_income_usd": 7695
+  },
   "eligible_us_peer_count": 5662,
   "tag_distribution": {
     "aerospace": 75,
@@ -38,7 +44,7 @@
         "stock_code": "196170",
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
-        "score": 0.457334,
+        "score": 0.490415,
         "hit": true
       }
     ]

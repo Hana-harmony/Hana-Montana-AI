@@ -1,11 +1,115 @@
 {
   "schema_version": "global-peer-fundamentals-sync/v1",
   "fiscal_year": 2025,
+  "fiscal_year_lookback": 2,
   "output_path": "data/reference/global_peer_fundamentals.csv",
-  "row_count": 2,
-  "korea_row_count": 1,
-  "us_row_count": 1,
-  "failure_count": 0,
-  "failures_sample": [],
+  "row_count": 8501,
+  "korea_row_count": 2916,
+  "us_row_count": 5585,
+  "new_or_refreshed_korea_row_count": 2651,
+  "new_or_refreshed_us_row_count": 0,
+  "failure_count": 1209,
+  "failures_sample": [
+    {
+      "market": "KR",
+      "identifier": "000030",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000010",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000060",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000110",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000360",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000380",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000420",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000470",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000610",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000790",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000800",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "000830",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001140",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001150",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001190",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001280",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001300",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001310",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001370",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "market": "KR",
+      "identifier": "001490",
+      "reason": "HTTP Error 409: 409"
+    }
+  ],
   "credential_policy": "credentials are loaded from gitignored local env only"
 }
