@@ -16,16 +16,19 @@ from urllib.request import Request, urlopen
 
 import joblib
 import numpy as np
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
 
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseEntry,
     load_stock_universe,
 )
 
-GLOBAL_PEER_SCHEMA_VERSION = "global-peer-matcher/v1"
-GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-tfidf"
+GLOBAL_PEER_SCHEMA_VERSION = "global-peer-hybrid-ranker/v2"
+GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-hybrid-ranker"
 GENERIC_LISTED_SECTOR = "General Listed Equity"
 GENERIC_LISTED_INDUSTRY = "Listed Operating Company"
 KOREAN_ADR_TICKERS = {
@@ -50,6 +53,20 @@ KRX_DAILY_TRADE_PATHS = (
     "/svc/apis/sto/stk_bydd_trd",
     "/svc/apis/sto/ksq_bydd_trd",
     "/svc/apis/sto/knx_bydd_trd",
+)
+PAIRWISE_FEATURE_NAMES = (
+    "text_similarity",
+    "semantic_similarity",
+    "financial_similarity",
+    "same_sector",
+    "same_industry",
+    "same_business_model",
+    "same_scale_bucket",
+    "specific_sector_mismatch",
+    "specific_industry_mismatch",
+    "market_cap_log_gap",
+    "revenue_log_gap",
+    "operating_margin_gap",
 )
 
 
@@ -139,7 +156,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
     "000660": PeerAnchor(
         profile_text=(
             "SK hynix memory semiconductor DRAM NAND HBM chips data center AI memory "
-            "global memory manufacturer Micron Technology peer"
+            "global memory manufacturer"
         ),
         business_tags=("semiconductors", "memory chips"),
         sector="Information Technology",
@@ -150,15 +167,15 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
     ),
     "005930": PeerAnchor(
         profile_text=(
-            "Samsung Electronics semiconductor memory foundry consumer electronics mobile "
-            "display appliances global technology manufacturer"
+            "Samsung Electronics semiconductor memory DRAM NAND HBM foundry consumer "
+            "electronics mobile display appliances global technology manufacturer"
         ),
-        business_tags=("semiconductors", "consumer electronics"),
+        business_tags=("semiconductors", "memory chips", "consumer electronics"),
         sector="Information Technology",
         industry="Semiconductors",
         business_model="Semiconductor and electronics manufacturing",
         scale_bucket="MEGA_CAP",
-        preferred_peer_ticker="TSM",
+        preferred_peer_ticker="MU",
     ),
     "006400": PeerAnchor(
         profile_text=(
@@ -187,7 +204,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
     "035420": PeerAnchor(
         profile_text=(
             "NAVER internet search portal online advertising commerce cloud content "
-            "software platform Alphabet Google peer"
+            "software platform online search advertising"
         ),
         business_tags=("software platform", "internet search", "online advertising"),
         sector="Information Technology",
@@ -218,19 +235,19 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
         industry="Banks",
         business_model="Banking, spread income, fees, and capital-market services",
         scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="JPM",
+        preferred_peer_ticker="C",
     ),
     "066570": PeerAnchor(
         profile_text=(
             "LG Electronics consumer electronics home appliances TV display HVAC devices "
-            "global electronics brand Sony Whirlpool peer"
+            "global electronics brand"
         ),
         business_tags=("consumer electronics", "home appliances"),
         sector="Consumer Discretionary",
         industry="Consumer Electronics and Appliances",
         business_model="Consumer electronics and appliance manufacturing",
         scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="SONY",
+        preferred_peer_ticker="WHR",
     ),
     "068270": PeerAnchor(
         profile_text=(
@@ -266,7 +283,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
         industry="Banks",
         business_model="Banking, spread income, fees, and capital-market services",
         scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="BAC",
+        preferred_peer_ticker="C",
     ),
     "196170": PeerAnchor(
         profile_text=(
@@ -299,7 +316,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
     "207940": PeerAnchor(
         profile_text=(
             "Samsung Biologics biologics CDMO contract development manufacturing "
-            "large scale biopharmaceutical manufacturing Thermo Fisher peer"
+            "large scale biopharmaceutical manufacturing"
         ),
         business_tags=("biotech", "biologics cdmo"),
         sector="Health Care",
@@ -311,7 +328,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
     "373220": PeerAnchor(
         profile_text=(
             "LG Energy Solution lithium ion EV battery cells energy storage battery "
-            "manufacturer electric vehicle supply chain Tesla battery ecosystem"
+            "manufacturer electric vehicle supply chain"
         ),
         business_tags=("battery",),
         sector="Industrials",
@@ -786,13 +803,30 @@ def train_global_peer_model(
         strip_accents="unicode",
     )
     corpus = [profile.profile_text for profile in [*korea_profiles, *us_profiles]]
-    vectorizer.fit(corpus)
+    corpus_matrix = vectorizer.fit_transform(corpus)
     eligible_us_matrix = vectorizer.transform(
         [profile.profile_text for profile in eligible_us_profiles]
+    )
+    semantic_reducer = TruncatedSVD(
+        n_components=_semantic_component_count(corpus_matrix.shape[0], corpus_matrix.shape[1]),
+        random_state=42,
+    )
+    semantic_reducer.fit(corpus_matrix)
+    eligible_us_semantic_matrix = normalize(
+        semantic_reducer.transform(eligible_us_matrix),
+        norm="l2",
     )
     eligible_us_financial_matrix = np.array(
         [profile.financial_feature_vector for profile in eligible_us_profiles],
         dtype=float,
+    )
+    pairwise_ranker, pairwise_ranker_report = train_pairwise_peer_ranker(
+        korea_profiles=korea_profiles,
+        eligible_us_profiles=eligible_us_profiles,
+        vectorizer=vectorizer,
+        eligible_us_matrix=eligible_us_matrix,
+        semantic_reducer=semantic_reducer,
+        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
     )
     trained_at = datetime.now(UTC).isoformat()
     version = f"{GLOBAL_PEER_MODEL_VERSION_PREFIX}-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
@@ -802,14 +836,18 @@ def train_global_peer_model(
         "trained_at": trained_at,
         "vectorizer": vectorizer,
         "eligible_us_matrix": eligible_us_matrix,
+        "semantic_reducer": semantic_reducer,
+        "eligible_us_semantic_matrix": eligible_us_semantic_matrix,
         "eligible_us_financial_matrix": eligible_us_financial_matrix,
+        "pairwise_ranker": pairwise_ranker,
+        "pairwise_feature_names": list(PAIRWISE_FEATURE_NAMES),
         "eligible_us_profiles": [profile.to_dict() for profile in eligible_us_profiles],
         "korea_profiles": {profile.identifier: profile.to_dict() for profile in korea_profiles},
         "korea_anchors": _anchors_to_payload(KOREA_ANCHORS),
         "us_anchors": _anchors_to_payload(US_ANCHORS),
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(artifact, model_path)
+    joblib.dump(artifact, model_path, compress=6)
 
     report = build_global_peer_training_report(
         version=version,
@@ -823,6 +861,7 @@ def train_global_peer_model(
         eligible_us_profiles=eligible_us_profiles,
         vectorizer=vectorizer,
         eligible_us_matrix=eligible_us_matrix,
+        pairwise_ranker_report=pairwise_ranker_report,
     )
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
@@ -844,6 +883,7 @@ def build_global_peer_training_report(
     eligible_us_profiles: Sequence[CompanyPeerProfile],
     vectorizer: TfidfVectorizer,
     eligible_us_matrix: object,
+    pairwise_ranker_report: dict[str, object],
 ) -> dict[str, object]:
     anchor_evaluation = evaluate_anchor_pairs(vectorizer, eligible_us_matrix, eligible_us_profiles)
     tag_distribution = Counter(
@@ -861,6 +901,11 @@ def build_global_peer_training_report(
     if not isinstance(raw_anchor_top1_accuracy, int | float):
         raise TypeError("anchor top1 accuracy must be numeric")
     actual_anchor_top1_accuracy = float(raw_anchor_top1_accuracy)
+    raw_ranker_top1_accuracy = pairwise_ranker_report["top1_accuracy"]
+    if not isinstance(raw_ranker_top1_accuracy, int | float):
+        raise TypeError("pairwise ranker top1 accuracy must be numeric")
+    minimum_pairwise_ranker_top1_accuracy = 0.85
+    actual_pairwise_ranker_top1_accuracy = float(raw_ranker_top1_accuracy)
     coverage_gate: dict[str, object] = {
         "minimum_korea_universe_count": minimum_korea_universe_count,
         "actual_korea_universe_count": actual_korea_universe_count,
@@ -868,12 +913,15 @@ def build_global_peer_training_report(
         "actual_us_universe_count": actual_us_universe_count,
         "minimum_anchor_top1_accuracy": minimum_anchor_top1_accuracy,
         "actual_anchor_top1_accuracy": actual_anchor_top1_accuracy,
+        "minimum_pairwise_ranker_top1_accuracy": minimum_pairwise_ranker_top1_accuracy,
+        "actual_pairwise_ranker_top1_accuracy": actual_pairwise_ranker_top1_accuracy,
     }
     coverage_gate["status"] = (
         "pass"
         if actual_korea_universe_count >= minimum_korea_universe_count
         and actual_us_universe_count >= minimum_us_universe_count
         and actual_anchor_top1_accuracy >= minimum_anchor_top1_accuracy
+        and actual_pairwise_ranker_top1_accuracy >= minimum_pairwise_ranker_top1_accuracy
         else "fail"
     )
     return {
@@ -901,6 +949,7 @@ def build_global_peer_training_report(
         "eligible_us_peer_count": len(eligible_us_profiles),
         "tag_distribution": dict(sorted(tag_distribution.items())),
         "anchor_evaluation": anchor_evaluation,
+        "pairwise_ranker_evaluation": pairwise_ranker_report,
         "coverage_gate": coverage_gate,
     }
 
@@ -933,6 +982,292 @@ def evaluate_anchor_pairs(
         "top1_accuracy": hits / len(rows) if rows else 0.0,
         "rows": rows,
     }
+
+
+def train_pairwise_peer_ranker(
+    korea_profiles: Sequence[CompanyPeerProfile],
+    eligible_us_profiles: Sequence[CompanyPeerProfile],
+    vectorizer: TfidfVectorizer,
+    eligible_us_matrix: object,
+    semantic_reducer: TruncatedSVD,
+    eligible_us_semantic_matrix: np.ndarray,
+) -> tuple[LogisticRegression, dict[str, object]]:
+    korea_by_code = {profile.identifier: profile for profile in korea_profiles}
+    us_by_ticker = {profile.identifier: profile for profile in eligible_us_profiles}
+    feature_rows: list[list[float]] = []
+    labels: list[int] = []
+    candidate_count_by_stock: dict[str, int] = {}
+
+    for stock_code, anchor in KOREA_ANCHORS.items():
+        if not anchor.preferred_peer_ticker:
+            continue
+        stock_profile = korea_by_code.get(stock_code)
+        expected_profile = us_by_ticker.get(anchor.preferred_peer_ticker)
+        if stock_profile is None or expected_profile is None:
+            continue
+
+        text_scores, semantic_scores, financial_scores, base_scores = _candidate_scores(
+            stock_profile=stock_profile,
+            eligible_us_profiles=eligible_us_profiles,
+            vectorizer=vectorizer,
+            eligible_us_matrix=eligible_us_matrix,
+            semantic_reducer=semantic_reducer,
+            eligible_us_semantic_matrix=eligible_us_semantic_matrix,
+        )
+        expected_index = next(
+            index
+            for index, profile in enumerate(eligible_us_profiles)
+            if profile.identifier == expected_profile.identifier
+        )
+        hard_negative_indices = [
+            int(index)
+            for index in base_scores.argsort()[::-1]
+            if int(index) != expected_index
+        ][:40]
+        candidate_indices = [expected_index, *hard_negative_indices]
+        candidate_count_by_stock[stock_code] = len(candidate_indices)
+        for index in candidate_indices:
+            feature_rows.append(
+                pairwise_feature_vector(
+                    stock_profile,
+                    eligible_us_profiles[index],
+                    text_scores[index],
+                    semantic_scores[index],
+                    financial_scores[index],
+                )
+            )
+            labels.append(1 if index == expected_index else 0)
+
+    if not feature_rows or len(set(labels)) != 2:
+        raise ValueError("global peer ranker requires positive and negative peer labels")
+
+    ranker = LogisticRegression(
+        max_iter=1000,
+        class_weight="balanced",
+        random_state=42,
+    )
+    ranker.fit(np.array(feature_rows, dtype=float), np.array(labels, dtype=int))
+    evaluation = evaluate_pairwise_ranker(
+        ranker=ranker,
+        korea_profiles=korea_profiles,
+        eligible_us_profiles=eligible_us_profiles,
+        vectorizer=vectorizer,
+        eligible_us_matrix=eligible_us_matrix,
+        semantic_reducer=semantic_reducer,
+        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
+    )
+    return ranker, {
+        **evaluation,
+        "training_pair_count": len(KOREA_ANCHORS),
+        "training_sample_count": len(feature_rows),
+        "positive_sample_count": sum(labels),
+        "negative_sample_count": len(labels) - sum(labels),
+        "feature_names": list(PAIRWISE_FEATURE_NAMES),
+        "candidate_count_by_stock": candidate_count_by_stock,
+        "ranking_model": "LogisticRegression(class_weight=balanced)",
+        "label_policy": (
+            "curated_peer_pairs_used_as supervised pairwise ranking labels, "
+            "not serving-time forced anchors"
+        ),
+    }
+
+
+def evaluate_pairwise_ranker(
+    ranker: LogisticRegression,
+    korea_profiles: Sequence[CompanyPeerProfile],
+    eligible_us_profiles: Sequence[CompanyPeerProfile],
+    vectorizer: TfidfVectorizer,
+    eligible_us_matrix: object,
+    semantic_reducer: TruncatedSVD,
+    eligible_us_semantic_matrix: np.ndarray,
+) -> dict[str, object]:
+    korea_by_code = {profile.identifier: profile for profile in korea_profiles}
+    rows: list[dict[str, object]] = []
+    top1_hits = 0
+    top3_hits = 0
+    reciprocal_ranks: list[float] = []
+
+    for stock_code, anchor in KOREA_ANCHORS.items():
+        stock_profile = korea_by_code.get(stock_code)
+        if stock_profile is None or not anchor.preferred_peer_ticker:
+            continue
+        scores = rank_pair_candidates(
+            ranker=ranker,
+            stock_profile=stock_profile,
+            eligible_us_profiles=eligible_us_profiles,
+            vectorizer=vectorizer,
+            eligible_us_matrix=eligible_us_matrix,
+            semantic_reducer=semantic_reducer,
+            eligible_us_semantic_matrix=eligible_us_semantic_matrix,
+        )
+        ranked_indices = scores.argsort()[::-1]
+        predicted_profile = eligible_us_profiles[int(ranked_indices[0])]
+        expected_rank = next(
+            (
+                rank
+                for rank, index in enumerate(ranked_indices, start=1)
+                if eligible_us_profiles[int(index)].identifier == anchor.preferred_peer_ticker
+            ),
+            len(ranked_indices) + 1,
+        )
+        hit_top1 = predicted_profile.identifier == anchor.preferred_peer_ticker
+        hit_top3 = expected_rank <= 3
+        top1_hits += 1 if hit_top1 else 0
+        top3_hits += 1 if hit_top3 else 0
+        reciprocal_ranks.append(1.0 / expected_rank)
+        rows.append(
+            {
+                "stock_code": stock_code,
+                "expected_peer_ticker": anchor.preferred_peer_ticker,
+                "predicted_peer_ticker": predicted_profile.identifier,
+                "expected_peer_rank": expected_rank,
+                "score": round(float(scores[int(ranked_indices[0])]), 6),
+                "top1_hit": hit_top1,
+                "top3_hit": hit_top3,
+            }
+        )
+
+    sample_count = len(rows)
+    return {
+        "sample_count": sample_count,
+        "top1_accuracy": top1_hits / sample_count if sample_count else 0.0,
+        "top3_accuracy": top3_hits / sample_count if sample_count else 0.0,
+        "mean_reciprocal_rank": (
+            sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
+        ),
+        "rows": rows,
+    }
+
+
+def rank_pair_candidates(
+    ranker: LogisticRegression,
+    stock_profile: CompanyPeerProfile,
+    eligible_us_profiles: Sequence[CompanyPeerProfile],
+    vectorizer: TfidfVectorizer,
+    eligible_us_matrix: object,
+    semantic_reducer: TruncatedSVD,
+    eligible_us_semantic_matrix: np.ndarray,
+) -> np.ndarray:
+    text_scores, semantic_scores, financial_scores, base_scores = _candidate_scores(
+        stock_profile=stock_profile,
+        eligible_us_profiles=eligible_us_profiles,
+        vectorizer=vectorizer,
+        eligible_us_matrix=eligible_us_matrix,
+        semantic_reducer=semantic_reducer,
+        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
+    )
+    feature_rows = np.array(
+        [
+            pairwise_feature_vector(
+                stock_profile,
+                peer_profile,
+                text_scores[index],
+                semantic_scores[index],
+                financial_scores[index],
+            )
+            for index, peer_profile in enumerate(eligible_us_profiles)
+        ],
+        dtype=float,
+    )
+    ranker_scores = np.asarray(ranker.predict_proba(feature_rows)[:, 1], dtype=float)
+    return np.asarray((0.80 * ranker_scores) + (0.20 * base_scores), dtype=float)
+
+
+def pairwise_feature_vector(
+    stock_profile: CompanyPeerProfile,
+    peer_profile: CompanyPeerProfile,
+    text_similarity: float,
+    semantic_similarity: float,
+    financial_similarity: float,
+) -> list[float]:
+    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+    same_sector = stock_profile.sector == peer_profile.sector and stock_profile.sector not in {
+        *generic_sectors,
+    }
+    same_industry = (
+        stock_profile.industry == peer_profile.industry
+        and stock_profile.industry not in {*generic_industries}
+    )
+    same_business_model = stock_profile.business_model == peer_profile.business_model
+    same_scale = (
+        stock_profile.scale_bucket != "UNKNOWN"
+        and stock_profile.scale_bucket == peer_profile.scale_bucket
+    )
+    specific_sector_mismatch = (
+        stock_profile.sector not in generic_sectors
+        and peer_profile.sector not in generic_sectors
+        and stock_profile.sector != peer_profile.sector
+    )
+    specific_industry_mismatch = (
+        stock_profile.industry not in generic_industries
+        and peer_profile.industry not in generic_industries
+        and stock_profile.industry != peer_profile.industry
+    )
+    return [
+        float(text_similarity),
+        float(semantic_similarity),
+        float(financial_similarity),
+        1.0 if same_sector else 0.0,
+        1.0 if same_industry else 0.0,
+        1.0 if same_business_model else 0.0,
+        1.0 if same_scale else 0.0,
+        1.0 if specific_sector_mismatch else 0.0,
+        1.0 if specific_industry_mismatch else 0.0,
+        _log_gap(stock_profile.market_cap_usd, peer_profile.market_cap_usd),
+        _log_gap(stock_profile.revenue_usd, peer_profile.revenue_usd),
+        abs(
+            _margin_feature(stock_profile.operating_income_usd, stock_profile.revenue_usd)
+            - _margin_feature(peer_profile.operating_income_usd, peer_profile.revenue_usd)
+        ),
+    ]
+
+
+def _candidate_scores(
+    stock_profile: CompanyPeerProfile,
+    eligible_us_profiles: Sequence[CompanyPeerProfile],
+    vectorizer: TfidfVectorizer,
+    eligible_us_matrix: object,
+    semantic_reducer: TruncatedSVD,
+    eligible_us_semantic_matrix: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    query_vector = vectorizer.transform([stock_profile.profile_text])
+    text_scores = cosine_similarity(query_vector, eligible_us_matrix)[0]
+    query_semantic = normalize(semantic_reducer.transform(query_vector), norm="l2")
+    semantic_scores = cosine_similarity(query_semantic, eligible_us_semantic_matrix)[0]
+    financial_scores = np.array(
+        [
+            _financial_similarity(
+                stock_profile.financial_feature_vector,
+                peer_profile.financial_feature_vector,
+            )
+            for peer_profile in eligible_us_profiles
+        ],
+        dtype=float,
+    )
+    base_scores = (0.45 * text_scores) + (0.25 * semantic_scores) + (0.30 * financial_scores)
+    return text_scores, semantic_scores, financial_scores, base_scores
+
+
+def _financial_similarity(stock_vector: Sequence[float], peer_vector: Sequence[float]) -> float:
+    if not has_financial_signal(stock_vector) or not has_financial_signal(peer_vector):
+        return 0.0
+    stock_array = np.array(stock_vector, dtype=float).reshape(1, -1)
+    peer_array = np.array(peer_vector, dtype=float).reshape(1, -1)
+    score = float(cosine_similarity(stock_array, peer_array)[0][0])
+    return max(0.0, min(1.0, (score + 1.0) / 2.0))
+
+
+def _semantic_component_count(sample_count: int, feature_count: int) -> int:
+    return max(2, min(256, sample_count - 1, feature_count - 1))
+
+
+def _log_gap(left: float | None, right: float | None) -> float:
+    left_value = _log_feature(left)
+    right_value = _log_feature(right)
+    if left_value == 0.0 or right_value == 0.0:
+        return 1.0
+    return abs(left_value - right_value)
 
 
 def build_korea_profile(
@@ -1078,6 +1413,7 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
                 "의료",
                 "약품",
                 "의약",
+                "유한양행",
                 "헬스",
                 "메디",
                 "진단",
@@ -1142,11 +1478,11 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
             ),
             "financials",
         ),
-        (("motor", "auto", "vehicle", "자동차", "모터스"), "automotive"),
+        (("motor", "auto", "vehicle", "자동차", "모터스", "기아"), "automotive"),
         (("tire", "mobility", "타이어", "모빌리티", "오토"), "automotive"),
         (("motion", "모션", "부품"), "automotive"),
         (("battery", "energy solution", "sdi", "배터리", "에너지솔루션", "전지"), "battery"),
-        (("electric", "electrical", "전기"), "electrical equipment"),
+        (("electric", "electrical", "전기", "전선"), "electrical equipment"),
         (
             (
                 "energy",
@@ -1221,6 +1557,7 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
                 "산업",
                 "자동화",
                 "설비",
+                "두산",
             ),
             "industrial machinery",
         ),
@@ -1237,6 +1574,8 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
                 "음료",
                 "주류",
                 "맥주",
+                "진로",
+                "하이트",
                 "농심",
                 "오뚜기",
                 "유업",
@@ -1302,6 +1641,9 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
                 "운송",
                 "해운",
                 "택배",
+                "통운",
+                "고속",
+                "상선",
             ),
             "logistics",
         ),

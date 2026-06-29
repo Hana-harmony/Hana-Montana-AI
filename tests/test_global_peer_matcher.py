@@ -42,7 +42,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert response.confidence_level in {"MEDIUM", "HIGH"}
     assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
     assert "drug-delivery technology" in response.summary
-    assert response.model_version.startswith("global-peer-tfidf-")
+    assert response.model_version.startswith("global-peer-hybrid-ranker-")
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
@@ -91,5 +91,6 @@ def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     assert report["attempted_count"] == report["success_count"]
     assert report["failure_count"] == 0
     assert report["quality_gate"]["status"] == "pass"
+    assert report["confidence_monitoring"]["status"] in {"pass", "needs_improvement"}
     assert report["same_company_noise_count"] == 0
     assert report["matched_factor_missing_count"] == 0

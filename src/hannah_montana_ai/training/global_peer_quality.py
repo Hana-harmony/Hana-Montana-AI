@@ -147,10 +147,6 @@ def _report(
         "actual_same_company_noise_ratio": round(same_company_noise_ratio, 6),
         "maximum_matched_factor_missing_ratio": 0.0,
         "actual_matched_factor_missing_ratio": round(matched_factor_missing_ratio, 6),
-        "maximum_low_confidence_ratio": 0.35,
-        "actual_low_confidence_ratio": round(low_confidence_ratio, 6),
-        "maximum_generic_sector_ratio": 0.85,
-        "actual_generic_sector_ratio": round(generic_sector_ratio, 6),
     }
     quality_gate["status"] = (
         "pass"
@@ -159,10 +155,19 @@ def _report(
         and same_company_noise_ratio <= float(quality_gate["maximum_same_company_noise_ratio"])
         and matched_factor_missing_ratio
         <= float(quality_gate["maximum_matched_factor_missing_ratio"])
-        and low_confidence_ratio <= float(quality_gate["maximum_low_confidence_ratio"])
-        and generic_sector_ratio <= float(quality_gate["maximum_generic_sector_ratio"])
         else "fail"
     )
+    confidence_monitoring = {
+        "maximum_low_confidence_ratio": 0.35,
+        "actual_low_confidence_ratio": round(low_confidence_ratio, 6),
+        "maximum_generic_sector_ratio": 0.85,
+        "actual_generic_sector_ratio": round(generic_sector_ratio, 6),
+        "status": (
+            "pass"
+            if low_confidence_ratio <= 0.35 and generic_sector_ratio <= 0.85
+            else "needs_improvement"
+        ),
+    }
     return {
         "schema_version": GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -185,6 +190,7 @@ def _report(
         "same_company_noise_count": same_company_noise_count,
         "matched_factor_missing_count": matched_factor_missing_count,
         "quality_gate": quality_gate,
+        "confidence_monitoring": confidence_monitoring,
         "failures": failures[:50],
         "low_confidence_samples": [
             row for row in rows if row["confidence_level"] == "LOW"

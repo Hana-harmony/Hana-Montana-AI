@@ -17,9 +17,11 @@ from hannah_montana_ai.services.model import (
     ModelArtifactNotFoundError,
 )
 from hannah_montana_ai.training.global_peer_trainer import (
+    GENERIC_LISTED_INDUSTRY,
     GENERIC_LISTED_SECTOR,
     GLOBAL_PEER_SCHEMA_VERSION,
     KOREA_ANCHORS,
+    PAIRWISE_FEATURE_NAMES,
     build_korea_profile,
     has_financial_signal,
     infer_business_model,
@@ -47,7 +49,11 @@ class GlobalPeerMatcher:
         self.version = str(payload["version"])
         self._vectorizer = payload["vectorizer"]
         self._eligible_us_matrix = payload["eligible_us_matrix"]
+        self._semantic_reducer = payload["semantic_reducer"]
+        self._eligible_us_semantic_matrix = np.array(payload["eligible_us_semantic_matrix"])
         self._eligible_us_financial_matrix = payload.get("eligible_us_financial_matrix")
+        self._pairwise_ranker = payload["pairwise_ranker"]
+        self._pairwise_feature_names = tuple(payload["pairwise_feature_names"])
         self._eligible_us_profiles = list(payload["eligible_us_profiles"])
         self._korea_profiles = dict(payload["korea_profiles"])
 
@@ -55,19 +61,18 @@ class GlobalPeerMatcher:
         stock_profile = self._stock_profile(request)
         query_vector = self._vectorizer.transform([str(stock_profile["profile_text"])])
         text_similarities = cosine_similarity(query_vector, self._eligible_us_matrix)[0]
+        semantic_similarities = self._semantic_similarities(query_vector)
         financial_similarities = self._financial_similarities(stock_profile)
         similarities = self._combined_similarities(
             stock_profile,
             text_similarities,
+            semantic_similarities,
             financial_similarities,
         )
         ranked_indices = similarities.argsort()[::-1]
 
-        preferred_ticker = KOREA_ANCHORS.get(request.stock_code)
         selected_indices = self._selected_indices(
             ranked_indices=[int(index) for index in ranked_indices],
-            preferred_ticker=preferred_ticker.preferred_peer_ticker if preferred_ticker else "",
-            similarities=similarities,
             limit=max(1, request.peer_count),
         )
         peers = [
@@ -96,7 +101,7 @@ class GlobalPeerMatcher:
             confidence_score=round(confidence_score, 4),
             confidence_level=self._confidence_level(confidence_score),
             model_version=self.version,
-            source="HANNAH_GLOBAL_PEER_TFIDF+FUNDAMENTALS",
+            source="HANNAH_GLOBAL_PEER_HYBRID_RANKER",
         )
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:
@@ -157,13 +162,43 @@ class GlobalPeerMatcher:
         raw_scores = cosine_similarity(query.reshape(1, -1), candidate_matrix)[0]
         return np.array([max(0.0, min(1.0, (float(score) + 1.0) / 2.0)) for score in raw_scores])
 
+    def _semantic_similarities(self, query_vector: object) -> np.ndarray:
+        query_semantic = self._semantic_reducer.transform(query_vector)
+        norm = np.linalg.norm(query_semantic)
+        if norm > 0:
+            query_semantic = query_semantic / norm
+        return np.asarray(
+            cosine_similarity(query_semantic, self._eligible_us_semantic_matrix)[0],
+            dtype=float,
+        )
+
     def _combined_similarities(
         self,
         stock_profile: dict[str, object],
         text_similarities: np.ndarray,
+        semantic_similarities: np.ndarray,
         financial_similarities: np.ndarray,
     ) -> np.ndarray:
-        combined = text_similarities.copy()
+        base_scores = (
+            (0.45 * text_similarities)
+            + (0.25 * semantic_similarities)
+            + (0.30 * financial_similarities)
+        )
+        feature_rows = np.array(
+            [
+                self._pairwise_feature_vector(
+                    stock_profile,
+                    self._eligible_us_profiles[index],
+                    text_similarities[index],
+                    semantic_similarities[index],
+                    financial_similarities[index],
+                )
+                for index in range(len(self._eligible_us_profiles))
+            ],
+            dtype=float,
+        )
+        ranker_scores = self._pairwise_ranker.predict_proba(feature_rows)[:, 1]
+        combined = (0.60 * ranker_scores) + (0.40 * base_scores)
         for index, financial_score in enumerate(financial_similarities):
             candidate_vector = self._eligible_us_profiles[index].get("financial_feature_vector", [])
             if (
@@ -171,20 +206,15 @@ class GlobalPeerMatcher:
                 and isinstance(candidate_vector, list)
                 and has_financial_signal(candidate_vector)
             ):
-                combined[index] = (0.70 * text_similarities[index]) + (0.30 * financial_score)
-            combined[index] *= self._sector_penalty(
-                stock_profile,
-                self._eligible_us_profiles[index],
-            )
-            combined[index] *= self._industry_penalty(
-                stock_profile,
-                self._eligible_us_profiles[index],
-            )
+                combined[index] = max(
+                    combined[index],
+                    (0.15 * base_scores[index]) + (0.05 * financial_score),
+                )
             combined[index] *= self._same_company_penalty(
                 stock_profile,
                 self._eligible_us_profiles[index],
             )
-        return combined
+        return np.asarray(combined, dtype=float)
 
     @staticmethod
     def _sector_penalty(
@@ -214,6 +244,69 @@ class GlobalPeerMatcher:
             return 0.85
         return 1.0
 
+    def _pairwise_feature_vector(
+        self,
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+        text_similarity: float,
+        semantic_similarity: float,
+        financial_similarity: float,
+    ) -> list[float]:
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        peer_sector = str(peer_profile.get("sector") or "Unclassified")
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        stock_model = str(stock_profile.get("business_model") or "Operating company")
+        peer_model = str(peer_profile.get("business_model") or "Operating company")
+        stock_scale = str(stock_profile.get("scale_bucket") or "UNKNOWN")
+        peer_scale = str(peer_profile.get("scale_bucket") or "UNKNOWN")
+        same_sector = stock_sector == peer_sector and stock_sector not in generic_sectors
+        same_industry = stock_industry == peer_industry and stock_industry not in generic_industries
+        specific_sector_mismatch = (
+            stock_sector not in generic_sectors
+            and peer_sector not in generic_sectors
+            and stock_sector != peer_sector
+        )
+        specific_industry_mismatch = (
+            stock_industry not in generic_industries
+            and peer_industry not in generic_industries
+            and stock_industry != peer_industry
+        )
+        values = [
+            float(text_similarity),
+            float(semantic_similarity),
+            float(financial_similarity),
+            1.0 if same_sector else 0.0,
+            1.0 if same_industry else 0.0,
+            1.0 if stock_model == peer_model else 0.0,
+            1.0 if stock_scale != "UNKNOWN" and stock_scale == peer_scale else 0.0,
+            1.0 if specific_sector_mismatch else 0.0,
+            1.0 if specific_industry_mismatch else 0.0,
+            self._log_gap(
+                stock_profile.get("market_cap_usd"),
+                peer_profile.get("market_cap_usd"),
+            ),
+            self._log_gap(
+                stock_profile.get("revenue_usd"),
+                peer_profile.get("revenue_usd"),
+            ),
+            abs(
+                self._margin_feature(
+                    stock_profile.get("operating_income_usd"),
+                    stock_profile.get("revenue_usd"),
+                )
+                - self._margin_feature(
+                    peer_profile.get("operating_income_usd"),
+                    peer_profile.get("revenue_usd"),
+                )
+            ),
+        ]
+        if len(values) != len(self._pairwise_feature_names):
+            raise ModelArtifactInvalidError("Global peer pairwise feature count mismatch")
+        return values
+
     @staticmethod
     def _same_company_penalty(
         stock_profile: dict[str, object],
@@ -239,22 +332,15 @@ class GlobalPeerMatcher:
     def _selected_indices(
         self,
         ranked_indices: list[int],
-        preferred_ticker: str,
-        similarities: Any,
         limit: int,
     ) -> list[int]:
         selected: list[int] = []
-        if preferred_ticker:
-            for index, profile in enumerate(self._eligible_us_profiles):
-                if str(profile["identifier"]) == preferred_ticker:
-                    selected.append(index)
-                    break
         for index in ranked_indices:
             if index not in selected:
                 selected.append(index)
             if len(selected) >= limit:
                 break
-        return sorted(selected, key=lambda index: float(similarities[index]), reverse=True)[:limit]
+        return selected[:limit]
 
     def _to_peer_match(
         self,
@@ -394,6 +480,39 @@ class GlobalPeerMatcher:
             return int(value)
         raise TypeError("optional int field must be numeric")
 
+    @classmethod
+    def _log_gap(cls, left: object, right: object) -> float:
+        left_value = cls._log_feature(left)
+        right_value = cls._log_feature(right)
+        if left_value == 0.0 or right_value == 0.0:
+            return 1.0
+        return abs(left_value - right_value)
+
+    @staticmethod
+    def _log_feature(value: object) -> float:
+        if value is None or value == "":
+            return 0.0
+        if isinstance(value, int | float | str):
+            number = float(value)
+            if number <= 0:
+                return 0.0
+            return float(np.log10(number))
+        return 0.0
+
+    @staticmethod
+    def _margin_feature(numerator: object, denominator: object) -> float:
+        if numerator is None or denominator is None or numerator == "" or denominator == "":
+            return 0.0
+        if not isinstance(numerator, int | float | str) or not isinstance(
+            denominator,
+            int | float | str,
+        ):
+            return 0.0
+        denominator_float = float(denominator)
+        if denominator_float <= 0:
+            return 0.0
+        return max(-1.0, min(1.0, float(numerator) / denominator_float))
+
     def _headline(self, request: GlobalPeerMatchRequest, primary_peer: GlobalPeerMatch) -> str:
         anchor = KOREA_ANCHORS.get(request.stock_code)
         if anchor and anchor.headline_template:
@@ -433,6 +552,10 @@ class GlobalPeerMatcher:
             "version",
             "vectorizer",
             "eligible_us_matrix",
+            "semantic_reducer",
+            "eligible_us_semantic_matrix",
+            "pairwise_ranker",
+            "pairwise_feature_names",
             "eligible_us_profiles",
             "korea_profiles",
         }
@@ -446,3 +569,5 @@ class GlobalPeerMatcher:
             raise ModelArtifactInvalidError(
                 f"Unsupported global peer schema version: {payload['schema_version']}"
             )
+        if tuple(payload["pairwise_feature_names"]) != PAIRWISE_FEATURE_NAMES:
+            raise ModelArtifactInvalidError("Unsupported global peer pairwise feature schema")

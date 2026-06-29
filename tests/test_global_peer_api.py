@@ -23,4 +23,4 @@ def test_global_peer_match_api_returns_alteogen_halozyme_popup_copy() -> None:
     data = payload["data"]
     assert data["primary_peer"]["ticker"] == "HALO"
     assert data["headline"].startswith("Alteogen Is The 'Halozyme Therapeutics'")
-    assert data["source"] == "HANNAH_GLOBAL_PEER_TFIDF+FUNDAMENTALS"
+    assert data["source"] == "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
