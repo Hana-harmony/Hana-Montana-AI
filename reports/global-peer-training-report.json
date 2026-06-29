@@ -1,0 +1,52 @@
+{
+  "schema_version": "global-peer-matcher/v1",
+  "version": "global-peer-tfidf-20260629154419",
+  "trained_at": "2026-06-29T15:44:19.266948+00:00",
+  "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "us_stock_universe_path": "data/reference/us_stock_universe.csv",
+  "model_path": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
+  "korea_universe_count": 3967,
+  "us_universe_count": 12916,
+  "eligible_us_peer_count": 5662,
+  "tag_distribution": {
+    "aerospace": 75,
+    "automotive": 85,
+    "biotech": 698,
+    "biotech platform": 2,
+    "chemicals": 36,
+    "drug delivery": 2,
+    "energy": 415,
+    "financials": 451,
+    "gaming": 23,
+    "general listed company": 14741,
+    "materials": 84,
+    "retail": 26,
+    "royalty licensing": 2,
+    "semiconductors": 107,
+    "shipbuilding": 67,
+    "software platform": 65,
+    "telecommunications": 35
+  },
+  "anchor_evaluation": {
+    "sample_count": 1,
+    "top1_accuracy": 1.0,
+    "rows": [
+      {
+        "stock_code": "196170",
+        "expected_peer_ticker": "HALO",
+        "predicted_peer_ticker": "HALO",
+        "score": 0.495025,
+        "hit": true
+      }
+    ]
+  },
+  "coverage_gate": {
+    "minimum_korea_universe_count": 3000,
+    "actual_korea_universe_count": 3967,
+    "minimum_us_universe_count": 5000,
+    "actual_us_universe_count": 12916,
+    "minimum_anchor_top1_accuracy": 1.0,
+    "actual_anchor_top1_accuracy": 1.0,
+    "status": "pass"
+  }
+}

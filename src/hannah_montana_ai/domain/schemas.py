@@ -35,6 +35,46 @@ class StockCandidate(BaseModel):
     aliases: list[str] = Field(default_factory=list, max_length=20)
 
 
+class GlobalPeerMatchRequest(BaseModel):
+    stock_code: str = Field(pattern=r"^\d{6}$")
+    stock_name: str = Field(min_length=1, max_length=80)
+    stock_name_en: str = Field(default="", max_length=120)
+    market: MarketType = "KOSPI"
+    aliases: list[str] = Field(default_factory=list, max_length=20)
+    description: str = Field(default="", max_length=2000)
+    peer_count: int = Field(default=5, ge=1, le=10)
+
+
+class GlobalPeerMatch(BaseModel):
+    rank: int = Field(ge=1)
+    ticker: str = Field(min_length=1, max_length=20)
+    company_name: str = Field(min_length=1, max_length=160)
+    exchange: str = Field(min_length=1, max_length=40)
+    country: str = Field(min_length=2, max_length=2)
+    similarity_score: float = Field(ge=0.0, le=1.0)
+    business_tags: list[str] = Field(default_factory=list, max_length=12)
+    sector: str = Field(default="Unclassified", max_length=80)
+    industry: str = Field(default="Unclassified", max_length=120)
+    business_model: str = Field(default="Operating company", max_length=160)
+    scale_bucket: str = Field(default="UNKNOWN", max_length=40)
+    matched_factors: list[str] = Field(default_factory=list, max_length=12)
+    rationale: str = Field(min_length=1, max_length=800)
+
+
+class GlobalPeerMatchResponse(BaseModel):
+    stock_code: str
+    stock_name: str
+    stock_name_en: str
+    headline: str = Field(min_length=1, max_length=300)
+    summary: str = Field(min_length=1, max_length=1200)
+    primary_peer: GlobalPeerMatch
+    peers: list[GlobalPeerMatch] = Field(min_length=1, max_length=10)
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    confidence_level: Literal["LOW", "MEDIUM", "HIGH"]
+    model_version: str
+    source: str
+
+
 class AlertAnalysisRequest(BaseModel):
     source_type: SourceType
     title: str = Field(min_length=1, max_length=300)

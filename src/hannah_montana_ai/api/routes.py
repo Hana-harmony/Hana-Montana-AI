@@ -13,6 +13,8 @@ from hannah_montana_ai.domain.schemas import (
     ForeignOwnershipQuantityRetrainResponse,
     ForeignOwnershipTimeseriesPredictionRequest,
     ForeignOwnershipTimeseriesPredictionResponse,
+    GlobalPeerMatchRequest,
+    GlobalPeerMatchResponse,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
     StockOrderStatusRequest,
@@ -36,6 +38,7 @@ from hannah_montana_ai.services.foreign_ownership import (
 from hannah_montana_ai.services.foreign_ownership_model_maintenance import (
     ForeignOwnershipModelMaintenanceService,
 )
+from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.model import ModelArtifactError
 
 router = APIRouter(tags=["analysis"])
@@ -64,6 +67,11 @@ def get_foreign_ownership_prediction_service() -> ForeignOwnershipTimeseriesPred
 @lru_cache
 def get_foreign_ownership_model_maintenance_service() -> ForeignOwnershipModelMaintenanceService:
     return ForeignOwnershipModelMaintenanceService()
+
+
+@lru_cache
+def get_global_peer_matcher() -> GlobalPeerMatcher:
+    return GlobalPeerMatcher(get_settings().global_peer_model_path)
 
 
 @lru_cache
@@ -156,6 +164,21 @@ def retrain_foreign_ownership_quantity_model(
     if response.promoted:
         get_foreign_ownership_prediction_service.cache_clear()
     return success_response(response)
+
+
+@router.post(
+    "/market/global-peers/match",
+    response_model=ApiResponse[GlobalPeerMatchResponse],
+)
+def match_global_peer(request: GlobalPeerMatchRequest) -> ApiResponse[GlobalPeerMatchResponse]:
+    try:
+        matcher = get_global_peer_matcher()
+    except ModelArtifactError as exception:
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "Global peer model artifact is unavailable",
+        ) from exception
+    return success_response(matcher.match(request))
 
 
 @router.post(

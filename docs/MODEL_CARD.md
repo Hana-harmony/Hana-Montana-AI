@@ -27,6 +27,20 @@
 - 출력: 예측 외국인 보유수량 `min/base/max`, 예측 순취득수량, 이를 현재 한도수량으로 나눈 한도소진율 `min/base/max`, 관측치 수, confidence, model version.
 - 한계: 현재 모델은 전날까지의 외국인 보유수량만 사용한다. 보유수량은 종목별 수급 이벤트와 리밸런싱에 영향을 받으므로, 더 높은 정확도를 위해서는 향후 가격/거래대금/시장 전체 외국인 순매수 같은 추가 feature가 필요하다.
 
+## 글로벌 피어 종목 매칭 모델
+- 모델 버전 prefix: `global-peer-tfidf`
+- 목적: 외국인 투자자가 낯선 한국 상장사를 볼 때 익숙한 미국 상장 peer와 함께 이해할 수 있도록 headline, 설명, primary peer, 후보 peer 목록을 생성한다.
+- 입력: 한국 종목코드, 한글명, 영문명, 시장구분, alias, 선택 설명문.
+- 학습 universe: `data/reference/korea_stock_universe.csv`의 한국 종목 3,967개와 `data/reference/us_stock_universe.csv`의 미국 listed symbol 12,916개를 함께 학습한다. 미국 universe는 NASDAQ Trader symbol directory의 `nasdaqlisted.txt`, `otherlisted.txt`를 정규화해 생성한다.
+- 모델 구조: 한국·미국 종목명, 시장, 거래소, business keyword, 섹터, 산업, 사업모델, 규모 버킷, anchor profile을 하나의 cross-market profile corpus로 만들고 TF-IDF ngram vectorizer와 cosine similarity 기반 nearest peer retrieval artifact를 저장한다.
+- eligible peer: 미국 universe 전체를 학습 corpus에 포함하되, ETF/ETN/fund/right/unit/warrant/preferred/note/test issue는 company peer 후보에서 제외한다.
+- anchor 평가: 알테오젠 `196170`은 `HALO` Halozyme Therapeutics top1 매칭을 release gate로 고정한다. 최신 report의 anchor top1 accuracy는 1.0이다.
+- 출력: `"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader"` 같은 팝업 headline, business summary, peer rationale, 섹터, 산업, 사업모델, 규모 버킷, 매칭 근거 배열, confidence, model version.
+- 설명 가능성: `matched_factors`는 섹터, 산업, 사업모델, 규모, 모델 유사도 기준으로 생성한다. 검증된 anchor는 기술·수익모델 같은 세부 근거를 함께 제공한다.
+- 규모 한계: 현재 전체 한국·미국 universe 원천에는 일괄 시가총액이 없으므로 확인된 anchor/보강 데이터가 없는 종목은 규모 버킷을 `UNKNOWN`으로 둔다. 규모가 없는 경우 모델은 이름·시장·거래소·사업 키워드·섹터·산업·사업모델 중심으로 매칭한다.
+- 산출물: `src/hannah_montana_ai/model_store/global_peer_ml.joblib`, `reports/global-peer-training-report.json`, `data/reference/us_stock_universe.csv`
+- 재학습: `uv run python scripts/sync_us_stock_universe.py`로 미국 universe를 갱신하고 `uv run python scripts/train_global_peer_model.py`로 artifact와 report를 재생성한다.
+
 ## 입력
 - source type: `NEWS` 또는 `DISCLOSURE`
 - 제목

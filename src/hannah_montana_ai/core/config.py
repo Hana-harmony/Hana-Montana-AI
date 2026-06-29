@@ -9,6 +9,9 @@ class Settings(BaseModel):
     model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
     stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
     stock_linker_model_path: Path = Path("src/hannah_montana_ai/model_store/stock_linker_ml.joblib")
+    global_peer_model_path: Path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
+    us_stock_universe_path: Path = Path("data/reference/us_stock_universe.csv")
+    global_peer_training_report_path: Path = Path("reports/global-peer-training-report.json")
     foreign_ownership_quantity_model_path: Path = Path(
         "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib"
     )

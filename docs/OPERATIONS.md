@@ -33,6 +33,18 @@ docker run --rm --network hana-internal hannah-montana-ai
 - `data/training/foreign_ownership_quantity_history.csv`는 제한 32종목 history만 포함한다. 비제한 종목 KRX 외국인 보유 history는 학습/promotion 대상이 아니므로 CSV에 보존하지 않는다.
 - SOTA/benchmark 비교는 제한 종목 universe로 재학습한 report를 기준으로 `uv run python scripts/benchmark_foreign_ownership_quantity_models.py`로 실행한다. N-HiTS/PatchTST 진단까지 실행하려면 `uv pip install -e '.[sota]'` 후 `--include-neural-sota`를 붙인다.
 
+## 글로벌 피어 종목 매칭
+- `POST /api/v1/market/global-peers/match`는 OmniLens가 넘긴 한국 종목 metadata를 입력으로 받아 미국 상장 peer 후보를 반환한다.
+- 응답은 외국인 투자자용 영어 headline, summary, primary peer, 후보 peer 목록, confidence, model version을 포함한다.
+- 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
+- 현재 운영 artifact는 한국 종목 3,967개와 미국 symbol 12,916개를 학습한 `src/hannah_montana_ai/model_store/global_peer_ml.joblib`다.
+- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다.
+```bash
+uv run python scripts/sync_us_stock_universe.py
+uv run python scripts/train_global_peer_model.py
+uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
+```
+
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
 - 로그에는 `model_version`, `latency_ms`, 예측 이벤트·감성·중요도, 종목코드, 결과 상태를 기록한다.
