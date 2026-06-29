@@ -160,6 +160,13 @@ class ForeignOwnershipTimeseriesPredictionRequest(BaseModel):
 
 class ForeignOwnershipTimeseriesPredictionResponse(BaseModel):
     stock_code: str
+    predicted_foreign_owned_quantity: int = Field(ge=0)
+    min_foreign_owned_quantity: int = Field(ge=0)
+    max_foreign_owned_quantity: int = Field(ge=0)
+    predicted_foreign_net_acquired_quantity: int
+    predicted_foreign_limit_quantity: int = Field(gt=0)
+    min_foreign_limit_quantity: int = Field(gt=0)
+    max_foreign_limit_quantity: int = Field(gt=0)
     min_foreign_limit_exhaustion_rate: float
     base_foreign_limit_exhaustion_rate: float
     max_foreign_limit_exhaustion_rate: float
@@ -175,6 +182,41 @@ class ForeignOwnershipTimeseriesPredictionResponse(BaseModel):
     confidence_score: float = Field(ge=0.0, le=1.0)
     model_version: str
     source: str
+
+
+class ForeignOwnershipQuantityTrainingPoint(BaseModel):
+    stock_code: str = Field(pattern=r"^\d{6}$")
+    base_date: date
+    foreign_owned_quantity: int = Field(ge=0)
+    foreign_limit_quantity: int = Field(ge=0)
+
+
+class ForeignOwnershipQuantityRetrainRequest(BaseModel):
+    history: list[ForeignOwnershipQuantityTrainingPoint] = Field(min_length=120)
+    restricted_stock_codes: list[str] = Field(min_length=1)
+    minimum_promotable_stock_count: int = Field(default=29, ge=1)
+    minimum_promotable_history_days: int = Field(default=2500, ge=1)
+    minimum_promotable_observations: int = Field(default=50_000, ge=1)
+    max_model_training_samples: int = Field(default=250_000, ge=120)
+
+
+class ForeignOwnershipQuantityRetrainResponse(BaseModel):
+    promoted: bool
+    release_status: str
+    model_reloaded: bool
+    observation_count: int
+    stock_count: int
+    sample_count: int
+    train_date_min: date
+    train_date_max: date
+    selected_model: str
+    baseline_metrics: dict[str, float]
+    guarded_runtime_metrics: dict[str, float]
+    guarded_improvement_over_baseline: dict[str, float]
+    quality_gates: dict[str, object]
+    model_path: str
+    report_path: str
+    candidate_report_path: str | None = None
 
 
 class IntelligenceEventRequest(AlertAnalysisRequest):

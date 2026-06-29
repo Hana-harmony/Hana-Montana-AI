@@ -81,6 +81,13 @@ EXPECTED_FOREIGN_OWNERSHIP_HISTORY_FIELDS = {
 
 EXPECTED_FOREIGN_OWNERSHIP_RESPONSE_FIELDS = {
     "stock_code",
+    "predicted_foreign_owned_quantity",
+    "min_foreign_owned_quantity",
+    "max_foreign_owned_quantity",
+    "predicted_foreign_net_acquired_quantity",
+    "predicted_foreign_limit_quantity",
+    "min_foreign_limit_quantity",
+    "max_foreign_limit_quantity",
     "min_foreign_limit_exhaustion_rate",
     "base_foreign_limit_exhaustion_rate",
     "max_foreign_limit_exhaustion_rate",

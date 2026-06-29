@@ -1,64 +1,81 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from pathlib import Path
 
+from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     ForeignOwnershipHistoryPoint,
     ForeignOwnershipTimeseriesPredictionRequest,
     ForeignOwnershipTimeseriesPredictionResponse,
 )
+from hannah_montana_ai.services.foreign_ownership_quantity_model import (
+    ForeignOwnershipQuantityModel,
+    ForeignOwnershipQuantityModelUnavailableError,
+    ForeignOwnershipQuantityPoint,
+    ForeignOwnershipQuantityPrediction,
+)
 
-MODEL_VERSION = "hannah-foreign-ownership-timeseries-v1"
-SNAPSHOT_ONLY_UNCERTAINTY_RATE = 0.05
-MAX_INTRADAY_UNCERTAINTY_RATE = 0.5
-MAX_HISTORY_UNCERTAINTY_RATE = 1.5
-INTRADAY_VOLUME_WEIGHT = 0.05
+FALLBACK_MODEL_VERSION = "hannah-foreign-owned-quantity-persistence-v1"
+FALLBACK_UNCERTAINTY_RATE = 0.0005
 
 
 class ForeignOwnershipTimeseriesPredictionService:
+    def __init__(
+        self,
+        model_path: Path | None = None,
+        model: ForeignOwnershipQuantityModel | None = None,
+    ) -> None:
+        self._model = model
+        if self._model is None:
+            resolved_model_path = model_path or get_settings().foreign_ownership_quantity_model_path
+            try:
+                self._model = ForeignOwnershipQuantityModel(resolved_model_path)
+            except ForeignOwnershipQuantityModelUnavailableError:
+                self._model = None
+
     def predict(
         self,
         request: ForeignOwnershipTimeseriesPredictionRequest,
     ) -> ForeignOwnershipTimeseriesPredictionResponse:
         history = _sorted_history(request.history)
-        trend = _trend_stats(history)
-        order_impact_rate = _order_impact_rate(
-            request.side,
-            request.quantity,
+        model_history = _model_history(request, history)
+        prediction = _predict_owned_quantity(request, model_history, self._model)
+        trend = _owned_quantity_trend_stats(model_history)
+        min_rate = _limit_exhaustion_rate(prediction.lower_quantity, request.foreign_limit_quantity)
+        base_rate = _limit_exhaustion_rate(
+            prediction.predicted_quantity,
             request.foreign_limit_quantity,
         )
-        base_rate = _round_rate(
-            request.foreign_limit_exhaustion_rate + order_impact_rate + trend.daily_change_rate
-        )
-        intraday_uncertainty_rate = max(
-            _intraday_uncertainty_rate(
-                request.foreign_limit_quantity,
-                request.observed_intraday_volume,
-            ),
-            trend.uncertainty_rate,
-        )
-        min_rate = _round_rate(max(0.0, base_rate - intraday_uncertainty_rate))
-        max_rate = _round_rate(base_rate + intraday_uncertainty_rate)
-        confidence = _confidence(request.observed_intraday_volume, trend.observation_count)
+        max_rate = _limit_exhaustion_rate(prediction.upper_quantity, request.foreign_limit_quantity)
 
         return ForeignOwnershipTimeseriesPredictionResponse(
             stock_code=request.stock_code,
+            predicted_foreign_owned_quantity=prediction.predicted_quantity,
+            min_foreign_owned_quantity=prediction.lower_quantity,
+            max_foreign_owned_quantity=prediction.upper_quantity,
+            predicted_foreign_net_acquired_quantity=(
+                prediction.predicted_quantity - request.foreign_owned_quantity
+            ),
+            predicted_foreign_limit_quantity=request.foreign_limit_quantity,
+            min_foreign_limit_quantity=request.foreign_limit_quantity,
+            max_foreign_limit_quantity=request.foreign_limit_quantity,
             min_foreign_limit_exhaustion_rate=min_rate,
             base_foreign_limit_exhaustion_rate=base_rate,
             max_foreign_limit_exhaustion_rate=max_rate,
-            order_impact_rate=order_impact_rate,
-            intraday_uncertainty_rate=_round_rate(intraday_uncertainty_rate),
-            observed_intraday_volume=request.observed_intraday_volume,
+            order_impact_rate=0.0,
+            intraday_uncertainty_rate=0.0,
+            observed_intraday_volume=0,
             trend_daily_change_rate=trend.daily_change_rate,
             history_observation_count=trend.observation_count,
             history_window_days=trend.window_days,
             base_date=request.base_date,
             calculated_at=datetime.now(UTC),
-            confidence_level=confidence.level,
-            confidence_score=confidence.score,
-            model_version=MODEL_VERSION,
-            source=_source(request.observed_intraday_volume, trend.observation_count),
+            confidence_level=prediction.confidence_level,
+            confidence_score=prediction.confidence_score,
+            model_version=prediction.model_version,
+            source=prediction.source,
         )
 
 
@@ -76,13 +93,67 @@ class _Confidence:
     score: float
 
 
+def _model_history(
+    request: ForeignOwnershipTimeseriesPredictionRequest,
+    history: list[ForeignOwnershipHistoryPoint],
+) -> list[ForeignOwnershipQuantityPoint]:
+    points = [
+        ForeignOwnershipQuantityPoint(
+            stock_code=request.stock_code,
+            base_date=point.base_date,
+            foreign_owned_quantity=point.foreign_owned_quantity,
+            foreign_limit_quantity=point.foreign_limit_quantity,
+        )
+        for point in history
+        if point.foreign_owned_quantity > 0
+    ]
+    if not points or points[-1].base_date != request.base_date:
+        points.append(
+            ForeignOwnershipQuantityPoint(
+                stock_code=request.stock_code,
+                base_date=request.base_date,
+                foreign_owned_quantity=request.foreign_owned_quantity,
+                foreign_limit_quantity=request.foreign_limit_quantity,
+            )
+        )
+    deduped: dict[date, ForeignOwnershipQuantityPoint] = {}
+    for point in points:
+        deduped[point.base_date] = point
+    return sorted(deduped.values(), key=lambda point: point.base_date)
+
+
+def _predict_owned_quantity(
+    request: ForeignOwnershipTimeseriesPredictionRequest,
+    history: list[ForeignOwnershipQuantityPoint],
+    model: ForeignOwnershipQuantityModel | None,
+) -> ForeignOwnershipQuantityPrediction:
+    if model is not None:
+        try:
+            return model.predict(request.stock_code, history)
+        except ForeignOwnershipQuantityModelUnavailableError:
+            pass
+    latest_quantity = (
+        history[-1].foreign_owned_quantity if history else request.foreign_owned_quantity
+    )
+    band = max(1, round(latest_quantity * FALLBACK_UNCERTAINTY_RATE))
+    return ForeignOwnershipQuantityPrediction(
+        predicted_quantity=latest_quantity,
+        lower_quantity=max(0, latest_quantity - band),
+        upper_quantity=latest_quantity + band,
+        model_version=FALLBACK_MODEL_VERSION,
+        confidence_level="AI_FOREIGN_OWNED_QUANTITY_PERSISTENCE_BASELINE",
+        confidence_score=0.58 if len(history) >= 5 else 0.42,
+        source="HANNAH_MONTANA_AI_FOREIGN_OWNED_QUANTITY_BASELINE",
+    )
+
+
 def _sorted_history(
     history: list[ForeignOwnershipHistoryPoint],
 ) -> list[ForeignOwnershipHistoryPoint]:
     return sorted(history, key=lambda point: point.base_date)
 
 
-def _trend_stats(history: list[ForeignOwnershipHistoryPoint]) -> _TrendStats:
+def _owned_quantity_trend_stats(history: list[ForeignOwnershipQuantityPoint]) -> _TrendStats:
     if len(history) < 2:
         return _TrendStats(0.0, 0.0, len(history), 0)
 
@@ -90,72 +161,23 @@ def _trend_stats(history: list[ForeignOwnershipHistoryPoint]) -> _TrendStats:
     last = history[-1]
     window_days = max(1, (last.base_date - first.base_date).days)
     daily_change_rate = _round_rate(
-        (last.foreign_limit_exhaustion_rate - first.foreign_limit_exhaustion_rate) / window_days
-    )
-    uncertainty_rate = min(
-        MAX_HISTORY_UNCERTAINTY_RATE,
-        _average_absolute_daily_change(history),
+        (last.foreign_owned_quantity - first.foreign_owned_quantity)
+        / max(1, first.foreign_owned_quantity)
+        * 100
+        / window_days
     )
     return _TrendStats(
         daily_change_rate=daily_change_rate,
-        uncertainty_rate=_round_rate(uncertainty_rate),
+        uncertainty_rate=0.0,
         observation_count=len(history),
         window_days=window_days,
     )
 
 
-def _average_absolute_daily_change(history: list[ForeignOwnershipHistoryPoint]) -> float:
-    total = 0.0
-    intervals = 0
-    for previous, current in zip(history, history[1:], strict=False):
-        days = max(1, (current.base_date - previous.base_date).days)
-        daily_change = (
-            current.foreign_limit_exhaustion_rate
-            - previous.foreign_limit_exhaustion_rate
-        )
-        total += abs(daily_change) / days
-        intervals += 1
-    return 0.0 if intervals == 0 else total / intervals
-
-
-def _order_impact_rate(side: str, quantity: int, foreign_limit_quantity: int) -> float:
-    if side != "BUY" or quantity <= 0 or foreign_limit_quantity <= 0:
-        return 0.0
-    return _round_rate(quantity * 100 / foreign_limit_quantity)
-
-
-def _intraday_uncertainty_rate(
-    foreign_limit_quantity: int,
-    observed_intraday_volume: int,
-) -> float:
+def _limit_exhaustion_rate(foreign_owned_quantity: int, foreign_limit_quantity: int) -> float:
     if foreign_limit_quantity <= 0:
         return 0.0
-    if observed_intraday_volume <= 0:
-        return SNAPSHOT_ONLY_UNCERTAINTY_RATE
-    volume_rate = observed_intraday_volume * 100 / foreign_limit_quantity * INTRADAY_VOLUME_WEIGHT
-    return min(MAX_INTRADAY_UNCERTAINTY_RATE, _round_rate(volume_rate))
-
-
-def _confidence(observed_intraday_volume: int, observation_count: int) -> _Confidence:
-    has_realtime_volume = observed_intraday_volume > 0
-    if observation_count >= 5 and has_realtime_volume:
-        return _Confidence("AI_TIME_SERIES_REALTIME_ADJUSTED", 0.88)
-    if observation_count >= 5:
-        return _Confidence("AI_TIME_SERIES_ADJUSTED", 0.8)
-    if observation_count >= 2:
-        return _Confidence("AI_LIMITED_TIME_SERIES", 0.62)
-    if has_realtime_volume:
-        return _Confidence("AI_REALTIME_VOLUME_ADJUSTED", 0.57)
-    return _Confidence("AI_SNAPSHOT_ONLY", 0.46)
-
-
-def _source(observed_intraday_volume: int, observation_count: int) -> str:
-    source = "HANNAH_MONTANA_AI_FOREIGN_OWNERSHIP"
-    if observation_count >= 2:
-        source += "+DAILY_TIMESERIES"
-    if observed_intraday_volume > 0:
-        source += "+KIS_WEBSOCKET_TRADE_VOLUME"
-    return source
+    return _round_rate(foreign_owned_quantity * 100 / foreign_limit_quantity)
 
 
 def _round_rate(value: float) -> float:

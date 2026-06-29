@@ -3,6 +3,7 @@ from enum import Enum
 
 class ErrorCode(Enum):
     INVALID_REQUEST = (400, "COMMON_001", "Invalid request")
+    UNAUTHORIZED = (401, "AUTH_001", "Unauthorized")
     VALIDATION_FAILED = (422, "COMMON_002", "Request validation failed")
     INTERNAL_SERVER_ERROR = (500, "COMMON_999", "Internal server error")
     MODEL_UNAVAILABLE = (503, "AI_001", "AI model is unavailable")

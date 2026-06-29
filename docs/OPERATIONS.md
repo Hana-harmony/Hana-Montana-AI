@@ -22,10 +22,16 @@ docker run --rm --network hana-internal hannah-montana-ai
 - `GET /health`
 
 ## 외국인 보유 시계열 예측
-- `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 일별 시계열과 KIS WebSocket 장중 누적 거래량을 입력으로 받는다.
-- 응답은 한도소진율 `min/base/max`, 주문수량 영향도, 일별 추세, 관측치 수, window, confidence, model version을 공통 envelope으로 반환한다.
+- `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 snapshot과 일별 시계열을 입력으로 받는다. 요청 수량과 장중 누적 거래량 필드는 호환용으로만 수신하며 예측식에는 반영하지 않는다.
+- 응답은 금일 외국인 취득 수량의 한도 도달 가능성을 나타내는 한도소진율 `min/base/max`, 일별 추세, 관측치 수, window, confidence, model version을 공통 envelope으로 반환한다. 호환 필드인 주문수량 영향도와 레거시 불확실성 값은 0으로 반환한다.
 - confidence는 품질 관측과 UI 표시용이며 Hannah는 주문 차단, orderable 판정, 신뢰도 기반 자동 차단 결정을 만들지 않는다.
-- OmniLens는 Hannah 장애 시 자체 deterministic 시계열 fallback을 사용하고, 확정 한도소진율이 100% 이상인 경우에만 차단한다.
+- OmniLens는 Hannah 장애 시 자체 시계열 fallback을 사용한다. 외국인 한도 예측은 프론트 사전 고지용이며 주문 차단 결정을 만들지 않는다.
+- `POST /api/v1/market/foreign-ownership/model/retrain`은 OmniLens가 export한 제한 종목 전체 외국인 보유 history를 받아 임시 artifact로 학습한다. `HANNAH_AI_MAINTENANCE_TOKEN`이 설정된 환경에서는 `X-HANNAH-AI-MAINTENANCE-TOKEN` 헤더가 일치해야 한다.
+- 재학습 결과가 `promoted`이면 `data/training/foreign_ownership_quantity_history.csv`, `data/training/foreign_ownership_restricted_stock_codes.csv`, `src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib`, `reports/foreign-ownership-quantity-training-report.json`을 원자적으로 교체하고 예측 서비스 cache를 비워 다음 요청부터 새 모델을 로드한다.
+- quality gate가 실패해 `guarded`이면 운영 model artifact는 유지하고 후보 리포트만 `reports/foreign-ownership-quantity-training-candidate-report.json`에 저장한다.
+- 학습은 외국인 취득한도 제한 종목 allowlist를 지정해 `uv run python scripts/train_foreign_ownership_quantity_model.py --restricted-stock-codes <csv>`로 실행한다. allowlist 없이 실행하면 quality gate가 `restricted_universe_not_applied`로 실패하고 `promoted`되지 않는다.
+- `data/training/foreign_ownership_quantity_history.csv`는 제한 32종목 history만 포함한다. 비제한 종목 KRX 외국인 보유 history는 학습/promotion 대상이 아니므로 CSV에 보존하지 않는다.
+- SOTA/benchmark 비교는 제한 종목 universe로 재학습한 report를 기준으로 `uv run python scripts/benchmark_foreign_ownership_quantity_models.py`로 실행한다. N-HiTS/PatchTST 진단까지 실행하려면 `uv pip install -e '.[sota]'` 후 `--include-neural-sota`를 붙인다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
