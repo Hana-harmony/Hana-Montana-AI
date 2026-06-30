@@ -29,6 +29,27 @@ class Settings(BaseModel):
     global_peer_all_results_doc_path: Path = Path(
         "docs/GLOBAL_PEER_ALL_RESULTS.md"
     )
+    global_peer_explanation_training_path: Path = Path(
+        "data/training/global_peer_explanation_sft.jsonl"
+    )
+    global_peer_explanation_readiness_report_path: Path = Path(
+        "reports/global-peer-explanation-llm-readiness.json"
+    )
+    global_peer_explanation_mode: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_EXPLANATION_MODE", "template")
+    )
+    global_peer_explanation_llm_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_ENDPOINT", "")
+    )
+    global_peer_explanation_llm_model: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
+    )
+    global_peer_explanation_llm_timeout_seconds: float = Field(
+        default_factory=lambda: float(os.getenv("HANNAH_GLOBAL_PEER_LLM_TIMEOUT_SECONDS", "2.5"))
+    )
+    global_peer_explanation_llm_max_tokens: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_GLOBAL_PEER_LLM_MAX_TOKENS", "220"))
+    )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"
     )

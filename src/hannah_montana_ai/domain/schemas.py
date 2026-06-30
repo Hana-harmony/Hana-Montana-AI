@@ -81,6 +81,9 @@ class GlobalPeerMatchResponse(BaseModel):
     confidence_level: Literal["LOW", "MEDIUM", "HIGH"]
     model_version: str
     source: str
+    explanation_source: str = Field(default="", max_length=80)
+    explanation_model_version: str = Field(default="", max_length=120)
+    explanation_prompt_version: str = Field(default="", max_length=80)
 
 
 class AlertAnalysisRequest(BaseModel):

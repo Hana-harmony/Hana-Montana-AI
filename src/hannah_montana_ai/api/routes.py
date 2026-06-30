@@ -38,6 +38,7 @@ from hannah_montana_ai.services.foreign_ownership import (
 from hannah_montana_ai.services.foreign_ownership_model_maintenance import (
     ForeignOwnershipModelMaintenanceService,
 )
+from hannah_montana_ai.services.global_peer_explainer import GlobalPeerExplanationGenerator
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.model import ModelArtifactError
 
@@ -71,7 +72,11 @@ def get_foreign_ownership_model_maintenance_service() -> ForeignOwnershipModelMa
 
 @lru_cache
 def get_global_peer_matcher() -> GlobalPeerMatcher:
-    return GlobalPeerMatcher(get_settings().global_peer_model_path)
+    settings = get_settings()
+    return GlobalPeerMatcher(
+        settings.global_peer_model_path,
+        explainer=GlobalPeerExplanationGenerator.from_settings(settings),
+    )
 
 
 @lru_cache
