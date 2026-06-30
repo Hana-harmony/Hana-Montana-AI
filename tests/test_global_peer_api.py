@@ -24,3 +24,5 @@ def test_global_peer_match_api_returns_alteogen_halozyme_popup_copy() -> None:
     assert data["primary_peer"]["ticker"] == "HALO"
     assert data["headline"].startswith("Alteogen Is The 'Halozyme Therapeutics'")
     assert data["source"] == "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
+    assert data["explanation_source"] == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+    assert data["explanation_prompt_version"] == "global-peer-structured-rag-explainer-v1"

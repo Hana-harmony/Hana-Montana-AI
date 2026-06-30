@@ -12,6 +12,10 @@ from hannah_montana_ai.domain.schemas import (
     GlobalPeerMatchRequest,
     GlobalPeerMatchResponse,
 )
+from hannah_montana_ai.services.global_peer_explainer import (
+    GlobalPeerExplanationContext,
+    GlobalPeerExplanationGenerator,
+)
 from hannah_montana_ai.services.model import (
     ModelArtifactInvalidError,
     ModelArtifactNotFoundError,
@@ -36,7 +40,11 @@ ConfidenceLevel = Literal["LOW", "MEDIUM", "HIGH"]
 
 
 class GlobalPeerMatcher:
-    def __init__(self, model_path: Path) -> None:
+    def __init__(
+        self,
+        model_path: Path,
+        explainer: GlobalPeerExplanationGenerator | None = None,
+    ) -> None:
         if not model_path.exists():
             raise ModelArtifactNotFoundError(f"Global peer model artifact not found: {model_path}")
         try:
@@ -57,6 +65,7 @@ class GlobalPeerMatcher:
         self._eligible_us_profiles = list(payload["eligible_us_profiles"])
         self._us_market_cap_percentiles = self._market_cap_percentiles(self._eligible_us_profiles)
         self._korea_profiles = dict(payload["korea_profiles"])
+        self._explainer = explainer or GlobalPeerExplanationGenerator()
 
     def match(self, request: GlobalPeerMatchRequest) -> GlobalPeerMatchResponse:
         stock_profile = self._stock_profile(request)
@@ -88,21 +97,31 @@ class GlobalPeerMatcher:
             for rank, index in enumerate(selected_indices, start=1)
         ]
         primary_peer = peers[0]
-        headline = self._headline(request, primary_peer)
-        summary = self._summary(request, primary_peer)
         confidence_score = max(0.0, min(1.0, primary_peer.similarity_score))
+        confidence_level = self._confidence_level(confidence_score)
+        explanation = self._explainer.generate(
+            GlobalPeerExplanationContext(
+                request=request,
+                primary_peer=primary_peer,
+                confidence_level=confidence_level,
+                confidence_score=confidence_score,
+            )
+        )
         return GlobalPeerMatchResponse(
             stock_code=request.stock_code,
             stock_name=request.stock_name,
             stock_name_en=request.stock_name_en or str(stock_profile["display_name"]),
-            headline=headline,
-            summary=summary,
+            headline=explanation.headline,
+            summary=explanation.summary,
             primary_peer=primary_peer,
             peers=peers,
             confidence_score=round(confidence_score, 4),
-            confidence_level=self._confidence_level(confidence_score),
+            confidence_level=confidence_level,
             model_version=self.version,
             source="HANNAH_GLOBAL_PEER_HYBRID_RANKER",
+            explanation_source=explanation.source,
+            explanation_model_version=explanation.model_version,
+            explanation_prompt_version=explanation.prompt_version,
         )
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:

@@ -1,5 +1,15 @@
 # 구현 기록
 
+## 2026-06-30 글로벌 피어 Qwen3 설명 LLM 학습
+- 글로벌 피어 매칭은 기존 hybrid ranker가 담당하고, headline/summary만 구조화 근거 기반 설명 생성기로 분리했다.
+- `GlobalPeerExplanationGenerator`를 추가해 기본은 deterministic grounded template을 사용하고, `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`일 때 OpenAI-compatible local LLM endpoint를 호출하도록 했다.
+- LLM 출력은 JSON, 종목명, peer명 또는 허용 축약명, ticker/섹터/산업/사업모델 uppercase token, 금지 투자조언 문구를 검증하며 실패하면 template으로 fallback한다.
+- 한국 종목 3,967개 전체에 대해 `data/training/global_peer_explanation_sft.jsonl`을 생성했고, grounded target failure 0건, readiness `pass`를 기록했다.
+- MLX 학습용 split은 train 3,571 / valid 198 / test 198이다.
+- `mlx-community/Qwen3-0.6B-4bit`를 LoRA로 300 iters 학습했다. trainable parameter는 1.442M / 596.050M, final validation loss 0.016, test loss 0.006, test perplexity 1.006, peak memory 1.728GB를 기록했다.
+- adapter는 `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapters.safetensors`와 `adapter_config.json`에 저장했다.
+- 운영 t4g.medium은 GPU가 없으므로 API 프로세스 내 로딩이 아니라 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible server로 띄우고 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`로 연결하는 구조를 문서화했다.
+
 ## 2026-06-28 외국인 취득한도 제한 종목 ML 학습
 - 정정: 전체 국내주식 full-universe 학습은 외국인 취득한도 경고 목적의 운영 universe가 아니다. 외국인 취득한도 제한 종목만 학습/평가/promotion 대상이어야 하므로 기존 full-universe artifact/report/benchmark는 `restricted_universe_not_applied` 사유로 `guarded` 또는 `invalidated` 처리했다.
 - 추가 정정: 이전 제한 18종목 산출은 Hana stock master의 KIS master parser 오류로 KT, SBS, 한국가스공사, 대한항공 등 일부 기간산업 종목이 누락된 상태에서 생성됐다. 해당 학습 artifact/report/benchmark는 `stock_master_incomplete_foreign_ownership_backfill_required` 사유로 `guarded` 처리했다.

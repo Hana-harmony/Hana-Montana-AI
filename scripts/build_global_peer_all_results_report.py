@@ -83,6 +83,9 @@ def build_global_peer_all_results_report(
             "summary": response.summary,
             "model_version": response.model_version,
             "source": response.source,
+            "explanation_source": response.explanation_source,
+            "explanation_model_version": response.explanation_model_version,
+            "explanation_prompt_version": response.explanation_prompt_version,
         }
         rows.append(row)
 

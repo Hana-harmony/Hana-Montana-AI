@@ -13,6 +13,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+llm-training = [
+    "mlx-lm[train]==0.31.3",
+]
 sota = [
     "neuralforecast>=3.1.9",
 ]

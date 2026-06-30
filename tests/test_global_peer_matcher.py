@@ -2,8 +2,20 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
+from hannah_montana_ai.services.global_peer_explainer import (
+    GlobalPeerExplanationContext,
+    GlobalPeerExplanationGenerator,
+)
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.training.global_peer_trainer import load_us_stock_universe
+
+
+class _FakePeerExplanationClient:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        return self.content
 
 
 def test_us_stock_universe_covers_full_listed_symbol_directory() -> None:
@@ -43,6 +55,8 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
+    assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v1"
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
@@ -93,6 +107,80 @@ def test_global_peer_model_prioritizes_domain_and_explains_financial_context() -
     assert any("relative US-market positioning" in factor for factor in factors)
 
 
+def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    request = GlobalPeerMatchRequest(
+        stock_code="035420",
+        stock_name="NAVER",
+        stock_name_en="NAVER",
+        market="KOSPI",
+    )
+    response = matcher.match(request)
+    llm_content = (
+        "<think>\n\n</think>\n\n"
+        + json.dumps(
+            {
+                "headline": "NAVER Is South Korea's Alphabet — An Internet Platforms Peer",
+                "summary": (
+                    "NAVER is best understood as a Korean Internet Platforms peer to "
+                    "Alphabet. The explanation uses only the supplied sector, industry, "
+                    "business model, scale, and confidence facts. It does not add "
+                    "investment advice or unprovided financial claims."
+                ),
+            }
+        )
+    )
+    generator = GlobalPeerExplanationGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=_FakePeerExplanationClient(llm_content),
+    )
+
+    explanation = generator.generate(
+        GlobalPeerExplanationContext(
+            request=request,
+            primary_peer=response.primary_peer,
+            confidence_level=response.confidence_level,
+            confidence_score=response.confidence_score,
+        )
+    )
+
+    assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
+    assert explanation.model_version == "local-llm:Qwen3-0.6B-test"
+    assert explanation.headline.startswith("NAVER Is South Korea's Alphabet")
+
+
+def test_global_peer_llm_explainer_falls_back_on_ungrounded_output() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    request = GlobalPeerMatchRequest(
+        stock_code="035420",
+        stock_name="NAVER",
+        stock_name_en="NAVER",
+        market="KOSPI",
+    )
+    response = matcher.match(request)
+    generator = GlobalPeerExplanationGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=_FakePeerExplanationClient(
+            '{"headline":"Buy this stock now",'
+            '"summary":"This is guaranteed to outperform with a new price target."}'
+        ),
+    )
+
+    explanation = generator.generate(
+        GlobalPeerExplanationContext(
+            request=request,
+            primary_peer=response.primary_peer,
+            confidence_level=response.confidence_level,
+            confidence_score=response.confidence_score,
+        )
+    )
+
+    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+    assert "guaranteed" not in explanation.summary.lower()
+
+
 def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="0001A0",
@@ -129,3 +217,31 @@ def test_global_peer_all_results_report_documents_every_stock() -> None:
     assert len(report["results"]) == report["performance"]["success_count"]
     assert Path("docs/GLOBAL_PEER_ALL_RESULTS.md").exists()
     assert Path("reports/global-peer-all-results.csv").exists()
+    assert report["results"][0]["explanation_source"]
+    assert report["results"][0]["explanation_prompt_version"]
+
+
+def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
+    readiness = json.loads(Path("reports/global-peer-explanation-llm-readiness.json").read_text())
+    training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
+
+    assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
+    assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
+    assert readiness["sample_count"] >= 3_000
+    assert readiness["failure_count"] == 0
+    assert readiness["grounded_target_failure_count"] == 0
+    assert readiness["quality_status"] == "pass"
+    assert training["schema_version"] == "global-peer-qwen3-explainer-training/v1"
+    assert training["base_model"] == "mlx-community/Qwen3-0.6B-4bit"
+    assert training["training"]["executed"] is True
+    assert training["training"]["return_code"] == 0
+    assert training["training"]["observed_test_loss"] <= 0.01
+    assert training["training"]["observed_test_perplexity"] <= 1.01
+    assert Path("data/training/global_peer_explanation_sft.jsonl").exists()
+    assert Path("data/training/global_peer_explanation_mlx/train.jsonl").exists()
+    assert Path(
+        "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapters.safetensors"
+    ).exists()
+    assert Path(
+        "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapter_config.json"
+    ).exists()
