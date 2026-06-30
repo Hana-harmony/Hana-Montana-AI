@@ -8,13 +8,44 @@
 - Hana-OmniLens-API의 Watchlist News & Disclosure Alert API payload 생성에 사용한다.
 - ChatGPT API나 외부 LLM에 의존하지 않는다.
 
-## 외국인 보유 시계열 예측 모델
-- 모델 버전: `hannah-foreign-ownership-timeseries-v1`
-- 목적: OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 일별 시계열과 KIS WebSocket 장중 누적 거래량을 사용해 금일 한도소진율 boundary와 confidence를 산출한다.
-- 입력: 현재 KIS 외국인 보유 snapshot, 주문 side/수량, 최근 일별 외국인 보유 시계열, 장중 누적 거래량.
-- 출력: 한도소진율 `min/base/max`, 주문 영향도, 장중/시계열 불확실성, 추세 변화율, 관측치 수, confidence, model version.
-- 한계: confidence는 observe-only이며 주문 차단 정책으로 사용하지 않는다. 확정 차단은 OmniLens가 현재 snapshot과 주문수량 영향도로 계산한 deterministic boundary에서만 수행한다.
-- fallback: Hannah 호출 실패 시 OmniLens 내부 deterministic 시계열 엔진이 동일 응답 계약을 유지한다.
+## 외국인 보유/취득 수량 예측 모델
+- 모델 버전: `hannah-foreign-owned-quantity-ml-v1`
+- 목적: OmniLens가 저장한 전날까지의 일별 `foreign_owned_quantity`만 사용해 다음 거래일 외국인 보유/취득 수량을 예측한다. 한도수량은 예측 타깃이 아니라 한도소진율 계산의 분모로만 사용한다.
+- 입력: 종목코드, 전날까지의 외국인 보유수량 시계열. 주문수량, 장중 거래량, 시세, 거래대금은 모델 입력에서 제외한다.
+- 학습 방식: 전체 종목을 하나로 뭉개지 않고 `stock_code`를 범주 feature로 포함한 panel/global regression으로 학습한다. walk-forward 검증에서 종목별 MAE/RMSE/MAPE를 persistence baseline 대비 정규화한 composite score로 ML 후보와 blend alpha를 선택하되, persistence baseline보다 MAPE가 나빠지는 후보/runtime은 종목별 MAPE guard로 보정하는 stock-routed ML ensemble을 운영 artifact에 저장한다.
+- 후보 모델: Ridge, HistGradientBoostingRegressor 2종, ExtraTreesRegressor, log-delta ratio 회귀 2종, 절대 delta quantity 회귀 4종, target quantity 회귀 1종, residual 회귀 18종, hurdle HistGradientBoosting classifier+regressor. residual 후보에는 squared-error, absolute-error, MAPE-weighted HistGradientBoosting을 포함한다. 각 후보는 lag, 변화율, rolling mean/std/range, 40/60/120/240 관측치 장기 흐름, 최근 일별 delta 분포, 날짜, 변화 간격, 관측치 수 feature로 다음 거래일 보유수량 delta ratio, log-delta ratio, 절대 delta, target quantity, 또는 heuristic residual을 예측한다. baseline이 마지막으로 이기던 종목은 `micro_median_delta_3` 정책으로 대체했다.
+- 검증 방식: random split을 쓰지 않고 날짜 기준 walk-forward 검증을 수행한다. champion baseline은 `전일 외국인 보유수량 유지`이다.
+- 최신 평가 데이터: KRX Data Marketplace 기반 외국인 보유수량 CSV는 2019-01-02부터 2026-06-26까지 현재 상장 제한 32종목의 58,784개 관측치만 포함한다. 비제한 종목 history는 운영 목적과 맞지 않아 학습 데이터에서 제거한다.
+- 운영 universe: 외국인 취득한도 제한이 있는 종목만 학습/평가/promotion 대상이다. 금융위 2023-01-25 붙임4의 33개 법령 제한 종목을 현재 stock master와 조인해 32개 현재 상장 제한 종목을 확정했다. `SBS콘텐츠허브(046140)`는 현재 stock master에 없어 제외 사유를 리포트에 남긴다.
+- 최신 평가 결과: 제한 32종목, 관측치 58,784행, 학습 샘플 52,693개로 재학습했다. 선택 후보는 `stock_routed_ml_ensemble`이며, persistence baseline MAE 53,912.99 / RMSE 152,521.80 / MAPE 0.046983에서 순수 stock-routed ML MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908, guarded runtime MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908로 개선되어 `promoted`로 기록했다. guarded runtime 기준 MAE 개선율은 4.4030%, RMSE 개선율은 3.3071%, MAPE 개선율은 4.4167%다.
+- 제한 종목 목록: `reports/foreign-ownership-restricted-universe-report.json`, `data/training/foreign_ownership_restricted_stock_codes.csv`에 저장한다.
+- 과거 full-universe 진단: 전체 국내주식 full-universe 학습 결과는 한도 경고 목적과 맞지 않아 운영 champion 근거로 사용하지 않는다.
+- serving 정책: `release_status=promoted`이면 종목별 검증 gate를 적용한다. 현재 운영 runtime은 ML 29종목, persistence baseline 0종목을 선택한다. 검증상 ML이 이긴 종목은 artifact 내부 `model_by_stock`, `blend_alpha_by_stock`, `model_prediction_modes`에 저장된 종목별 ML 후보를 사용한다.
+- SOTA 비교: `reports/foreign-ownership-quantity-sota-benchmark.json`은 제한 universe의 동일 walk-forward fold/test sample 기준으로 재생성했다. 0% 취득불허 3종목은 양수 보유수량 학습 샘플이 없어 SOTA/ML sample 비교에서는 제외되고, 나머지 29종목 21,895개 test sample을 비교한다. `hannah_promoted_guarded_runtime` MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908이 persistence baseline MAE 53,912.99 / RMSE 152,521.80 / MAPE 0.046983, N-HiTS MAE 52,863.38 / RMSE 150,345.74 / MAPE 0.046955, PatchTST MAE 54,521.01 / RMSE 154,153.91 / MAPE 0.049739보다 낮다.
+- 발표자료용 성능 요약: `docs/FOREIGN_OWNERSHIP_MODEL_PRESENTATION.md`에 baseline/SOTA 비교 표와 핵심 메시지를 별도로 정리한다.
+- 장기 window 실험: 2015-01-02부터 2026-06-26까지 확장한 87,240개 관측치 실험은 `reports/foreign-ownership-quantity-training-report-2015-2026-experiment.json`, `reports/foreign-ownership-quantity-sota-benchmark-2015-2026-experiment.json`에 보존한다. 이 실험은 guarded runtime MAE 55,357.24로 2019~2026 champion보다 나빠 운영 artifact로 채택하지 않는다.
+- 출력: 예측 외국인 보유수량 `min/base/max`, 예측 순취득수량, 이를 현재 한도수량으로 나눈 한도소진율 `min/base/max`, 관측치 수, confidence, model version.
+- 한계: 현재 모델은 전날까지의 외국인 보유수량만 사용한다. 보유수량은 종목별 수급 이벤트와 리밸런싱에 영향을 받으므로, 더 높은 정확도를 위해서는 향후 가격/거래대금/시장 전체 외국인 순매수 같은 추가 feature가 필요하다.
+
+## 글로벌 피어 종목 매칭 모델
+- 모델 버전 prefix: `global-peer-hybrid-ranker`
+- 목적: 외국인 투자자가 낯선 한국 상장사를 볼 때 익숙한 미국 상장 peer와 함께 이해할 수 있도록 headline, 설명, primary peer, 후보 peer 목록을 생성한다.
+- 입력: 한국 종목코드, 한글명, 영문명, 시장구분, alias, 선택 설명문.
+- 학습 universe: `data/reference/korea_stock_universe.csv`의 한국 종목 3,967개와 `data/reference/us_stock_universe.csv`의 미국 listed symbol 12,916개를 함께 학습한다. 미국 universe는 NASDAQ Trader symbol directory의 `nasdaqlisted.txt`, `otherlisted.txt`를 정규화해 생성한다.
+- 모델 구조: 한국·미국 종목명, 시장, 거래소, business keyword, 섹터, 산업, 사업모델, 규모 버킷, 동일업종 비교 종목, 매출, 영업이익, 순이익, anchor profile을 cross-market profile corpus로 만들고 TF-IDF retrieval, TruncatedSVD semantic embedding, 재무/업종/규모 feature, supervised pairwise LogisticRegression reranker를 저장한다.
+- 재무/규모 feature: `data/reference/global_peer_fundamentals.csv`의 `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`를 로그 스케일 feature로 변환한다. 추론 ranking은 pairwise ranker 60%, base text/semantic/financial score 40%로 calibration한다.
+- 재무 데이터 원천: 한국 재무는 OpenDART `fnlttSinglAcntAll`, 한국 시가총액은 KRX Open API 일별매매정보 `MKTCAP` 또는 Naver mobile stock JSON `marketValue`, 미국 재무는 SEC `companyfacts`와 ticker-CIK mapping, 미국 시가총액은 NASDAQ quote summary `MarketCap`을 사용한다.
+- 최신 fundamentals coverage: `data/reference/global_peer_fundamentals.csv`는 한국 2,916개, 미국 5,585개, 총 8,501개 row를 포함한다. 시가총액은 7,967개, 매출은 6,837개, 영업이익은 6,986개, 순이익은 7,695개 row에 채워져 있다.
+- 최신 국내 업종 coverage: `data/reference/korea_stock_industries.csv`는 Naver 동일업종 비교 데이터 2,649개를 포함하며, 이 중 2,451개가 specific sector/industry feature를 제공한다.
+- eligible peer: 미국 universe 전체를 학습 corpus에 포함하되, ETF/ETN/fund/right/unit/warrant/preferred/note/test issue는 company peer 후보에서 제외한다.
+- 평가: curated anchor top1 accuracy는 0.8571이고, supervised pairwise ranker benchmark는 top1 accuracy 0.9286, top3 accuracy 1.0, MRR 0.9643이다.
+- 출력: `"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader"` 같은 팝업 headline, business summary, peer rationale, 섹터, 산업, 사업모델, 규모 버킷, 매출/영업이익/순이익, 재무 데이터 출처, 매칭 근거 배열, confidence, model version.
+- 설명 가능성: `matched_factors`는 섹터, 산업, 사업모델, 규모, 재무 유사도, 모델 유사도 기준으로 생성한다. 검증된 anchor는 기술·수익모델 같은 세부 근거를 함께 제공한다.
+- AI smoke 테스트: `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 15개 대표 한국 종목의 실제 primary peer 결과를 남긴다. 최신 smoke에서는 Samsung Electronics→Micron, SK hynix→Micron, NAVER→Alphabet, Hyundai Motor→Toyota, LG Electronics→Whirlpool, SK Telecom→Verizon, Alteogen→Halozyme을 확인했다.
+- 전종목 coverage 테스트: `reports/global-peer-full-coverage-report.json`은 한국 master 3,967개 전부를 실제 matcher에 넣어 추론 성공률, 동일회사 중복, matched factor 누락, LOW confidence, generic sector 비율을 검증한다. 최신 quality gate는 3,967/3,967개 성공으로 `pass`이고 LOW confidence 29.2664%도 confidence monitoring `pass`다.
+- 전종목 현재 결과: `docs/GLOBAL_PEER_ALL_RESULTS.md`는 3,967개 전 종목의 primary peer, confidence, domain match, financial context를 표로 남긴다. 동일 내용은 기계 검증용 `reports/global-peer-all-results.json`, 분석용 `reports/global-peer-all-results.csv`에도 저장한다.
+- 산출물: `src/hannah_montana_ai/model_store/global_peer_ml.joblib`, `reports/global-peer-training-report.json`, `reports/global-peer-ai-smoke-report.json`, `reports/global-peer-korea-industry-sync-report.json`, `reports/global-peer-fundamentals-sync-report.json`, `reports/global-peer-full-coverage-report.json`, `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`, `docs/GLOBAL_PEER_ALL_RESULTS.md`, `data/reference/us_stock_universe.csv`, `data/reference/global_peer_fundamentals.csv`, `data/reference/korea_stock_industries.csv`
+- 재학습: `uv run python scripts/sync_us_stock_universe.py`로 미국 universe를 갱신하고, `uv run python scripts/sync_global_peer_fundamentals.py`, `uv run python scripts/sync_korea_stock_industries.py`로 한국·미국 재무/규모/업종 dataset을 갱신한 뒤, `uv run python scripts/train_global_peer_model.py`, `uv run python scripts/build_global_peer_ai_smoke_report.py`, `uv run python scripts/build_global_peer_full_coverage_report.py`, `uv run python scripts/build_global_peer_all_results_report.py`로 artifact와 report를 재생성한다.
 
 ## 입력
 - source type: `NEWS` 또는 `DISCLOSURE`
@@ -124,6 +155,12 @@
 - coverage packet validation 상태: `pass`
 - coverage packet validation 목표: 학습 1,500종목, 평가 500종목, wave별 승인 100종목
 - release service readiness 상태: `pass`
+- 외국인 보유/취득 수량 학습 데이터: `data/training/foreign_ownership_quantity_history.csv`
+- 외국인 보유/취득 수량 ML artifact: `src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib`
+- 외국인 보유/취득 수량 학습 리포트: `reports/foreign-ownership-quantity-training-report.json`
+- 외국인 보유/취득 수량 후보 리포트: `reports/foreign-ownership-quantity-training-candidate-report.json`
+- 외국인 보유/취득 수량 SOTA 비교 리포트: `reports/foreign-ownership-quantity-sota-benchmark.json`
+- 외국인 취득한도 제한 종목 리포트: `reports/foreign-ownership-restricted-universe-report.json`
 - audited gold readiness 상태: `pass`
 - 현재 coverage validation 승인 가능 종목 수: 학습 1,500개, 평가 500개
 - supervised/reference 학습 coverage 종목 수: 3,422개

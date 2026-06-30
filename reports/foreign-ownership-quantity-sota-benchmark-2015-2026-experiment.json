@@ -1,0 +1,179 @@
+{
+  "schema_version": "foreign-ownership-quantity-benchmark/v1",
+  "generated_at": "2026-06-29T04:18:47.320771+00:00",
+  "training_data_path": "data/training/foreign_ownership_quantity_history.csv",
+  "training_report_path": "reports/foreign-ownership-quantity-training-report.json",
+  "restricted_stock_codes_path": "data/training/foreign_ownership_restricted_stock_codes.csv",
+  "restricted_universe_applied": true,
+  "stock_count": 32,
+  "observation_count": 87240,
+  "sample_count": 77945,
+  "walk_forward_fold_count": 5,
+  "current_model_report": {
+    "selected_model": "hurdle_hist_gradient_delta_ratio",
+    "selected_blend_alpha": 0.0005,
+    "release_status": "promoted",
+    "baseline_metrics": {
+      "mae": 56276.98688767204,
+      "rmse": 392417.1224799769,
+      "mape": 0.04564157865226991
+    },
+    "selected_model_metrics": {
+      "mae": 56256.42660944206,
+      "rmse": 392381.84136520565,
+      "mape": 0.045649266300535236
+    },
+    "guarded_runtime_metrics": {
+      "mae": 55357.2402249519,
+      "rmse": 392480.25166030944,
+      "mape": 0.04559391252701948
+    },
+    "guarded_improvement_over_baseline": {
+      "mae": 0.01634321085021738,
+      "rmse": -0.0001608726447346867,
+      "mape": 0.0010443575059834013
+    },
+    "runtime_policy_counts": {
+      "median_multi_delta": 2,
+      "stale_guarded_mean_delta_20": 14,
+      "baseline": 13
+    }
+  },
+  "published_sota_diagnostics": [
+    {
+      "model": "N-HiTS",
+      "status": "completed",
+      "scope": "restricted_walk_forward_same_folds",
+      "sample_count": 33785,
+      "stock_count": 29,
+      "fold_count": 5,
+      "max_steps": 100,
+      "metrics": {
+        "mae": 58053.37173301761,
+        "rmse": 409077.17278162495,
+        "mape": 0.04658955673739337
+      },
+      "same_scope_persistence_metrics": {
+        "mae": 56276.98688767204,
+        "rmse": 392417.1224799769,
+        "mape": 0.04564157865226991
+      },
+      "stock_selection": "all_restricted_walk_forward_stocks",
+      "same_stock_universe": true,
+      "same_walk_forward_samples": true,
+      "forecast_protocol": "one_step_with_observed_history_until_previous_point"
+    },
+    {
+      "model": "PatchTST",
+      "status": "completed",
+      "scope": "restricted_walk_forward_same_folds",
+      "sample_count": 33785,
+      "stock_count": 29,
+      "fold_count": 5,
+      "max_steps": 100,
+      "metrics": {
+        "mae": 79075.74237087465,
+        "rmse": 436641.09042426513,
+        "mape": 0.058393963449296406
+      },
+      "same_scope_persistence_metrics": {
+        "mae": 56276.98688767204,
+        "rmse": 392417.1224799769,
+        "mape": 0.04564157865226991
+      },
+      "stock_selection": "all_restricted_walk_forward_stocks",
+      "same_stock_universe": true,
+      "same_walk_forward_samples": true,
+      "forecast_protocol": "one_step_with_observed_history_until_previous_point"
+    }
+  ],
+  "notes": [
+    "Full-universe rows use one-step walk-forward evaluation over every available restricted-stock sample.",
+    "Neural SOTA diagnostics are optional because N-HiTS/PatchTST require heavy torch dependencies and CPU runtime grows quickly."
+  ],
+  "full_universe_walk_forward": [
+    {
+      "model": "hannah_promoted_guarded_runtime",
+      "scope": "full_universe_walk_forward",
+      "metrics": {
+        "mae": 55357.2402249519,
+        "rmse": 392480.25166030944,
+        "mape": 0.04559391252701948
+      },
+      "sample_count": 33785,
+      "selected_model": "hurdle_hist_gradient_delta_ratio",
+      "selected_blend_alpha": 0.0005,
+      "release_status": "promoted",
+      "runtime_policy_counts": {
+        "median_multi_delta": 2,
+        "stale_guarded_mean_delta_20": 14,
+        "baseline": 13
+      },
+      "improvement_over_persistence": {
+        "mae": 0.01634321085021738,
+        "rmse": -0.0001608726447346867,
+        "mape": 0.0010443575059834013
+      }
+    },
+    {
+      "model": "stale_guarded_mean_delta_20",
+      "scope": "full_universe_walk_forward",
+      "metrics": {
+        "mae": 55834.35731833654,
+        "rmse": 392424.07192003005,
+        "mape": 0.04564180900383756
+      },
+      "sample_count": 33785,
+      "improvement_over_persistence": {
+        "mae": 0.007865196660563711,
+        "rmse": -1.770931912762006e-05,
+        "mape": -5.0469675777170826e-06
+      }
+    },
+    {
+      "model": "baseline",
+      "scope": "full_universe_walk_forward",
+      "metrics": {
+        "mae": 56276.98688767204,
+        "rmse": 392417.1224799769,
+        "mape": 0.04564157865226991
+      },
+      "sample_count": 33785,
+      "improvement_over_persistence": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mape": 0.0
+      }
+    },
+    {
+      "model": "median_multi_delta",
+      "scope": "full_universe_walk_forward",
+      "metrics": {
+        "mae": 59069.607429332544,
+        "rmse": 407904.75910591113,
+        "mape": 0.049679509592836346
+      },
+      "sample_count": 33785,
+      "improvement_over_persistence": {
+        "mae": -0.04962278004034804,
+        "rmse": -0.03946728044906979,
+        "mape": -0.08847044865231934
+      }
+    },
+    {
+      "model": "mean_delta_20",
+      "scope": "full_universe_walk_forward",
+      "metrics": {
+        "mae": 59359.207843717624,
+        "rmse": 401035.9679101763,
+        "mape": 0.04766641997873328
+      },
+      "sample_count": 33785,
+      "improvement_over_persistence": {
+        "mae": -0.05476876297939768,
+        "rmse": -0.02196347951315295,
+        "mape": -0.044363963435403095
+      }
+    }
+  ]
+}

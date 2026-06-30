@@ -36,6 +36,53 @@ class StockCandidate(BaseModel):
     aliases: list[str] = Field(default_factory=list, max_length=20)
 
 
+class GlobalPeerMatchRequest(BaseModel):
+    stock_code: str = Field(pattern=r"^[0-9A-Z]{6}$")
+    stock_name: str = Field(min_length=1, max_length=80)
+    stock_name_en: str = Field(default="", max_length=120)
+    market: MarketType = "KOSPI"
+    aliases: list[str] = Field(default_factory=list, max_length=20)
+    description: str = Field(default="", max_length=2000)
+    peer_count: int = Field(default=5, ge=1, le=10)
+
+
+class GlobalPeerMatch(BaseModel):
+    rank: int = Field(ge=1)
+    ticker: str = Field(min_length=1, max_length=20)
+    company_name: str = Field(min_length=1, max_length=160)
+    exchange: str = Field(min_length=1, max_length=40)
+    country: str = Field(min_length=2, max_length=2)
+    similarity_score: float = Field(ge=0.0, le=1.0)
+    business_tags: list[str] = Field(default_factory=list, max_length=12)
+    sector: str = Field(default="Unclassified", max_length=80)
+    industry: str = Field(default="Unclassified", max_length=120)
+    business_model: str = Field(default="Operating company", max_length=160)
+    scale_bucket: str = Field(default="UNKNOWN", max_length=40)
+    fiscal_year: int | None = None
+    market_cap_usd: float | None = Field(default=None, ge=0.0)
+    revenue_usd: float | None = None
+    operating_income_usd: float | None = None
+    net_income_usd: float | None = None
+    financial_data_source: str = Field(default="", max_length=120)
+    financial_similarity_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    matched_factors: list[str] = Field(default_factory=list, max_length=12)
+    rationale: str = Field(min_length=1, max_length=800)
+
+
+class GlobalPeerMatchResponse(BaseModel):
+    stock_code: str
+    stock_name: str
+    stock_name_en: str
+    headline: str = Field(min_length=1, max_length=300)
+    summary: str = Field(min_length=1, max_length=1200)
+    primary_peer: GlobalPeerMatch
+    peers: list[GlobalPeerMatch] = Field(min_length=1, max_length=10)
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    confidence_level: Literal["LOW", "MEDIUM", "HIGH"]
+    model_version: str
+    source: str
+
+
 class AlertAnalysisRequest(BaseModel):
     source_type: SourceType
     title: str = Field(min_length=1, max_length=300)
@@ -163,6 +210,13 @@ class ForeignOwnershipTimeseriesPredictionRequest(BaseModel):
 
 class ForeignOwnershipTimeseriesPredictionResponse(BaseModel):
     stock_code: str
+    predicted_foreign_owned_quantity: int = Field(ge=0)
+    min_foreign_owned_quantity: int = Field(ge=0)
+    max_foreign_owned_quantity: int = Field(ge=0)
+    predicted_foreign_net_acquired_quantity: int
+    predicted_foreign_limit_quantity: int = Field(gt=0)
+    min_foreign_limit_quantity: int = Field(gt=0)
+    max_foreign_limit_quantity: int = Field(gt=0)
     min_foreign_limit_exhaustion_rate: float
     base_foreign_limit_exhaustion_rate: float
     max_foreign_limit_exhaustion_rate: float
@@ -178,6 +232,41 @@ class ForeignOwnershipTimeseriesPredictionResponse(BaseModel):
     confidence_score: float = Field(ge=0.0, le=1.0)
     model_version: str
     source: str
+
+
+class ForeignOwnershipQuantityTrainingPoint(BaseModel):
+    stock_code: str = Field(pattern=r"^\d{6}$")
+    base_date: date
+    foreign_owned_quantity: int = Field(ge=0)
+    foreign_limit_quantity: int = Field(ge=0)
+
+
+class ForeignOwnershipQuantityRetrainRequest(BaseModel):
+    history: list[ForeignOwnershipQuantityTrainingPoint] = Field(min_length=120)
+    restricted_stock_codes: list[str] = Field(min_length=1)
+    minimum_promotable_stock_count: int = Field(default=29, ge=1)
+    minimum_promotable_history_days: int = Field(default=2500, ge=1)
+    minimum_promotable_observations: int = Field(default=50_000, ge=1)
+    max_model_training_samples: int = Field(default=250_000, ge=120)
+
+
+class ForeignOwnershipQuantityRetrainResponse(BaseModel):
+    promoted: bool
+    release_status: str
+    model_reloaded: bool
+    observation_count: int
+    stock_count: int
+    sample_count: int
+    train_date_min: date
+    train_date_max: date
+    selected_model: str
+    baseline_metrics: dict[str, float]
+    guarded_runtime_metrics: dict[str, float]
+    guarded_improvement_over_baseline: dict[str, float]
+    quality_gates: dict[str, object]
+    model_path: str
+    report_path: str
+    candidate_report_path: str | None = None
 
 
 class IntelligenceEventRequest(AlertAnalysisRequest):
