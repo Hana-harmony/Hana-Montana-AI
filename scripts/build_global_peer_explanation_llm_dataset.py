@@ -138,9 +138,10 @@ def _target_is_grounded(
 
 def _display_peer_name(company_name: str) -> str:
     cleaned = re.sub(r"\s+\.\s+", " ", company_name).strip()
+    cleaned = re.sub(r"\s+,", "", cleaned).strip()
     cleaned = re.sub(r"\s+Class\s+[A-Z]$", "", cleaned).strip()
     cleaned = re.sub(r"\s+When-Issued$", "", cleaned).strip()
-    return cleaned
+    return cleaned.rstrip(" ,")
 
 
 def main() -> None:
