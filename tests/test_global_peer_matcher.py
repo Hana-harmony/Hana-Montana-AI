@@ -115,3 +115,17 @@ def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     assert report["confidence_monitoring"]["actual_low_confidence_ratio"] < 0.35
     assert report["same_company_noise_count"] == 0
     assert report["matched_factor_missing_count"] == 0
+
+
+def test_global_peer_all_results_report_documents_every_stock() -> None:
+    report = json.loads(Path("reports/global-peer-all-results.json").read_text())
+
+    assert report["schema_version"] == "global-peer-all-results/v1"
+    assert report["performance"]["attempted_count"] >= 3_000
+    assert report["performance"]["attempted_count"] == report["performance"]["success_count"]
+    assert report["performance"]["failure_count"] == 0
+    assert report["performance"]["quality_status"] == "pass"
+    assert report["performance"]["low_confidence_ratio"] < 0.35
+    assert len(report["results"]) == report["performance"]["success_count"]
+    assert Path("docs/GLOBAL_PEER_ALL_RESULTS.md").exists()
+    assert Path("reports/global-peer-all-results.csv").exists()

@@ -7,6 +7,7 @@ SourceType = Literal["NEWS", "DISCLOSURE"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 ContentAvailability = Literal["FULL_TEXT", "SUMMARY_ONLY", "UNAVAILABLE"]
+BodySourceType = Literal["FULL_TEXT", "PROVIDER_SNIPPET", "DISCLOSURE_BODY", "UNAVAILABLE"]
 MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
 PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
 ForeignLimitUsageStatus = Literal["NORMAL", "CAUTION", "LIMIT_REACHED"]
@@ -110,6 +111,8 @@ class AlertAnalysisResponse(BaseModel):
     summary_lines: SummaryLines = Field(default_factory=SummaryLines)
     content_availability: ContentAvailability = "SUMMARY_ONLY"
     original_content: str = Field(default="", max_length=20000)
+    original_body: str = Field(default="", max_length=20000)
+    body_source_type: BodySourceType = "PROVIDER_SNIPPET"
     image_urls: list[str] = Field(default_factory=list)
     event_tags: list[str]
     sentiment: Sentiment
@@ -292,6 +295,9 @@ class IntelligenceEventResponse(BaseModel):
     translated_summary: str
     original_content: str = ""
     translated_content: str = ""
+    original_body: str = ""
+    translated_body: str = ""
+    body_source_type: BodySourceType = "PROVIDER_SNIPPET"
     image_urls: list[str] = Field(default_factory=list)
     content_availability: ContentAvailability = "SUMMARY_ONLY"
     sentiment: Sentiment

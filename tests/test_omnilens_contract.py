@@ -42,6 +42,8 @@ EXPECTED_RESPONSE_FIELDS = {
     "summary_lines",
     "content_availability",
     "original_content",
+    "original_body",
+    "body_source_type",
     "image_urls",
     "event_tags",
     "sentiment",

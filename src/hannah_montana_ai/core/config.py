@@ -20,6 +20,15 @@ class Settings(BaseModel):
     global_peer_full_coverage_report_path: Path = Path(
         "reports/global-peer-full-coverage-report.json"
     )
+    global_peer_all_results_report_path: Path = Path(
+        "reports/global-peer-all-results.json"
+    )
+    global_peer_all_results_csv_path: Path = Path(
+        "reports/global-peer-all-results.csv"
+    )
+    global_peer_all_results_doc_path: Path = Path(
+        "docs/GLOBAL_PEER_ALL_RESULTS.md"
+    )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"
     )

@@ -962,6 +962,11 @@
 - 1,000건 최신 query-relevant live quality audit에서 quality pass rate 0.991, full-content rate 0.69, sampled stock model match rate 0.999, `SUMMARY_BOILERPLATE` 0건을 기록했다.
 - `reports/model-release-report.json`, `reports/pseudo-label-promotion-monitoring.json`, `reports/service-readiness-report.json`은 새 모델 기준 모두 `pass`를 기록했다.
 
+## 2026-06-22 - 원문 본문 번역 API 계약 명시
+- 인텔리전스 provider parser가 사용 허가된 뉴스·공시 전문, 이미지, canonical URL, content hash, license policy를 `IntelligenceEventRequest`로 전달하도록 보강했다.
+- 응답과 WebSocket payload에 `original_body`, `translated_body`, `body_source_type`를 추가해 원문 본문 번역과 요약 번역 계약을 분리해 검증한다.
+- 기능정의 하네스와 provider 하네스에서 전문 입력 시 `FULL_TEXT` 본문 출처와 원문/번역 본문 필드를 검증한다.
+
 ## 2026-06-28 - 외국인 보유/취득 수량 ML 학습/평가
 - 예측 타깃을 `foreign_limit_quantity`가 아니라 `foreign_owned_quantity`로 정정했다. 한도수량은 예측 대상이 아니라 예측 보유수량을 한도소진율로 환산하는 분모로만 사용한다.
 - `foreign_owned_quantity`만 사용해 다음 거래일 외국인 보유/취득 수량을 예측하는 ML 학습기를 추가했다.
