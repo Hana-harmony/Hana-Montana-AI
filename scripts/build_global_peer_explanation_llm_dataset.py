@@ -1,4 +1,5 @@
 import json
+import re
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,6 +13,7 @@ from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationGenerator,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
+from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, load_stock_universe
 
 VALID_MARKETS: set[str] = {"KOSPI", "KOSDAQ", "KONEX", "OTHER"}
@@ -120,7 +122,25 @@ def _target_is_grounded(
     stock_terms = [stock.stock_name.lower()]
     if stock.stock_name_en:
         stock_terms.append(stock.stock_name_en.lower())
-    return any(term and term in text for term in stock_terms) and peer_name.lower() in text
+    anchor = KOREA_ANCHORS.get(stock.stock_code)
+    if anchor and anchor.display_name:
+        stock_terms.append(anchor.display_name.lower())
+
+    peer_terms = {peer_name.lower(), _display_peer_name(peer_name).lower()}
+    first_peer_word = re.split(r"[\s.,]+", peer_name.strip())[0].lower()
+    if len(first_peer_word) >= 4:
+        peer_terms.add(first_peer_word)
+
+    return any(term and term in text for term in stock_terms) and any(
+        term and term in text for term in peer_terms
+    )
+
+
+def _display_peer_name(company_name: str) -> str:
+    cleaned = re.sub(r"\s+\.\s+", " ", company_name).strip()
+    cleaned = re.sub(r"\s+Class\s+[A-Z]$", "", cleaned).strip()
+    cleaned = re.sub(r"\s+When-Issued$", "", cleaned).strip()
+    return cleaned
 
 
 def main() -> None:

@@ -1,7 +1,9 @@
 import argparse
 import json
+import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from hannah_montana_ai.core.config import get_settings
@@ -53,11 +55,21 @@ def main() -> None:
                 "mlx_lm.lora 실행 파일을 찾을 수 없음. "
                 "`uv run --extra llm-training mlx_lm.lora --help`로 의존성을 설치해야 함"
             )
-        completed = subprocess.run(command, check=False, text=True)  # noqa: S603
+        completed = subprocess.run(  # noqa: S603
+            command,
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+        if completed.stdout:
+            print(completed.stdout, end="")
+        if completed.stderr:
+            print(completed.stderr, end="", file=sys.stderr)
         training_result = {
             "executed": True,
             "return_code": completed.returncode,
             "command": command,
+            **_parse_observed_metrics(completed.stdout),
         }
         if completed.returncode != 0:
             raise RuntimeError(f"Qwen3 explainer LoRA training failed: {completed.returncode}")
@@ -168,6 +180,41 @@ def _training_command(
     if grad_checkpoint:
         command.append("--grad-checkpoint")
     return command
+
+
+def _parse_observed_metrics(output: str) -> dict[str, float]:
+    result: dict[str, float] = {}
+
+    validation_matches = re.findall(r"Iter\s+\d+:\s+Val loss\s+([0-9.]+)", output)
+    if validation_matches:
+        result["observed_final_validation_loss"] = float(validation_matches[-1])
+
+    training_matches = re.findall(r"Train loss\s+([0-9.]+)", output)
+    if training_matches:
+        result["observed_final_train_loss"] = float(training_matches[-1])
+
+    test_match = re.search(
+        r"Test loss\s+([0-9]+(?:\.[0-9]+)?),\s+Test ppl\s+([0-9]+(?:\.[0-9]+)?)",
+        output,
+    )
+    if test_match:
+        result["observed_test_loss"] = float(test_match.group(1))
+        result["observed_test_perplexity"] = float(test_match.group(2))
+
+    parameter_match = re.search(
+        r"Trainable parameters:\s+([0-9.]+)%\s+\(([0-9.]+)M/([0-9.]+)M\)",
+        output,
+    )
+    if parameter_match:
+        result["trainable_parameter_ratio"] = float(parameter_match.group(1)) / 100
+        result["trainable_parameters_m"] = float(parameter_match.group(2))
+        result["total_parameters_m"] = float(parameter_match.group(3))
+
+    memory_matches = re.findall(r"Peak mem\s+([0-9.]+)\s+GB", output)
+    if memory_matches:
+        result["observed_peak_memory_gb"] = max(float(value) for value in memory_matches)
+
+    return result
 
 
 def _parse_args() -> argparse.Namespace:

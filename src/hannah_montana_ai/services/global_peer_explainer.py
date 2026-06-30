@@ -12,7 +12,7 @@ from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
-EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v1"
+EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v3"
 TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v1"
 
 
@@ -142,7 +142,7 @@ class GlobalPeerExplanationGenerator:
         peer = context.primary_peer
         anchor = KOREA_ANCHORS.get(request.stock_code)
         if anchor and anchor.headline_template and anchor.summary:
-            stock_name_en = request.stock_name_en or request.stock_name
+            stock_name_en = self._stock_display_name(request)
             return GlobalPeerExplanation(
                 headline=anchor.headline_template.format(
                     stock_name_en=stock_name_en,
@@ -152,17 +152,19 @@ class GlobalPeerExplanationGenerator:
                 source="GROUNDED_TEMPLATE_STRUCTURED_RAG",
                 model_version=TEMPLATE_EXPLANATION_MODEL_VERSION,
             )
-        stock_name = request.stock_name_en or request.stock_name
+        stock_name = self._stock_display_name(request)
+        peer_name = self._display_peer_name(peer.company_name)
         business_label = self._business_label(peer)
-        headline = f"{stock_name} Is South Korea's '{peer.company_name}' — A {business_label}"
-        factor_sentence = self._factor_sentence(peer)
-        scale_sentence = self._scale_sentence(peer)
+        headline = (
+            f"{stock_name} Is South Korea's '{peer_name}' — "
+            f"{self._article_for(business_label)} {business_label}"
+        )
         summary = (
-            f"{stock_name} is best understood as a Korean {business_label.lower()} peer to "
-            f"{peer.company_name}. {factor_sentence} {scale_sentence} "
-            f"The match is grounded in Hannah's global peer ranker with "
-            f"{context.confidence_level.lower()} confidence and score "
-            f"{context.confidence_score:.4f}."
+            f"{stock_name} is best understood as a Korean {business_label.lower()} with a "
+            f"similar role to {peer_name}. {self._domain_sentence(peer)} "
+            f"{self._financial_sentence(peer)} "
+            f"Hannah's global peer ranker assigns {context.confidence_level.lower()} "
+            f"confidence with a similarity score of {context.confidence_score:.4f}."
         )
         return GlobalPeerExplanation(
             headline=headline,
@@ -205,7 +207,8 @@ class GlobalPeerExplanationGenerator:
                     "You write concise English explanations for global stock peer matches. "
                     "Use only the provided facts. Do not invent products, partnerships, "
                     "financial figures, tickers, or recommendations. Return JSON only with "
-                    "keys headline and summary."
+                    "keys headline and summary. If korean_stock.display_name is provided, "
+                    "use it as the company name and do not use korean_stock.name."
                 ),
             },
             {
@@ -217,6 +220,9 @@ class GlobalPeerExplanationGenerator:
                         "style": {
                             "headline": "one sentence under 180 characters",
                             "summary": "2 to 4 sentences, no investment advice",
+                            "naming": (
+                                "use korean_stock.display_name for the company name when available"
+                            ),
                         },
                     },
                     ensure_ascii=False,
@@ -228,9 +234,11 @@ class GlobalPeerExplanationGenerator:
     def _grounding_facts(context: GlobalPeerExplanationContext) -> dict[str, object]:
         request = context.request
         peer = context.primary_peer
+        display_name = GlobalPeerExplanationGenerator._stock_display_name(request)
         return {
             "korean_stock": {
                 "code": request.stock_code,
+                "display_name": display_name,
                 "name": request.stock_name,
                 "english_name": request.stock_name_en,
                 "market": request.market,
@@ -289,6 +297,12 @@ class GlobalPeerExplanationGenerator:
         stock_terms = [request.stock_name.lower()]
         if request.stock_name_en:
             stock_terms.append(request.stock_name_en.lower())
+        display_name = GlobalPeerExplanationGenerator._stock_display_name(request).lower()
+        if display_name:
+            stock_terms.append(display_name)
+        anchor = KOREA_ANCHORS.get(request.stock_code)
+        if anchor and anchor.display_name and anchor.display_name.lower() not in combined:
+            return False
         if not any(term and term in combined for term in stock_terms):
             return False
         peer_terms = {peer.company_name.lower()}
@@ -324,37 +338,104 @@ class GlobalPeerExplanationGenerator:
 
     @staticmethod
     def _business_label(peer: GlobalPeerMatch) -> str:
+        if peer.industry and peer.industry not in {"Unclassified", "Listed Operating Company"}:
+            return f"{GlobalPeerExplanationGenerator._short_industry_label(peer.industry)} Peer"
         if peer.business_model and peer.business_model != "Operating company":
-            return peer.business_model
-        if peer.industry and peer.industry != "Unclassified":
-            return peer.industry
+            business_model = GlobalPeerExplanationGenerator._short_business_model(
+                peer.business_model
+            )
+            return f"{business_model} Peer"
         if peer.business_tags:
             return peer.business_tags[0].title()
         return "Global Peer"
 
     @staticmethod
-    def _factor_sentence(peer: GlobalPeerMatch) -> str:
-        factors = [
-            factor
-            for factor in peer.matched_factors
-            if factor.startswith(("Sector:", "Industry:", "Business model:"))
-        ][:3]
-        if not factors:
-            return (
-                f"The match is anchored on sector {peer.sector}, industry {peer.industry}, "
-                f"and business model {peer.business_model}."
-            )
-        return " ".join(factors)
+    def _stock_display_name(request: GlobalPeerMatchRequest) -> str:
+        anchor = KOREA_ANCHORS.get(request.stock_code)
+        if anchor and anchor.display_name:
+            return anchor.display_name
+        return request.stock_name_en or request.stock_name
 
     @staticmethod
-    def _scale_sentence(peer: GlobalPeerMatch) -> str:
-        if peer.financial_similarity_score is None:
+    def _display_peer_name(company_name: str) -> str:
+        cleaned = re.sub(r"\s+\.\s+", " ", company_name).strip()
+        cleaned = re.sub(r"\s+Class\s+[A-Z]$", "", cleaned).strip()
+        cleaned = re.sub(r"\s+When-Issued$", "", cleaned).strip()
+        return cleaned
+
+    @staticmethod
+    def _domain_sentence(peer: GlobalPeerMatch) -> str:
+        sector = peer.sector if peer.sector != "Unclassified" else "its sector"
+        industry = peer.industry if peer.industry != "Unclassified" else "its industry"
+        business_model = GlobalPeerExplanationGenerator._short_business_model(peer.business_model)
+        if peer.industry not in {"Unclassified", "Listed Operating Company"}:
             return (
-                f"Financial context is limited, so {peer.company_name} is used primarily "
-                "as a business-domain proxy."
+                f"The match is driven first by sector and industry fit: both companies sit "
+                f"in {sector} and operate around {industry.lower()}."
+            )
+        if peer.business_model != "Operating company":
+            return (
+                f"The match is driven first by business-model fit: both companies are "
+                f"mapped to {business_model.lower()}."
             )
         return (
-            f"Financial context is included with score "
-            f"{peer.financial_similarity_score:.4f}, while {peer.company_name} is treated "
-            f"as a {peer.scale_bucket} US-market reference."
+            "The match is mainly a broad listed-company reference because detailed "
+            "industry data is limited."
         )
+
+    @staticmethod
+    def _financial_sentence(peer: GlobalPeerMatch) -> str:
+        peer_name = GlobalPeerExplanationGenerator._display_peer_name(peer.company_name)
+        if peer.financial_similarity_score is None:
+            return (
+                f"Financial context is limited, so {peer_name} is used primarily "
+                "as a business-domain proxy."
+            )
+        scale = peer.scale_bucket.replace("_", " ").lower()
+        return (
+            f"Financial context is included with a similarity score of "
+            f"{peer.financial_similarity_score:.4f}; {peer_name} is treated as a "
+            f"{scale} US-market reference rather than a strict size match."
+        )
+
+    @staticmethod
+    def _short_business_model(value: str) -> str:
+        normalized = value.strip()
+        replacements = {
+            "Banking, spread income, fees, and capital-market services": "Banking",
+            "Platform software, search advertising, and commerce": "Digital Platform",
+            "Biotech platform licensing": "Biotech Platform",
+            "Automobile manufacturing and mobility supply chain": "Automotive Manufacturing",
+            "Packaged food, beverage, and consumer staples": "Food and Beverage",
+            "Insurance underwriting and financial services": "Insurance",
+            "Chemical and advanced materials manufacturing": "Specialty Chemicals",
+            "Investment holding and portfolio management": "Investment Holding",
+        }
+        return replacements.get(normalized, GlobalPeerExplanationGenerator._title_label(normalized))
+
+    @staticmethod
+    def _short_industry_label(value: str) -> str:
+        normalized = value.strip()
+        replacements = {
+            "Banks": "Banking",
+            "Automobiles": "Automotive",
+            "Investment Holding Companies": "Investment Holding",
+            "Food and Beverage": "Food and Beverage",
+        }
+        return replacements.get(normalized, GlobalPeerExplanationGenerator._title_label(normalized))
+
+    @staticmethod
+    def _article_for(value: str) -> str:
+        first = value.strip()[:1].lower()
+        return "An" if first in {"a", "e", "i", "o", "u"} else "A"
+
+    @staticmethod
+    def _title_label(value: str) -> str:
+        minor_words = {"and", "or", "of", "for", "to", "in"}
+        words = re.split(r"\s+", value.replace("_", " ").strip())
+        titled = [
+            word.lower() if index > 0 and word.lower() in minor_words else word.capitalize()
+            for index, word in enumerate(words)
+            if word
+        ]
+        return " ".join(titled)

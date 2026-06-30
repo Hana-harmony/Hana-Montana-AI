@@ -56,7 +56,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
     assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v1"
+    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v3"
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
@@ -181,6 +181,44 @@ def test_global_peer_llm_explainer_falls_back_on_ungrounded_output() -> None:
     assert "guaranteed" not in explanation.summary.lower()
 
 
+def test_global_peer_llm_explainer_falls_back_when_anchor_display_name_is_missing() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    request = GlobalPeerMatchRequest(
+        stock_code="196170",
+        stock_name="알테오젠",
+        market="KOSDAQ",
+    )
+    response = matcher.match(request)
+    generator = GlobalPeerExplanationGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=_FakePeerExplanationClient(
+            json.dumps(
+                {
+                    "headline": "알테오젠 Is South Korea's Halozyme — A Biotechnology Peer",
+                    "summary": (
+                        "알테오젠 is a Korean biotechnology peer with Halozyme Therapeutics "
+                        "in Health Care biotechnology, with no investment advice."
+                    ),
+                }
+            )
+        ),
+    )
+
+    explanation = generator.generate(
+        GlobalPeerExplanationContext(
+            request=request,
+            primary_peer=response.primary_peer,
+            confidence_level=response.confidence_level,
+            confidence_score=response.confidence_score,
+        )
+    )
+
+    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+    assert explanation.headline.startswith("Alteogen Is The 'Halozyme Therapeutics'")
+    assert explanation.summary.startswith("Alteogen is a high-margin")
+
+
 def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="0001A0",
@@ -226,6 +264,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
 
     assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
+    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v3"
     assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
     assert readiness["sample_count"] >= 3_000
     assert readiness["failure_count"] == 0
@@ -237,6 +276,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     assert training["training"]["return_code"] == 0
     assert training["training"]["observed_test_loss"] <= 0.01
     assert training["training"]["observed_test_perplexity"] <= 1.01
+    assert training["training"]["observed_peak_memory_gb"] <= 2.0
     assert Path("data/training/global_peer_explanation_sft.jsonl").exists()
     assert Path("data/training/global_peer_explanation_mlx/train.jsonl").exists()
     assert Path(
