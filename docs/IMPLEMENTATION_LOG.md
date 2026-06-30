@@ -4,9 +4,11 @@
 - 글로벌 피어 매칭은 기존 hybrid ranker가 담당하고, headline/summary만 구조화 근거 기반 설명 생성기로 분리했다.
 - `GlobalPeerExplanationGenerator`를 추가해 기본은 deterministic grounded template을 사용하고, `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`일 때 OpenAI-compatible local LLM endpoint를 호출하도록 했다.
 - LLM 출력은 JSON, 종목명, peer명 또는 허용 축약명, ticker/섹터/산업/사업모델 uppercase token, 금지 투자조언 문구를 검증하며 실패하면 template으로 fallback한다.
-- 한국 종목 3,967개 전체에 대해 `data/training/global_peer_explanation_sft.jsonl`을 생성했고, grounded target failure 0건, readiness `pass`를 기록했다.
+- Codex 검수로 학습 target 문체를 정리했다. sector/industry를 1순위 근거로 쓰고, 재무/규모는 strict size match가 아니라 US-market reference인지 설명하도록 변경했다.
+- anchor `display_name`을 추가해 알테오젠처럼 stock universe 영문명이 비어 있는 종목도 글로벌 투자자용 표시명을 유지한다. raw Qwen3가 display name을 누락하면 실제 API는 grounded guard에서 template fallback을 사용한다.
+- 한국 종목 3,967개 전체에 대해 prompt `global-peer-structured-rag-explainer-v3` 기준 `data/training/global_peer_explanation_sft.jsonl`을 생성했고, grounded target failure 0건, readiness `pass`를 기록했다.
 - MLX 학습용 split은 train 3,571 / valid 198 / test 198이다.
-- `mlx-community/Qwen3-0.6B-4bit`를 LoRA로 300 iters 학습했다. trainable parameter는 1.442M / 596.050M, final validation loss 0.016, test loss 0.006, test perplexity 1.006, peak memory 1.728GB를 기록했다.
+- `mlx-community/Qwen3-0.6B-4bit`를 LoRA로 500 iters 학습했다. trainable parameter는 1.442M / 596.050M, final validation loss 0.014, test loss 0.000, test perplexity 1.000, peak memory 1.830GB를 기록했다.
 - adapter는 `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapters.safetensors`와 `adapter_config.json`에 저장했다.
 - 운영 t4g.medium은 GPU가 없으므로 API 프로세스 내 로딩이 아니라 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible server로 띄우고 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`로 연결하는 구조를 문서화했다.
 

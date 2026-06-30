@@ -54,7 +54,7 @@ uv run python scripts/build_hannah_ai_model_audit_report.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```
 - 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. 전종목 coverage 결과는 `reports/global-peer-full-coverage-report.json`에 저장하며, API 계약 테스트와 별도로 전체 한국 master 3,967개가 추론 가능한지 확인한다. 전종목별 현재 primary peer 결과와 성능은 `docs/GLOBAL_PEER_ALL_RESULTS.md`, `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`에 저장한다. Qwen3 설명 LLM 학습 데이터와 결과는 `data/training/global_peer_explanation_sft.jsonl`, `data/training/global_peer_explanation_mlx`, `reports/global-peer-explanation-llm-readiness.json`, `reports/global-peer-qwen3-explainer-training.json`에 저장한다. 전체 AI 기능 감사는 `reports/hannah-ai-model-audit-report.json`과 `docs/HANNAH_AI_MODEL_AUDIT.md`에 저장한다.
-- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`, `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=<served-model-name>`을 설정하면 llama.cpp 같은 OpenAI-compatible local server를 호출한다. t4g.medium에서는 Qwen3-0.6B GGUF Q4를 별도 프로세스로 띄우고 API는 짧은 structured prompt만 전달한다. endpoint 장애, 비정상 JSON, 근거 불일치, 투자조언 문구는 모두 template fallback으로 처리한다.
+- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`, `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=<served-model-name>`을 설정하면 llama.cpp 같은 OpenAI-compatible local server를 호출한다. t4g.medium에서는 Qwen3-0.6B GGUF Q4를 별도 프로세스로 띄우고 API는 짧은 structured prompt만 전달한다. endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, 투자조언 문구는 모두 template fallback으로 처리한다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.

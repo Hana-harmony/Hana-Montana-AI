@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-explanation-llm-readiness/v1",
-  "generated_at": "2026-06-30T10:39:16.140624+00:00",
-  "prompt_version": "global-peer-structured-rag-explainer-v1",
+  "generated_at": "2026-06-30T12:14:07.040183+00:00",
+  "prompt_version": "global-peer-structured-rag-explainer-v3",
   "recommended_train_model": "Qwen/Qwen3-0.6B-MLX-4bit LoRA",
   "recommended_serving_model": "Qwen3-0.6B GGUF Q4",
   "serving_runtime": "llama.cpp OpenAI-compatible server",

@@ -170,6 +170,7 @@ class PeerAnchor:
     net_income_usd: float | None = None
     fiscal_year: int | None = None
     financial_data_source: str = "CURATED_ANCHOR"
+    display_name: str = ""
     positioning_title: str = ""
     preferred_peer_ticker: str = ""
     headline_template: str = ""
@@ -325,6 +326,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
         operating_income_usd=50_000_000,
         net_income_usd=42_000_000,
         fiscal_year=2025,
+        display_name="Alteogen",
         positioning_title="Global Biotech Platform Leader",
         preferred_peer_ticker="HALO",
         headline_template=(
@@ -2495,6 +2497,7 @@ def _anchors_to_payload(anchors: dict[str, PeerAnchor]) -> dict[str, dict[str, o
             "net_income_usd": anchor.net_income_usd,
             "fiscal_year": anchor.fiscal_year,
             "financial_data_source": anchor.financial_data_source,
+            "display_name": anchor.display_name,
             "positioning_title": anchor.positioning_title,
             "preferred_peer_ticker": anchor.preferred_peer_ticker,
             "headline_template": anchor.headline_template,
