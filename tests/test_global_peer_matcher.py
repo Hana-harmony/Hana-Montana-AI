@@ -73,6 +73,26 @@ def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
         assert response.primary_peer.matched_factors
 
 
+def test_global_peer_model_prioritizes_domain_and_explains_financial_context() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="035420",
+            stock_name="NAVER",
+            stock_name_en="NAVER",
+            market="KOSPI",
+        )
+    )
+
+    factors = response.primary_peer.matched_factors
+    assert response.primary_peer.ticker == "GOOGL"
+    assert factors[0] == "Sector: both are mapped to Information Technology."
+    assert factors[1] == "Industry: both are mapped to Internet Platforms."
+    assert any("scale differs" in factor for factor in factors)
+    assert any("relative US-market positioning" in factor for factor in factors)
+
+
 def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="0001A0",
@@ -91,6 +111,7 @@ def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     assert report["attempted_count"] == report["success_count"]
     assert report["failure_count"] == 0
     assert report["quality_gate"]["status"] == "pass"
-    assert report["confidence_monitoring"]["status"] in {"pass", "needs_improvement"}
+    assert report["confidence_monitoring"]["status"] == "pass"
+    assert report["confidence_monitoring"]["actual_low_confidence_ratio"] < 0.35
     assert report["same_company_noise_count"] == 0
     assert report["matched_factor_missing_count"] == 0

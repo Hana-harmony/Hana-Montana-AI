@@ -787,16 +787,22 @@ def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
             stock_code = row["stock_code"].strip()
             if not stock_code:
                 continue
+            business_tags = _split_pipe(row.get("business_tags", ""))
+            sector = infer_sector(business_tags) if business_tags else GENERIC_LISTED_SECTOR
+            industry = infer_industry(business_tags) if business_tags else GENERIC_LISTED_INDUSTRY
+            business_model = (
+                infer_business_model(business_tags) if business_tags else "Operating company"
+            )
             profiles[stock_code] = KoreaIndustryProfile(
                 stock_code=stock_code,
                 stock_name=row.get("stock_name", "").strip(),
                 industry_code=row.get("industry_code", "").strip(),
                 peer_stock_codes=_split_pipe(row.get("peer_stock_codes", "")),
                 peer_stock_names=_split_pipe(row.get("peer_stock_names", "")),
-                business_tags=_split_pipe(row.get("business_tags", "")),
-                sector=row.get("sector", "").strip() or GENERIC_LISTED_SECTOR,
-                industry=row.get("industry", "").strip() or GENERIC_LISTED_INDUSTRY,
-                business_model=row.get("business_model", "").strip() or "Operating company",
+                business_tags=business_tags,
+                sector=sector,
+                industry=industry,
+                business_model=business_model,
                 source=row.get("source", "").strip(),
             )
     return profiles
@@ -1316,7 +1322,30 @@ def rank_pair_candidates(
         dtype=float,
     )
     ranker_scores = np.asarray(ranker.predict_proba(feature_rows)[:, 1], dtype=float)
-    return np.asarray((0.80 * ranker_scores) + (0.20 * base_scores), dtype=float)
+    combined = np.asarray((0.60 * ranker_scores) + (0.40 * base_scores), dtype=float)
+    for index, peer_profile in enumerate(eligible_us_profiles):
+        combined[index] *= domain_priority_multiplier(stock_profile, peer_profile)
+    return combined
+
+
+def domain_priority_multiplier(
+    stock_profile: CompanyPeerProfile,
+    peer_profile: CompanyPeerProfile,
+) -> float:
+    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+    multiplier = 1.0
+    if stock_profile.sector not in generic_sectors:
+        if peer_profile.sector in generic_sectors:
+            multiplier *= 0.60
+        elif stock_profile.sector != peer_profile.sector:
+            multiplier *= 0.20
+    if stock_profile.industry not in generic_industries:
+        if peer_profile.industry in generic_industries:
+            multiplier *= 0.75
+        elif stock_profile.industry != peer_profile.industry:
+            multiplier *= 0.45
+    return multiplier
 
 
 def pairwise_feature_vector(
@@ -1393,7 +1422,7 @@ def _candidate_scores(
         ],
         dtype=float,
     )
-    base_scores = (0.45 * text_scores) + (0.25 * semantic_scores) + (0.30 * financial_scores)
+    base_scores = (0.50 * text_scores) + (0.30 * semantic_scores) + (0.20 * financial_scores)
     return text_scores, semantic_scores, financial_scores, base_scores
 
 
@@ -1927,16 +1956,10 @@ def infer_industry(tags: Sequence[str]) -> str:
 def infer_business_model(tags: Sequence[str]) -> str:
     if "royalty licensing" in tags or "drug delivery" in tags:
         return "Technology licensing and royalties"
-    if "software platform" in tags:
-        return "Platform software and recurring services"
     if "banking" in tags:
         return "Banking, spread income, fees, and capital-market services"
     if "insurance" in tags:
         return "Insurance underwriting and financial services"
-    if "holding company" in tags:
-        return "Investment holding and portfolio management"
-    if "financials" in tags:
-        return "Spread, fee, and capital-market services"
     if "memory chips" in tags:
         return "Memory semiconductor manufacturing"
     if "consumer electronics" in tags or "home appliances" in tags:
@@ -1947,6 +1970,14 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Battery manufacturing and energy storage supply chain"
     if "semiconductors" in tags:
         return "Semiconductor manufacturing or supply chain"
+    if "automotive" in tags:
+        return "Automobile manufacturing and mobility supply chain"
+    if "chemicals" in tags:
+        return "Chemical and advanced materials manufacturing"
+    if "materials" in tags:
+        return "Metals, materials, and industrial inputs"
+    if "software platform" in tags:
+        return "Platform software and recurring services"
     if "construction" in tags:
         return "Construction, engineering, and infrastructure projects"
     if "industrial machinery" in tags:
@@ -1959,6 +1990,10 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Content production, distribution, and advertising"
     if "retail" in tags:
         return "Merchandising and commerce"
+    if "holding company" in tags:
+        return "Investment holding and portfolio management"
+    if "financials" in tags:
+        return "Spread, fee, and capital-market services"
     if "telecommunications" in tags:
         return "Telecom network subscription services"
     if "logistics" in tags:

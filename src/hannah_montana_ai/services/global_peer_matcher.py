@@ -55,6 +55,7 @@ class GlobalPeerMatcher:
         self._pairwise_ranker = payload["pairwise_ranker"]
         self._pairwise_feature_names = tuple(payload["pairwise_feature_names"])
         self._eligible_us_profiles = list(payload["eligible_us_profiles"])
+        self._us_market_cap_percentiles = self._market_cap_percentiles(self._eligible_us_profiles)
         self._korea_profiles = dict(payload["korea_profiles"])
 
     def match(self, request: GlobalPeerMatchRequest) -> GlobalPeerMatchResponse:
@@ -180,9 +181,9 @@ class GlobalPeerMatcher:
         financial_similarities: np.ndarray,
     ) -> np.ndarray:
         base_scores = (
-            (0.45 * text_similarities)
-            + (0.25 * semantic_similarities)
-            + (0.30 * financial_similarities)
+            (0.50 * text_similarities)
+            + (0.30 * semantic_similarities)
+            + (0.20 * financial_similarities)
         )
         feature_rows = np.array(
             [
@@ -208,13 +209,41 @@ class GlobalPeerMatcher:
             ):
                 combined[index] = max(
                     combined[index],
-                    (0.15 * base_scores[index]) + (0.05 * financial_score),
+                    (0.10 * base_scores[index]) + (0.03 * financial_score),
                 )
+            combined[index] *= self._domain_priority_multiplier(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
             combined[index] *= self._same_company_penalty(
                 stock_profile,
                 self._eligible_us_profiles[index],
             )
         return np.asarray(combined, dtype=float)
+
+    @staticmethod
+    def _domain_priority_multiplier(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> float:
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        peer_sector = str(peer_profile.get("sector") or "Unclassified")
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        multiplier = 1.0
+        if stock_sector not in generic_sectors:
+            if peer_sector in generic_sectors:
+                multiplier *= 0.60
+            elif stock_sector != peer_sector:
+                multiplier *= 0.20
+        if stock_industry not in generic_industries:
+            if peer_industry in generic_industries:
+                multiplier *= 0.75
+            elif stock_industry != peer_industry:
+                multiplier *= 0.45
+        return multiplier
 
     @staticmethod
     def _sector_penalty(
@@ -458,13 +487,84 @@ class GlobalPeerMatcher:
         else:
             factors.append(f"Scale: source={stock_scale}, peer={peer_scale}.")
 
-        if financial_score > 0:
-            factors.append(
-                "Financial similarity: market cap, revenue, and profitability "
-                f"score {financial_score:.4f}."
+        factors.extend(
+            self._financial_context_factors(
+                stock_profile=stock_profile,
+                peer_profile=peer_profile,
+                financial_score=financial_score,
             )
+        )
         factors.append(f"Model similarity: blended peer score {score:.4f}.")
         return factors
+
+    def _financial_context_factors(
+        self,
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+        financial_score: float,
+    ) -> list[str]:
+        factors: list[str] = []
+        if financial_score <= 0:
+            return factors
+        stock_scale = str(stock_profile.get("scale_bucket") or "UNKNOWN")
+        peer_scale = str(peer_profile.get("scale_bucket") or "UNKNOWN")
+        same_scale = stock_scale != "UNKNOWN" and stock_scale == peer_scale
+        if financial_score >= 0.88:
+            if same_scale:
+                factors.append(
+                    "Financial comparability: direct market cap, revenue, and "
+                    f"profitability similarity score {financial_score:.4f}."
+                )
+            else:
+                factors.append(
+                    "Financial comparability: strong financial-vector similarity, but "
+                    f"scale differs ({stock_scale} vs {peer_scale}); use as a "
+                    "US-market proxy rather than a strict size match."
+                )
+        elif financial_score >= 0.55:
+            factors.append(
+                "Financial comparability: partial direct similarity; the peer is used as "
+                f"a business-domain proxy with financial score {financial_score:.4f}."
+            )
+        else:
+            factors.append(
+                "Financial comparability: not a direct balance-sheet match; the peer is "
+                f"selected mainly for domain fit with financial score {financial_score:.4f}."
+            )
+
+        peer_identifier = str(peer_profile.get("identifier") or "")
+        percentile = self._us_market_cap_percentiles.get(peer_identifier)
+        if percentile is not None:
+            top_percent = max(0.1, round((1.0 - percentile) * 100.0, 1))
+            if stock_scale != "UNKNOWN" and stock_scale == peer_scale:
+                factors.append(
+                    f"US peer-universe position: {peer_scale} peer, around the top "
+                    f"{top_percent}% by market cap among eligible US peers."
+                )
+            else:
+                factors.append(
+                    f"US peer-universe position: {peer_scale} peer, around the top "
+                    f"{top_percent}% among eligible US peers; size is interpreted as "
+                    "relative US-market positioning rather than a strict Korean-size match."
+                )
+        return factors
+
+    @staticmethod
+    def _market_cap_percentiles(
+        profiles: list[dict[str, object]],
+    ) -> dict[str, float]:
+        values: list[tuple[str, float]] = []
+        for profile in profiles:
+            identifier = str(profile.get("identifier") or "")
+            market_cap = profile.get("market_cap_usd")
+            if not identifier or not isinstance(market_cap, int | float) or market_cap <= 0:
+                continue
+            values.append((identifier, float(market_cap)))
+        values.sort(key=lambda item: item[1])
+        if len(values) <= 1:
+            return {identifier: 1.0 for identifier, _ in values}
+        denominator = len(values) - 1
+        return {identifier: rank / denominator for rank, (identifier, _) in enumerate(values)}
 
     @staticmethod
     def _optional_float(value: object) -> float | None:

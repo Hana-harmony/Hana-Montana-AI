@@ -1,6 +1,6 @@
 {
   "schema_version": "hannah-ai-model-audit/v1",
-  "generated_at": "2026-06-30T03:32:56.817214+00:00",
+  "generated_at": "2026-06-30T04:09:53.274423+00:00",
   "overall_status": "pass",
   "models": [
     {
@@ -115,7 +115,7 @@
     {
       "name": "global_peer_matcher",
       "artifact": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
-      "version": "global-peer-hybrid-ranker-20260630032925",
+      "version": "global-peer-hybrid-ranker-20260630040616",
       "model_type": "TF-IDF retrieval + SVD semantic embedding + financial features + pairwise LogisticRegression reranker",
       "serving_surface": "Korean stock detail global peer popup",
       "release_status": "pass",
@@ -127,7 +127,7 @@
         "full_coverage_quality_gate": "pass",
         "confidence_monitoring": {
           "maximum_low_confidence_ratio": 0.35,
-          "actual_low_confidence_ratio": 0.297454,
+          "actual_low_confidence_ratio": 0.292664,
           "maximum_generic_sector_ratio": 0.85,
           "actual_generic_sector_ratio": 0.273506,
           "status": "pass"

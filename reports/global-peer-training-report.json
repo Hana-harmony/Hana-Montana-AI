@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-hybrid-ranker/v3",
-  "version": "global-peer-hybrid-ranker-20260630032925",
-  "trained_at": "2026-06-30T03:29:25.210361+00:00",
+  "version": "global-peer-hybrid-ranker-20260630040616",
+  "trained_at": "2026-06-30T04:06:16.167021+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
@@ -69,77 +69,77 @@
         "stock_code": "000660",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
-        "score": 0.560576,
+        "score": 0.560343,
         "hit": true
       },
       {
         "stock_code": "005930",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "WHR",
-        "score": 0.207515,
+        "score": 0.208198,
         "hit": false
       },
       {
         "stock_code": "006400",
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "QS",
-        "score": 0.306786,
+        "score": 0.308279,
         "hit": true
       },
       {
         "stock_code": "017670",
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
-        "score": 0.630694,
+        "score": 0.630933,
         "hit": true
       },
       {
         "stock_code": "035420",
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
-        "score": 0.391112,
+        "score": 0.390494,
         "hit": true
       },
       {
         "stock_code": "051910",
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
-        "score": 0.536442,
+        "score": 0.503655,
         "hit": true
       },
       {
         "stock_code": "055550",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.208105,
+        "score": 0.208027,
         "hit": true
       },
       {
         "stock_code": "066570",
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "SONY",
-        "score": 0.375686,
+        "score": 0.375683,
         "hit": false
       },
       {
         "stock_code": "068270",
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
-        "score": 0.161525,
+        "score": 0.161813,
         "hit": true
       },
       {
         "stock_code": "086790",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.338216,
+        "score": 0.338084,
         "hit": true
       },
       {
         "stock_code": "105560",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.265311,
+        "score": 0.265231,
         "hit": true
       },
       {
@@ -153,14 +153,14 @@
         "stock_code": "207940",
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
-        "score": 0.253721,
+        "score": 0.2554,
         "hit": true
       },
       {
         "stock_code": "373220",
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
-        "score": 0.404408,
+        "score": 0.393963,
         "hit": true
       }
     ]
@@ -176,7 +176,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.930281,
+        "score": 0.887349,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -185,7 +185,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.84414,
+        "score": 0.77426,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -194,7 +194,7 @@
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 2,
-        "score": 0.775132,
+        "score": 0.691443,
         "top1_hit": false,
         "top3_hit": true
       },
@@ -203,7 +203,7 @@
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
         "expected_peer_rank": 1,
-        "score": 0.88102,
+        "score": 0.840035,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -212,7 +212,7 @@
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
         "expected_peer_rank": 1,
-        "score": 0.866313,
+        "score": 0.784794,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -221,7 +221,7 @@
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
         "expected_peer_rank": 1,
-        "score": 0.913929,
+        "score": 0.857701,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -230,7 +230,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.827978,
+        "score": 0.745188,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -239,7 +239,7 @@
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "WHR",
         "expected_peer_rank": 1,
-        "score": 0.905576,
+        "score": 0.83393,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -248,7 +248,7 @@
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
         "expected_peer_rank": 1,
-        "score": 0.749312,
+        "score": 0.700009,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -257,7 +257,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.809964,
+        "score": 0.7413,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -266,7 +266,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.848055,
+        "score": 0.762829,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -275,7 +275,7 @@
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
         "expected_peer_rank": 1,
-        "score": 0.902478,
+        "score": 0.811539,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -284,7 +284,7 @@
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
         "expected_peer_rank": 1,
-        "score": 0.693157,
+        "score": 0.64811,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -293,7 +293,7 @@
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 1,
-        "score": 0.917108,
+        "score": 0.842882,
         "top1_hit": true,
         "top3_hit": true
       }
