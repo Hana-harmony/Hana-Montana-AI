@@ -224,7 +224,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--adapter-dir", type=Path, default=DEFAULT_ADAPTER_DIR)
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
     parser.add_argument("--model", default=DEFAULT_MODEL)
-    parser.add_argument("--iters", type=int, default=300)
+    parser.add_argument("--iters", type=int, default=500)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument("--num-layers", type=int, default=8)

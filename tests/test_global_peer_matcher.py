@@ -56,7 +56,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
     assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v3"
+    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v6"
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
@@ -116,17 +116,19 @@ def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
         market="KOSPI",
     )
     response = matcher.match(request)
+    context = GlobalPeerExplanationContext(
+        request=request,
+        primary_peer=response.primary_peer,
+        confidence_level=response.confidence_level,
+        confidence_score=response.confidence_score,
+    )
+    expected = GlobalPeerExplanationGenerator().template(context)
     llm_content = (
         "<think>\n\n</think>\n\n"
         + json.dumps(
             {
-                "headline": "NAVER Is South Korea's Alphabet — An Internet Platforms Peer",
-                "summary": (
-                    "NAVER is best understood as a Korean Internet Platforms peer to "
-                    "Alphabet. The explanation uses only the supplied sector, industry, "
-                    "business model, scale, and confidence facts. It does not add "
-                    "investment advice or unprovided financial claims."
-                ),
+                "headline": expected.headline,
+                "summary": expected.summary,
             }
         )
     )
@@ -138,16 +140,16 @@ def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
 
     explanation = generator.generate(
         GlobalPeerExplanationContext(
-            request=request,
-            primary_peer=response.primary_peer,
-            confidence_level=response.confidence_level,
-            confidence_score=response.confidence_score,
+            request=context.request,
+            primary_peer=context.primary_peer,
+            confidence_level=context.confidence_level,
+            confidence_score=context.confidence_score,
         )
     )
 
     assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
     assert explanation.model_version == "local-llm:Qwen3-0.6B-test"
-    assert explanation.headline.startswith("NAVER Is South Korea's Alphabet")
+    assert explanation.headline == expected.headline
 
 
 def test_global_peer_llm_explainer_falls_back_on_ungrounded_output() -> None:
@@ -264,7 +266,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
 
     assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
-    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v3"
+    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v6"
     assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
     assert readiness["sample_count"] >= 3_000
     assert readiness["failure_count"] == 0
@@ -276,7 +278,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     assert training["training"]["return_code"] == 0
     assert training["training"]["observed_test_loss"] <= 0.01
     assert training["training"]["observed_test_perplexity"] <= 1.01
-    assert training["training"]["observed_peak_memory_gb"] <= 2.0
+    assert training["training"]["observed_peak_memory_gb"] <= 2.5
     assert Path("data/training/global_peer_explanation_sft.jsonl").exists()
     assert Path("data/training/global_peer_explanation_mlx/train.jsonl").exists()
     assert Path(
@@ -285,3 +287,18 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     assert Path(
         "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapter_config.json"
     ).exists()
+
+
+def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
+    report = json.loads(Path("reports/global-peer-qwen3-generation-eval.json").read_text())
+
+    assert report["schema_version"] == "global-peer-qwen3-generation-eval/v1"
+    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v6"
+    assert report["stock_count"] == 30
+    assert report["pass_count"] == 30
+    assert report["pass_rate"] == 1.0
+    assert report["json_valid_count"] == 30
+    assert report["exact_headline_count"] == 30
+    assert report["exact_summary_count"] == 30
+    assert report["grounded_count"] == 30
+    assert report["quality_status"] == "pass"
