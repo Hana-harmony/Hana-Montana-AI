@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-ai-smoke/v1",
-  "generated_at": "2026-06-30T04:06:20.992335+00:00",
-  "model_version": "global-peer-hybrid-ranker-20260630040616",
+  "generated_at": "2026-06-30T17:11:32.788510+00:00",
+  "model_version": "global-peer-hybrid-ranker-20260630171118",
   "sample_count": 15,
   "cases": [
     {
@@ -15,7 +15,7 @@
         "company_name": "Micron Technology",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.7648,
+        "similarity_score": 0.7493,
         "business_tags": [
           "semiconductors",
           "memory chips"
@@ -38,22 +38,22 @@
           "Scale: both are mapped to MEGA_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9998.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.7648."
+          "Model similarity: blended peer score 0.7493."
         ],
         "rationale": "Both companies map to the global semiconductors peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "MU",
+        "Q",
         "STM",
         "NXPI",
-        "Q",
         "ON"
       ],
       "headline": "Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-      "summary": "Samsung Electronics is positioned in a similar global semiconductors value chain as Micron Technology. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.7648,
+      "summary": "Samsung Electronics is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.7493,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -67,7 +67,7 @@
         "company_name": "Micron Technology",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8727,
+        "similarity_score": 0.8723,
         "business_tags": [
           "semiconductors",
           "memory chips"
@@ -90,7 +90,7 @@
           "Scale: both are mapped to MEGA_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9998.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.8727."
+          "Model similarity: blended peer score 0.8723."
         ],
         "rationale": "Both companies map to the global semiconductors peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -102,10 +102,10 @@
         "CMG"
       ],
       "headline": "SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-      "summary": "SK hynix is positioned in a similar global semiconductors value chain as Micron Technology. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.8727,
+      "summary": "SK hynix is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8723,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -119,7 +119,7 @@
         "company_name": "Alphabet . Class A",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.7807,
+        "similarity_score": 0.7789,
         "business_tags": [
           "software platform",
           "internet search",
@@ -143,7 +143,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.1% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7807."
+          "Model similarity: blended peer score 0.7789."
         ],
         "rationale": "Both companies map to the global software platform peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -154,11 +154,11 @@
         "PAYC",
         "FDS"
       ],
-      "headline": "NAVER Is South Korea's 'Alphabet . Class A' — A Software Platform Peer",
-      "summary": "NAVER is positioned in a similar global software platform value chain as Alphabet . Class A. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.7807,
+      "headline": "NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer",
+      "summary": "NAVER is best understood as a Korean internet platforms peer with a similar role to Alphabet. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.7789,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -172,7 +172,7 @@
         "company_name": "Toyota Motor",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8125,
+        "similarity_score": 0.8178,
         "business_tags": [
           "automotive"
         ],
@@ -194,7 +194,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.1% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8125."
+          "Model similarity: blended peer score 0.8178."
         ],
         "rationale": "Both companies map to the global automotive peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -205,11 +205,11 @@
         "AN",
         "LAD"
       ],
-      "headline": "Hyundai Motor Is South Korea's 'Toyota Motor' — A Automotive Peer",
-      "summary": "Hyundai Motor is positioned in a similar global automotive value chain as Toyota Motor. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.8125,
+      "headline": "Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer",
+      "summary": "Hyundai Motor is best understood as a Korean automotive peer with a similar role to Toyota Motor. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8178,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -223,7 +223,7 @@
         "company_name": "Tesla",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8297,
+        "similarity_score": 0.8294,
         "business_tags": [
           "battery",
           "automotive"
@@ -246,7 +246,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8297."
+          "Model similarity: blended peer score 0.8294."
         ],
         "rationale": "Both companies map to the global battery peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -257,11 +257,11 @@
         "ABAT",
         "ELBM"
       ],
-      "headline": "LG Energy Solution Is South Korea's 'Tesla' — A Battery Peer",
-      "summary": "LG Energy Solution is positioned in a similar global battery value chain as Tesla. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.8297,
+      "headline": "LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
+      "summary": "LG Energy Solution is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8294,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -275,7 +275,7 @@
         "company_name": "Thermo Fisher Scientific",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.6345,
+        "similarity_score": 0.6364,
         "business_tags": [
           "biotech",
           "biologics cdmo"
@@ -298,7 +298,7 @@
           "Scale: both are mapped to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9998.",
           "US peer-universe position: LARGE_CAP peer, around the top 1.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.6345."
+          "Model similarity: blended peer score 0.6364."
         ],
         "rationale": "Both companies map to the global biotech peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -309,11 +309,11 @@
         "PTCT",
         "HALO"
       ],
-      "headline": "Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotech Peer",
-      "summary": "Samsung Biologics is positioned in a similar global biotech value chain as Thermo Fisher Scientific. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.6345,
+      "headline": "Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer",
+      "summary": "Samsung Biologics is best understood as a Korean biotechnology peer with a similar role to Thermo Fisher Scientific. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6364,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -327,7 +327,7 @@
         "company_name": "Biogen",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.6889,
+        "similarity_score": 0.6897,
         "business_tags": [
           "biotech",
           "biologics"
@@ -350,7 +350,7 @@
           "Scale: both are mapped to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9999.",
           "US peer-universe position: LARGE_CAP peer, around the top 8.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.6889."
+          "Model similarity: blended peer score 0.6897."
         ],
         "rationale": "Both companies map to the global biotech peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -361,11 +361,11 @@
         "HALO",
         "LGND"
       ],
-      "headline": "Celltrion Is South Korea's 'Biogen' — A Biotech Peer",
-      "summary": "Celltrion is positioned in a similar global biotech value chain as Biogen. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.6889,
+      "headline": "Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer",
+      "summary": "Celltrion is best understood as a Korean biotechnology peer with a similar role to Biogen. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6897,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -379,7 +379,7 @@
         "company_name": "Citigroup",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.7495,
+        "similarity_score": 0.7489,
         "business_tags": [
           "banking",
           "financials"
@@ -402,7 +402,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.8355.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7495."
+          "Model similarity: blended peer score 0.7489."
         ],
         "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -414,10 +414,10 @@
         "WAL"
       ],
       "headline": "KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-      "summary": "KB Financial Group is positioned in a similar global banking value chain as Citigroup. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.7495,
+      "summary": "KB Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.7489,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -431,7 +431,7 @@
         "company_name": "Citigroup",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.7303,
+        "similarity_score": 0.7295,
         "business_tags": [
           "banking",
           "financials"
@@ -454,7 +454,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.8357.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7303."
+          "Model similarity: blended peer score 0.7295."
         ],
         "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -466,10 +466,10 @@
         "COLB"
       ],
       "headline": "Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-      "summary": "Shinhan Financial Group is positioned in a similar global banking value chain as Citigroup. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.7303,
+      "summary": "Shinhan Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.7295,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -483,7 +483,7 @@
         "company_name": "Citigroup",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.725,
+        "similarity_score": 0.7248,
         "business_tags": [
           "banking",
           "financials"
@@ -506,7 +506,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7250."
+          "Model similarity: blended peer score 0.7248."
         ],
         "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -518,10 +518,10 @@
         "JPM"
       ],
       "headline": "Hana Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-      "summary": "Hana Financial Group is positioned in a similar global banking value chain as Citigroup. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.725,
+      "summary": "Hana Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.7248,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -535,7 +535,7 @@
         "company_name": "Dow",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8352,
+        "similarity_score": 0.8344,
         "business_tags": [
           "chemicals"
         ],
@@ -557,7 +557,7 @@
           "Scale: both are mapped to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9432.",
           "US peer-universe position: LARGE_CAP peer, around the top 11.9% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.8352."
+          "Model similarity: blended peer score 0.8344."
         ],
         "rationale": "Both companies map to the global chemicals peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -568,11 +568,11 @@
         "OC",
         "DLTR"
       ],
-      "headline": "LG Chem Is South Korea's 'Dow' — A Chemicals Peer",
-      "summary": "LG Chem is positioned in a similar global chemicals value chain as Dow. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.8352,
+      "headline": "LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer",
+      "summary": "LG Chem is best understood as a Korean specialty chemicals peer with a similar role to Dow. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8344,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -586,7 +586,7 @@
         "company_name": "Tesla",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.6723,
+        "similarity_score": 0.6716,
         "business_tags": [
           "battery",
           "automotive"
@@ -609,7 +609,7 @@
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.5820.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.6723."
+          "Model similarity: blended peer score 0.6716."
         ],
         "rationale": "Both companies map to the global battery peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -620,11 +620,11 @@
         "TDG",
         "ELBM"
       ],
-      "headline": "Samsung SDI Is South Korea's 'Tesla' — A Battery Peer",
-      "summary": "Samsung SDI is positioned in a similar global battery value chain as Tesla. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.6723,
+      "headline": "Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
+      "summary": "Samsung SDI is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6716,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -638,7 +638,7 @@
         "company_name": "Whirlpool",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8293,
+        "similarity_score": 0.8628,
         "business_tags": [
           "consumer electronics"
         ],
@@ -660,7 +660,7 @@
           "Scale: source=LARGE_CAP, peer=MID_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MID_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MID_CAP peer, around the top 38.5% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8293."
+          "Model similarity: blended peer score 0.8628."
         ],
         "rationale": "Both companies map to the global consumer electronics peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -671,11 +671,11 @@
         "AN",
         "LAD"
       ],
-      "headline": "LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics Peer",
-      "summary": "LG Electronics is positioned in a similar global consumer electronics value chain as Whirlpool. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.8293,
+      "headline": "LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer",
+      "summary": "LG Electronics is best understood as a Korean consumer electronics and appliances peer with a similar role to Whirlpool. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8628,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -689,7 +689,7 @@
         "company_name": "Verizon Communications",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.821,
+        "similarity_score": 0.8199,
         "business_tags": [
           "telecommunications"
         ],
@@ -711,7 +711,7 @@
           "Scale: both are mapped to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9996.",
           "US peer-universe position: LARGE_CAP peer, around the top 1.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.8210."
+          "Model similarity: blended peer score 0.8199."
         ],
         "rationale": "Both companies map to the global telecommunications peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
@@ -723,10 +723,10 @@
         "SBAC"
       ],
       "headline": "SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer",
-      "summary": "SK Telecom is positioned in a similar global telecommunications value chain as Verizon Communications. The match is generated from a model trained on the full Korean stock universe and the full United States listed symbol universe.",
-      "confidence_score": 0.821,
+      "summary": "SK Telecom is best understood as a Korean telecommunications peer with a similar role to Verizon Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.8199,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -740,7 +740,7 @@
         "company_name": "Halozyme Therapeutics",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8044,
+        "similarity_score": 0.8046,
         "business_tags": [
           "biotech platform",
           "drug delivery",
@@ -776,9 +776,9 @@
       ],
       "headline": "Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader",
       "summary": "Alteogen is a high-margin Biotech Platform provider. Instead of developing its own new drugs, it licenses out its proprietary drug-delivery technology to global Big Pharma, securing long-term milestone and royalty fees.",
-      "confidence_score": 0.8044,
+      "confidence_score": 0.8046,
       "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260630040616",
+      "model_version": "global-peer-hybrid-ranker-20260630171118",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     }
   ]

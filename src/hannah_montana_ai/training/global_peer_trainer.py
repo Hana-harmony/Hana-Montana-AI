@@ -31,6 +31,44 @@ GLOBAL_PEER_SCHEMA_VERSION = "global-peer-hybrid-ranker/v3"
 GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-hybrid-ranker"
 GENERIC_LISTED_SECTOR = "General Listed Equity"
 GENERIC_LISTED_INDUSTRY = "Listed Operating Company"
+NAVER_INDUSTRY_CODE_TAG_OVERRIDES: dict[str, tuple[str, ...]] = {
+    "266": ("consumer brands",),
+    "267": ("software platform",),
+    "274": ("consumer brands",),
+    "275": ("food and beverage",),
+    "276": ("holding company",),
+    "277": ("financials",),
+    "287": ("software platform",),
+    "292": ("semiconductors",),
+    "293": ("software platform",),
+    "297": ("consumer brands",),
+    "303": ("consumer brands",),
+    "327": ("consumer electronics",),
+    "328": ("retail",),
+    "330": ("insurance",),
+    "331": ("energy",),
+    "332": ("consumer brands",),
+    "337": ("financials",),
+    "338": ("consumer electronics",),
+    "334": ("retail",),
+}
+NAVER_INDUSTRY_CODE_ALWAYS_OVERRIDE_CODES = {
+    "267",
+    "274",
+    "276",
+    "277",
+    "287",
+    "292",
+    "293",
+    "327",
+    "328",
+    "330",
+    "331",
+    "332",
+    "334",
+    "337",
+    "338",
+}
 KOREAN_ADR_TICKERS = {
     "KB",
     "KEP",
@@ -330,8 +368,7 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
         positioning_title="Global Biotech Platform Leader",
         preferred_peer_ticker="HALO",
         headline_template=(
-            "{stock_name_en} Is The '{peer_name}' of South Korea — "
-            "A Global Biotech Platform Leader"
+            "{stock_name_en} Is The '{peer_name}' of South Korea — A Global Biotech Platform Leader"
         ),
         summary=(
             "Alteogen is a high-margin Biotech Platform provider. Instead of developing "
@@ -395,8 +432,7 @@ US_ANCHORS: dict[str, PeerAnchor] = {
     ),
     "DOW": PeerAnchor(
         profile_text=(
-            "Dow specialty chemicals petrochemicals advanced materials chemical "
-            "manufacturer"
+            "Dow specialty chemicals petrochemicals advanced materials chemical manufacturer"
         ),
         business_tags=("chemicals",),
         sector="Materials",
@@ -454,8 +490,7 @@ US_ANCHORS: dict[str, PeerAnchor] = {
     ),
     "MU": PeerAnchor(
         profile_text=(
-            "Micron Technology memory semiconductor DRAM NAND HBM chips data "
-            "center AI memory"
+            "Micron Technology memory semiconductor DRAM NAND HBM chips data center AI memory"
         ),
         business_tags=("semiconductors", "memory chips"),
         sector="Information Technology",
@@ -675,13 +710,17 @@ def fetch_open_dart_annual_fundamentals(
 ) -> GlobalPeerFundamentals | None:
     for statement_type in ("CFS", "OFS"):
         payload = _download_json(
-            f"{OPEN_DART_FINANCIAL_URL}?{urlencode({
-                'crtfc_key': api_key,
-                'corp_code': corp_code,
-                'bsns_year': str(fiscal_year),
-                'reprt_code': '11011',
-                'fs_div': statement_type,
-            })}"
+            f"{OPEN_DART_FINANCIAL_URL}?{
+                urlencode(
+                    {
+                        'crtfc_key': api_key,
+                        'corp_code': corp_code,
+                        'bsns_year': str(fiscal_year),
+                        'reprt_code': '11011',
+                        'fs_div': statement_type,
+                    }
+                )
+            }"
         )
         rows = payload.get("list", [])
         if isinstance(rows, list) and rows:
@@ -783,31 +822,177 @@ def load_global_peer_fundamentals(path: Path) -> dict[tuple[str, str], GlobalPee
 def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
     if not path.exists():
         return {}
-    profiles: dict[str, KoreaIndustryProfile] = {}
+    profiles: list[KoreaIndustryProfile] = []
     with path.open(newline="", encoding="utf-8") as file:
         for row in csv.DictReader(file):
             stock_code = row["stock_code"].strip()
             if not stock_code:
                 continue
-            business_tags = _split_pipe(row.get("business_tags", ""))
+            raw_tags = _split_pipe(row.get("business_tags", ""))
+            business_tags = tuple(
+                tag for tag in raw_tags if tag and tag != "general listed company"
+            )
+            peer_stock_names = _split_pipe(row.get("peer_stock_names", ""))
+            if not business_tags:
+                inferred_tags = infer_business_tags(
+                    row.get("stock_name", "").strip(),
+                    " ".join(peer_stock_names),
+                )
+                business_tags = tuple(
+                    tag for tag in inferred_tags if tag and tag != "general listed company"
+                )
+            source = row.get("source", "").strip()
+            industry_code = row.get("industry_code", "").strip()
+            taxonomy_tags = NAVER_INDUSTRY_CODE_TAG_OVERRIDES.get(industry_code)
+            if taxonomy_tags and (
+                not business_tags
+                or business_tags == ("holding company",)
+                or industry_code in NAVER_INDUSTRY_CODE_ALWAYS_OVERRIDE_CODES
+            ):
+                business_tags = taxonomy_tags
+                source = f"{source or 'NAVER_STOCK_INDUSTRY_COMPARE'}+NAVER_INDUSTRY_CODE_TAXONOMY"
             sector = infer_sector(business_tags) if business_tags else GENERIC_LISTED_SECTOR
             industry = infer_industry(business_tags) if business_tags else GENERIC_LISTED_INDUSTRY
             business_model = (
                 infer_business_model(business_tags) if business_tags else "Operating company"
             )
-            profiles[stock_code] = KoreaIndustryProfile(
-                stock_code=stock_code,
-                stock_name=row.get("stock_name", "").strip(),
-                industry_code=row.get("industry_code", "").strip(),
-                peer_stock_codes=_split_pipe(row.get("peer_stock_codes", "")),
-                peer_stock_names=_split_pipe(row.get("peer_stock_names", "")),
-                business_tags=business_tags,
-                sector=sector,
-                industry=industry,
-                business_model=business_model,
-                source=row.get("source", "").strip(),
+            profiles.append(
+                KoreaIndustryProfile(
+                    stock_code=stock_code,
+                    stock_name=row.get("stock_name", "").strip(),
+                    industry_code=industry_code,
+                    peer_stock_codes=_split_pipe(row.get("peer_stock_codes", "")),
+                    peer_stock_names=peer_stock_names,
+                    business_tags=business_tags,
+                    sector=sector,
+                    industry=industry,
+                    business_model=business_model,
+                    source=source,
+                )
             )
-    return profiles
+    return {
+        profile.stock_code: profile for profile in _impute_generic_korea_industry_profiles(profiles)
+    }
+
+
+def _impute_generic_korea_industry_profiles(
+    profiles: Sequence[KoreaIndustryProfile],
+) -> list[KoreaIndustryProfile]:
+    labeled = [profile for profile in profiles if _is_specific_korea_industry_profile(profile)]
+    generic = [profile for profile in profiles if not _is_specific_korea_industry_profile(profile)]
+    if len(labeled) < 100 or not generic:
+        return list(profiles)
+
+    training_texts = [_korea_industry_profile_text(profile) for profile in labeled]
+    training_labels = [_primary_operating_tag(profile.business_tags) for profile in labeled]
+    industry_tag_counts: dict[str, Counter[str]] = {}
+    for profile, label in zip(labeled, training_labels, strict=True):
+        if profile.industry_code:
+            industry_tag_counts.setdefault(profile.industry_code, Counter())[label] += 1
+
+    vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5), min_df=1)
+    features = vectorizer.fit_transform(training_texts)
+    classifier = LogisticRegression(
+        max_iter=1_000,
+        class_weight="balanced",
+        random_state=42,
+    )
+    classifier.fit(features, training_labels)
+
+    generic_texts = [_korea_industry_profile_text(profile) for profile in generic]
+    probabilities = classifier.predict_proba(vectorizer.transform(generic_texts))
+    classes = [str(label) for label in classifier.classes_]
+    imputed_by_code: dict[str, KoreaIndustryProfile] = {}
+    for profile, row_probabilities in zip(generic, probabilities, strict=True):
+        if profile.industry_code in NAVER_INDUSTRY_CODE_TAG_OVERRIDES:
+            tags = NAVER_INDUSTRY_CODE_TAG_OVERRIDES[profile.industry_code]
+            source = profile.source or "NAVER_STOCK_INDUSTRY_COMPARE"
+            imputed_by_code[profile.stock_code] = KoreaIndustryProfile(
+                stock_code=profile.stock_code,
+                stock_name=profile.stock_name,
+                industry_code=profile.industry_code,
+                peer_stock_codes=profile.peer_stock_codes,
+                peer_stock_names=profile.peer_stock_names,
+                business_tags=tags,
+                sector=infer_sector(tags),
+                industry=infer_industry(tags),
+                business_model=infer_business_model(tags),
+                source=f"{source}+NAVER_INDUSTRY_CODE_TAXONOMY",
+            )
+            continue
+        best_index = int(np.argmax(row_probabilities))
+        predicted_tag = classes[best_index]
+        confidence = float(row_probabilities[best_index])
+        dominant_tag = _dominant_industry_tag(industry_tag_counts.get(profile.industry_code))
+        if not _accept_imputed_korea_tag(
+            predicted_tag=predicted_tag,
+            confidence=confidence,
+            dominant_tag=dominant_tag,
+        ):
+            continue
+        tags = (predicted_tag,)
+        source = profile.source or "NAVER_STOCK_INDUSTRY_COMPARE"
+        imputed_by_code[profile.stock_code] = KoreaIndustryProfile(
+            stock_code=profile.stock_code,
+            stock_name=profile.stock_name,
+            industry_code=profile.industry_code,
+            peer_stock_codes=profile.peer_stock_codes,
+            peer_stock_names=profile.peer_stock_names,
+            business_tags=tags,
+            sector=infer_sector(tags),
+            industry=infer_industry(tags),
+            business_model=infer_business_model(tags),
+            source=f"{source}+ML_INDUSTRY_IMPUTATION",
+        )
+
+    return [imputed_by_code.get(profile.stock_code, profile) for profile in profiles]
+
+
+def _is_specific_korea_industry_profile(profile: KoreaIndustryProfile) -> bool:
+    return (
+        bool(profile.business_tags)
+        and profile.sector != GENERIC_LISTED_SECTOR
+        and profile.industry != GENERIC_LISTED_INDUSTRY
+    )
+
+
+def _primary_operating_tag(tags: Sequence[str]) -> str:
+    operating_tags = [tag for tag in tags if tag != "holding company"]
+    return (operating_tags or list(tags) or ["general listed company"])[0]
+
+
+def _korea_industry_profile_text(profile: KoreaIndustryProfile) -> str:
+    return " ".join(
+        value
+        for value in [
+            f"industry_code_{profile.industry_code}",
+            profile.stock_name,
+            " ".join(profile.peer_stock_names),
+        ]
+        if value
+    )
+
+
+def _dominant_industry_tag(tag_counts: Counter[str] | None) -> str | None:
+    if not tag_counts:
+        return None
+    most_common = tag_counts.most_common(2)
+    top_tag, top_count = most_common[0]
+    total_count = sum(tag_counts.values())
+    if top_count >= 5 and top_count / total_count >= 0.75:
+        return top_tag
+    return None
+
+
+def _accept_imputed_korea_tag(
+    *,
+    predicted_tag: str,
+    confidence: float,
+    dominant_tag: str | None,
+) -> bool:
+    if confidence >= 0.65:
+        return True
+    return bool(dominant_tag and predicted_tag == dominant_tag and confidence >= 0.45)
 
 
 def write_korea_industry_profiles(
@@ -1174,9 +1359,7 @@ def train_pairwise_peer_ranker(
             if profile.identifier == expected_profile.identifier
         )
         hard_negative_indices = [
-            int(index)
-            for index in base_scores.argsort()[::-1]
-            if int(index) != expected_index
+            int(index) for index in base_scores.argsort()[::-1] if int(index) != expected_index
         ][:40]
         candidate_indices = [expected_index, *hard_negative_indices]
         candidate_count_by_stock[stock_code] = len(candidate_indices)

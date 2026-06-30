@@ -97,7 +97,10 @@ class GlobalPeerMatcher:
             for rank, index in enumerate(selected_indices, start=1)
         ]
         primary_peer = peers[0]
-        confidence_score = max(0.0, min(1.0, primary_peer.similarity_score))
+        confidence_score = self._calibrated_confidence_score(
+            stock_profile=stock_profile,
+            primary_peer=primary_peer,
+        )
         confidence_level = self._confidence_level(confidence_score)
         explanation = self._explainer.generate(
             GlobalPeerExplanationContext(
@@ -123,6 +126,47 @@ class GlobalPeerMatcher:
             explanation_model_version=explanation.model_version,
             explanation_prompt_version=explanation.prompt_version,
         )
+
+    @classmethod
+    def _calibrated_confidence_score(
+        cls,
+        *,
+        stock_profile: dict[str, object],
+        primary_peer: GlobalPeerMatch,
+    ) -> float:
+        score = max(0.0, min(1.0, primary_peer.similarity_score))
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        stock_model = str(stock_profile.get("business_model") or "Operating company")
+        stock_scale = str(stock_profile.get("scale_bucket") or "UNKNOWN")
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+        stock_has_specific_domain = (
+            stock_sector not in generic_sectors and stock_industry not in generic_industries
+        )
+        if not stock_has_specific_domain:
+            return min(score, 0.39)
+
+        same_sector = stock_sector == primary_peer.sector
+        same_industry = stock_industry == primary_peer.industry
+        same_model = stock_model == primary_peer.business_model
+        same_scale = stock_scale != "UNKNOWN" and stock_scale == primary_peer.scale_bucket
+        financial_score = primary_peer.financial_similarity_score or 0.0
+
+        if same_industry and same_model:
+            score = max(score, 0.52)
+        elif same_industry:
+            score = max(score, 0.46)
+        elif same_sector:
+            score = max(score, 0.42)
+        else:
+            return min(score, 0.39)
+
+        if financial_score >= 0.88 and same_scale:
+            score = max(score, 0.62)
+        elif financial_score >= 0.55:
+            score = max(score, 0.48)
+        return max(0.0, min(1.0, score))
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:
         existing = self._korea_profiles.get(request.stock_code)

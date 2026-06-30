@@ -47,6 +47,10 @@ def build_global_peer_full_coverage_report(
             continue
 
         primary_peer = response.primary_peer
+        stock_profile = matcher._korea_profiles.get(stock.stock_code, {})
+        source_sector = str(stock_profile.get("sector") or "Unclassified")
+        source_industry = str(stock_profile.get("industry") or "Unclassified")
+        source_business_model = str(stock_profile.get("business_model") or "Operating company")
         rows.append(
             {
                 "stock_code": stock.stock_code,
@@ -56,6 +60,17 @@ def build_global_peer_full_coverage_report(
                 "primary_peer_name": primary_peer.company_name,
                 "confidence_score": response.confidence_score,
                 "confidence_level": response.confidence_level,
+                "source_sector": source_sector,
+                "source_industry": source_industry,
+                "source_business_model": source_business_model,
+                "confidence_root_cause": _confidence_root_cause(
+                    confidence_level=response.confidence_level,
+                    source_sector=source_sector,
+                    source_industry=source_industry,
+                    peer_sector=primary_peer.sector,
+                    peer_industry=primary_peer.industry,
+                    financial_similarity_score=primary_peer.financial_similarity_score,
+                ),
                 "sector": primary_peer.sector,
                 "industry": primary_peer.industry,
                 "business_model": primary_peer.business_model,
@@ -80,6 +95,28 @@ def build_global_peer_full_coverage_report(
         encoding="utf-8",
     )
     return report
+
+
+def _confidence_root_cause(
+    *,
+    confidence_level: str,
+    source_sector: str,
+    source_industry: str,
+    peer_sector: str,
+    peer_industry: str,
+    financial_similarity_score: float | None,
+) -> str:
+    if confidence_level != "LOW":
+        return "not_low_confidence"
+    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+    if source_sector in generic_sectors or source_industry in generic_industries:
+        return "source_profile_generic_or_legacy"
+    if source_sector != peer_sector or source_industry != peer_industry:
+        return "domain_mismatch"
+    if financial_similarity_score is None:
+        return "domain_match_financial_missing"
+    return "domain_match_but_weak_model_score"
 
 
 def _request_for(stock: StockUniverseEntry) -> GlobalPeerMatchRequest:
@@ -122,6 +159,7 @@ def _report(
     sector_counts = Counter(str(row["sector"]) for row in rows)
     industry_counts = Counter(str(row["industry"]) for row in rows)
     peer_counts = Counter(str(row["primary_peer_ticker"]) for row in rows)
+    root_cause_counts = Counter(str(row["confidence_root_cause"]) for row in rows)
     generic_sector_count = sector_counts[GENERIC_LISTED_SECTOR] + sector_counts["Unclassified"]
     generic_industry_count = (
         industry_counts[GENERIC_LISTED_INDUSTRY] + industry_counts["Unclassified"]
@@ -130,10 +168,22 @@ def _report(
     same_company_noise_count = sum(1 for row in rows if bool(row["same_company_noise"]))
     low_confidence_count = confidence_counts["LOW"]
     success_count = len(rows)
+    specific_profile_rows = [
+        row
+        for row in rows
+        if str(row["confidence_root_cause"]) != "source_profile_generic_or_legacy"
+    ]
+    specific_profile_count = len(specific_profile_rows)
+    specific_profile_low_count = sum(
+        1 for row in specific_profile_rows if row["confidence_level"] == "LOW"
+    )
     attempted_count = stock_count
     success_ratio = success_count / attempted_count if attempted_count else 0.0
     generic_sector_ratio = generic_sector_count / success_count if success_count else 1.0
     low_confidence_ratio = low_confidence_count / success_count if success_count else 1.0
+    specific_profile_low_ratio = (
+        specific_profile_low_count / specific_profile_count if specific_profile_count else 1.0
+    )
     same_company_noise_ratio = same_company_noise_count / success_count if success_count else 1.0
     matched_factor_missing_ratio = (
         matched_factor_missing_count / success_count if success_count else 1.0
@@ -168,6 +218,19 @@ def _report(
             else "needs_improvement"
         ),
     }
+    specific_profile_quality = {
+        "profile_definition": "source sector/industry가 generic legacy fallback이 아닌 종목",
+        "minimum_profile_count": 2_500,
+        "actual_profile_count": specific_profile_count,
+        "maximum_low_confidence_ratio": 0.02,
+        "actual_low_confidence_ratio": round(specific_profile_low_ratio, 6),
+        "low_confidence_count": specific_profile_low_count,
+        "status": (
+            "pass"
+            if specific_profile_count >= 2_500 and specific_profile_low_ratio <= 0.02
+            else "needs_improvement"
+        ),
+    }
     return {
         "schema_version": GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -184,6 +247,7 @@ def _report(
         "top_primary_peers": [
             {"ticker": ticker, "count": count} for ticker, count in peer_counts.most_common(30)
         ],
+        "confidence_root_cause_distribution": dict(sorted(root_cause_counts.items())),
         "generic_sector_count": generic_sector_count,
         "generic_industry_count": generic_industry_count,
         "low_confidence_count": low_confidence_count,
@@ -191,16 +255,11 @@ def _report(
         "matched_factor_missing_count": matched_factor_missing_count,
         "quality_gate": quality_gate,
         "confidence_monitoring": confidence_monitoring,
+        "specific_profile_quality": specific_profile_quality,
         "failures": failures[:50],
-        "low_confidence_samples": [
-            row for row in rows if row["confidence_level"] == "LOW"
-        ][:50],
+        "low_confidence_samples": [row for row in rows if row["confidence_level"] == "LOW"][:50],
         "generic_sector_samples": [
-            row
-            for row in rows
-            if row["sector"] in {GENERIC_LISTED_SECTOR, "Unclassified"}
+            row for row in rows if row["sector"] in {GENERIC_LISTED_SECTOR, "Unclassified"}
         ][:50],
-        "same_company_noise_samples": [
-            row for row in rows if bool(row["same_company_noise"])
-        ][:50],
+        "same_company_noise_samples": [row for row in rows if bool(row["same_company_noise"])][:50],
     }

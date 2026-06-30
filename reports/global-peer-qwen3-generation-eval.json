@@ -1,6 +1,6 @@
 {
   "schema_version": "global-peer-qwen3-generation-eval/v1",
-  "generated_at": "2026-06-30T15:46:17.848027+00:00",
+  "generated_at": "2026-06-30T17:21:12.683745+00:00",
   "prompt_version": "global-peer-structured-rag-explainer-v7",
   "model": "mlx-community/Qwen3-0.6B-4bit",
   "adapter_dir": "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora",
@@ -21,7 +21,7 @@
       "primary_peer_ticker": "HALO",
       "primary_peer_name": "Halozyme Therapeutics",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8104,
+      "confidence_score": 0.8106,
       "expected_headline": "Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader",
       "raw_output": "{\"headline\": \"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader\", \"summary\": \"Alteogen is a high-margin Biotech Platform provider. Instead of developing its own new drugs, it licenses out its proprietary drug-delivery technology to global Big Pharma, securing long-term milestone and royalty fees.\"}",
       "parsed": {
@@ -42,7 +42,7 @@
       "primary_peer_ticker": "GOOGL",
       "primary_peer_name": "Alphabet . Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7852,
+      "confidence_score": 0.7834,
       "expected_headline": "NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer",
       "raw_output": "{\"headline\": \"NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer\", \"summary\": \"NAVER is best understood as a Korean internet platforms peer with a similar role to Alphabet. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -63,7 +63,7 @@
       "primary_peer_ticker": "MU",
       "primary_peer_name": "Micron Technology",
       "confidence_level": "HIGH",
-      "confidence_score": 0.774,
+      "confidence_score": 0.7601,
       "expected_headline": "Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer",
       "raw_output": "{\"headline\": \"Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"Samsung Electronics is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -84,7 +84,7 @@
       "primary_peer_ticker": "MU",
       "primary_peer_name": "Micron Technology",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8861,
+      "confidence_score": 0.8857,
       "expected_headline": "SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer",
       "raw_output": "{\"headline\": \"SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"SK hynix is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -105,7 +105,7 @@
       "primary_peer_ticker": "TM",
       "primary_peer_name": "Toyota Motor",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8022,
+      "confidence_score": 0.8081,
       "expected_headline": "Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer",
       "raw_output": "{\"headline\": \"Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer\", \"summary\": \"Hyundai Motor is best understood as a Korean automotive peer with a similar role to Toyota Motor. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -126,7 +126,7 @@
       "primary_peer_ticker": "TSLA",
       "primary_peer_name": "Tesla",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8403,
+      "confidence_score": 0.8402,
       "expected_headline": "LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
       "raw_output": "{\"headline\": \"LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"LG Energy Solution is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -147,7 +147,7 @@
       "primary_peer_ticker": "TMO",
       "primary_peer_name": "Thermo Fisher Scientific",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6476,
+      "confidence_score": 0.6493,
       "expected_headline": "Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer",
       "raw_output": "{\"headline\": \"Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer\", \"summary\": \"Samsung Biologics is best understood as a Korean biotechnology peer with a similar role to Thermo Fisher Scientific. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -168,7 +168,7 @@
       "primary_peer_ticker": "BIIB",
       "primary_peer_name": "Biogen",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6978,
+      "confidence_score": 0.6986,
       "expected_headline": "Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer",
       "raw_output": "{\"headline\": \"Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer\", \"summary\": \"Celltrion is best understood as a Korean biotechnology peer with a similar role to Biogen. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -189,7 +189,7 @@
       "primary_peer_ticker": "C",
       "primary_peer_name": "Citigroup",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7614,
+      "confidence_score": 0.7608,
       "expected_headline": "KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
       "raw_output": "{\"headline\": \"KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer\", \"summary\": \"KB Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -210,7 +210,7 @@
       "primary_peer_ticker": "C",
       "primary_peer_name": "Citigroup",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7425,
+      "confidence_score": 0.7416,
       "expected_headline": "Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
       "raw_output": "{\"headline\": \"Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer\", \"summary\": \"Shinhan Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -231,7 +231,7 @@
       "primary_peer_ticker": "VZ",
       "primary_peer_name": "Verizon Communications",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8369,
+      "confidence_score": 0.8359,
       "expected_headline": "SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer",
       "raw_output": "{\"headline\": \"SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer\", \"summary\": \"SK Telecom is best understood as a Korean telecommunications peer with a similar role to Verizon Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -252,7 +252,7 @@
       "primary_peer_ticker": "WHR",
       "primary_peer_name": "Whirlpool",
       "confidence_level": "HIGH",
-      "confidence_score": 0.831,
+      "confidence_score": 0.8639,
       "expected_headline": "LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer",
       "raw_output": "{\"headline\": \"LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer\", \"summary\": \"LG Electronics is best understood as a Korean consumer electronics and appliances peer with a similar role to Whirlpool. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -273,7 +273,7 @@
       "primary_peer_ticker": "TSLA",
       "primary_peer_name": "Tesla",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6906,
+      "confidence_score": 0.6899,
       "expected_headline": "Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
       "raw_output": "{\"headline\": \"Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"Samsung SDI is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -294,7 +294,7 @@
       "primary_peer_ticker": "ALV",
       "primary_peer_name": "Autoliv",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7972,
+      "confidence_score": 0.8052,
       "expected_headline": "Kia Is South Korea's 'Autoliv' — An Automotive Peer",
       "raw_output": "{\"headline\": \"Kia Is South Korea's 'Autoliv' — An Automotive Peer\", \"summary\": \"Kia is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -315,7 +315,7 @@
       "primary_peer_ticker": "ALV",
       "primary_peer_name": "Autoliv",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7939,
+      "confidence_score": 0.8014,
       "expected_headline": "Hyundai Mobis Is South Korea's 'Autoliv' — An Automotive Peer",
       "raw_output": "{\"headline\": \"Hyundai Mobis Is South Korea's 'Autoliv' — An Automotive Peer\", \"summary\": \"Hyundai Mobis is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -336,7 +336,7 @@
       "primary_peer_ticker": "TTEK",
       "primary_peer_name": "Tetra Tech",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.7128,
+      "confidence_score": 0.7077,
       "expected_headline": "Kakao Is South Korea's 'Tetra Tech' — A Software Peer",
       "raw_output": "{\"headline\": \"Kakao Is South Korea's 'Tetra Tech' — A Software Peer\", \"summary\": \"Kakao is best understood as a Korean software peer with a similar role to Tetra Tech. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: Tetra Tech is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -357,7 +357,7 @@
       "primary_peer_ticker": "CRSR",
       "primary_peer_name": "Corsair Gaming",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6992,
+      "confidence_score": 0.6995,
       "expected_headline": "Netmarble Is South Korea's 'Corsair Gaming' — An Interactive Entertainment Peer",
       "raw_output": "{\"headline\": \"Netmarble Is South Korea's 'Corsair Gaming' — An Interactive Entertainment Peer\", \"summary\": \"Netmarble is best understood as a Korean interactive entertainment peer with a similar role to Corsair Gaming. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around interactive entertainment. Scale and financial data are used as secondary context: Corsair Gaming is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -378,7 +378,7 @@
       "primary_peer_ticker": "LUCK",
       "primary_peer_name": "Lucky Strike Entertainment Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7598,
+      "confidence_score": 0.7583,
       "expected_headline": "HYBE Is South Korea's 'Lucky Strike Entertainment' — A Media and Entertainment Peer",
       "raw_output": "{\"headline\": \"HYBE Is South Korea's 'Lucky Strike Entertainment' — A Media and Entertainment Peer\", \"summary\": \"HYBE is best understood as a Korean media and entertainment peer with a similar role to Lucky Strike Entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around media and entertainment. Scale and financial data are used as secondary context: Lucky Strike Entertainment is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -396,15 +396,15 @@
       "stock_code": "033780",
       "stock_name": "케이티앤지",
       "stock_name_en": "",
-      "primary_peer_ticker": "SOLV",
-      "primary_peer_name": "Solventum",
-      "confidence_level": "LOW",
-      "confidence_score": 0.29,
-      "expected_headline": "KT&G Is South Korea's 'Solventum' — A General Listed Company",
-      "raw_output": "{\"headline\": \"KT&G Is South Korea's 'Solventum' — A General Listed Company\", \"summary\": \"KT&G is best understood as a Korean general listed company with a similar role to Solventum. The match is mainly a broad listed-company reference because detailed industry data is limited. Scale and financial data are used as secondary context: Solventum is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "primary_peer_ticker": "FIZZ",
+      "primary_peer_name": "National Beverage",
+      "confidence_level": "HIGH",
+      "confidence_score": 0.883,
+      "expected_headline": "KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer",
+      "raw_output": "{\"headline\": \"KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer\", \"summary\": \"KT&G is best understood as a Korean food and beverage peer with a similar role to National Beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "KT&G Is South Korea's 'Solventum' — A General Listed Company",
-        "summary": "KT&G is best understood as a Korean general listed company with a similar role to Solventum. The match is mainly a broad listed-company reference because detailed industry data is limited. Scale and financial data are used as secondary context: Solventum is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer",
+        "summary": "KT&G is best understood as a Korean food and beverage peer with a similar role to National Beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -420,7 +420,7 @@
       "primary_peer_ticker": "FELE",
       "primary_peer_name": "Franklin Electric",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8026,
+      "confidence_score": 0.8031,
       "expected_headline": "Korea Electric Power Is South Korea's 'Franklin Electric' — An Electrical Equipment Peer",
       "raw_output": "{\"headline\": \"Korea Electric Power Is South Korea's 'Franklin Electric' — An Electrical Equipment Peer\", \"summary\": \"Korea Electric Power is best understood as a Korean electrical equipment peer with a similar role to Franklin Electric. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around electrical equipment. Scale and financial data are used as secondary context: Franklin Electric is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -441,7 +441,7 @@
       "primary_peer_ticker": "CHTR",
       "primary_peer_name": "Charter Communications, . Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8383,
+      "confidence_score": 0.8378,
       "expected_headline": "LG Uplus Is South Korea's 'Charter Communications' — A Telecommunications Peer",
       "raw_output": "{\"headline\": \"LG Uplus Is South Korea's 'Charter Communications' — A Telecommunications Peer\", \"summary\": \"LG Uplus is best understood as a Korean telecommunications peer with a similar role to Charter Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Charter Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -462,7 +462,7 @@
       "primary_peer_ticker": "DOW",
       "primary_peer_name": "Dow",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8568,
+      "confidence_score": 0.8562,
       "expected_headline": "LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer",
       "raw_output": "{\"headline\": \"LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer\", \"summary\": \"LG Chem is best understood as a Korean specialty chemicals peer with a similar role to Dow. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -480,15 +480,15 @@
       "stock_code": "028260",
       "stock_name": "삼성물산",
       "stock_name_en": "",
-      "primary_peer_ticker": "REXR",
-      "primary_peer_name": "Rexford Industrial Realty",
+      "primary_peer_ticker": "OSK",
+      "primary_peer_name": "Oshkosh (Holding )",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7794,
-      "expected_headline": "Samsung C&T Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer",
-      "raw_output": "{\"headline\": \"Samsung C&T Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer\", \"summary\": \"Samsung C&T is best understood as a Korean machinery and industrial equipment peer with a similar role to Rexford Industrial Realty. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around machinery and industrial equipment. Scale and financial data are used as secondary context: Rexford Industrial Realty is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.751,
+      "expected_headline": "Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
+      "raw_output": "{\"headline\": \"Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"Samsung C&T is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung C&T Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer",
-        "summary": "Samsung C&T is best understood as a Korean machinery and industrial equipment peer with a similar role to Rexford Industrial Realty. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around machinery and industrial equipment. Scale and financial data are used as secondary context: Rexford Industrial Realty is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
+        "summary": "Samsung C&T is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -504,7 +504,7 @@
       "primary_peer_ticker": "EXP",
       "primary_peer_name": "Eagle Materials",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7409,
+      "confidence_score": 0.7413,
       "expected_headline": "Korea Zinc Is South Korea's 'Eagle Materials' — A Metals and Materials Peer",
       "raw_output": "{\"headline\": \"Korea Zinc Is South Korea's 'Eagle Materials' — A Metals and Materials Peer\", \"summary\": \"Korea Zinc is best understood as a Korean metals and materials peer with a similar role to Eagle Materials. The match is driven first by sector and industry fit: both companies sit in Materials and operate around metals and materials. Scale and financial data are used as secondary context: Eagle Materials is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -525,7 +525,7 @@
       "primary_peer_ticker": "MAN",
       "primary_peer_name": "ManpowerGroup",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.669,
+      "confidence_score": 0.6693,
       "expected_headline": "EcoPro Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
       "raw_output": "{\"headline\": \"EcoPro Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"EcoPro is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
@@ -564,15 +564,15 @@
       "stock_code": "090430",
       "stock_name": "아모레퍼시픽",
       "stock_name_en": "",
-      "primary_peer_ticker": "PUMP",
-      "primary_peer_name": "ProPetro Holding",
+      "primary_peer_ticker": "ULTA",
+      "primary_peer_name": "Ulta Beauty",
       "confidence_level": "HIGH",
-      "confidence_score": 0.743,
-      "expected_headline": "Amorepacific Is South Korea's 'ProPetro Holding' — An Investment Holding Peer",
-      "raw_output": "{\"headline\": \"Amorepacific Is South Korea's 'ProPetro Holding' — An Investment Holding Peer\", \"summary\": \"Amorepacific is best understood as a Korean investment holding peer with a similar role to ProPetro Holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: ProPetro Holding is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7992,
+      "expected_headline": "Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer",
+      "raw_output": "{\"headline\": \"Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer\", \"summary\": \"Amorepacific is best understood as a Korean household and personal products peer with a similar role to Ulta Beauty. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Amorepacific Is South Korea's 'ProPetro Holding' — An Investment Holding Peer",
-        "summary": "Amorepacific is best understood as a Korean investment holding peer with a similar role to ProPetro Holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: ProPetro Holding is treated as a small-cap US-market reference, not as a one-for-one size match."
+        "headline": "Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer",
+        "summary": "Amorepacific is best understood as a Korean household and personal products peer with a similar role to Ulta Beauty. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -585,15 +585,15 @@
       "stock_code": "018260",
       "stock_name": "삼성에스디에스",
       "stock_name_en": "",
-      "primary_peer_ticker": "AN",
-      "primary_peer_name": "AutoNation",
-      "confidence_level": "HIGH",
-      "confidence_score": 0.8047,
-      "expected_headline": "Samsung SDS Is South Korea's 'AutoNation' — An Automotive Peer",
-      "raw_output": "{\"headline\": \"Samsung SDS Is South Korea's 'AutoNation' — An Automotive Peer\", \"summary\": \"Samsung SDS is best understood as a Korean automotive peer with a similar role to AutoNation. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: AutoNation is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "primary_peer_ticker": "ACMR",
+      "primary_peer_name": "ACM Research, . Class A",
+      "confidence_level": "MEDIUM",
+      "confidence_score": 0.7185,
+      "expected_headline": "Samsung SDS Is South Korea's 'ACM Research' — A Software Peer",
+      "raw_output": "{\"headline\": \"Samsung SDS Is South Korea's 'ACM Research' — A Software Peer\", \"summary\": \"Samsung SDS is best understood as a Korean software peer with a similar role to ACM Research. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung SDS Is South Korea's 'AutoNation' — An Automotive Peer",
-        "summary": "Samsung SDS is best understood as a Korean automotive peer with a similar role to AutoNation. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: AutoNation is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung SDS Is South Korea's 'ACM Research' — A Software Peer",
+        "summary": "Samsung SDS is best understood as a Korean software peer with a similar role to ACM Research. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -606,15 +606,15 @@
       "stock_code": "003550",
       "stock_name": "LG",
       "stock_name_en": "",
-      "primary_peer_ticker": "REXR",
-      "primary_peer_name": "Rexford Industrial Realty",
+      "primary_peer_ticker": "OSK",
+      "primary_peer_name": "Oshkosh (Holding )",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8172,
-      "expected_headline": "LG Corp. Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer",
-      "raw_output": "{\"headline\": \"LG Corp. Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer\", \"summary\": \"LG Corp. is best understood as a Korean machinery and industrial equipment peer with a similar role to Rexford Industrial Realty. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around machinery and industrial equipment. Scale and financial data are used as secondary context: Rexford Industrial Realty is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7686,
+      "expected_headline": "LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
+      "raw_output": "{\"headline\": \"LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"LG Corp. is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Corp. Is South Korea's 'Rexford Industrial Realty' — A Machinery and Industrial Equipment Peer",
-        "summary": "LG Corp. is best understood as a Korean machinery and industrial equipment peer with a similar role to Rexford Industrial Realty. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around machinery and industrial equipment. Scale and financial data are used as secondary context: Rexford Industrial Realty is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
+        "summary": "LG Corp. is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -630,7 +630,7 @@
       "primary_peer_ticker": "MAN",
       "primary_peer_name": "ManpowerGroup",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6757,
+      "confidence_score": 0.6756,
       "expected_headline": "SK Innovation Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
       "raw_output": "{\"headline\": \"SK Innovation Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"SK Innovation is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {

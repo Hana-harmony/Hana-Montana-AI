@@ -124,14 +124,11 @@ def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
         confidence_score=response.confidence_score,
     )
     expected = GlobalPeerExplanationGenerator().template(context)
-    llm_content = (
-        "<think>\n\n</think>\n\n"
-        + json.dumps(
-            {
-                "headline": expected.headline,
-                "summary": expected.summary,
-            }
-        )
+    llm_content = "<think>\n\n</think>\n\n" + json.dumps(
+        {
+            "headline": expected.headline,
+            "summary": expected.summary,
+        }
     )
     generator = GlobalPeerExplanationGenerator(
         enabled=True,
@@ -280,6 +277,12 @@ def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     assert report["quality_gate"]["status"] == "pass"
     assert report["confidence_monitoring"]["status"] == "pass"
     assert report["confidence_monitoring"]["actual_low_confidence_ratio"] < 0.35
+    assert report["specific_profile_quality"]["status"] == "pass"
+    assert report["specific_profile_quality"]["low_confidence_count"] == 0
+    assert (
+        report["confidence_root_cause_distribution"]["source_profile_generic_or_legacy"]
+        == report["low_confidence_count"]
+    )
     assert report["same_company_noise_count"] == 0
     assert report["matched_factor_missing_count"] == 0
 
@@ -293,14 +296,20 @@ def test_global_peer_all_results_report_documents_every_stock() -> None:
     assert report["performance"]["failure_count"] == 0
     assert report["performance"]["quality_status"] == "pass"
     assert report["performance"]["low_confidence_ratio"] < 0.35
+    assert report["performance"]["specific_profile_quality"]["status"] == "pass"
+    assert report["performance"]["specific_profile_quality"]["low_confidence_count"] == 0
+    assert (
+        report["performance"]["confidence_root_cause_distribution"][
+            "source_profile_generic_or_legacy"
+        ]
+        == report["performance"]["confidence_distribution"]["LOW"]
+    )
     assert len(report["results"]) == report["performance"]["success_count"]
     assert Path("docs/GLOBAL_PEER_ALL_RESULTS.md").exists()
     assert Path("reports/global-peer-all-results.csv").exists()
     assert report["results"][0]["explanation_source"]
     assert report["results"][0]["explanation_prompt_version"]
-    user_copy = " ".join(
-        f"{row['headline']} {row['summary']}" for row in report["results"]
-    )
+    user_copy = " ".join(f"{row['headline']} {row['summary']}" for row in report["results"])
     assert not re.search(r"[가-힣]", user_copy)
     assert "similarity score" not in user_copy.lower()
     assert "confidence" not in user_copy.lower()
