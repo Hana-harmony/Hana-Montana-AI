@@ -1,6 +1,6 @@
 {
   "schema_version": "global-peer-explanation-llm-readiness/v1",
-  "generated_at": "2026-06-30T15:38:33.098938+00:00",
+  "generated_at": "2026-06-30T17:19:00.950343+00:00",
   "prompt_version": "global-peer-structured-rag-explainer-v7",
   "recommended_train_model": "Qwen/Qwen3-0.6B-MLX-4bit LoRA",
   "recommended_serving_model": "Qwen3-0.6B GGUF Q4",
@@ -12,9 +12,9 @@
   "sample_count": 3967,
   "failure_count": 0,
   "confidence_distribution": {
-    "HIGH": 735,
-    "LOW": 1161,
-    "MEDIUM": 2071
+    "HIGH": 775,
+    "LOW": 899,
+    "MEDIUM": 2293
   },
   "grounded_target_failure_count": 0,
   "quality_status": "pass",

@@ -76,6 +76,14 @@ def build_global_peer_all_results_report(
                 primary.industry,
                 primary.business_model,
             ),
+            "confidence_root_cause": _confidence_root_cause(
+                confidence_level=response.confidence_level,
+                source_sector=source_sector,
+                source_industry=source_industry,
+                peer_sector=primary.sector,
+                peer_industry=primary.industry,
+                financial_similarity_score=primary.financial_similarity_score,
+            ),
             "financial_context": _financial_context(primary.matched_factors),
             "same_company_noise": _is_same_company_noise(stock, primary.company_name),
             "matched_factors": primary.matched_factors,
@@ -134,6 +142,28 @@ def _domain_match_level(
     return "generic_or_mismatch"
 
 
+def _confidence_root_cause(
+    *,
+    confidence_level: str,
+    source_sector: str,
+    source_industry: str,
+    peer_sector: str,
+    peer_industry: str,
+    financial_similarity_score: float | None,
+) -> str:
+    if confidence_level != "LOW":
+        return "not_low_confidence"
+    generic_sectors = {"", "Unclassified", GENERIC_LISTED_SECTOR}
+    generic_industries = {"", "Unclassified", GENERIC_LISTED_INDUSTRY}
+    if source_sector in generic_sectors or source_industry in generic_industries:
+        return "source_profile_generic_or_legacy"
+    if source_sector != peer_sector or source_industry != peer_industry:
+        return "domain_mismatch"
+    if financial_similarity_score is None:
+        return "domain_match_financial_missing"
+    return "domain_match_but_weak_model_score"
+
+
 def _financial_context(factors: list[str]) -> str:
     joined = " ".join(factors)
     if "direct market cap" in joined:
@@ -159,9 +189,22 @@ def _report(
     success_count = len(rows)
     confidence_counts = Counter(str(row["confidence_level"]) for row in rows)
     domain_counts = Counter(str(row["domain_match_level"]) for row in rows)
+    root_cause_counts = Counter(str(row["confidence_root_cause"]) for row in rows)
     financial_context_counts = Counter(str(row["financial_context"]) for row in rows)
     generic_or_mismatch_count = domain_counts["generic_or_mismatch"]
     low_count = confidence_counts["LOW"]
+    specific_profile_rows = [
+        row
+        for row in rows
+        if str(row["confidence_root_cause"]) != "source_profile_generic_or_legacy"
+    ]
+    specific_profile_count = len(specific_profile_rows)
+    specific_profile_low_count = sum(
+        1 for row in specific_profile_rows if row["confidence_level"] == "LOW"
+    )
+    specific_profile_low_ratio = (
+        specific_profile_low_count / specific_profile_count if specific_profile_count else 1.0
+    )
     same_company_noise_count = sum(1 for row in rows if bool(row["same_company_noise"]))
     performance = {
         "attempted_count": attempted_count,
@@ -171,10 +214,24 @@ def _report(
         "confidence_distribution": dict(sorted(confidence_counts.items())),
         "low_confidence_ratio": round(low_count / success_count, 6) if success_count else 1.0,
         "domain_match_distribution": dict(sorted(domain_counts.items())),
+        "confidence_root_cause_distribution": dict(sorted(root_cause_counts.items())),
         "generic_or_mismatch_ratio": (
             round(generic_or_mismatch_count / success_count, 6) if success_count else 1.0
         ),
         "financial_context_distribution": dict(sorted(financial_context_counts.items())),
+        "specific_profile_quality": {
+            "profile_definition": "source sector/industry가 generic legacy fallback이 아닌 종목",
+            "minimum_profile_count": 2_500,
+            "actual_profile_count": specific_profile_count,
+            "maximum_low_confidence_ratio": 0.02,
+            "actual_low_confidence_ratio": round(specific_profile_low_ratio, 6),
+            "low_confidence_count": specific_profile_low_count,
+            "status": (
+                "pass"
+                if specific_profile_count >= 2_500 and specific_profile_low_ratio <= 0.02
+                else "needs_improvement"
+            ),
+        },
         "same_company_noise_count": same_company_noise_count,
         "quality_status": (
             "pass"
@@ -217,6 +274,7 @@ def _write_csv(csv_path: Path, rows: list[dict[str, object]]) -> None:
         "confidence_level",
         "financial_similarity_score",
         "domain_match_level",
+        "confidence_root_cause",
         "financial_context",
         "same_company_noise",
         "matched_factors",
@@ -254,17 +312,19 @@ def _write_markdown(doc_path: Path, report: dict[str, object]) -> None:
         f"- confidence 분포: {performance['confidence_distribution']}",
         f"- LOW confidence 비율: {performance['low_confidence_ratio']}",
         f"- domain match 분포: {performance['domain_match_distribution']}",
+        f"- confidence root cause 분포: {performance['confidence_root_cause_distribution']}",
         f"- generic/mismatch 비율: {performance['generic_or_mismatch_ratio']}",
         f"- financial context 분포: {performance['financial_context_distribution']}",
+        f"- specific profile 품질: {performance['specific_profile_quality']}",
         f"- 동일회사 중복 노이즈: {performance['same_company_noise_count']}",
         f"- quality status: `{performance['quality_status']}`",
         "",
         "## 전체 종목 결과",
         (
             "| 종목코드 | 종목명 | 원천 세부 분야 | primary peer | confidence | "
-            "domain match | financial context |"
+            "domain match | confidence root cause | financial context |"
         ),
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
         lines.append(
@@ -275,6 +335,7 @@ def _write_markdown(doc_path: Path, report: dict[str, object]) -> None:
             f"{row['primary_peer_ticker']} {_escape_markdown(str(row['primary_peer_name']))} | "
             f"{row['confidence_level']} {row['confidence_score']} | "
             f"{row['domain_match_level']} | "
+            f"{row['confidence_root_cause']} | "
             f"{row['financial_context']} |"
         )
     doc_path.parent.mkdir(parents=True, exist_ok=True)
