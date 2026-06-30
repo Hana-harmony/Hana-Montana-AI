@@ -1,0 +1,514 @@
+{
+  "schema_version": "global-peer-korea-industry-sync/v1",
+  "generated_at": "2026-06-30T04:05:46.364867+00:00",
+  "source": "NAVER_STOCK_INDUSTRY_COMPARE",
+  "stock_universe_count": 3967,
+  "existing_count_before_sync": 2649,
+  "attempted_count": 1318,
+  "profile_count": 2649,
+  "specific_profile_count": 2451,
+  "generic_profile_count": 198,
+  "failure_count": 1211,
+  "failures": [
+    {
+      "stock_code": "000470",
+      "stock_name": "그린손해보험",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000380",
+      "stock_name": "대아건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000420",
+      "stock_name": "로케트전기",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000110",
+      "stock_name": "한국스탠다드차타드은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000360",
+      "stock_name": "삼환기업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000060",
+      "stock_name": "메리츠화재해상보험",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000010",
+      "stock_name": "신한은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000030",
+      "stock_name": "우리은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001280",
+      "stock_name": "우리증권",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001150",
+      "stock_name": "서통",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000800",
+      "stock_name": "경남기업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000610",
+      "stock_name": "제일화재해상보험",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001190",
+      "stock_name": "마이크로닉스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000830",
+      "stock_name": "삼성물산",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "000790",
+      "stock_name": "씨앤상선",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001140",
+      "stock_name": "국보",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001300",
+      "stock_name": "제일모직",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001590",
+      "stock_name": "일화모직공업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001580",
+      "stock_name": "신광기업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001370",
+      "stock_name": "FnC코오롱",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001310",
+      "stock_name": "풍림산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001670",
+      "stock_name": "경남모직",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001490",
+      "stock_name": "천지산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001600",
+      "stock_name": "서광건설산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001880",
+      "stock_name": "디엘건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001830",
+      "stock_name": "동부일렉트로닉스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001890",
+      "stock_name": "아이파크영창",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001950",
+      "stock_name": "남한제지",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001970",
+      "stock_name": "에스지신성건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "001980",
+      "stock_name": "대호",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002000",
+      "stock_name": "생고뱅코리아홀딩스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002250",
+      "stock_name": "알보젠코리아",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002300",
+      "stock_name": "한국제지",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002540",
+      "stock_name": "고제",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002270",
+      "stock_name": "롯데푸드",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002530",
+      "stock_name": "벽산건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002480",
+      "stock_name": "범양사",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002850",
+      "stock_name": "영풍산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002550",
+      "stock_name": "KB손해보험",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002670",
+      "stock_name": "미주제강",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002860",
+      "stock_name": "하나은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003020",
+      "stock_name": "남양",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003040",
+      "stock_name": "한일약품공업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002950",
+      "stock_name": "두산건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "002930",
+      "stock_name": "삼도물산",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003050",
+      "stock_name": "링세오코리아",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003190",
+      "stock_name": "알앤엘재생의학연구소",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003330",
+      "stock_name": "하나IB증권",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003450",
+      "stock_name": "케이비증권",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003410",
+      "stock_name": "쌍용씨앤이",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003590",
+      "stock_name": "광덕물산",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003560",
+      "stock_name": "아이에이치큐",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003660",
+      "stock_name": "고려시멘트",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003600",
+      "stock_name": "SK",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003900",
+      "stock_name": "동원데어리푸드",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003640",
+      "stock_name": "유니온스틸",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003930",
+      "stock_name": "부흥",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003940",
+      "stock_name": "삼양제넥스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "003990",
+      "stock_name": "BHK",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004130",
+      "stock_name": "대덕GDS",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004190",
+      "stock_name": "스마텔",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004200",
+      "stock_name": "고려개발",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004230",
+      "stock_name": "세신",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004010",
+      "stock_name": "롯데미도파",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004320",
+      "stock_name": "호반산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004510",
+      "stock_name": "디와이홀딩스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004530",
+      "stock_name": "에스와이",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004550",
+      "stock_name": "대우송도개발",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004620",
+      "stock_name": "캠브리지코오롱",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004660",
+      "stock_name": "신동방CP",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004740",
+      "stock_name": "보루네오가구",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004790",
+      "stock_name": "렉스엘이앤지",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004940",
+      "stock_name": "하나은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "004820",
+      "stock_name": "조인에너지",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005190",
+      "stock_name": "동성화학",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005270",
+      "stock_name": "아이엠뱅크",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005330",
+      "stock_name": "카스코",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005350",
+      "stock_name": "심팩인더스트리",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005280",
+      "stock_name": "부산은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005390",
+      "stock_name": "신성통상",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005450",
+      "stock_name": "신한",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005600",
+      "stock_name": "중앙제지",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005560",
+      "stock_name": "제이에스전선",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005620",
+      "stock_name": "대성합동지주",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005760",
+      "stock_name": "위너스인프라인",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005890",
+      "stock_name": "동원증권",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005900",
+      "stock_name": "동양건설산업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "005980",
+      "stock_name": "성지건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006210",
+      "stock_name": "휴리프",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006150",
+      "stock_name": "한메엔에스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006070",
+      "stock_name": "기린",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006350",
+      "stock_name": "전북은행",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006250",
+      "stock_name": "극동전선",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006440",
+      "stock_name": "한일건설",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006390",
+      "stock_name": "한일현대시멘트",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006580",
+      "stock_name": "대양제지공업",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "007050",
+      "stock_name": "유리이에스",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006750",
+      "stock_name": "센추리",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "006600",
+      "stock_name": "동신제약",
+      "reason": "HTTP Error 409: 409"
+    },
+    {
+      "stock_code": "007150",
+      "stock_name": "동양텔레콤",
+      "reason": "HTTP Error 409: 409"
+    }
+  ]
+}

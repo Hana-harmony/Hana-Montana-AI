@@ -1,0 +1,142 @@
+{
+  "schema_version": "hannah-ai-model-audit/v1",
+  "generated_at": "2026-06-30T04:09:53.274423+00:00",
+  "overall_status": "pass",
+  "models": [
+    {
+      "name": "financial_news_disclosure_classifier",
+      "artifact": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
+      "version": "financial-ml-tfidf-logreg-20260622090407",
+      "model_type": "TF-IDF feature pipeline + supervised LogisticRegression classifiers",
+      "serving_surface": "watchlist/news/disclosure alert analysis",
+      "release_status": "pass",
+      "training_samples": 23568,
+      "evaluation": {
+        "benchmark_event_macro_f1": 0.984375,
+        "benchmark_sentiment_accuracy": 0.96875,
+        "benchmark_importance_accuracy": 0.9583333333333334,
+        "real_news_event_macro_f1": 0.9220769444986373,
+        "stock_review_event_macro_f1": 0.7307006096364907
+      },
+      "gate_status": "pass",
+      "remaining_risk": "stock_review_gold의 일부 희소 이벤트 라벨은 macro F1이 낮아 지속적인 gold 확장이 필요하다."
+    },
+    {
+      "name": "stock_linker",
+      "artifact": "src/hannah_montana_ai/model_store/stock_linker_ml.joblib",
+      "version": "stock-linker-tfidf-20260604172114",
+      "model_type": "TF-IDF nearest-neighbor stock entity linker",
+      "serving_surface": "news/disclosure to Korean stock matching",
+      "release_status": "pass",
+      "training_samples": 7649,
+      "evaluation": {
+        "all_stock_code_template_accuracy": 1.0,
+        "trainable_stock_name_template_accuracy": 0.9921238457360131
+      },
+      "gate_status": "pass",
+      "remaining_risk": "동명이인성 짧은 종목명은 live quality audit로 계속 감시한다."
+    },
+    {
+      "name": "foreign_owned_quantity_forecaster",
+      "artifact": "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib",
+      "version": "hannah-foreign-owned-quantity-ml-v1",
+      "model_type": "stock-routed panel time-series ML ensemble",
+      "serving_surface": "foreign ownership limit warning prediction",
+      "release_status": "promoted",
+      "training_samples": 52693,
+      "evaluation": {
+        "baseline": {
+          "mae": 53912.99255537794,
+          "rmse": 152521.80315843094,
+          "mape": 0.04698287139479922
+        },
+        "guarded_runtime": {
+          "mae": 51539.19104818452,
+          "rmse": 147477.73797670528,
+          "mape": 0.04490776071587532
+        },
+        "guarded_improvement_over_baseline": {
+          "mae": 0.044030230834526896,
+          "rmse": 0.03307110903013762,
+          "mape": 0.04416738733328247
+        },
+        "sota": [
+          {
+            "model": "N-HiTS",
+            "status": "completed",
+            "scope": "restricted_walk_forward_same_folds",
+            "sample_count": 21895,
+            "stock_count": 29,
+            "fold_count": 5,
+            "max_steps": 20,
+            "metrics": {
+              "mae": 52863.38419730532,
+              "rmse": 150345.74429695716,
+              "mape": 0.04695473476235985
+            },
+            "same_scope_persistence_metrics": {
+              "mae": 53912.99255537794,
+              "rmse": 152521.80315843094,
+              "mape": 0.04698287139479922
+            },
+            "stock_selection": "all_restricted_walk_forward_stocks",
+            "same_stock_universe": true,
+            "same_walk_forward_samples": true,
+            "forecast_protocol": "one_step_with_observed_history_until_previous_point"
+          },
+          {
+            "model": "PatchTST",
+            "status": "completed",
+            "scope": "restricted_walk_forward_same_folds",
+            "sample_count": 21895,
+            "stock_count": 29,
+            "fold_count": 5,
+            "max_steps": 20,
+            "metrics": {
+              "mae": 54521.00744462206,
+              "rmse": 154153.9102162287,
+              "mape": 0.049739096854328514
+            },
+            "same_scope_persistence_metrics": {
+              "mae": 53912.99255537794,
+              "rmse": 152521.80315843094,
+              "mape": 0.04698287139479922
+            },
+            "stock_selection": "all_restricted_walk_forward_stocks",
+            "same_stock_universe": true,
+            "same_walk_forward_samples": true,
+            "forecast_protocol": "one_step_with_observed_history_until_previous_point"
+          }
+        ]
+      },
+      "gate_status": "promoted",
+      "remaining_risk": "전날까지의 외국인 보유수량만 쓰므로 외부 수급 이벤트는 feature 확장 전까지 잔여 오차로 남는다."
+    },
+    {
+      "name": "global_peer_matcher",
+      "artifact": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
+      "version": "global-peer-hybrid-ranker-20260630040616",
+      "model_type": "TF-IDF retrieval + SVD semantic embedding + financial features + pairwise LogisticRegression reranker",
+      "serving_surface": "Korean stock detail global peer popup",
+      "release_status": "pass",
+      "training_samples": 574,
+      "evaluation": {
+        "curated_pairwise_top1_accuracy": 0.9285714285714286,
+        "curated_anchor_top1_accuracy": 0.8571428571428571,
+        "full_coverage_success_ratio": 1.0,
+        "full_coverage_quality_gate": "pass",
+        "confidence_monitoring": {
+          "maximum_low_confidence_ratio": 0.35,
+          "actual_low_confidence_ratio": 0.292664,
+          "maximum_generic_sector_ratio": 0.85,
+          "actual_generic_sector_ratio": 0.273506,
+          "status": "pass"
+        },
+        "smoke_sample_count": 15
+      },
+      "gate_status": "pass",
+      "remaining_risk": "국내 업종 profile은 Naver 동일업종 비교 데이터로 보강했지만 미국 상장 universe 밖의 비미국 peer는 후보에 없다."
+    }
+  ],
+  "required_next_improvements": []
+}

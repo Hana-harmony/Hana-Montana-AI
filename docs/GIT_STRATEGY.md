@@ -40,6 +40,7 @@
 git switch feature
 git pull --ff-only origin feature
 git switch -c feat/example-feature
+uv run python scripts/verify_harness_git_flow.py --pr-base feature
 ```
 
 릴리스 PR:
@@ -109,3 +110,4 @@ PR 본문 템플릿:
 - 직접 `feature` 푸시도 금지하고 PR 병합만 허용한다.
 - 일반 작업 PR은 `feature`를 대상으로 생성한다.
 - 운영 배포 PR은 `feature`에서 `main`을 대상으로 생성한다.
+- 작업 완료 전 `scripts/verify_harness_git_flow.py`로 보호 브랜치 직접 작업, 브랜치명 형식, 최신 `origin/feature` 포함 여부, PR base를 점검한다.

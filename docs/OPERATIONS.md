@@ -22,10 +22,36 @@ docker run --rm --network hana-internal hannah-montana-ai
 - `GET /health`
 
 ## 외국인 보유 시계열 예측
-- `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 일별 시계열과 KIS WebSocket 장중 누적 거래량을 입력으로 받는다.
-- 응답은 한도소진율 `min/base/max`, 주문수량 영향도, 일별 추세, 관측치 수, window, confidence, model version을 공통 envelope으로 반환한다.
+- `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 snapshot과 일별 시계열을 입력으로 받는다. 요청 수량과 장중 누적 거래량 필드는 호환용으로만 수신하며 예측식에는 반영하지 않는다.
+- 응답은 금일 외국인 취득 수량의 한도 도달 가능성을 나타내는 한도소진율 `min/base/max`, 일별 추세, 관측치 수, window, confidence, model version을 공통 envelope으로 반환한다. 호환 필드인 주문수량 영향도와 레거시 불확실성 값은 0으로 반환한다.
 - confidence는 품질 관측과 UI 표시용이며 Hannah는 주문 차단, orderable 판정, 신뢰도 기반 자동 차단 결정을 만들지 않는다.
-- OmniLens는 Hannah 장애 시 자체 deterministic 시계열 fallback을 사용하고, 확정 한도소진율이 100% 이상인 경우에만 차단한다.
+- OmniLens는 Hannah 장애 시 자체 시계열 fallback을 사용한다. 외국인 한도 예측은 프론트 사전 고지용이며 주문 차단 결정을 만들지 않는다.
+- `POST /api/v1/market/foreign-ownership/model/retrain`은 OmniLens가 export한 제한 종목 전체 외국인 보유 history를 받아 임시 artifact로 학습한다. `HANNAH_AI_MAINTENANCE_TOKEN`이 설정된 환경에서는 `X-HANNAH-AI-MAINTENANCE-TOKEN` 헤더가 일치해야 한다.
+- 재학습 결과가 `promoted`이면 `data/training/foreign_ownership_quantity_history.csv`, `data/training/foreign_ownership_restricted_stock_codes.csv`, `src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib`, `reports/foreign-ownership-quantity-training-report.json`을 원자적으로 교체하고 예측 서비스 cache를 비워 다음 요청부터 새 모델을 로드한다.
+- quality gate가 실패해 `guarded`이면 운영 model artifact는 유지하고 후보 리포트만 `reports/foreign-ownership-quantity-training-candidate-report.json`에 저장한다.
+- 학습은 외국인 취득한도 제한 종목 allowlist를 지정해 `uv run python scripts/train_foreign_ownership_quantity_model.py --restricted-stock-codes <csv>`로 실행한다. allowlist 없이 실행하면 quality gate가 `restricted_universe_not_applied`로 실패하고 `promoted`되지 않는다.
+- `data/training/foreign_ownership_quantity_history.csv`는 제한 32종목 history만 포함한다. 비제한 종목 KRX 외국인 보유 history는 학습/promotion 대상이 아니므로 CSV에 보존하지 않는다.
+- SOTA/benchmark 비교는 제한 종목 universe로 재학습한 report를 기준으로 `uv run python scripts/benchmark_foreign_ownership_quantity_models.py`로 실행한다. N-HiTS/PatchTST 진단까지 실행하려면 `uv pip install -e '.[sota]'` 후 `--include-neural-sota`를 붙인다.
+
+## 글로벌 피어 종목 매칭
+- `POST /api/v1/market/global-peers/match`는 OmniLens가 넘긴 한국 종목 metadata를 입력으로 받아 미국 상장 peer 후보를 반환한다.
+- 응답은 외국인 투자자용 영어 headline, summary, primary peer, 후보 peer 목록, confidence, model version을 포함한다.
+- 각 peer는 `sector`, `industry`, `business_model`, `scale_bucket`, `market_cap_usd`, `revenue_usd`, `operating_income_usd`, `net_income_usd`, `financial_data_source`, `financial_similarity_score`, `matched_factors`, `rationale`을 포함해 왜 해당 글로벌 peer로 매칭됐는지 설명한다.
+- 현재 운영 artifact는 한국 종목 3,967개와 미국 symbol 12,916개를 학습한 `src/hannah_montana_ai/model_store/global_peer_ml.joblib`다.
+- 미국 universe 갱신은 NASDAQ Trader symbol directory를 사용한다. 재무/규모 dataset은 OpenDART, KRX Open API, Naver mobile stock JSON, SEC companyfacts, NASDAQ quote summary를 사용한다.
+- 전체 fundamentals 수집은 resume/checkpoint 방식이다. 이미 성공한 row는 건너뛰고, 실패하거나 원천에 없는 row만 다시 시도한다.
+```bash
+uv run python scripts/sync_us_stock_universe.py
+uv run python scripts/sync_global_peer_fundamentals.py
+uv run python scripts/sync_korea_stock_industries.py
+uv run python scripts/train_global_peer_model.py
+uv run python scripts/build_global_peer_ai_smoke_report.py
+uv run python scripts/build_global_peer_full_coverage_report.py
+uv run python scripts/build_global_peer_all_results_report.py
+uv run python scripts/build_hannah_ai_model_audit_report.py
+uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
+```
+- 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. 전종목 coverage 결과는 `reports/global-peer-full-coverage-report.json`에 저장하며, API 계약 테스트와 별도로 전체 한국 master 3,967개가 추론 가능한지 확인한다. 전종목별 현재 primary peer 결과와 성능은 `docs/GLOBAL_PEER_ALL_RESULTS.md`, `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`에 저장한다. 전체 AI 기능 감사는 `reports/hannah-ai-model-audit-report.json`과 `docs/HANNAH_AI_MODEL_AUDIT.md`에 저장한다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.

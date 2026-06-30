@@ -51,9 +51,9 @@
 ## Foreign Ownership Timeseries Prediction
 
 - `POST /api/v1/market/foreign-ownership/predict`
-- Hana-OmniLens-API가 수집한 KIS 외국인 보유 snapshot, 일별 시계열, KIS WebSocket 장중 누적 거래량을 받아 외국인 한도소진율 예측 boundary를 반환한다.
-- 요청 `data`에는 `stock_code`, `side`, `quantity`, `foreign_owned_quantity`, `foreign_ownership_rate`, `foreign_limit_quantity`, `foreign_limit_exhaustion_rate`, `base_date`, `observed_intraday_volume`, `history[]`를 포함한다.
-- 응답 `data`에는 `min_foreign_limit_exhaustion_rate`, `base_foreign_limit_exhaustion_rate`, `max_foreign_limit_exhaustion_rate`, `order_impact_rate`, `trend_daily_change_rate`, `history_observation_count`, `confidence_level`, `confidence_score`, `model_version`, `source`를 포함한다.
+- Hana-OmniLens-API가 수집한 KRX 외국인 보유 snapshot과 일별 시계열을 받아 금일 외국인 취득 수량이 한도에 도달할 가능성을 한도소진율 boundary로 반환한다.
+- 요청 `data`에는 `stock_code`, `side`, `quantity`, `foreign_owned_quantity`, `foreign_ownership_rate`, `foreign_limit_quantity`, `foreign_limit_exhaustion_rate`, `base_date`, `observed_intraday_volume`, `history[]`를 포함한다. `quantity`와 `observed_intraday_volume`은 계약 호환용이며 예측식에 반영하지 않는다.
+- 응답 `data`에는 `min_foreign_limit_exhaustion_rate`, `base_foreign_limit_exhaustion_rate`, `max_foreign_limit_exhaustion_rate`, `order_impact_rate`, `trend_daily_change_rate`, `history_observation_count`, `confidence_level`, `confidence_score`, `model_version`, `source`를 포함한다. `order_impact_rate`와 `intraday_uncertainty_rate`는 호환 필드로 0을 반환한다.
 - 이 endpoint는 confidence와 boundary를 관측/표시용으로 제공하며 주문 차단 결정을 반환하지 않는다.
 
 ## Tax Document Verification

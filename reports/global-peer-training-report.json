@@ -1,0 +1,351 @@
+{
+  "schema_version": "global-peer-hybrid-ranker/v3",
+  "version": "global-peer-hybrid-ranker-20260630040616",
+  "trained_at": "2026-06-30T04:06:16.167021+00:00",
+  "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
+  "us_stock_universe_path": "data/reference/us_stock_universe.csv",
+  "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
+  "korea_industry_path": "data/reference/korea_stock_industries.csv",
+  "model_path": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
+  "korea_universe_count": 3967,
+  "us_universe_count": 12916,
+  "korea_industry_profile_count": 2649,
+  "korea_industry_specific_profile_count": 2882,
+  "korea_fundamental_coverage_count": 2916,
+  "us_fundamental_coverage_count": 5585,
+  "fundamental_field_coverage": {
+    "market_cap_usd": 7967,
+    "revenue_usd": 6837,
+    "operating_income_usd": 6986,
+    "net_income_usd": 7695
+  },
+  "eligible_us_peer_count": 4714,
+  "tag_distribution": {
+    "aerospace": 106,
+    "automotive": 368,
+    "banking": 347,
+    "battery": 107,
+    "biologics": 1,
+    "biologics cdmo": 2,
+    "biosimilar": 1,
+    "biotech": 1151,
+    "biotech platform": 2,
+    "chemicals": 160,
+    "construction": 424,
+    "consumer brands": 27,
+    "consumer electronics": 5,
+    "drug delivery": 2,
+    "education": 49,
+    "electrical equipment": 179,
+    "energy": 738,
+    "financials": 685,
+    "food and beverage": 151,
+    "gaming": 52,
+    "general listed company": 9967,
+    "holding company": 1674,
+    "home appliances": 1,
+    "industrial machinery": 445,
+    "insurance": 44,
+    "internet search": 3,
+    "leisure": 57,
+    "logistics": 74,
+    "materials": 372,
+    "media entertainment": 260,
+    "memory chips": 3,
+    "online advertising": 3,
+    "real estate": 232,
+    "retail": 56,
+    "royalty licensing": 2,
+    "semiconductors": 496,
+    "shipbuilding": 97,
+    "software platform": 1408,
+    "telecommunications": 126
+  },
+  "anchor_evaluation": {
+    "sample_count": 14,
+    "top1_accuracy": 0.8571428571428571,
+    "rows": [
+      {
+        "stock_code": "000660",
+        "expected_peer_ticker": "MU",
+        "predicted_peer_ticker": "MU",
+        "score": 0.560343,
+        "hit": true
+      },
+      {
+        "stock_code": "005930",
+        "expected_peer_ticker": "MU",
+        "predicted_peer_ticker": "WHR",
+        "score": 0.208198,
+        "hit": false
+      },
+      {
+        "stock_code": "006400",
+        "expected_peer_ticker": "QS",
+        "predicted_peer_ticker": "QS",
+        "score": 0.308279,
+        "hit": true
+      },
+      {
+        "stock_code": "017670",
+        "expected_peer_ticker": "VZ",
+        "predicted_peer_ticker": "VZ",
+        "score": 0.630933,
+        "hit": true
+      },
+      {
+        "stock_code": "035420",
+        "expected_peer_ticker": "GOOGL",
+        "predicted_peer_ticker": "GOOGL",
+        "score": 0.390494,
+        "hit": true
+      },
+      {
+        "stock_code": "051910",
+        "expected_peer_ticker": "DOW",
+        "predicted_peer_ticker": "DOW",
+        "score": 0.503655,
+        "hit": true
+      },
+      {
+        "stock_code": "055550",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "score": 0.208027,
+        "hit": true
+      },
+      {
+        "stock_code": "066570",
+        "expected_peer_ticker": "WHR",
+        "predicted_peer_ticker": "SONY",
+        "score": 0.375683,
+        "hit": false
+      },
+      {
+        "stock_code": "068270",
+        "expected_peer_ticker": "BIIB",
+        "predicted_peer_ticker": "BIIB",
+        "score": 0.161813,
+        "hit": true
+      },
+      {
+        "stock_code": "086790",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "score": 0.338084,
+        "hit": true
+      },
+      {
+        "stock_code": "105560",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "score": 0.265231,
+        "hit": true
+      },
+      {
+        "stock_code": "196170",
+        "expected_peer_ticker": "HALO",
+        "predicted_peer_ticker": "HALO",
+        "score": 0.483396,
+        "hit": true
+      },
+      {
+        "stock_code": "207940",
+        "expected_peer_ticker": "TMO",
+        "predicted_peer_ticker": "TMO",
+        "score": 0.2554,
+        "hit": true
+      },
+      {
+        "stock_code": "373220",
+        "expected_peer_ticker": "TSLA",
+        "predicted_peer_ticker": "TSLA",
+        "score": 0.393963,
+        "hit": true
+      }
+    ]
+  },
+  "pairwise_ranker_evaluation": {
+    "sample_count": 14,
+    "top1_accuracy": 0.9285714285714286,
+    "top3_accuracy": 1.0,
+    "mean_reciprocal_rank": 0.9642857142857143,
+    "rows": [
+      {
+        "stock_code": "000660",
+        "expected_peer_ticker": "MU",
+        "predicted_peer_ticker": "MU",
+        "expected_peer_rank": 1,
+        "score": 0.887349,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "005930",
+        "expected_peer_ticker": "MU",
+        "predicted_peer_ticker": "MU",
+        "expected_peer_rank": 1,
+        "score": 0.77426,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "006400",
+        "expected_peer_ticker": "QS",
+        "predicted_peer_ticker": "TSLA",
+        "expected_peer_rank": 2,
+        "score": 0.691443,
+        "top1_hit": false,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "017670",
+        "expected_peer_ticker": "VZ",
+        "predicted_peer_ticker": "VZ",
+        "expected_peer_rank": 1,
+        "score": 0.840035,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "035420",
+        "expected_peer_ticker": "GOOGL",
+        "predicted_peer_ticker": "GOOGL",
+        "expected_peer_rank": 1,
+        "score": 0.784794,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "051910",
+        "expected_peer_ticker": "DOW",
+        "predicted_peer_ticker": "DOW",
+        "expected_peer_rank": 1,
+        "score": 0.857701,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "055550",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "expected_peer_rank": 1,
+        "score": 0.745188,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "066570",
+        "expected_peer_ticker": "WHR",
+        "predicted_peer_ticker": "WHR",
+        "expected_peer_rank": 1,
+        "score": 0.83393,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "068270",
+        "expected_peer_ticker": "BIIB",
+        "predicted_peer_ticker": "BIIB",
+        "expected_peer_rank": 1,
+        "score": 0.700009,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "086790",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "expected_peer_rank": 1,
+        "score": 0.7413,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "105560",
+        "expected_peer_ticker": "C",
+        "predicted_peer_ticker": "C",
+        "expected_peer_rank": 1,
+        "score": 0.762829,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "196170",
+        "expected_peer_ticker": "HALO",
+        "predicted_peer_ticker": "HALO",
+        "expected_peer_rank": 1,
+        "score": 0.811539,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "207940",
+        "expected_peer_ticker": "TMO",
+        "predicted_peer_ticker": "TMO",
+        "expected_peer_rank": 1,
+        "score": 0.64811,
+        "top1_hit": true,
+        "top3_hit": true
+      },
+      {
+        "stock_code": "373220",
+        "expected_peer_ticker": "TSLA",
+        "predicted_peer_ticker": "TSLA",
+        "expected_peer_rank": 1,
+        "score": 0.842882,
+        "top1_hit": true,
+        "top3_hit": true
+      }
+    ],
+    "training_pair_count": 14,
+    "training_sample_count": 574,
+    "positive_sample_count": 14,
+    "negative_sample_count": 560,
+    "feature_names": [
+      "text_similarity",
+      "semantic_similarity",
+      "financial_similarity",
+      "same_sector",
+      "same_industry",
+      "same_business_model",
+      "same_scale_bucket",
+      "specific_sector_mismatch",
+      "specific_industry_mismatch",
+      "peer_market_cap_log",
+      "peer_revenue_log",
+      "market_cap_log_gap",
+      "revenue_log_gap",
+      "operating_margin_gap"
+    ],
+    "candidate_count_by_stock": {
+      "000660": 41,
+      "005930": 41,
+      "006400": 41,
+      "017670": 41,
+      "035420": 41,
+      "051910": 41,
+      "055550": 41,
+      "066570": 41,
+      "068270": 41,
+      "086790": 41,
+      "105560": 41,
+      "196170": 41,
+      "207940": 41,
+      "373220": 41
+    },
+    "ranking_model": "LogisticRegression(class_weight=balanced)",
+    "label_policy": "curated_peer_pairs_used_as supervised pairwise ranking labels, not serving-time forced anchors"
+  },
+  "coverage_gate": {
+    "minimum_korea_universe_count": 3000,
+    "actual_korea_universe_count": 3967,
+    "minimum_us_universe_count": 5000,
+    "actual_us_universe_count": 12916,
+    "minimum_anchor_top1_accuracy": 0.75,
+    "actual_anchor_top1_accuracy": 0.8571428571428571,
+    "minimum_pairwise_ranker_top1_accuracy": 0.85,
+    "actual_pairwise_ranker_top1_accuracy": 0.9285714285714286,
+    "status": "pass"
+  }
+}

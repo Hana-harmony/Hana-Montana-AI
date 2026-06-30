@@ -1,5 +1,31 @@
 # 구현 기록
 
+## 2026-06-28 외국인 취득한도 제한 종목 ML 학습
+- 정정: 전체 국내주식 full-universe 학습은 외국인 취득한도 경고 목적의 운영 universe가 아니다. 외국인 취득한도 제한 종목만 학습/평가/promotion 대상이어야 하므로 기존 full-universe artifact/report/benchmark는 `restricted_universe_not_applied` 사유로 `guarded` 또는 `invalidated` 처리했다.
+- 추가 정정: 이전 제한 18종목 산출은 Hana stock master의 KIS master parser 오류로 KT, SBS, 한국가스공사, 대한항공 등 일부 기간산업 종목이 누락된 상태에서 생성됐다. 해당 학습 artifact/report/benchmark는 `stock_master_incomplete_foreign_ownership_backfill_required` 사유로 `guarded` 처리했다.
+- 학습 안전장치를 추가해 `--restricted-stock-codes`로 제한 종목 universe를 명시하지 않으면 quality gate가 실패하고 `promoted`가 되지 않도록 했다.
+- `foreign_limit_quantity`를 학습 point와 feature에 포함하고, 현재 보유수량 대비 한도소진율/잔여한도 feature를 생성하도록 수정했다.
+- KRX 최신 snapshot 기준 `foreign_ownership_rate / foreign_limit_exhaustion_rate * 100 < 99.9` 규칙으로 산출했던 외국인 취득한도 제한 18종목은 백필 전 중간 산출물이다. KIS master parser 수정 후 새로 들어온 종목의 KRX 외국인 보유량 history를 백필하고 제한 universe를 재산출해야 한다.
+- 제한 18종목 재학습은 `hist_gradient_boosting_delta_ratio`, blend alpha 0.005를 선택했으나, 운영 universe가 불완전해 `release_status=guarded`로 내렸다.
+- 제한 18종목 benchmark의 N-HiTS/PatchTST 비교도 백필 전 중간 진단으로만 보존한다.
+- KIS master parser의 ETP 판정을 상품그룹 `ST` 기준으로 수정하고, KT, SBS, 한국가스공사, 대한항공 등 누락 종목을 stock master에 보강했다.
+- KRX 최신 snapshot 보강 후 금융위 2023-01-25 붙임4의 33개 법령 제한 종목 중 현재 상장 32종목을 운영 universe로 확정했다. `SBS콘텐츠허브(046140)`는 현재 stock master에 없어 제외했다.
+- SBS, KNN, 티비씨는 KRX가 외국인 보유/한도/소진율을 0으로 반환하는 0% 취득불허 종목이므로 비율 산식이 아니라 법령 allowlist로 제한 종목에 포함한다.
+- KRX Data Marketplace 기반 외국인 보유수량 DB/CSV에서 비제한 2,769종목 1,881,866행을 제거하고, 운영 학습 데이터는 현재 상장 제한 32종목만 보존한다.
+- 장기 백필로 제한 32종목 history를 2019-01-02부터 2026-06-26까지 58,784행으로 확장했다. 2019-2022 구간은 종목별 988개 KRX 거래일이 추가됐고, weekday fallback상 공휴일 55일/종목은 provider 미반환으로 저장하지 않았다.
+- 제한 32종목으로 재학습해 `stock_routed_ml_ensemble`을 선택했다. 종목별 walk-forward 검증에서 MAE/RMSE/MAPE를 persistence baseline 대비 정규화한 composite score로 ML 후보와 blend alpha, prediction mode를 저장하되, persistence보다 MAPE가 나빠지는 후보/runtime은 MAPE guard로 보정한다.
+- 최신 후보군은 Ridge, HistGradientBoostingRegressor 2종, ExtraTreesRegressor, log-delta ratio 회귀 2종, 절대 delta quantity 회귀 4종, target quantity 회귀 1종, residual 회귀 18종, hurdle HistGradientBoosting classifier+regressor다. residual 후보에는 squared-error, absolute-error, MAPE-weighted HistGradientBoosting을 포함한다. 40/60/120/240 관측치 장기 흐름과 최근 일별 delta 분포 feature를 추가하고 MAPE guard를 적용해 persistence baseline MAE 53,912.99 / RMSE 152,521.80 / MAPE 0.046983에서 순수 stock-routed ML MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908, guarded runtime MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908로 개선되어 `release_status=promoted`로 기록했다.
+- 제한 universe benchmark를 동일 walk-forward fold/test sample 비교로 정정했다. 0% 취득불허 3종목은 양수 보유수량 학습 샘플이 없어 SOTA/ML sample 비교에서 제외되고, 29종목 21,895개 test sample 기준 N-HiTS MAE 52,863.38 / RMSE 150,345.74 / MAPE 0.046955, PatchTST MAE 54,521.01 / RMSE 154,153.91 / MAPE 0.049739, persistence MAE 53,912.99 / RMSE 152,521.80 / MAPE 0.046983, guarded runtime MAE 51,539.19 / RMSE 147,477.74 / MAPE 0.044908을 기록했다.
+- 2015-01-02까지 추가 확장한 실험도 수행했다. 32종목 87,240개 관측치, 77,945개 학습 샘플로 늘었지만 guarded runtime MAE가 55,357.24로 악화되고, N-HiTS MAE 58,053.37, PatchTST MAE 79,075.74로 SOTA 비교도 나빠져 운영 artifact는 2019~2026 champion으로 복구했다.
+- 학습 타깃을 한도수량이 아니라 `foreign_owned_quantity`로 고정하고, 주문수량·장중 거래량·시세 없이 전날까지의 일별 보유수량만 사용한다.
+- `build_training_samples`의 prefix slice/sort/scan 병목을 rolling feature 생성으로 바꿔 전체 1,712,708개 학습 샘플을 처리 가능하게 했다.
+- tree ensemble, log-delta, 절대 delta/target quantity, heuristic residual, absolute-error residual, MAPE-weighted residual, micro-policy residual 후보를 production 후보에 추가했다. 마지막 baseline fallback은 `micro_median_delta_3`로 대체했다. 장기 흐름 및 일별 delta 분포 feature와 MAPE guard까지 반영한 최신 runtime은 ML 29종목, persistence baseline 0종목으로 정리됐다.
+- metric 비교 기준을 전체 walk-forward test sample 기준으로 통일했다. 기존 fold 평균 baseline과 전체 sample guarded metric을 비교하던 불일치를 제거했다.
+- 최종 선택 모델은 `hurdle_hist_gradient_delta_ratio`, blend alpha 0.0005이며, 종목별 guarded runtime 기준 persistence baseline MAE 34,589.08에서 34,446.93으로 0.4110% 개선했다. RMSE는 0.7474%, MAPE는 6.8484% 개선했다.
+- `reports/foreign-ownership-quantity-sota-benchmark.json`는 제한 18종목 universe 기준으로 재생성했다. full restricted walk-forward에서는 `hannah_promoted_guarded_runtime`이 persistence, stale-guarded mean delta, mean delta, median delta보다 낮은 MAE를 기록했다. top18 최근 1일 CPU smoke 진단에서는 N-HiTS MAE 19,821.78, PatchTST MAE 21,394.67, 동일 scope persistence MAE 21,301.28을 기록했다.
+- raw ML 단독을 모든 종목에 강제하지 않고, 제한 종목별 검증 gate를 통과한 경우에만 ML을 사용한다. 나머지는 artifact 내부 guarded persistence 또는 추세 heuristic runtime으로 fallback한다.
+- production gate는 제한 universe 적용, 최소 10종목, 730일 이상 history, 5,000개 이상 관측치, 3개 이상 walk-forward fold, persistence baseline 개선을 모두 만족해야 `promoted`로 승격한다.
+
 ## 2026-06-22 라이브 뉴스 분석 품질 보강
 - 최신 미학습 Naver 뉴스 샘플에서 종목 매칭, 본문 정제, 요약 품질을 재점검했다.
 - 발견된 보강 대상은 `SK` 같은 짧은 종목명이 `SK하이닉스`보다 먼저 잡히는 과매칭, 광고·푸터·관련기사 문구가 What/Why/Impact 요약에 섞이는 문제, 전문 수집 실패(`SUMMARY_ONLY`) 케이스의 confidence 과신이다.
@@ -875,7 +901,7 @@
 - CASE_01 환급 모델이 소비하는 `ocr-fraud-risk-gate-v1` 문서 검증 결과를 API 계약 테스트로 고정했다.
 
 ## 2026-06-21 - 외국인 보유 시계열 예측 API
-- `/api/v1/market/foreign-ownership/predict`를 추가해 OmniLens 외국인 보유 snapshot, 일별 시계열, KIS WebSocket 장중 누적 거래량 기반 한도소진율 boundary를 반환한다.
+- `/api/v1/market/foreign-ownership/predict`는 OmniLens 외국인 보유 snapshot과 일별 시계열 기반 금일 한도 도달 가능성 boundary를 반환한다. 요청 수량과 장중 누적 거래량은 호환 필드로만 수신한다.
 - 모델 버전은 `hannah-foreign-ownership-timeseries-v1`이며 confidence, 추세 변화율, 관측치 수, source를 함께 응답한다.
 - confidence는 observe-only 정책으로 유지하고 Hannah는 주문 차단 여부를 반환하지 않는다.
 
@@ -940,3 +966,14 @@
 - 인텔리전스 provider parser가 사용 허가된 뉴스·공시 전문, 이미지, canonical URL, content hash, license policy를 `IntelligenceEventRequest`로 전달하도록 보강했다.
 - 응답과 WebSocket payload에 `original_body`, `translated_body`, `body_source_type`를 추가해 원문 본문 번역과 요약 번역 계약을 분리해 검증한다.
 - 기능정의 하네스와 provider 하네스에서 전문 입력 시 `FULL_TEXT` 본문 출처와 원문/번역 본문 필드를 검증한다.
+
+## 2026-06-28 - 외국인 보유/취득 수량 ML 학습/평가
+- 예측 타깃을 `foreign_limit_quantity`가 아니라 `foreign_owned_quantity`로 정정했다. 한도수량은 예측 대상이 아니라 예측 보유수량을 한도소진율로 환산하는 분모로만 사용한다.
+- `foreign_owned_quantity`만 사용해 다음 거래일 외국인 보유/취득 수량을 예측하는 ML 학습기를 추가했다.
+- 학습기는 종목을 무시하지 않고 `stock_code` 범주 feature를 포함한 panel/global regression으로 Ridge, HistGradientBoostingRegressor, RandomForestRegressor, hurdle classifier+regressor 후보를 walk-forward 검증한다.
+- 날짜 feature, 변화 간격, 최근 변화 횟수, 마지막 변화율을 추가해 종목별 보유수량 흐름을 반영했다.
+- 실제 KRX 기반 상위 30종목 데이터 7,290개 관측치, 6,690개 학습 샘플로 학습했고, 선택 후보는 `ridge_delta_ratio`, blend alpha 0.05였다.
+- champion baseline은 전일 보유수량 유지이며, 전체 KRX 가용 종목 기준 baseline MAE 34,589.08, promoted guarded runtime MAE 34,446.93을 기록했다.
+- guarded runtime은 종목별 검증에서 ML, persistence baseline, stale-guarded mean delta, median multi delta, mean delta 중 MAE가 가장 낮은 정책을 선택하며, baseline 대비 MAE 0.4110%, RMSE 0.7474%, MAPE 6.8484%를 개선해 `release_status=promoted`로 기록했다.
+- 종목별 검증에서는 573종목이 ML, 1,016종목이 persistence baseline, 626종목이 `stale_guarded_mean_delta_20`, 20종목이 `median_multi_delta`, 5종목이 `mean_delta_20` 추천이었다.
+- serving은 predicted owned quantity `min/base/max`와 예측 순취득수량을 반환하고, 한도소진율은 현재 `foreign_limit_quantity`로 나누어 계산한다. 기존 limit quantity 응답 필드는 호환성 목적으로 현재 한도수량을 그대로 채운다.

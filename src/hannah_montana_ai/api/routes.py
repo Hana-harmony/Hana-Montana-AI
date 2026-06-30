@@ -1,15 +1,20 @@
 from functools import lru_cache
 from time import perf_counter
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 
 from hannah_montana_ai.api.common import ApiResponse, success_response
 from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
+from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
+    ForeignOwnershipQuantityRetrainRequest,
+    ForeignOwnershipQuantityRetrainResponse,
     ForeignOwnershipTimeseriesPredictionRequest,
     ForeignOwnershipTimeseriesPredictionResponse,
+    GlobalPeerMatchRequest,
+    GlobalPeerMatchResponse,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
     StockOrderStatusRequest,
@@ -30,6 +35,10 @@ from hannah_montana_ai.services.feature_contracts import (
 from hannah_montana_ai.services.foreign_ownership import (
     ForeignOwnershipTimeseriesPredictionService,
 )
+from hannah_montana_ai.services.foreign_ownership_model_maintenance import (
+    ForeignOwnershipModelMaintenanceService,
+)
+from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.model import ModelArtifactError
 
 router = APIRouter(tags=["analysis"])
@@ -53,6 +62,16 @@ def get_stock_order_status_service() -> StockOrderStatusService:
 @lru_cache
 def get_foreign_ownership_prediction_service() -> ForeignOwnershipTimeseriesPredictionService:
     return ForeignOwnershipTimeseriesPredictionService()
+
+
+@lru_cache
+def get_foreign_ownership_model_maintenance_service() -> ForeignOwnershipModelMaintenanceService:
+    return ForeignOwnershipModelMaintenanceService()
+
+
+@lru_cache
+def get_global_peer_matcher() -> GlobalPeerMatcher:
+    return GlobalPeerMatcher(get_settings().global_peer_model_path)
 
 
 @lru_cache
@@ -127,6 +146,42 @@ def predict_foreign_ownership(
 
 
 @router.post(
+    "/market/foreign-ownership/model/retrain",
+    response_model=ApiResponse[ForeignOwnershipQuantityRetrainResponse],
+)
+def retrain_foreign_ownership_quantity_model(
+    request: ForeignOwnershipQuantityRetrainRequest,
+    x_hannah_ai_maintenance_token: str | None = Header(default=None),
+) -> ApiResponse[ForeignOwnershipQuantityRetrainResponse]:
+    _verify_maintenance_token(x_hannah_ai_maintenance_token)
+    try:
+        response = get_foreign_ownership_model_maintenance_service().retrain(
+            request,
+            reload_model=True,
+        )
+    except ValueError as exception:
+        raise ApiException(ErrorCode.INVALID_REQUEST, str(exception)) from exception
+    if response.promoted:
+        get_foreign_ownership_prediction_service.cache_clear()
+    return success_response(response)
+
+
+@router.post(
+    "/market/global-peers/match",
+    response_model=ApiResponse[GlobalPeerMatchResponse],
+)
+def match_global_peer(request: GlobalPeerMatchRequest) -> ApiResponse[GlobalPeerMatchResponse]:
+    try:
+        matcher = get_global_peer_matcher()
+    except ModelArtifactError as exception:
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "Global peer model artifact is unavailable",
+        ) from exception
+    return success_response(matcher.match(request))
+
+
+@router.post(
     "/intelligence/events",
     response_model=ApiResponse[IntelligenceEventResponse],
 )
@@ -163,3 +218,11 @@ def tax_document_verify(
 
 def _elapsed_ms(started_at: float) -> float:
     return (perf_counter() - started_at) * 1000
+
+
+def _verify_maintenance_token(header_token: str | None) -> None:
+    expected_token = get_settings().foreign_ownership_maintenance_token
+    if not expected_token:
+        return
+    if header_token != expected_token:
+        raise ApiException(ErrorCode.UNAUTHORIZED, "Invalid Hannah AI maintenance token")
