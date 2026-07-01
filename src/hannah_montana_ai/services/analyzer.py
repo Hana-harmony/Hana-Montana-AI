@@ -34,7 +34,12 @@ class StockMatchResult:
 
 class AlertAnalyzer:
     _FINANCIAL_GLOSSARY = (
-        ("개미", "retail investors", "market_slang", ("개미투자자", "개미 투자자", "동학개미", "서학개미")),
+        (
+            "개미",
+            "retail investors",
+            "market_slang",
+            ("개미투자자", "개미 투자자", "동학개미", "서학개미"),
+        ),
         ("대장주", "bellwether stock", "market_slang", ("대표주", "주도주")),
         ("따따블", "IPO quadruple jump", "ipo_slang", ("공모가 4배",)),
         ("품절주", "low-float stock", "market_slang", ()),
