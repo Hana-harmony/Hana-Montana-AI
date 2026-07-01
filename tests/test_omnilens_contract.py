@@ -46,6 +46,8 @@ EXPECTED_RESPONSE_FIELDS = {
     "body_source_type",
     "image_urls",
     "event_tags",
+    "glossary_terms",
+    "translation_quality_flags",
     "sentiment",
     "importance",
     "related_stocks",
