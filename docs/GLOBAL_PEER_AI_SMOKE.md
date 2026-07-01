@@ -6,32 +6,32 @@
 
 ## 최신 실행
 - 리포트: `reports/global-peer-ai-smoke-report.json`
-- 모델 버전: `global-peer-hybrid-ranker-20260630171118`
+- 모델 버전: `global-peer-hybrid-ranker-20260701011926`
 - 모델 구조: TF-IDF retrieval + SVD semantic embedding + 재무/규모 feature + pairwise LogisticRegression reranker
 - serving calibration: pairwise ranker 60%, base text/semantic/financial score 40%
-- 국내 업종 feature: Naver 동일업종 비교 profile 2,649개, taxonomy 보정 후 Naver specific profile 2,637개, 전종목 specific profile 3,068개
+- 국내 업종 feature: Naver 동일업종 비교 profile 2,649개, OpenDART/WiseReport 회사 프로필 2,881개, 전종목 specific profile 3,089개
 - 샘플 수: 15개 한국 대형/대표 종목
 - 전종목 coverage 리포트: `reports/global-peer-full-coverage-report.json`
 - 전종목 coverage 결과: 3,967/3,967개 추론 성공, failure 0개, 동일회사 중복 0개, 근거 누락 0개, quality gate `pass`
-- monitoring 결과: LOW confidence 22.6620%, generic sector 22.6620%, specific profile LOW 0개, confidence monitoring `pass`
+- monitoring 결과: LOW confidence 22.1326%, generic sector 22.1326%, specific profile LOW 0개, confidence monitoring `pass`
 
 | 한국 종목 | AI primary peer | confidence | 핵심 근거 |
 | --- | --- | --- | --- |
-| Samsung Electronics | Micron Technology | HIGH 0.7493 | Information Technology / Semiconductors |
-| SK hynix | Micron Technology | HIGH 0.8723 | Information Technology / Semiconductors |
-| NAVER | Alphabet | HIGH 0.7789 | Information Technology / Internet Platforms |
-| Hyundai Motor | Toyota Motor | HIGH 0.8178 | Consumer Discretionary / Automobiles |
-| LG Energy Solution | Tesla | HIGH 0.8294 | Industrials / Battery and Energy Storage |
-| Samsung Biologics | Thermo Fisher Scientific | MEDIUM 0.6364 | Health Care / Biotechnology |
-| Celltrion | Biogen | MEDIUM 0.6897 | Health Care / Biotechnology |
-| KB Financial Group | Citigroup | HIGH 0.7489 | Financials / Banks |
-| Shinhan Financial Group | Citigroup | HIGH 0.7295 | Financials / Banks |
-| Hana Financial Group | Citigroup | HIGH 0.7248 | Financials / Banks |
-| LG Chem | Dow | HIGH 0.8344 | Materials / Specialty Chemicals |
-| Samsung SDI | Tesla | MEDIUM 0.6716 | Industrials / Battery and Energy Storage |
-| LG Electronics | Whirlpool | HIGH 0.8628 | Consumer Discretionary / Consumer Electronics and Appliances |
-| SK Telecom | Verizon Communications | HIGH 0.8199 | Communication Services / Telecommunications |
-| Alteogen | Halozyme Therapeutics | HIGH 0.8046 | Health Care / Biotechnology |
+| Samsung Electronics | Micron Technology | HIGH 0.7494 | Information Technology / Semiconductors |
+| SK hynix | Micron Technology | HIGH 0.8725 | Information Technology / Semiconductors |
+| NAVER | Alphabet . Class A | HIGH 0.7795 | Information Technology / Internet Platforms |
+| Hyundai Motor | Toyota Motor | HIGH 0.8184 | Consumer Discretionary / Automobiles |
+| LG Energy Solution | Tesla | HIGH 0.8302 | Industrials / Battery and Energy Storage |
+| Samsung Biologics | Thermo Fisher Scientific | MEDIUM 0.6355 | Health Care / Biotechnology |
+| Celltrion | Biogen | MEDIUM 0.6905 | Health Care / Biotechnology |
+| KB Financial Group | Citigroup | HIGH 0.7494 | Financials / Banks |
+| Shinhan Financial Group | Citigroup | HIGH 0.73 | Financials / Banks |
+| Hana Financial Group | Citigroup | HIGH 0.7226 | Financials / Banks |
+| LG Chem | Dow | HIGH 0.8356 | Materials / Specialty Chemicals |
+| Samsung SDI | Tesla | MEDIUM 0.6736 | Industrials / Battery and Energy Storage |
+| LG Electronics | Whirlpool | HIGH 0.8618 | Consumer Discretionary / Consumer Electronics and Appliances |
+| SK Telecom | Verizon Communications | HIGH 0.8203 | Communication Services / Telecommunications |
+| Alteogen | Halozyme Therapeutics | HIGH 0.8034 | Health Care / Biotechnology |
 
 ## 품질 기준
 - `tests/test_global_peer_matcher.py`의 core smoke regression은 Samsung Electronics, SK hynix, NAVER, SK Telecom, LG Electronics, LG Energy Solution의 primary peer를 고정해 품질 퇴행을 막는다.
@@ -42,5 +42,5 @@
 
 ## 남은 한계
 - 국내 master에는 섹터/업종 컬럼이 없지만, Naver 동일업종 비교 데이터와 Naver industry code taxonomy 보정을 별도 reference로 반영한다.
-- LOW confidence 비율은 22.6620%로 monitoring target 35%를 통과한다. specific profile 기준 LOW confidence는 0개다.
+- LOW confidence 비율은 22.1326%로 monitoring target 35%를 통과한다. specific profile 기준 LOW confidence는 0개다.
 - peer universe는 미국 상장 보통주 중심이라 CATL, Panasonic, Lonza처럼 더 직관적인 비미국/비상장/해외거래소 peer는 후보에 없다.
