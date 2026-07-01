@@ -8,7 +8,13 @@ from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationGenerator,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
-from hannah_montana_ai.training.global_peer_trainer import load_us_stock_universe
+from hannah_montana_ai.training.global_peer_trainer import (
+    KoreaCompanyProfile,
+    infer_business_tags_from_company_summary,
+    load_korea_company_profiles,
+    load_us_stock_universe,
+    write_korea_company_profiles,
+)
 
 
 class _FakePeerExplanationClient:
@@ -86,6 +92,68 @@ def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
         assert response.primary_peer.sector != "Unclassified"
         assert response.primary_peer.industry != "Unclassified"
         assert response.primary_peer.matched_factors
+
+
+def test_business_summary_tagger_extracts_domain_without_ecommerce_noise() -> None:
+    tags = infer_business_tags_from_company_summary(
+        "동사는 전자상거래 플랫폼과 유통사업을 영위하며 화장품 브랜드를 판매한다."
+    )
+
+    assert tags[:3] == ("retail", "consumer brands", "software platform")
+    assert "semiconductors" not in tags
+
+
+def test_korea_company_profile_roundtrip_preserves_business_summary(tmp_path: Path) -> None:
+    path = tmp_path / "korea_company_profiles.csv"
+
+    write_korea_company_profiles(
+        path,
+        [
+            KoreaCompanyProfile(
+                stock_code="052020",
+                corp_code="00273110",
+                corp_name="에스티큐브",
+                corp_name_eng="STCUBE",
+                stock_name="에스티큐브",
+                corp_cls="K",
+                induty_code="465",
+                est_dt="19890816",
+                acc_mt="12",
+                business_summary_text="항암 면역 치료제와 면역관문억제제를 개발한다.",
+                source="OPEN_DART_COMPANY+WISE_REPORT_BUSINESS_SUMMARY",
+            )
+        ],
+    )
+
+    profiles = load_korea_company_profiles(path)
+
+    assert profiles["052020"].business_summary_text == (
+        "항암 면역 치료제와 면역관문억제제를 개발한다."
+    )
+    assert profiles["052020"].induty_code == "465"
+
+
+def test_global_peer_business_profile_classifier_removes_legacy_low_examples() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    cases = [
+        ("003580", "HLB글로벌", "Food and Beverage"),
+        ("009810", "플레이그램", "Software"),
+        ("052020", "에스티큐브", "Biotechnology"),
+        ("080010", "이상네트웍스", "Machinery and Industrial Equipment"),
+        ("102370", "케이옥션", "Art and Collectibles Marketplace"),
+    ]
+
+    for stock_code, stock_name, expected_industry in cases:
+        response = matcher.match(
+            GlobalPeerMatchRequest(
+                stock_code=stock_code,
+                stock_name=stock_name,
+                market="KOSDAQ",
+            )
+        )
+
+        assert response.confidence_level in {"MEDIUM", "HIGH"}
+        assert response.primary_peer.industry == expected_industry
 
 
 def test_global_peer_model_prioritizes_domain_and_explains_financial_context() -> None:

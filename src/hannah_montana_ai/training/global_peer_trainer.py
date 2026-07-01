@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import html
 import json
 import math
 import os
@@ -19,7 +20,10 @@ import numpy as np
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import FeatureUnion
 from sklearn.preprocessing import normalize
 
 from hannah_montana_ai.training.stock_universe import (
@@ -85,7 +89,11 @@ SEC_TICKER_CIK_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 NASDAQ_QUOTE_SUMMARY_URL = "https://api.nasdaq.com/api/quote/{ticker}/summary?assetclass=stocks"
 NAVER_STOCK_INTEGRATION_URL = "https://m.stock.naver.com/api/stock/{stock_code}/integration"
+WISE_REPORT_COMPANY_OVERVIEW_URL = (
+    "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={stock_code}"
+)
 OPEN_DART_FINANCIAL_URL = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
+OPEN_DART_COMPANY_URL = "https://opendart.fss.or.kr/api/company.json"
 KRX_OPEN_API_BASE_URL = "https://data-dbg.krx.co.kr"
 KRX_DAILY_TRADE_PATHS = (
     "/svc/apis/sto/stk_bydd_trd",
@@ -156,6 +164,32 @@ class KoreaIndustryProfile:
             "peer_stock_names": list(self.peer_stock_names),
             "business_tags": list(self.business_tags),
         }
+
+
+@dataclass(frozen=True)
+class KoreaCompanyProfile:
+    stock_code: str
+    corp_code: str
+    corp_name: str
+    corp_name_eng: str
+    stock_name: str
+    corp_cls: str
+    induty_code: str
+    est_dt: str
+    acc_mt: str
+    business_summary_text: str
+    source: str
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class KoreaBusinessProfileClassifierResult:
+    industry_profiles: dict[str, KoreaIndustryProfile]
+    vectorizer: object | None
+    classifier: LogisticRegression | None
+    report: dict[str, object]
 
 
 @dataclass(frozen=True)
@@ -819,6 +853,108 @@ def load_global_peer_fundamentals(path: Path) -> dict[tuple[str, str], GlobalPee
     return fundamentals
 
 
+def fetch_open_dart_company_profile(
+    api_key: str,
+    stock: StockUniverseEntry,
+) -> KoreaCompanyProfile | None:
+    if not stock.dart_corp_code:
+        return None
+    params = urlencode({"crtfc_key": api_key, "corp_code": stock.dart_corp_code})
+    payload = _download_open_dart_json(f"{OPEN_DART_COMPANY_URL}?{params}")
+    if str(payload.get("status", "")) != "000":
+        return None
+    return KoreaCompanyProfile(
+        stock_code=stock.stock_code,
+        corp_code=stock.dart_corp_code,
+        corp_name=str(payload.get("corp_name", "")).strip(),
+        corp_name_eng=str(payload.get("corp_name_eng", "")).strip(),
+        stock_name=str(payload.get("stock_name", "")).strip() or stock.stock_name,
+        corp_cls=str(payload.get("corp_cls", "")).strip(),
+        induty_code=str(payload.get("induty_code", "")).strip(),
+        est_dt=str(payload.get("est_dt", "")).strip(),
+        acc_mt=str(payload.get("acc_mt", "")).strip(),
+        business_summary_text="",
+        source="OPEN_DART_COMPANY",
+    )
+
+
+def fetch_wise_report_business_summary(stock_code: str) -> str:
+    url = WISE_REPORT_COMPANY_OVERVIEW_URL.format(stock_code=stock_code)
+    request = Request(  # noqa: S310  # nosec B310
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/126.0.0.0 Safari/537.36"
+            ),
+            "Referer": "https://finance.naver.com/",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+    )
+    with urlopen(request, timeout=10) as response:  # noqa: S310  # nosec B310
+        page = cast(bytes, response.read()).decode("utf-8", errors="replace")
+    items = re.findall(
+        rf'<li[^>]*class="dot_cmp"[^>]*data-cd="{re.escape(stock_code)}"[^>]*>(.*?)</li>',
+        page,
+        re.DOTALL,
+    )
+    cleaned_items = [_strip_html(item) for item in items]
+    return " ".join(item for item in cleaned_items if item)
+
+
+def load_korea_company_profiles(path: Path) -> dict[str, KoreaCompanyProfile]:
+    if not path.exists():
+        return {}
+    profiles: dict[str, KoreaCompanyProfile] = {}
+    with path.open(newline="", encoding="utf-8") as file:
+        for row in csv.DictReader(file):
+            stock_code = row.get("stock_code", "").strip()
+            if not stock_code:
+                continue
+            profiles[stock_code] = KoreaCompanyProfile(
+                stock_code=stock_code,
+                corp_code=row.get("corp_code", "").strip(),
+                corp_name=row.get("corp_name", "").strip(),
+                corp_name_eng=row.get("corp_name_eng", "").strip(),
+                stock_name=row.get("stock_name", "").strip(),
+                corp_cls=row.get("corp_cls", "").strip(),
+                induty_code=row.get("induty_code", "").strip(),
+                est_dt=row.get("est_dt", "").strip(),
+                acc_mt=row.get("acc_mt", "").strip(),
+                business_summary_text=row.get("business_summary_text", "").strip(),
+                source=row.get("source", "").strip(),
+            )
+    return profiles
+
+
+def write_korea_company_profiles(
+    path: Path,
+    rows: Sequence[KoreaCompanyProfile],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "stock_code",
+                "corp_code",
+                "corp_name",
+                "corp_name_eng",
+                "stock_name",
+                "corp_cls",
+                "induty_code",
+                "est_dt",
+                "acc_mt",
+                "business_summary_text",
+                "source",
+            ],
+        )
+        writer.writeheader()
+        for row in sorted(rows, key=lambda item: item.stock_code):
+            writer.writerow(row.to_dict())
+
+
 def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
     if not path.exists():
         return {}
@@ -828,6 +964,7 @@ def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
             stock_code = row["stock_code"].strip()
             if not stock_code:
                 continue
+            stock_name = row.get("stock_name", "").strip()
             raw_tags = _split_pipe(row.get("business_tags", ""))
             business_tags = tuple(
                 tag for tag in raw_tags if tag and tag != "general listed company"
@@ -835,8 +972,12 @@ def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
             peer_stock_names = _split_pipe(row.get("peer_stock_names", ""))
             if not business_tags:
                 inferred_tags = infer_business_tags(
-                    row.get("stock_name", "").strip(),
+                    stock_name,
                     " ".join(peer_stock_names),
+                )
+                inferred_tags = _filter_narrow_peer_inferred_tags(
+                    stock_name=stock_name,
+                    tags=inferred_tags,
                 )
                 business_tags = tuple(
                     tag for tag in inferred_tags if tag and tag != "general listed company"
@@ -859,7 +1000,7 @@ def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
             profiles.append(
                 KoreaIndustryProfile(
                     stock_code=stock_code,
-                    stock_name=row.get("stock_name", "").strip(),
+                    stock_name=stock_name,
                     industry_code=industry_code,
                     peer_stock_codes=_split_pipe(row.get("peer_stock_codes", "")),
                     peer_stock_names=peer_stock_names,
@@ -924,6 +1065,8 @@ def _impute_generic_korea_industry_profiles(
         predicted_tag = classes[best_index]
         confidence = float(row_probabilities[best_index])
         dominant_tag = _dominant_industry_tag(industry_tag_counts.get(profile.industry_code))
+        if _is_narrow_predicted_tag_without_stock_signal(profile.stock_name, predicted_tag):
+            continue
         if not _accept_imputed_korea_tag(
             predicted_tag=predicted_tag,
             confidence=confidence,
@@ -973,6 +1116,31 @@ def _korea_industry_profile_text(profile: KoreaIndustryProfile) -> str:
     )
 
 
+def _filter_narrow_peer_inferred_tags(
+    *,
+    stock_name: str,
+    tags: Sequence[str],
+) -> list[str]:
+    filtered = list(tags)
+    if "art auction" in filtered and not _contains_any(
+        stock_name,
+        ("옥션", "경매", "미술품", "auction"),
+    ):
+        filtered = [tag for tag in filtered if tag != "art auction"]
+    return filtered or ["general listed company"]
+
+
+def _is_narrow_predicted_tag_without_stock_signal(stock_name: str, predicted_tag: str) -> bool:
+    if predicted_tag == "art auction":
+        return not _contains_any(stock_name, ("옥션", "경매", "미술품", "auction"))
+    return False
+
+
+def _contains_any(text: str, keywords: Sequence[str]) -> bool:
+    lowered = text.lower()
+    return any(keyword.lower() in lowered for keyword in keywords)
+
+
 def _dominant_industry_tag(tag_counts: Counter[str] | None) -> str | None:
     if not tag_counts:
         return None
@@ -993,6 +1161,367 @@ def _accept_imputed_korea_tag(
     if confidence >= 0.65:
         return True
     return bool(dominant_tag and predicted_tag == dominant_tag and confidence >= 0.45)
+
+
+def train_korea_business_profile_classifier(
+    korea_universe: Sequence[StockUniverseEntry],
+    industry_profiles: dict[str, KoreaIndustryProfile],
+    company_profiles: dict[str, KoreaCompanyProfile],
+    fundamentals: dict[tuple[str, str], GlobalPeerFundamentals],
+    min_confidence: float = 0.55,
+    summary_aligned_min_confidence: float = 0.35,
+) -> KoreaBusinessProfileClassifierResult:
+    stocks_by_code = {stock.stock_code: stock for stock in korea_universe}
+    labeled_profiles = [
+        profile
+        for profile in industry_profiles.values()
+        if profile.stock_code in stocks_by_code and _is_specific_korea_industry_profile(profile)
+    ]
+    if len(labeled_profiles) < 200:
+        return KoreaBusinessProfileClassifierResult(
+            industry_profiles=industry_profiles,
+            vectorizer=None,
+            classifier=None,
+            report={
+                "schema_version": "korea-business-profile-classifier/v1",
+                "status": "skipped",
+                "reason": "not enough labeled korea industry profiles",
+                "training_sample_count": len(labeled_profiles),
+            },
+        )
+
+    supervised_texts = [
+        _korea_business_profile_classifier_text(
+            stocks_by_code[profile.stock_code],
+            profile,
+            company_profiles.get(profile.stock_code),
+            _fundamental_for("KR", profile.stock_code, None, fundamentals),
+        )
+        for profile in labeled_profiles
+    ]
+    supervised_labels = [
+        _primary_operating_tag(profile.business_tags) for profile in labeled_profiles
+    ]
+    label_counts = Counter(supervised_labels)
+    evaluation_report = _evaluate_korea_business_profile_classifier(
+        texts=supervised_texts,
+        labels=supervised_labels,
+        label_counts=label_counts,
+    )
+
+    pseudo_texts: list[str] = []
+    pseudo_labels: list[str] = []
+    for stock in korea_universe:
+        current_profile = industry_profiles.get(stock.stock_code)
+        if current_profile and _is_specific_korea_industry_profile(current_profile):
+            continue
+        company_profile = company_profiles.get(stock.stock_code)
+        summary_tags = infer_business_tags_from_company_summary(
+            company_profile.business_summary_text if company_profile else ""
+        )
+        if not summary_tags:
+            continue
+        pseudo_texts.append(
+            _korea_business_profile_classifier_text(
+                stock,
+                current_profile,
+                company_profile,
+                _fundamental_for("KR", stock.stock_code, None, fundamentals),
+            )
+        )
+        pseudo_labels.append(summary_tags[0])
+
+    training_texts = [*supervised_texts, *pseudo_texts]
+    training_labels = [*supervised_labels, *pseudo_labels]
+    sample_weights = np.array(
+        [1.0 for _ in supervised_texts] + [8.0 for _ in pseudo_texts],
+        dtype=float,
+    )
+    vectorizer = FeatureUnion(
+        [
+            (
+                "char",
+                TfidfVectorizer(
+                    analyzer="char_wb",
+                    ngram_range=(2, 5),
+                    min_df=1,
+                    sublinear_tf=True,
+                    lowercase=True,
+                    strip_accents="unicode",
+                    dtype=np.float32,
+                ),
+            ),
+            (
+                "word",
+                TfidfVectorizer(
+                    analyzer="word",
+                    ngram_range=(1, 2),
+                    min_df=1,
+                    sublinear_tf=True,
+                    lowercase=True,
+                    strip_accents="unicode",
+                    dtype=np.float32,
+                ),
+            ),
+        ]
+    )
+    features = vectorizer.fit_transform(training_texts)
+    classifier = LogisticRegression(
+        max_iter=1_500,
+        class_weight="balanced",
+        random_state=42,
+    )
+    classifier.fit(features, training_labels, sample_weight=sample_weights)
+
+    merged_profiles = dict(industry_profiles)
+    promoted: list[dict[str, object]] = []
+    evaluated_generic_count = 0
+    for stock in korea_universe:
+        current_profile = industry_profiles.get(stock.stock_code)
+        if stock.stock_code in KOREA_ANCHORS:
+            continue
+        if current_profile and _is_specific_korea_industry_profile(current_profile):
+            continue
+        evaluated_generic_count += 1
+        text = _korea_business_profile_classifier_text(
+            stock,
+            current_profile,
+            company_profiles.get(stock.stock_code),
+            _fundamental_for("KR", stock.stock_code, None, fundamentals),
+        )
+        probabilities = classifier.predict_proba(vectorizer.transform([text]))[0]
+        best_index = int(np.argmax(probabilities))
+        predicted_tag = str(classifier.classes_[best_index])
+        confidence = float(probabilities[best_index])
+        if _is_narrow_predicted_tag_without_stock_signal(stock.stock_name, predicted_tag):
+            continue
+        company_profile = company_profiles.get(stock.stock_code)
+        summary_tags = infer_business_tags_from_company_summary(
+            company_profile.business_summary_text if company_profile else ""
+        )
+        inferred_tags = tuple(
+            tag
+            for tag in [
+                *summary_tags,
+                *infer_business_tags(
+                    stock.stock_name,
+                    " ".join(
+                        [
+                            stock.stock_name_en,
+                            company_profile.corp_name_eng if company_profile else "",
+                        ]
+                    ),
+                ),
+            ]
+            if tag != "general listed company"
+        )
+        summary_aligned = bool(summary_tags and predicted_tag in summary_tags)
+        accepted = confidence >= min_confidence or (
+            summary_aligned and confidence >= summary_aligned_min_confidence
+        )
+        if not accepted:
+            continue
+        tags = _merge_business_tags((predicted_tag,), inferred_tags)
+        base_profile = current_profile or KoreaIndustryProfile(
+            stock_code=stock.stock_code,
+            stock_name=stock.stock_name,
+            industry_code="",
+            peer_stock_codes=(),
+            peer_stock_names=(),
+            business_tags=(),
+            sector=GENERIC_LISTED_SECTOR,
+            industry=GENERIC_LISTED_INDUSTRY,
+            business_model="Operating company",
+            source="KOREA_STOCK_UNIVERSE",
+        )
+        source = base_profile.source or "KOREA_STOCK_UNIVERSE"
+        merged_profiles[stock.stock_code] = KoreaIndustryProfile(
+            stock_code=base_profile.stock_code,
+            stock_name=base_profile.stock_name or stock.stock_name,
+            industry_code=base_profile.industry_code,
+            peer_stock_codes=base_profile.peer_stock_codes,
+            peer_stock_names=base_profile.peer_stock_names,
+            business_tags=tags,
+            sector=infer_sector(tags),
+            industry=infer_industry(tags),
+            business_model=infer_business_model(tags),
+            source=f"{source}+KOREA_BUSINESS_PROFILE_ML_CLASSIFIER",
+        )
+        promoted.append(
+            {
+                "stock_code": stock.stock_code,
+                "stock_name": stock.stock_name,
+                "predicted_tag": predicted_tag,
+                "business_tags": list(tags),
+                "confidence": round(confidence, 6),
+                "dart_induty_code": (
+                    company_profiles.get(stock.stock_code).induty_code
+                    if company_profiles.get(stock.stock_code)
+                    else ""
+                ),
+            }
+        )
+
+    remaining_generic_count = sum(
+        1
+        for stock in korea_universe
+        if not _is_specific_korea_industry_profile(
+            merged_profiles.get(
+                stock.stock_code,
+                KoreaIndustryProfile(
+                    stock_code=stock.stock_code,
+                    stock_name=stock.stock_name,
+                    industry_code="",
+                    peer_stock_codes=(),
+                    peer_stock_names=(),
+                    business_tags=(),
+                    sector=GENERIC_LISTED_SECTOR,
+                    industry=GENERIC_LISTED_INDUSTRY,
+                    business_model="Operating company",
+                    source="KOREA_STOCK_UNIVERSE",
+                ),
+            )
+        )
+    )
+    report = {
+        "schema_version": "korea-business-profile-classifier/v1",
+        "status": "trained",
+        "model": (
+            "FeatureUnion(TfidfVectorizer(char_wb 2-5), "
+            "TfidfVectorizer(word 1-2))+LogisticRegression(class_weight=balanced)"
+        ),
+        "feature_policy": (
+            "stock names, aliases, Naver industry graph, OpenDART company industry code, "
+            "WiseReport business summaries, and financial scale tokens are used; "
+            "confidence is not forced at serving time"
+        ),
+        "training_sample_count": len(training_texts),
+        "supervised_sample_count": len(supervised_texts),
+        "pseudo_labeled_sample_count": len(pseudo_texts),
+        "label_count": len(label_counts),
+        "top_labels": dict(label_counts.most_common(15)),
+        "company_profile_coverage_count": len(company_profiles),
+        "business_summary_coverage_count": sum(
+            1 for profile in company_profiles.values() if profile.business_summary_text
+        ),
+        "generic_candidate_count": evaluated_generic_count,
+        "promoted_profile_count": len(promoted),
+        "remaining_generic_profile_count": remaining_generic_count,
+        "min_confidence": min_confidence,
+        "summary_aligned_min_confidence": summary_aligned_min_confidence,
+        "pseudo_label_sample_weight": 8.0,
+        "evaluation": evaluation_report,
+        "promoted_profiles_sample": promoted[:30],
+    }
+    return KoreaBusinessProfileClassifierResult(
+        industry_profiles=merged_profiles,
+        vectorizer=vectorizer,
+        classifier=classifier,
+        report=report,
+    )
+
+
+def _evaluate_korea_business_profile_classifier(
+    *,
+    texts: Sequence[str],
+    labels: Sequence[str],
+    label_counts: Counter[str],
+) -> dict[str, object]:
+    eligible_indices = [index for index, label in enumerate(labels) if label_counts[label] >= 2]
+    if len(eligible_indices) < 200 or len({labels[index] for index in eligible_indices}) < 2:
+        return {
+            "status": "skipped",
+            "reason": "not enough multi-sample labels for stratified holdout",
+        }
+    filtered_texts = [texts[index] for index in eligible_indices]
+    filtered_labels = [labels[index] for index in eligible_indices]
+    train_texts, test_texts, train_labels, test_labels = train_test_split(
+        filtered_texts,
+        filtered_labels,
+        test_size=0.2,
+        random_state=42,
+        stratify=filtered_labels,
+    )
+    vectorizer = TfidfVectorizer(
+        analyzer="char_wb",
+        ngram_range=(2, 5),
+        min_df=1,
+        sublinear_tf=True,
+        lowercase=True,
+        strip_accents="unicode",
+        dtype=np.float32,
+    )
+    train_features = vectorizer.fit_transform(train_texts)
+    classifier = LogisticRegression(
+        max_iter=1_500,
+        class_weight="balanced",
+        random_state=42,
+    )
+    classifier.fit(train_features, train_labels)
+    predictions = classifier.predict(vectorizer.transform(test_texts))
+    return {
+        "status": "evaluated",
+        "holdout_sample_count": len(test_labels),
+        "accuracy": round(float(accuracy_score(test_labels, predictions)), 6),
+        "macro_f1": round(float(f1_score(test_labels, predictions, average="macro")), 6),
+        "weighted_f1": round(float(f1_score(test_labels, predictions, average="weighted")), 6),
+    }
+
+
+def _korea_business_profile_classifier_text(
+    stock: StockUniverseEntry,
+    industry_profile: KoreaIndustryProfile | None,
+    company_profile: KoreaCompanyProfile | None,
+    fundamental: GlobalPeerFundamentals | None,
+) -> str:
+    if fundamental is None:
+        fundamental = _fundamental_for("KR", stock.stock_code, None, None)
+    financial_tokens = financial_profile_tokens(fundamental)
+    values = [
+        stock.stock_code,
+        stock.stock_name,
+        stock.stock_name_en,
+        stock.market,
+        " ".join(stock.aliases),
+        industry_profile.industry_code if industry_profile else "",
+        " ".join(industry_profile.peer_stock_names[:20]) if industry_profile else "",
+        " ".join(industry_profile.business_tags) if industry_profile else "",
+        industry_profile.sector if industry_profile else "",
+        industry_profile.industry if industry_profile else "",
+        industry_profile.business_model if industry_profile else "",
+        company_profile.corp_name if company_profile else "",
+        company_profile.corp_name_eng if company_profile else "",
+        company_profile.business_summary_text if company_profile else "",
+        company_profile.corp_cls if company_profile else "",
+        (
+            f"dart_induty_{company_profile.induty_code}"
+            if company_profile and company_profile.induty_code
+            else ""
+        ),
+        f"dart_induty_prefix_{company_profile.induty_code[:2]}"
+        if company_profile and company_profile.induty_code
+        else "",
+        f"dart_induty_prefix_{company_profile.induty_code[:3]}"
+        if company_profile and len(company_profile.induty_code) >= 3
+        else "",
+        f"established_decade_{company_profile.est_dt[:3]}0"
+        if company_profile and len(company_profile.est_dt) >= 4
+        else "",
+        " ".join(financial_tokens),
+    ]
+    return normalize_profile_text(" ".join(value for value in values if value))
+
+
+def _merge_business_tags(
+    predicted_tags: Sequence[str],
+    inferred_tags: Sequence[str],
+) -> tuple[str, ...]:
+    ordered = [
+        tag for tag in [*inferred_tags, *predicted_tags] if tag and tag != "general listed company"
+    ]
+    if "art auction" in ordered and "retail" in ordered:
+        ordered = ["art auction", *[tag for tag in ordered if tag != "art auction"]]
+    return tuple(dict.fromkeys(ordered or list(predicted_tags)))
 
 
 def write_korea_industry_profiles(
@@ -1099,6 +1628,7 @@ def train_global_peer_model(
     model_path: Path,
     report_path: Path,
     korea_industry_path: Path | None = None,
+    korea_company_profile_path: Path | None = None,
 ) -> PeerTrainingResult:
     korea_universe = load_stock_universe(korea_stock_universe_path)
     us_universe = load_us_stock_universe(us_stock_universe_path)
@@ -1106,11 +1636,23 @@ def train_global_peer_model(
     korea_industries = (
         load_korea_industry_profiles(korea_industry_path) if korea_industry_path else {}
     )
+    korea_company_profiles = (
+        load_korea_company_profiles(korea_company_profile_path)
+        if korea_company_profile_path
+        else {}
+    )
     if len(korea_universe) < 3_000:
         raise ValueError("global peer training requires the full Korean stock universe")
     if len(us_universe) < 5_000:
         raise ValueError("global peer training requires the full United States stock universe")
 
+    business_profile_classifier_result = train_korea_business_profile_classifier(
+        korea_universe=korea_universe,
+        industry_profiles=korea_industries,
+        company_profiles=korea_company_profiles,
+        fundamentals=fundamentals,
+    )
+    korea_industries = business_profile_classifier_result.industry_profiles
     korea_profiles = [
         build_korea_profile(stock, fundamentals, korea_industries) for stock in korea_universe
     ]
@@ -1171,6 +1713,11 @@ def train_global_peer_model(
         "korea_profiles": {profile.identifier: profile.to_dict() for profile in korea_profiles},
         "korea_anchors": _anchors_to_payload(KOREA_ANCHORS),
         "us_anchors": _anchors_to_payload(US_ANCHORS),
+        "korea_business_profile_classifier": {
+            "vectorizer": business_profile_classifier_result.vectorizer,
+            "classifier": business_profile_classifier_result.classifier,
+            "report": business_profile_classifier_result.report,
+        },
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(artifact, model_path, compress=9)
@@ -1182,11 +1729,14 @@ def train_global_peer_model(
         us_stock_universe_path=us_stock_universe_path,
         fundamentals_path=fundamentals_path,
         korea_industry_path=korea_industry_path,
+        korea_company_profile_path=korea_company_profile_path,
         model_path=model_path,
         korea_profiles=korea_profiles,
         us_profiles=us_profiles,
         eligible_us_profiles=eligible_us_profiles,
         korea_industry_profiles=korea_industries,
+        korea_company_profiles=korea_company_profiles,
+        business_profile_classifier_report=business_profile_classifier_result.report,
         vectorizer=vectorizer,
         eligible_us_matrix=eligible_us_matrix,
         pairwise_ranker_report=pairwise_ranker_report,
@@ -1206,11 +1756,14 @@ def build_global_peer_training_report(
     us_stock_universe_path: Path,
     fundamentals_path: Path,
     korea_industry_path: Path | None,
+    korea_company_profile_path: Path | None,
     model_path: Path,
     korea_profiles: Sequence[CompanyPeerProfile],
     us_profiles: Sequence[CompanyPeerProfile],
     eligible_us_profiles: Sequence[CompanyPeerProfile],
     korea_industry_profiles: dict[str, KoreaIndustryProfile],
+    korea_company_profiles: dict[str, KoreaCompanyProfile],
+    business_profile_classifier_report: dict[str, object],
     vectorizer: TfidfVectorizer,
     eligible_us_matrix: object,
     pairwise_ranker_report: dict[str, object],
@@ -1268,10 +1821,14 @@ def build_global_peer_training_report(
         "us_stock_universe_path": _report_path(us_stock_universe_path),
         "fundamentals_path": _report_path(fundamentals_path),
         "korea_industry_path": _report_path(korea_industry_path) if korea_industry_path else "",
+        "korea_company_profile_path": (
+            _report_path(korea_company_profile_path) if korea_company_profile_path else ""
+        ),
         "model_path": _report_path(model_path),
         "korea_universe_count": len(korea_profiles),
         "us_universe_count": len(us_profiles),
         "korea_industry_profile_count": len(korea_industry_profiles),
+        "korea_company_profile_count": len(korea_company_profiles),
         "korea_industry_specific_profile_count": korea_industry_specific_count,
         "korea_fundamental_coverage_count": korea_fundamental_count,
         "us_fundamental_coverage_count": us_fundamental_count,
@@ -1289,6 +1846,7 @@ def build_global_peer_training_report(
         "tag_distribution": dict(sorted(tag_distribution.items())),
         "anchor_evaluation": anchor_evaluation,
         "pairwise_ranker_evaluation": pairwise_ranker_report,
+        "business_profile_classifier": business_profile_classifier_report,
         "coverage_gate": coverage_gate,
     }
 
@@ -2003,6 +2561,7 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
             ),
             "media entertainment",
         ),
+        (("art auction", "auction", "옥션", "경매", "미술품"), "art auction"),
         (
             (
                 "retail",
@@ -2061,6 +2620,48 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
     return list(dict.fromkeys(tags or ["general listed company"]))
 
 
+def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
+    text = summary.lower()
+    if not text:
+        return ()
+    rules: list[tuple[str, tuple[str, ...]]] = [
+        (
+            "biotech",
+            ("바이오", "제약", "의약", "치료제", "신약", "항암", "면역", "진단", "의료기기"),
+        ),
+        ("drug delivery", ("약물전달", "drug delivery", "피하주사", "제형")),
+        ("consumer brands", ("화장품", "코스메틱", "뷰티", "향수", "색조", "패션", "의류", "리빙")),
+        ("food and beverage", ("식품", "음료", "콤부차", "주류", "제과", "외식")),
+        (
+            "retail",
+            ("유통", "커머스", "전자상거래", "구매대행", "mro", "렌탈", "도매", "마켓", "새벽배송"),
+        ),
+        (
+            "software platform",
+            ("소프트웨어", "sw개발", "it서비스", "시스템", "플랫폼", "iot", "디지털트윈", "모바일"),
+        ),
+        ("media entertainment", ("영상콘텐츠", "콘텐츠", "미디어", "방송", "엔터테인먼트", "광고")),
+        ("materials", ("철강", "철스크랩", "강관", "소재", "원료", "비철", "금속")),
+        ("industrial machinery", ("장비", "설비", "기계", "자동화", "로봇", "모듈")),
+        ("financials", ("기업금융", "회사채", "대출", "금융서비스")),
+        ("telecommunications", ("통신장비", "정보통신", "유무선", "네트워크")),
+        ("semiconductors", ("반도체", "hbm", "dram", "nand", "파운드리", "웨이퍼")),
+        ("consumer electronics", ("가전", "전자제품", "oa기기")),
+        ("leisure", ("호텔", "리조트", "레저", "호스피탈리티")),
+        ("art auction", ("미술품 경매", "경매사업", "작품 경매")),
+        ("construction", ("건설", "플랜트", "토목", "시공")),
+        ("energy", ("석유", "가스", "태양광", "발전", "전력", "에너지")),
+        ("logistics", ("물류", "운송", "해운", "배송")),
+    ]
+    scored: list[tuple[int, int, str]] = []
+    for order, (tag, keywords) in enumerate(rules):
+        score = sum(text.count(keyword.lower()) for keyword in keywords)
+        if score > 0:
+            scored.append((-score, order, tag))
+    ordered_tags = [tag for _, _, tag in sorted(scored)]
+    return tuple(dict.fromkeys(ordered_tags))
+
+
 def infer_sector(tags: Sequence[str]) -> str:
     sector_rules = {
         "biotech": "Health Care",
@@ -2086,6 +2687,7 @@ def infer_sector(tags: Sequence[str]) -> str:
         "consumer brands": "Consumer Staples",
         "media entertainment": "Communication Services",
         "retail": "Consumer Discretionary",
+        "art auction": "Consumer Discretionary",
         "aerospace": "Industrials",
         "shipbuilding": "Industrials",
         "chemicals": "Materials",
@@ -2123,6 +2725,7 @@ def infer_industry(tags: Sequence[str]) -> str:
         "consumer brands": "Household and Personal Products",
         "media entertainment": "Media and Entertainment",
         "retail": "Retail",
+        "art auction": "Art and Collectibles Marketplace",
         "aerospace": "Aerospace and Defense",
         "shipbuilding": "Shipbuilding",
         "chemicals": "Specialty Chemicals",
@@ -2173,6 +2776,8 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Branded consumer products and distribution"
     if "media entertainment" in tags:
         return "Content production, distribution, and advertising"
+    if "art auction" in tags:
+        return "Art auction and collectibles marketplace"
     if "retail" in tags:
         return "Merchandising and commerce"
     if "holding company" in tags:
@@ -2479,6 +3084,28 @@ def _download_naver_json(url: str) -> dict[str, object]:
     if not isinstance(decoded, dict):
         raise ValueError("Naver stock JSON response must be an object")
     return decoded
+
+
+def _download_open_dart_json(url: str) -> dict[str, object]:
+    request = Request(  # noqa: S310  # nosec B310
+        url,
+        headers={
+            "User-Agent": "Hannah-Montana-AI OpenDART profile sync",
+            "Accept": "application/json",
+        },
+    )
+    with urlopen(request, timeout=10) as response:  # noqa: S310  # nosec B310
+        payload = cast(bytes, response.read())
+    decoded = json.loads(payload.decode("utf-8", errors="replace"))
+    if not isinstance(decoded, dict):
+        raise ValueError("OpenDART JSON response must be an object")
+    return decoded
+
+
+def _strip_html(value: str) -> str:
+    without_tags = re.sub(r"<[^>]+>", " ", value)
+    decoded = html.unescape(without_tags)
+    return " ".join(decoded.split())
 
 
 def _download_krx_json(url: str, auth_key: str) -> dict[str, object]:

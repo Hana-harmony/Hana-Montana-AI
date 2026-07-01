@@ -1,0 +1,47 @@
+{
+  "schema_version": "global-peer-korea-company-profile-sync/v1",
+  "output_path": "data/reference/korea_company_profiles.csv",
+  "selected_stock_count": 3967,
+  "existing_before_count": 2881,
+  "missing_before_count": 0,
+  "new_or_refreshed_count": 0,
+  "summary_target_count": 2095,
+  "summary_update_count": 693,
+  "row_count": 2881,
+  "failure_count": 8,
+  "failures_sample": [
+    {
+      "stock_code": "114920",
+      "reason": "The read operation timed out"
+    },
+    {
+      "stock_code": "116100",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "117930",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "119250",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "119860",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "121550",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "121060",
+      "reason": "<urlopen error timed out>"
+    },
+    {
+      "stock_code": "120780",
+      "reason": "<urlopen error timed out>"
+    }
+  ],
+  "credential_policy": "OPEN_DART_API_KEY is loaded from gitignored local env only"
+}

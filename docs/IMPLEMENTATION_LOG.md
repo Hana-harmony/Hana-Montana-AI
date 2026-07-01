@@ -1,5 +1,13 @@
 # 구현 기록
 
+## 2026-07-01 글로벌 피어 business profile ML classifier
+- 전체 한국 종목에 적용되는 business profile ML classifier를 추가했다.
+- 입력 feature는 Naver 동일업종 비교군, OpenDART 회사 업종코드, WiseReport 사업개요, 재무 규모 토큰, 종목명/alias를 함께 사용한다.
+- 모델은 `FeatureUnion(TfidfVectorizer char/word)+LogisticRegression(class_weight=balanced)`이며, strong label 2,639개와 WiseReport 약지도 20개로 학습한다.
+- holdout 평가에서 accuracy 0.973485, macro F1 0.967205, weighted F1 0.974094를 기록했다.
+- 기존 generic/legacy LOW 후보 12개는 모두 `not_low_confidence`로 개선했고, 전종목 all-results quality gate는 pass다.
+- 전종목 LOW confidence는 22.1326%, specific profile 3,089개 기준 LOW confidence는 0개다.
+
 ## 2026-07-01 글로벌 피어 Qwen3 설명 LLM v7 사용자 노출 문구 정정
 - 사용자 지적에 따라 LLM `headline`/`summary`에서 `similarity score`, `confidence`, `Hannah ranker` 같은 내부 점수 문구를 제거했다.
 - 글로벌 투자자용 팝업에서 한국 종목명이 한글로 노출되지 않도록 `stock_name_en`이 비어 있는 대표 종목은 검수된 영어 표시명을 우선 사용한다. 검증된 영문명이 없는 종목은 임의 번역 대신 `Korean stock <code>`로 표시한다.

@@ -15,6 +15,9 @@ class Settings(BaseModel):
     global_peer_korea_industry_path: Path = Path(
         "data/reference/korea_stock_industries.csv"
     )
+    global_peer_korea_company_profile_path: Path = Path(
+        "data/reference/korea_company_profiles.csv"
+    )
     global_peer_training_report_path: Path = Path("reports/global-peer-training-report.json")
     global_peer_ai_smoke_report_path: Path = Path("reports/global-peer-ai-smoke-report.json")
     global_peer_full_coverage_report_path: Path = Path(
@@ -52,6 +55,9 @@ class Settings(BaseModel):
     )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"
+    )
+    global_peer_korea_company_profile_sync_report_path: Path = Path(
+        "reports/global-peer-korea-company-profile-sync-report.json"
     )
     foreign_ownership_quantity_model_path: Path = Path(
         "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib"

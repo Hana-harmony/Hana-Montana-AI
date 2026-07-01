@@ -1,16 +1,18 @@
 {
   "schema_version": "global-peer-hybrid-ranker/v3",
-  "version": "global-peer-hybrid-ranker-20260630171118",
-  "trained_at": "2026-06-30T17:11:18.103736+00:00",
+  "version": "global-peer-hybrid-ranker-20260701011926",
+  "trained_at": "2026-07-01T01:19:26.023897+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
   "korea_industry_path": "data/reference/korea_stock_industries.csv",
+  "korea_company_profile_path": "data/reference/korea_company_profiles.csv",
   "model_path": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
   "korea_universe_count": 3967,
   "us_universe_count": 12916,
-  "korea_industry_profile_count": 2649,
-  "korea_industry_specific_profile_count": 3068,
+  "korea_industry_profile_count": 2663,
+  "korea_company_profile_count": 2881,
+  "korea_industry_specific_profile_count": 3089,
   "korea_fundamental_coverage_count": 2916,
   "us_fundamental_coverage_count": 5585,
   "fundamental_field_coverage": {
@@ -22,44 +24,45 @@
   "eligible_us_peer_count": 4714,
   "tag_distribution": {
     "aerospace": 106,
+    "art auction": 8,
     "automotive": 258,
     "banking": 347,
     "battery": 107,
     "biologics": 1,
     "biologics cdmo": 2,
     "biosimilar": 1,
-    "biotech": 1150,
+    "biotech": 1155,
     "biotech platform": 2,
     "chemicals": 160,
-    "construction": 422,
-    "consumer brands": 164,
-    "consumer electronics": 12,
-    "drug delivery": 2,
+    "construction": 425,
+    "consumer brands": 171,
+    "consumer electronics": 14,
+    "drug delivery": 3,
     "education": 49,
     "electrical equipment": 179,
-    "energy": 739,
-    "financials": 768,
-    "food and beverage": 152,
+    "energy": 743,
+    "financials": 769,
+    "food and beverage": 153,
     "gaming": 52,
-    "general listed company": 9781,
+    "general listed company": 9759,
     "holding company": 1477,
     "home appliances": 1,
-    "industrial machinery": 432,
+    "industrial machinery": 436,
     "insurance": 48,
     "internet search": 3,
-    "leisure": 57,
-    "logistics": 74,
-    "materials": 372,
-    "media entertainment": 257,
+    "leisure": 61,
+    "logistics": 76,
+    "materials": 375,
+    "media entertainment": 261,
     "memory chips": 3,
     "online advertising": 3,
     "real estate": 231,
-    "retail": 68,
+    "retail": 77,
     "royalty licensing": 2,
-    "semiconductors": 551,
+    "semiconductors": 552,
     "shipbuilding": 96,
-    "software platform": 1476,
-    "telecommunications": 124
+    "software platform": 1483,
+    "telecommunications": 128
   },
   "anchor_evaluation": {
     "sample_count": 14,
@@ -69,70 +72,70 @@
         "stock_code": "000660",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
-        "score": 0.560769,
+        "score": 0.560774,
         "hit": true
       },
       {
         "stock_code": "005930",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
-        "score": 0.201259,
+        "score": 0.201546,
         "hit": true
       },
       {
         "stock_code": "006400",
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "QS",
-        "score": 0.30808,
+        "score": 0.308071,
         "hit": true
       },
       {
         "stock_code": "017670",
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
-        "score": 0.630746,
+        "score": 0.630829,
         "hit": true
       },
       {
         "stock_code": "035420",
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
-        "score": 0.389673,
+        "score": 0.389641,
         "hit": true
       },
       {
         "stock_code": "051910",
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
-        "score": 0.503453,
+        "score": 0.503406,
         "hit": true
       },
       {
         "stock_code": "055550",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.207769,
+        "score": 0.207781,
         "hit": true
       },
       {
         "stock_code": "066570",
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "SONY",
-        "score": 0.360899,
+        "score": 0.358212,
         "hit": false
       },
       {
         "stock_code": "068270",
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
-        "score": 0.161799,
+        "score": 0.161859,
         "hit": true
       },
       {
         "stock_code": "086790",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.33796,
+        "score": 0.337959,
         "hit": true
       },
       {
@@ -146,21 +149,21 @@
         "stock_code": "196170",
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
-        "score": 0.48341,
+        "score": 0.479419,
         "hit": true
       },
       {
         "stock_code": "207940",
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
-        "score": 0.25524,
+        "score": 0.25525,
         "hit": true
       },
       {
         "stock_code": "373220",
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
-        "score": 0.39396,
+        "score": 0.39393,
         "hit": true
       }
     ]
@@ -176,7 +179,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.886952,
+        "score": 0.887123,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -185,7 +188,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.759885,
+        "score": 0.759984,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -194,7 +197,7 @@
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 2,
-        "score": 0.690734,
+        "score": 0.69253,
         "top1_hit": false,
         "top3_hit": true
       },
@@ -203,7 +206,7 @@
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
         "expected_peer_rank": 1,
-        "score": 0.839074,
+        "score": 0.839394,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -212,7 +215,7 @@
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
         "expected_peer_rank": 1,
-        "score": 0.782996,
+        "score": 0.78361,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -221,7 +224,7 @@
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
         "expected_peer_rank": 1,
-        "score": 0.857158,
+        "score": 0.85807,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -230,7 +233,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.744325,
+        "score": 0.744902,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -239,7 +242,7 @@
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "WHR",
         "expected_peer_rank": 1,
-        "score": 0.866333,
+        "score": 0.865307,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -248,7 +251,7 @@
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
         "expected_peer_rank": 1,
-        "score": 0.700767,
+        "score": 0.701534,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -257,7 +260,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.740979,
+        "score": 0.739157,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -266,7 +269,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.762169,
+        "score": 0.762633,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -275,7 +278,7 @@
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
         "expected_peer_rank": 1,
-        "score": 0.811684,
+        "score": 0.810522,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -284,7 +287,7 @@
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
         "expected_peer_rank": 1,
-        "score": 0.649816,
+        "score": 0.649026,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -293,7 +296,7 @@
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 1,
-        "score": 0.842721,
+        "score": 0.843416,
         "top1_hit": true,
         "top3_hit": true
       }
@@ -336,6 +339,336 @@
     },
     "ranking_model": "LogisticRegression(class_weight=balanced)",
     "label_policy": "curated_peer_pairs_used_as supervised pairwise ranking labels, not serving-time forced anchors"
+  },
+  "business_profile_classifier": {
+    "schema_version": "korea-business-profile-classifier/v1",
+    "status": "trained",
+    "model": "FeatureUnion(TfidfVectorizer(char_wb 2-5), TfidfVectorizer(word 1-2))+LogisticRegression(class_weight=balanced)",
+    "feature_policy": "stock names, aliases, Naver industry graph, OpenDART company industry code, WiseReport business summaries, and financial scale tokens are used; confidence is not forced at serving time",
+    "training_sample_count": 2659,
+    "supervised_sample_count": 2639,
+    "pseudo_labeled_sample_count": 20,
+    "label_count": 27,
+    "top_labels": {
+      "semiconductors": 469,
+      "biotech": 411,
+      "software platform": 410,
+      "construction": 167,
+      "automotive": 157,
+      "consumer brands": 143,
+      "materials": 142,
+      "chemicals": 92,
+      "financials": 90,
+      "food and beverage": 85,
+      "media entertainment": 83,
+      "energy": 60,
+      "electrical equipment": 44,
+      "banking": 43,
+      "gaming": 33
+    },
+    "company_profile_coverage_count": 2881,
+    "business_summary_coverage_count": 2565,
+    "generic_candidate_count": 1328,
+    "promoted_profile_count": 24,
+    "remaining_generic_profile_count": 1304,
+    "min_confidence": 0.55,
+    "summary_aligned_min_confidence": 0.35,
+    "pseudo_label_sample_weight": 8.0,
+    "evaluation": {
+      "status": "evaluated",
+      "holdout_sample_count": 528,
+      "accuracy": 0.973485,
+      "macro_f1": 0.967205,
+      "weighted_f1": 0.974094
+    },
+    "promoted_profiles_sample": [
+      {
+        "stock_code": "000800",
+        "stock_name": "경남기업",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction",
+          "leisure",
+          "energy"
+        ],
+        "confidence": 0.669849,
+        "dart_induty_code": "41112"
+      },
+      {
+        "stock_code": "002530",
+        "stock_name": "벽산건설",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction"
+        ],
+        "confidence": 0.55419,
+        "dart_induty_code": "41112"
+      },
+      {
+        "stock_code": "002550",
+        "stock_name": "KB손해보험",
+        "predicted_tag": "insurance",
+        "business_tags": [
+          "insurance"
+        ],
+        "confidence": 0.570623,
+        "dart_induty_code": "65121"
+      },
+      {
+        "stock_code": "003580",
+        "stock_name": "HLB글로벌",
+        "predicted_tag": "food and beverage",
+        "business_tags": [
+          "food and beverage",
+          "consumer brands",
+          "retail",
+          "media entertainment"
+        ],
+        "confidence": 0.733093,
+        "dart_induty_code": "471"
+      },
+      {
+        "stock_code": "005900",
+        "stock_name": "동양건설산업",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction",
+          "energy",
+          "industrial machinery"
+        ],
+        "confidence": 0.721189,
+        "dart_induty_code": "41221"
+      },
+      {
+        "stock_code": "007720",
+        "stock_name": "소노스퀘어",
+        "predicted_tag": "retail",
+        "business_tags": [
+          "retail",
+          "leisure",
+          "consumer brands",
+          "software platform",
+          "telecommunications"
+        ],
+        "confidence": 0.86584,
+        "dart_induty_code": "468"
+      },
+      {
+        "stock_code": "009810",
+        "stock_name": "플레이그램",
+        "predicted_tag": "software platform",
+        "business_tags": [
+          "software platform",
+          "media entertainment"
+        ],
+        "confidence": 0.39023,
+        "dart_induty_code": "467"
+      },
+      {
+        "stock_code": "011160",
+        "stock_name": "두산건설",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction",
+          "industrial machinery"
+        ],
+        "confidence": 0.617092,
+        "dart_induty_code": "41112"
+      },
+      {
+        "stock_code": "012650",
+        "stock_name": "쌍용건설",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction"
+        ],
+        "confidence": 0.554085,
+        "dart_induty_code": "41221"
+      },
+      {
+        "stock_code": "019660",
+        "stock_name": "글로본",
+        "predicted_tag": "consumer brands",
+        "business_tags": [
+          "consumer brands",
+          "materials"
+        ],
+        "confidence": 0.692619,
+        "dart_induty_code": "468"
+      },
+      {
+        "stock_code": "032040",
+        "stock_name": "씨앤에스자산관리",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction",
+          "software platform"
+        ],
+        "confidence": 0.641558,
+        "dart_induty_code": "759"
+      },
+      {
+        "stock_code": "032860",
+        "stock_name": "더라미",
+        "predicted_tag": "consumer brands",
+        "business_tags": [
+          "consumer brands",
+          "retail",
+          "materials",
+          "leisure",
+          "drug delivery"
+        ],
+        "confidence": 0.685223,
+        "dart_induty_code": "383"
+      },
+      {
+        "stock_code": "037340",
+        "stock_name": "에이치씨코퍼레이션",
+        "predicted_tag": "industrial machinery",
+        "business_tags": [
+          "industrial machinery",
+          "media entertainment",
+          "telecommunications",
+          "retail"
+        ],
+        "confidence": 0.842985,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "051160",
+        "stock_name": "지어소프트",
+        "predicted_tag": "software platform",
+        "business_tags": [
+          "software platform",
+          "retail",
+          "media entertainment",
+          "telecommunications",
+          "logistics"
+        ],
+        "confidence": 0.410614,
+        "dart_induty_code": "58221"
+      },
+      {
+        "stock_code": "051390",
+        "stock_name": "YW",
+        "predicted_tag": "retail",
+        "business_tags": [
+          "retail",
+          "industrial machinery",
+          "financials",
+          "telecommunications",
+          "consumer electronics",
+          "biotech"
+        ],
+        "confidence": 0.856013,
+        "dart_induty_code": "468"
+      },
+      {
+        "stock_code": "052020",
+        "stock_name": "에스티큐브",
+        "predicted_tag": "biotech",
+        "business_tags": [
+          "biotech",
+          "consumer brands",
+          "retail"
+        ],
+        "confidence": 0.428439,
+        "dart_induty_code": "465"
+      },
+      {
+        "stock_code": "060910",
+        "stock_name": "프리젠",
+        "predicted_tag": "consumer electronics",
+        "business_tags": [
+          "consumer electronics"
+        ],
+        "confidence": 0.939307,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "064090",
+        "stock_name": "인크레더블버즈",
+        "predicted_tag": "consumer brands",
+        "business_tags": [
+          "consumer brands",
+          "retail",
+          "biotech",
+          "software platform"
+        ],
+        "confidence": 0.67018,
+        "dart_induty_code": "468"
+      },
+      {
+        "stock_code": "067250",
+        "stock_name": "케이조선",
+        "predicted_tag": "construction",
+        "business_tags": [
+          "construction",
+          "energy",
+          "shipbuilding"
+        ],
+        "confidence": 0.633558,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "070480",
+        "stock_name": "신비앤텍",
+        "predicted_tag": "industrial machinery",
+        "business_tags": [
+          "industrial machinery",
+          "energy",
+          "semiconductors",
+          "logistics"
+        ],
+        "confidence": 0.845085,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "080010",
+        "stock_name": "이상네트웍스",
+        "predicted_tag": "industrial machinery",
+        "business_tags": [
+          "industrial machinery",
+          "retail",
+          "materials"
+        ],
+        "confidence": 0.840326,
+        "dart_induty_code": "4610"
+      },
+      {
+        "stock_code": "150840",
+        "stock_name": "인트로메딕",
+        "predicted_tag": "biotech",
+        "business_tags": [
+          "biotech",
+          "software platform"
+        ],
+        "confidence": 0.551551,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "194610",
+        "stock_name": "우성아이비",
+        "predicted_tag": "leisure",
+        "business_tags": [
+          "leisure",
+          "consumer brands",
+          "software platform"
+        ],
+        "confidence": 0.927341,
+        "dart_induty_code": ""
+      },
+      {
+        "stock_code": "208340",
+        "stock_name": "파멥신",
+        "predicted_tag": "biotech",
+        "business_tags": [
+          "biotech"
+        ],
+        "confidence": 0.629,
+        "dart_induty_code": ""
+      }
+    ]
   },
   "coverage_gate": {
     "minimum_korea_universe_count": 3000,
