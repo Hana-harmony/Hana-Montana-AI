@@ -1347,6 +1347,7 @@ def train_korea_business_profile_classifier(
             business_model=infer_business_model(tags),
             source=f"{source}+KOREA_BUSINESS_PROFILE_ML_CLASSIFIER",
         )
+        company_profile = company_profiles.get(stock.stock_code)
         promoted.append(
             {
                 "stock_code": stock.stock_code,
@@ -1354,11 +1355,7 @@ def train_korea_business_profile_classifier(
                 "predicted_tag": predicted_tag,
                 "business_tags": list(tags),
                 "confidence": round(confidence, 6),
-                "dart_induty_code": (
-                    company_profiles.get(stock.stock_code).induty_code
-                    if company_profiles.get(stock.stock_code)
-                    else ""
-                ),
+                "dart_induty_code": company_profile.induty_code if company_profile else "",
             }
         )
 
