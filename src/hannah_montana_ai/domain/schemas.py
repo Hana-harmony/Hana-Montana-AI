@@ -9,6 +9,14 @@ Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 ContentAvailability = Literal["FULL_TEXT", "SUMMARY_ONLY", "UNAVAILABLE"]
 BodySourceType = Literal["FULL_TEXT", "PROVIDER_SNIPPET", "DISCLOSURE_BODY", "UNAVAILABLE"]
 MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
+FinancialTermSourceType = Literal[
+    "DICTIONARY",
+    "INTERNAL_CONTEXT_RAG",
+    "OPENAI_WEB_SEARCH_RAG",
+    "UNVERIFIED_CONTEXT",
+]
+FinancialTermDisplayMode = Literal["EXPLANATION", "REVIEW_REQUIRED", "TEXT_ONLY"]
+FinancialTermConfidenceLevel = Literal["LOW", "MEDIUM", "HIGH"]
 PriceLimitStatus = Literal["UPPER", "LOWER", "NORMAL"]
 ForeignLimitUsageStatus = Literal["NORMAL", "CAUTION", "LIMIT_REACHED"]
 OrderAvailabilityIndicator = Literal["AVAILABLE", "CAUTION", "LIMITED"]
@@ -86,6 +94,46 @@ class GlobalPeerMatchResponse(BaseModel):
     explanation_prompt_version: str = Field(default="", max_length=80)
 
 
+class FinancialTermEvidence(BaseModel):
+    title: str = Field(min_length=1, max_length=180)
+    snippet: str = Field(default="", max_length=800)
+    url: str = Field(default="", max_length=1000)
+    source_type: str = Field(default="internal_context", max_length=40)
+
+
+class KoreanFinancialTermExplainRequest(BaseModel):
+    term: str = Field(min_length=1, max_length=80)
+    locale: Literal["en"] = "en"
+    source_type: SourceType = "NEWS"
+    title: str = Field(default="", max_length=300)
+    context: str = Field(default="", max_length=4000)
+    stock_code: str | None = Field(default=None, pattern=r"^\d{6}$")
+    stock_name: str = Field(default="", max_length=80)
+    article_id: str = Field(default="", max_length=120)
+    article_url: str = Field(default="", max_length=1000)
+    allow_web_search: bool = True
+
+
+class KoreanFinancialTermExplainResponse(BaseModel):
+    term: str = Field(min_length=1, max_length=80)
+    normalized_term: str = Field(min_length=1, max_length=80)
+    english_term: str = Field(default="", max_length=120)
+    category: str = Field(default="unknown", max_length=60)
+    definition: str = Field(default="", max_length=1000)
+    explanation: str = Field(min_length=1, max_length=1200)
+    example: str = Field(default="", max_length=500)
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    confidence_level: FinancialTermConfidenceLevel
+    display_mode: FinancialTermDisplayMode
+    source: FinancialTermSourceType
+    cacheable: bool
+    cache_ttl_seconds: int = Field(ge=0)
+    evidence: list[FinancialTermEvidence] = Field(default_factory=list, max_length=8)
+    quality_flags: list[str] = Field(default_factory=list, max_length=12)
+    model_version: str = Field(min_length=1, max_length=80)
+    generated_at: datetime
+
+
 class AlertAnalysisRequest(BaseModel):
     source_type: SourceType
     title: str = Field(min_length=1, max_length=300)
@@ -103,6 +151,13 @@ class SummaryLines(BaseModel):
     what: str = Field(default="", max_length=500)
     why: str = Field(default="", max_length=500)
     impact: str = Field(default="", max_length=500)
+
+
+class FinancialGlossaryTerm(BaseModel):
+    source_term: str = Field(min_length=1, max_length=80)
+    normalized_term: str = Field(min_length=1, max_length=80)
+    english_term: str = Field(min_length=1, max_length=120)
+    category: str = Field(min_length=1, max_length=40)
 
 
 class AlertAnalysisResponse(BaseModel):
@@ -123,6 +178,8 @@ class AlertAnalysisResponse(BaseModel):
     related_stocks: list[str]
     holder_target: bool
     watchlist_target: bool
+    glossary_terms: list[FinancialGlossaryTerm] = Field(default_factory=list)
+    translation_quality_flags: list[str] = Field(default_factory=list)
     duplicate_key: str
     cluster_key: str = ""
     model_version: str
@@ -276,13 +333,6 @@ class IntelligenceEventRequest(AlertAnalysisRequest):
     target_language: Literal["en"] = "en"
     provider: str = Field(default="", max_length=80)
     published_at: str = Field(default="", max_length=80)
-
-
-class FinancialGlossaryTerm(BaseModel):
-    source_term: str = Field(min_length=1, max_length=80)
-    normalized_term: str = Field(min_length=1, max_length=80)
-    english_term: str = Field(min_length=1, max_length=120)
-    category: str = Field(min_length=1, max_length=40)
 
 
 class IntelligenceEventResponse(BaseModel):

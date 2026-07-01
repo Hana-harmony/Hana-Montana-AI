@@ -32,6 +32,32 @@ class Settings(BaseModel):
     global_peer_all_results_doc_path: Path = Path(
         "docs/GLOBAL_PEER_ALL_RESULTS.md"
     )
+    korean_financial_terms_seed_path: Path = Path(
+        "data/reference/korean_financial_terms_seed.json"
+    )
+    korean_financial_term_model_version: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_FINANCIAL_TERM_MODEL_VERSION",
+            "k-finance-term-rag-v2",
+        )
+    )
+    openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
+    openai_term_explanation_enabled: bool = Field(
+        default_factory=lambda: os.getenv("HANNAH_OPENAI_TERM_EXPLANATION_ENABLED", "false").lower()
+        == "true"
+    )
+    openai_term_explanation_model: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_OPENAI_TERM_EXPLANATION_MODEL", "gpt-4.1-mini")
+    )
+    openai_term_web_search_tool: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_OPENAI_TERM_WEB_SEARCH_TOOL",
+            "web_search_preview",
+        )
+    )
+    openai_term_explanation_timeout_seconds: float = Field(
+        default_factory=lambda: float(os.getenv("HANNAH_OPENAI_TERM_TIMEOUT_SECONDS", "12.0"))
+    )
     global_peer_explanation_training_path: Path = Path(
         "data/training/global_peer_explanation_sft.jsonl"
     )

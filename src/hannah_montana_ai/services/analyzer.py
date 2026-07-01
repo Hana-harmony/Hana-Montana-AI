@@ -11,6 +11,7 @@ from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
     BodySourceType,
+    FinancialGlossaryTerm,
     Importance,
     Sentiment,
     StockCandidate,
@@ -32,6 +33,25 @@ class StockMatchResult:
 
 
 class AlertAnalyzer:
+    _FINANCIAL_GLOSSARY = (
+        (
+            "개미",
+            "retail investors",
+            "market_slang",
+            ("개미투자자", "개미 투자자", "동학개미", "서학개미"),
+        ),
+        ("대장주", "bellwether stock", "market_slang", ("대표주", "주도주")),
+        ("따따블", "IPO quadruple jump", "ipo_slang", ("공모가 4배",)),
+        ("품절주", "low-float stock", "market_slang", ()),
+        ("빚투", "leveraged retail investing", "risk_slang", ()),
+        ("어닝쇼크", "earnings shock", "event", ()),
+        ("어닝서프라이즈", "earnings surprise", "event", ()),
+        ("실적", "earnings", "event", ()),
+        ("공시", "disclosure", "source", ()),
+        ("외국인", "foreign investors", "investor_type", ()),
+        ("기관", "institutional investors", "investor_type", ()),
+        ("개인", "individual investors", "investor_type", ()),
+    )
     _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
         {
@@ -234,6 +254,7 @@ class AlertAnalyzer:
         summary = "\n".join(
             line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
         )
+        glossary_terms = self._extract_financial_glossary_terms(text)
         duplicate_key = self._duplicate_key(request.source_type, request.title, stock_code)
 
         return AlertAnalysisResponse(
@@ -254,6 +275,10 @@ class AlertAnalyzer:
             related_stocks=related_stocks,
             holder_target=self.rule_engine.holder_target(importance),
             watchlist_target=self.rule_engine.watchlist_target(importance),
+            glossary_terms=glossary_terms,
+            translation_quality_flags=(
+                ["FINANCIAL_GLOSSARY_APPLIED"] if glossary_terms else []
+            ),
             duplicate_key=duplicate_key,
             cluster_key=self._cluster_key(request, stock_code, duplicate_key),
             model_version=self.model.version,
@@ -262,6 +287,31 @@ class AlertAnalyzer:
             importance_confidence=round(importance_confidence, 6),
             stock_match_confidence=round(primary_stock_match.confidence, 6),
         )
+
+    def _extract_financial_glossary_terms(self, text: str) -> list[FinancialGlossaryTerm]:
+        matched_terms: list[FinancialGlossaryTerm] = []
+        seen_terms: set[str] = set()
+        for normalized_term, english_term, category, aliases in sorted(
+            self._FINANCIAL_GLOSSARY,
+            key=lambda entry: max(len(term) for term in (entry[0], *entry[3])),
+            reverse=True,
+        ):
+            source_term = next(
+                (term for term in (normalized_term, *aliases) if term and term in text),
+                "",
+            )
+            if not source_term or normalized_term in seen_terms:
+                continue
+            matched_terms.append(
+                FinancialGlossaryTerm(
+                    source_term=source_term,
+                    normalized_term=normalized_term,
+                    english_term=english_term,
+                    category=category,
+                )
+            )
+            seen_terms.add(normalized_term)
+        return matched_terms
 
     def _match_primary_stock(
         self,

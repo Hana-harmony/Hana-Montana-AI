@@ -1,0 +1,102 @@
+[
+  {
+    "normalized_term": "개미",
+    "english_term": "retail investor",
+    "category": "market_slang",
+    "aliases": ["개인투자자", "동학개미", "서학개미", "retail investors", "individual investors", "ant", "ants", "gaemee", "gaemi"],
+    "definition": "Korean market slang for individual retail investors, often contrasted with institutions and foreign investors.",
+    "plain_explanation": "\"개미\" means retail investors in Korea. In stock news, it usually refers to individual investors buying or selling a stock, often as a group separate from institutions and foreign investors.",
+    "example": "개미가 순매수했다 means retail investors were net buyers.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "대장주",
+    "english_term": "sector leader stock",
+    "category": "market_slang",
+    "aliases": ["대표주", "주도주", "bellwether stock", "leading stock", "market leader stock"],
+    "definition": "A stock treated by local investors as the leading or most influential name in a market theme or sector.",
+    "plain_explanation": "\"대장주\" means the leading stock in a theme or sector. Korean investors use it for the name that tends to move first or attract the most attention within a market narrative.",
+    "example": "AI 대장주 means the leading AI-themed stock.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "따상",
+    "english_term": "IPO double-and-limit-up",
+    "category": "ipo_slang",
+    "aliases": ["따상상"],
+    "definition": "Korean IPO slang originally used when a newly listed stock opened at twice its IPO price and then hit the daily upper price limit.",
+    "plain_explanation": "\"따상\" is Korean IPO slang. It describes a newly listed stock making an extreme first-day jump, historically by opening at double the IPO price and then reaching the upper daily price limit.",
+    "example": "상장 첫날 따상에 성공했다 means the IPO stock made a very strong first-day jump.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "따따블",
+    "english_term": "IPO quadruple jump",
+    "category": "ipo_slang",
+    "aliases": ["따블따블", "공모가 4배"],
+    "definition": "Korean IPO slang for a newly listed stock rising to around four times its IPO price on its first trading day.",
+    "plain_explanation": "\"따따블\" means an IPO stock rises to about four times its offering price on the first trading day. It became common after Korea expanded the first-day IPO price range.",
+    "example": "공모가 대비 따따블 means roughly four times the IPO price.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "품절주",
+    "english_term": "low-float stock",
+    "category": "market_slang",
+    "aliases": ["유통주식 부족", "저유동성주"],
+    "definition": "A stock with a small freely tradable float, making price moves more sensitive to supply and demand.",
+    "plain_explanation": "\"품절주\" refers to a low-float stock. Because few shares are freely traded, even modest buying or selling can create large price swings.",
+    "example": "품절주 급등 means a low-float stock surged.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "쩜상",
+    "english_term": "gap-up limit-up",
+    "category": "market_slang",
+    "aliases": ["점상", "시초가 상한가"],
+    "definition": "Korean slang for a stock opening at or near the daily upper price limit with little or no trading beforehand.",
+    "plain_explanation": "\"쩜상\" means a stock jumps straight to the upper price limit at the open. It often implies demand was so strong that trading occurred only at the limit-up price.",
+    "example": "장 시작과 동시에 쩜상 means the stock opened limit-up immediately.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "작전주",
+    "english_term": "manipulation-suspected stock",
+    "category": "risk_slang",
+    "aliases": ["주가조작 의심주"],
+    "definition": "A stock suspected by market participants of being influenced by coordinated price manipulation or promotional trading.",
+    "plain_explanation": "\"작전주\" means a stock suspected of price manipulation. It is a risk term, not a verified legal finding unless confirmed by regulators or courts.",
+    "example": "작전주 의혹 means allegations or suspicion of market manipulation.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "오버행",
+    "english_term": "share overhang",
+    "category": "capital_market",
+    "aliases": ["매물 부담", "잠재 매도 물량"],
+    "definition": "Potential selling pressure from shares that may become tradable, such as lock-up expirations, convertible bonds, or large shareholder stakes.",
+    "plain_explanation": "\"오버행\" means potential future selling pressure. In Korean stock news, it often refers to shares that could come to market after lock-ups expire or securities convert into stock.",
+    "example": "보호예수 해제로 오버행 우려 means concern that lock-up expiry could create selling pressure.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "밸류업",
+    "english_term": "value-up program",
+    "category": "policy_theme",
+    "aliases": ["기업 밸류업", "코리아 밸류업"],
+    "definition": "A Korean market policy and investment theme focused on improving corporate value, shareholder returns, and valuation discounts.",
+    "plain_explanation": "\"밸류업\" refers to Korea's value-up theme: policies or corporate actions intended to improve shareholder returns and reduce valuation discounts.",
+    "example": "밸류업 수혜주 means a stock expected to benefit from the value-up theme.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "자사주 소각",
+    "english_term": "treasury share cancellation",
+    "category": "capital_action",
+    "aliases": ["자기주식 소각"],
+    "definition": "A company permanently cancels treasury shares, reducing share count and often signaling shareholder return policy.",
+    "plain_explanation": "\"자사주 소각\" means cancelling treasury shares. It reduces the number of shares outstanding and is usually read as a shareholder-return action.",
+    "example": "자사주 소각 발표 means the company announced treasury share cancellation.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  }
+]

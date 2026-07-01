@@ -215,6 +215,7 @@
 - 종목명 매칭은 같은 위치에서 발견된 후보 중 더 긴 고유 종목명을 우선한다. 예를 들어 `SK하이닉스` 기사에서 `SK`가 요청 후보로 들어와도 `SK하이닉스` 전체명이 본문에 있으면 짧은 후보명은 대표 종목으로 승격하지 않는다.
 - 번역 품질 보조 모델은 `local-financial-glossary-v2`이며, 실제 공시에서 반복되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 glossary/fallback rule로 정규화한다.
 - `reports/translation-sample-report.json`은 실제 뉴스·공시 gold 표본 기준 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, review finding을 함께 보존한다.
+- 한국 금융 용어 해설 엔진은 `k-finance-term-rag-v2`이며, seed 사전, 기사 문맥 RAG, OpenAI web search fallback, confidence gate를 분리한다. 현재 `reports/korean-financial-term-explanation-eval.json` 기준 샘플 8건 정확도 1.0, 사전 커버리지 0.875, 캐시 가능률 0.875다.
 - stock linker는 전체 universe 3,967개 종목코드와 trainable 종목명을 학습 term으로 사용한다. 현재 전 종목코드 템플릿 정확도는 1.0, trainable 종목명 템플릿 정확도는 0.9921이다.
 - 이벤트 태그 probability threshold는 기본 0.30으로 두고, 실제 뉴스 gold 기준으로 `CONTRACT` 0.46, `CORPORATE_ACTION` 0.50, `EARNINGS` 0.40, `GENERAL_MARKET` 0.30, `MACRO` 0.54, `RISK` 0.34를 label별 calibration했다.
 - 분석기는 실제 뉴스에서 반복되는 `수출`, `업황`, `공급망`, `환율`, `금리`, `물가`, `정책+지원/중소기업`, `시총`, `주가 급등`, `증시` 문맥을 이벤트 태그 보조 규칙으로 반영한다.

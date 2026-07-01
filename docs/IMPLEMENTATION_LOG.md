@@ -1014,3 +1014,11 @@
 - guarded runtime은 종목별 검증에서 ML, persistence baseline, stale-guarded mean delta, median multi delta, mean delta 중 MAE가 가장 낮은 정책을 선택하며, baseline 대비 MAE 0.4110%, RMSE 0.7474%, MAPE 6.8484%를 개선해 `release_status=promoted`로 기록했다.
 - 종목별 검증에서는 573종목이 ML, 1,016종목이 persistence baseline, 626종목이 `stale_guarded_mean_delta_20`, 20종목이 `median_multi_delta`, 5종목이 `mean_delta_20` 추천이었다.
 - serving은 predicted owned quantity `min/base/max`와 예측 순취득수량을 반환하고, 한도소진율은 현재 `foreign_limit_quantity`로 나누어 계산한다. 기존 limit quantity 응답 필드는 호환성 목적으로 현재 한도수량을 그대로 채운다.
+# 2026-07-01 - 한국 금융 용어 해설 RAG 엔진
+
+- `k-finance-term-rag-v2` 계약을 추가해 한국 금융 신조어/고유어 클릭 해설을 Hannah AI에서 생성할 수 있게 했다.
+- `data/reference/korean_financial_terms_seed.json`에 개미, 대장주, 따따블, 품절주, 쩜상, 밸류업 등 초기 high-frequency 용어 seed를 추가했다.
+- `KoreanFinancialTermExplanationService`는 seed 사전 hit, 기사 문맥 RAG, OpenAI Responses API web search fallback provider, 검수 필요 fallback을 분리한다.
+- `POST /api/v1/korean-financial-terms/explain` API를 추가했다.
+- `scripts/evaluate_korean_financial_term_explainer.py`와 `data/evaluation/korean_financial_term_explanation_gold.jsonl`을 추가해 seed/unknown 경로를 평가한다.
+- 현재 `reports/korean-financial-term-explanation-eval.json` 기준 샘플 8건 정확도 1.0, 사전 커버리지 0.875, 캐시 가능률 0.875, quality gate pass다.

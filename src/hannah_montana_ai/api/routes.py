@@ -17,6 +17,8 @@ from hannah_montana_ai.domain.schemas import (
     GlobalPeerMatchResponse,
     IntelligenceEventRequest,
     IntelligenceEventResponse,
+    KoreanFinancialTermExplainRequest,
+    KoreanFinancialTermExplainResponse,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
     TaxDocumentVerificationRequest,
@@ -40,6 +42,10 @@ from hannah_montana_ai.services.foreign_ownership_model_maintenance import (
 )
 from hannah_montana_ai.services.global_peer_explainer import GlobalPeerExplanationGenerator
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
+from hannah_montana_ai.services.korean_financial_terms import (
+    KoreanFinancialTermExplanationService,
+    build_openai_term_provider_from_settings,
+)
 from hannah_montana_ai.services.model import ModelArtifactError
 
 router = APIRouter(tags=["analysis"])
@@ -76,6 +82,16 @@ def get_global_peer_matcher() -> GlobalPeerMatcher:
     return GlobalPeerMatcher(
         settings.global_peer_model_path,
         explainer=GlobalPeerExplanationGenerator.from_settings(settings),
+    )
+
+
+@lru_cache
+def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService:
+    settings = get_settings()
+    return KoreanFinancialTermExplanationService(
+        seed_path=settings.korean_financial_terms_seed_path,
+        model_version=settings.korean_financial_term_model_version,
+        provider=build_openai_term_provider_from_settings(settings),
     )
 
 
@@ -184,6 +200,16 @@ def match_global_peer(request: GlobalPeerMatchRequest) -> ApiResponse[GlobalPeer
             "Global peer model artifact is unavailable",
         ) from exception
     return success_response(matcher.match(request))
+
+
+@router.post(
+    "/korean-financial-terms/explain",
+    response_model=ApiResponse[KoreanFinancialTermExplainResponse],
+)
+def explain_korean_financial_term(
+    request: KoreanFinancialTermExplainRequest,
+) -> ApiResponse[KoreanFinancialTermExplainResponse]:
+    return success_response(get_korean_financial_term_service().explain(request))
 
 
 @router.post(

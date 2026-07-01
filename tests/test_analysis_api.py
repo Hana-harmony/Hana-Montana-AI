@@ -47,6 +47,40 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert payload["data"]["stock_match_confidence"] == 1.0
 
 
+def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "삼성전자 개미 순매수에 대장주 강세",
+            "snippet": "개미 투자자들이 삼성전자를 사들이며 대장주 흐름이 이어졌다.",
+            "original_url": "https://example.com/news/glossary",
+            "stock_universe": [
+                {
+                    "stock_code": "005930",
+                    "stock_name": "삼성전자",
+                    "stock_name_en": "Samsung Electronics",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    terms = {
+        term["normalized_term"]: term["english_term"]
+        for term in payload["glossary_terms"]
+    }
+    assert terms["개미"] == "retail investors"
+    assert terms["대장주"] == "bellwether stock"
+    assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
+
+
 def test_validation_error_returns_common_error_shape() -> None:
     client = TestClient(app)
     response = client.post(
