@@ -300,11 +300,18 @@ def test_global_peer_explanation_uses_english_display_name_without_user_score_co
 
     user_copy = f"{response.headline} {response.summary}"
     assert response.stock_name_en == "Samsung Electronics"
-    assert response.headline.startswith("Samsung Electronics Is South Korea's")
+    assert response.headline.startswith("Samsung Electronics Maps Closest To")
+    assert "closest US-listed reference peer" in response.summary
     assert "삼성전자" not in user_copy
     assert "similarity score" not in user_copy.lower()
     assert "confidence" not in user_copy.lower()
     assert "hannah" not in user_copy.lower()
+    assert response.primary_peer.financial_similarity_score is not None
+    assert response.primary_peer.financial_similarity_score <= 0.54
+    assert any(
+        "market-cap input is treated as directional" in factor
+        for factor in response.primary_peer.matched_factors
+    )
 
 
 def test_global_peer_explanation_uses_stock_code_when_verified_english_name_is_missing() -> None:
@@ -428,9 +435,9 @@ def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
         f"{row['parsed']['headline']} {row['parsed']['summary']}" for row in report["results"]
     ]
     combined_outputs = " ".join(parsed_outputs)
-    assert "Samsung Electronics Is South Korea's" in combined_outputs
-    assert "LG Energy Solution Is South Korea's" in combined_outputs
-    assert "SK hynix Is South Korea's" in combined_outputs
+    assert "Samsung Electronics Maps Closest To" in combined_outputs
+    assert "LG Energy Solution Maps Closest To" in combined_outputs
+    assert "SK hynix Maps Closest To" in combined_outputs
     assert "similarity score" not in combined_outputs.lower()
     assert "confidence" not in combined_outputs.lower()
     assert "Hannah's global peer ranker" not in combined_outputs

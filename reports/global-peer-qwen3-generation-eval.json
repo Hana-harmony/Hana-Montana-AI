@@ -1,6 +1,6 @@
 {
   "schema_version": "global-peer-qwen3-generation-eval/v1",
-  "generated_at": "2026-06-30T17:21:12.683745+00:00",
+  "generated_at": "2026-07-02T19:55:47.906939+00:00",
   "prompt_version": "global-peer-structured-rag-explainer-v7",
   "model": "mlx-community/Qwen3-0.6B-4bit",
   "adapter_dir": "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora",
@@ -21,7 +21,7 @@
       "primary_peer_ticker": "HALO",
       "primary_peer_name": "Halozyme Therapeutics",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8106,
+      "confidence_score": 0.8094,
       "expected_headline": "Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader",
       "raw_output": "{\"headline\": \"Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader\", \"summary\": \"Alteogen is a high-margin Biotech Platform provider. Instead of developing its own new drugs, it licenses out its proprietary drug-delivery technology to global Big Pharma, securing long-term milestone and royalty fees.\"}",
       "parsed": {
@@ -42,12 +42,12 @@
       "primary_peer_ticker": "GOOGL",
       "primary_peer_name": "Alphabet . Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7834,
-      "expected_headline": "NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer",
-      "raw_output": "{\"headline\": \"NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer\", \"summary\": \"NAVER is best understood as a Korean internet platforms peer with a similar role to Alphabet. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.784,
+      "expected_headline": "NAVER Maps Closest To 'Alphabet' — An Internet Platforms Peer",
+      "raw_output": "{\"headline\": \"NAVER Maps Closest To 'Alphabet' — An Internet Platforms Peer\", \"summary\": \"NAVER is matched with Alphabet as the closest US-listed reference peer for this Korean internet-platform business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "NAVER Is South Korea's 'Alphabet' — An Internet Platforms Peer",
-        "summary": "NAVER is best understood as a Korean internet platforms peer with a similar role to Alphabet. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "NAVER Maps Closest To 'Alphabet' — An Internet Platforms Peer",
+        "summary": "NAVER is matched with Alphabet as the closest US-listed reference peer for this Korean internet-platform business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -64,11 +64,11 @@
       "primary_peer_name": "Micron Technology",
       "confidence_level": "HIGH",
       "confidence_score": 0.7601,
-      "expected_headline": "Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-      "raw_output": "{\"headline\": \"Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"Samsung Electronics is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "expected_headline": "Samsung Electronics Maps Closest To 'Micron Technology' — A Semiconductors Peer",
+      "raw_output": "{\"headline\": \"Samsung Electronics Maps Closest To 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"Samsung Electronics is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung Electronics Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-        "summary": "Samsung Electronics is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung Electronics Maps Closest To 'Micron Technology' — A Semiconductors Peer",
+        "summary": "Samsung Electronics is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -84,12 +84,12 @@
       "primary_peer_ticker": "MU",
       "primary_peer_name": "Micron Technology",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8857,
-      "expected_headline": "SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-      "raw_output": "{\"headline\": \"SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"SK hynix is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8859,
+      "expected_headline": "SK hynix Maps Closest To 'Micron Technology' — A Semiconductors Peer",
+      "raw_output": "{\"headline\": \"SK hynix Maps Closest To 'Micron Technology' — A Semiconductors Peer\", \"summary\": \"SK hynix is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "SK hynix Is South Korea's 'Micron Technology' — A Semiconductors Peer",
-        "summary": "SK hynix is best understood as a Korean semiconductors peer with a similar role to Micron Technology. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "SK hynix Maps Closest To 'Micron Technology' — A Semiconductors Peer",
+        "summary": "SK hynix is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -105,12 +105,12 @@
       "primary_peer_ticker": "TM",
       "primary_peer_name": "Toyota Motor",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8081,
-      "expected_headline": "Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer",
-      "raw_output": "{\"headline\": \"Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer\", \"summary\": \"Hyundai Motor is best understood as a Korean automotive peer with a similar role to Toyota Motor. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8087,
+      "expected_headline": "Hyundai Motor Maps Closest To 'Toyota Motor' — An Automotive Peer",
+      "raw_output": "{\"headline\": \"Hyundai Motor Maps Closest To 'Toyota Motor' — An Automotive Peer\", \"summary\": \"Hyundai Motor is matched with Toyota Motor as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Hyundai Motor Is South Korea's 'Toyota Motor' — An Automotive Peer",
-        "summary": "Hyundai Motor is best understood as a Korean automotive peer with a similar role to Toyota Motor. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "Hyundai Motor Maps Closest To 'Toyota Motor' — An Automotive Peer",
+        "summary": "Hyundai Motor is matched with Toyota Motor as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -126,12 +126,12 @@
       "primary_peer_ticker": "TSLA",
       "primary_peer_name": "Tesla",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8402,
-      "expected_headline": "LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
-      "raw_output": "{\"headline\": \"LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"LG Energy Solution is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8409,
+      "expected_headline": "LG Energy Solution Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
+      "raw_output": "{\"headline\": \"LG Energy Solution Maps Closest To 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"LG Energy Solution is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Energy Solution Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
-        "summary": "LG Energy Solution is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Energy Solution Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
+        "summary": "LG Energy Solution is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -147,12 +147,12 @@
       "primary_peer_ticker": "TMO",
       "primary_peer_name": "Thermo Fisher Scientific",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6493,
-      "expected_headline": "Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer",
-      "raw_output": "{\"headline\": \"Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer\", \"summary\": \"Samsung Biologics is best understood as a Korean biotechnology peer with a similar role to Thermo Fisher Scientific. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6485,
+      "expected_headline": "Samsung Biologics Maps Closest To 'Thermo Fisher Scientific' — A Biotechnology Peer",
+      "raw_output": "{\"headline\": \"Samsung Biologics Maps Closest To 'Thermo Fisher Scientific' — A Biotechnology Peer\", \"summary\": \"Samsung Biologics is matched with Thermo Fisher Scientific as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung Biologics Is South Korea's 'Thermo Fisher Scientific' — A Biotechnology Peer",
-        "summary": "Samsung Biologics is best understood as a Korean biotechnology peer with a similar role to Thermo Fisher Scientific. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung Biologics Maps Closest To 'Thermo Fisher Scientific' — A Biotechnology Peer",
+        "summary": "Samsung Biologics is matched with Thermo Fisher Scientific as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -168,12 +168,12 @@
       "primary_peer_ticker": "BIIB",
       "primary_peer_name": "Biogen",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6986,
-      "expected_headline": "Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer",
-      "raw_output": "{\"headline\": \"Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer\", \"summary\": \"Celltrion is best understood as a Korean biotechnology peer with a similar role to Biogen. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6994,
+      "expected_headline": "Celltrion Maps Closest To 'Biogen' — A Biotechnology Peer",
+      "raw_output": "{\"headline\": \"Celltrion Maps Closest To 'Biogen' — A Biotechnology Peer\", \"summary\": \"Celltrion is matched with Biogen as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Celltrion Is South Korea's 'Biogen' — A Biotechnology Peer",
-        "summary": "Celltrion is best understood as a Korean biotechnology peer with a similar role to Biogen. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "Celltrion Maps Closest To 'Biogen' — A Biotechnology Peer",
+        "summary": "Celltrion is matched with Biogen as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -189,12 +189,12 @@
       "primary_peer_ticker": "C",
       "primary_peer_name": "Citigroup",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7608,
-      "expected_headline": "KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-      "raw_output": "{\"headline\": \"KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer\", \"summary\": \"KB Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7612,
+      "expected_headline": "KB Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
+      "raw_output": "{\"headline\": \"KB Financial Group Maps Closest To 'Citigroup' — A Banking Peer\", \"summary\": \"KB Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "KB Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-        "summary": "KB Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "KB Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
+        "summary": "KB Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -210,12 +210,12 @@
       "primary_peer_ticker": "C",
       "primary_peer_name": "Citigroup",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7416,
-      "expected_headline": "Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-      "raw_output": "{\"headline\": \"Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer\", \"summary\": \"Shinhan Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7422,
+      "expected_headline": "Shinhan Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
+      "raw_output": "{\"headline\": \"Shinhan Financial Group Maps Closest To 'Citigroup' — A Banking Peer\", \"summary\": \"Shinhan Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Shinhan Financial Group Is South Korea's 'Citigroup' — A Banking Peer",
-        "summary": "Shinhan Financial Group is best understood as a Korean banking peer with a similar role to Citigroup. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "Shinhan Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
+        "summary": "Shinhan Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -231,12 +231,12 @@
       "primary_peer_ticker": "VZ",
       "primary_peer_name": "Verizon Communications",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8359,
-      "expected_headline": "SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer",
-      "raw_output": "{\"headline\": \"SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer\", \"summary\": \"SK Telecom is best understood as a Korean telecommunications peer with a similar role to Verizon Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8362,
+      "expected_headline": "SK Telecom Maps Closest To 'Verizon Communications' — A Telecommunications Peer",
+      "raw_output": "{\"headline\": \"SK Telecom Maps Closest To 'Verizon Communications' — A Telecommunications Peer\", \"summary\": \"SK Telecom is matched with Verizon Communications as the closest US-listed reference peer for this Korean telecommunications business. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "SK Telecom Is South Korea's 'Verizon Communications' — A Telecommunications Peer",
-        "summary": "SK Telecom is best understood as a Korean telecommunications peer with a similar role to Verizon Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "SK Telecom Maps Closest To 'Verizon Communications' — A Telecommunications Peer",
+        "summary": "SK Telecom is matched with Verizon Communications as the closest US-listed reference peer for this Korean telecommunications business. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -252,12 +252,12 @@
       "primary_peer_ticker": "WHR",
       "primary_peer_name": "Whirlpool",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8639,
-      "expected_headline": "LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer",
-      "raw_output": "{\"headline\": \"LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer\", \"summary\": \"LG Electronics is best understood as a Korean consumer electronics and appliances peer with a similar role to Whirlpool. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8629,
+      "expected_headline": "LG Electronics Maps Closest To 'Whirlpool' — A Consumer Electronics and Appliances Peer",
+      "raw_output": "{\"headline\": \"LG Electronics Maps Closest To 'Whirlpool' — A Consumer Electronics and Appliances Peer\", \"summary\": \"LG Electronics is matched with Whirlpool as the closest US-listed reference peer for this Korean consumer electronics and appliances. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Electronics Is South Korea's 'Whirlpool' — A Consumer Electronics and Appliances Peer",
-        "summary": "LG Electronics is best understood as a Korean consumer electronics and appliances peer with a similar role to Whirlpool. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Electronics Maps Closest To 'Whirlpool' — A Consumer Electronics and Appliances Peer",
+        "summary": "LG Electronics is matched with Whirlpool as the closest US-listed reference peer for this Korean consumer electronics and appliances. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -273,12 +273,12 @@
       "primary_peer_ticker": "TSLA",
       "primary_peer_name": "Tesla",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6899,
-      "expected_headline": "Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
-      "raw_output": "{\"headline\": \"Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"Samsung SDI is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6917,
+      "expected_headline": "Samsung SDI Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
+      "raw_output": "{\"headline\": \"Samsung SDI Maps Closest To 'Tesla' — A Battery and Energy Storage Peer\", \"summary\": \"Samsung SDI is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung SDI Is South Korea's 'Tesla' — A Battery and Energy Storage Peer",
-        "summary": "Samsung SDI is best understood as a Korean battery and energy storage peer with a similar role to Tesla. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung SDI Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
+        "summary": "Samsung SDI is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -294,12 +294,12 @@
       "primary_peer_ticker": "ALV",
       "primary_peer_name": "Autoliv",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8052,
-      "expected_headline": "Kia Is South Korea's 'Autoliv' — An Automotive Peer",
-      "raw_output": "{\"headline\": \"Kia Is South Korea's 'Autoliv' — An Automotive Peer\", \"summary\": \"Kia is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8056,
+      "expected_headline": "Kia Maps Closest To 'Autoliv' — An Automotive Peer",
+      "raw_output": "{\"headline\": \"Kia Maps Closest To 'Autoliv' — An Automotive Peer\", \"summary\": \"Kia is matched with Autoliv as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Kia Is South Korea's 'Autoliv' — An Automotive Peer",
-        "summary": "Kia is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Kia Maps Closest To 'Autoliv' — An Automotive Peer",
+        "summary": "Kia is matched with Autoliv as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -315,12 +315,12 @@
       "primary_peer_ticker": "ALV",
       "primary_peer_name": "Autoliv",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8014,
-      "expected_headline": "Hyundai Mobis Is South Korea's 'Autoliv' — An Automotive Peer",
-      "raw_output": "{\"headline\": \"Hyundai Mobis Is South Korea's 'Autoliv' — An Automotive Peer\", \"summary\": \"Hyundai Mobis is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8019,
+      "expected_headline": "Hyundai Mobis Maps Closest To 'Autoliv' — An Automotive Peer",
+      "raw_output": "{\"headline\": \"Hyundai Mobis Maps Closest To 'Autoliv' — An Automotive Peer\", \"summary\": \"Hyundai Mobis is matched with Autoliv as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Hyundai Mobis Is South Korea's 'Autoliv' — An Automotive Peer",
-        "summary": "Hyundai Mobis is best understood as a Korean automotive peer with a similar role to Autoliv. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Hyundai Mobis Maps Closest To 'Autoliv' — An Automotive Peer",
+        "summary": "Hyundai Mobis is matched with Autoliv as the closest US-listed reference peer for this Korean automotive business. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Autoliv is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -336,12 +336,12 @@
       "primary_peer_ticker": "TTEK",
       "primary_peer_name": "Tetra Tech",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.7077,
-      "expected_headline": "Kakao Is South Korea's 'Tetra Tech' — A Software Peer",
-      "raw_output": "{\"headline\": \"Kakao Is South Korea's 'Tetra Tech' — A Software Peer\", \"summary\": \"Kakao is best understood as a Korean software peer with a similar role to Tetra Tech. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: Tetra Tech is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.708,
+      "expected_headline": "Kakao Maps Closest To 'Tetra Tech' — A Software Peer",
+      "raw_output": "{\"headline\": \"Kakao Maps Closest To 'Tetra Tech' — A Software Peer\", \"summary\": \"Kakao is matched with Tetra Tech as the closest US-listed reference peer for this Korean software business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: Tetra Tech is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Kakao Is South Korea's 'Tetra Tech' — A Software Peer",
-        "summary": "Kakao is best understood as a Korean software peer with a similar role to Tetra Tech. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: Tetra Tech is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Kakao Maps Closest To 'Tetra Tech' — A Software Peer",
+        "summary": "Kakao is matched with Tetra Tech as the closest US-listed reference peer for this Korean software business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: Tetra Tech is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -357,12 +357,12 @@
       "primary_peer_ticker": "CRSR",
       "primary_peer_name": "Corsair Gaming",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6995,
-      "expected_headline": "Netmarble Is South Korea's 'Corsair Gaming' — An Interactive Entertainment Peer",
-      "raw_output": "{\"headline\": \"Netmarble Is South Korea's 'Corsair Gaming' — An Interactive Entertainment Peer\", \"summary\": \"Netmarble is best understood as a Korean interactive entertainment peer with a similar role to Corsair Gaming. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around interactive entertainment. Scale and financial data are used as secondary context: Corsair Gaming is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7017,
+      "expected_headline": "Netmarble Maps Closest To 'Corsair Gaming' — An Interactive Entertainment Peer",
+      "raw_output": "{\"headline\": \"Netmarble Maps Closest To 'Corsair Gaming' — An Interactive Entertainment Peer\", \"summary\": \"Netmarble is matched with Corsair Gaming as the closest US-listed reference peer for this Korean interactive entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around interactive entertainment. Scale and financial data are used as secondary context: Corsair Gaming is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Netmarble Is South Korea's 'Corsair Gaming' — An Interactive Entertainment Peer",
-        "summary": "Netmarble is best understood as a Korean interactive entertainment peer with a similar role to Corsair Gaming. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around interactive entertainment. Scale and financial data are used as secondary context: Corsair Gaming is treated as a small-cap US-market reference, not as a one-for-one size match."
+        "headline": "Netmarble Maps Closest To 'Corsair Gaming' — An Interactive Entertainment Peer",
+        "summary": "Netmarble is matched with Corsair Gaming as the closest US-listed reference peer for this Korean interactive entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around interactive entertainment. Scale and financial data are used as secondary context: Corsair Gaming is treated as a small-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -378,12 +378,12 @@
       "primary_peer_ticker": "LUCK",
       "primary_peer_name": "Lucky Strike Entertainment Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7583,
-      "expected_headline": "HYBE Is South Korea's 'Lucky Strike Entertainment' — A Media and Entertainment Peer",
-      "raw_output": "{\"headline\": \"HYBE Is South Korea's 'Lucky Strike Entertainment' — A Media and Entertainment Peer\", \"summary\": \"HYBE is best understood as a Korean media and entertainment peer with a similar role to Lucky Strike Entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around media and entertainment. Scale and financial data are used as secondary context: Lucky Strike Entertainment is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7601,
+      "expected_headline": "HYBE Maps Closest To 'Lucky Strike Entertainment' — A Media and Entertainment Peer",
+      "raw_output": "{\"headline\": \"HYBE Maps Closest To 'Lucky Strike Entertainment' — A Media and Entertainment Peer\", \"summary\": \"HYBE is matched with Lucky Strike Entertainment as the closest US-listed reference peer for this Korean media and entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around media and entertainment. Scale and financial data are used as secondary context: Lucky Strike Entertainment is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "HYBE Is South Korea's 'Lucky Strike Entertainment' — A Media and Entertainment Peer",
-        "summary": "HYBE is best understood as a Korean media and entertainment peer with a similar role to Lucky Strike Entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around media and entertainment. Scale and financial data are used as secondary context: Lucky Strike Entertainment is treated as a small-cap US-market reference, not as a one-for-one size match."
+        "headline": "HYBE Maps Closest To 'Lucky Strike Entertainment' — A Media and Entertainment Peer",
+        "summary": "HYBE is matched with Lucky Strike Entertainment as the closest US-listed reference peer for this Korean media and entertainment. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around media and entertainment. Scale and financial data are used as secondary context: Lucky Strike Entertainment is treated as a small-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -399,12 +399,12 @@
       "primary_peer_ticker": "FIZZ",
       "primary_peer_name": "National Beverage",
       "confidence_level": "HIGH",
-      "confidence_score": 0.883,
-      "expected_headline": "KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer",
-      "raw_output": "{\"headline\": \"KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer\", \"summary\": \"KT&G is best understood as a Korean food and beverage peer with a similar role to National Beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8831,
+      "expected_headline": "KT&G Maps Closest To 'National Beverage' — A Food and Beverage Peer",
+      "raw_output": "{\"headline\": \"KT&G Maps Closest To 'National Beverage' — A Food and Beverage Peer\", \"summary\": \"KT&G is matched with National Beverage as the closest US-listed reference peer for this Korean food and beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "KT&G Is South Korea's 'National Beverage' — A Food and Beverage Peer",
-        "summary": "KT&G is best understood as a Korean food and beverage peer with a similar role to National Beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "KT&G Maps Closest To 'National Beverage' — A Food and Beverage Peer",
+        "summary": "KT&G is matched with National Beverage as the closest US-listed reference peer for this Korean food and beverage. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around food and beverage. Scale and financial data are used as secondary context: National Beverage is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -420,12 +420,12 @@
       "primary_peer_ticker": "FELE",
       "primary_peer_name": "Franklin Electric",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8031,
-      "expected_headline": "Korea Electric Power Is South Korea's 'Franklin Electric' — An Electrical Equipment Peer",
-      "raw_output": "{\"headline\": \"Korea Electric Power Is South Korea's 'Franklin Electric' — An Electrical Equipment Peer\", \"summary\": \"Korea Electric Power is best understood as a Korean electrical equipment peer with a similar role to Franklin Electric. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around electrical equipment. Scale and financial data are used as secondary context: Franklin Electric is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8028,
+      "expected_headline": "Korea Electric Power Maps Closest To 'Franklin Electric' — An Electrical Equipment Peer",
+      "raw_output": "{\"headline\": \"Korea Electric Power Maps Closest To 'Franklin Electric' — An Electrical Equipment Peer\", \"summary\": \"Korea Electric Power is matched with Franklin Electric as the closest US-listed reference peer for this Korean electrical equipment. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around electrical equipment. Scale and financial data are used as secondary context: Franklin Electric is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Korea Electric Power Is South Korea's 'Franklin Electric' — An Electrical Equipment Peer",
-        "summary": "Korea Electric Power is best understood as a Korean electrical equipment peer with a similar role to Franklin Electric. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around electrical equipment. Scale and financial data are used as secondary context: Franklin Electric is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Korea Electric Power Maps Closest To 'Franklin Electric' — An Electrical Equipment Peer",
+        "summary": "Korea Electric Power is matched with Franklin Electric as the closest US-listed reference peer for this Korean electrical equipment. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around electrical equipment. Scale and financial data are used as secondary context: Franklin Electric is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -441,12 +441,12 @@
       "primary_peer_ticker": "CHTR",
       "primary_peer_name": "Charter Communications, . Class A",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8378,
-      "expected_headline": "LG Uplus Is South Korea's 'Charter Communications' — A Telecommunications Peer",
-      "raw_output": "{\"headline\": \"LG Uplus Is South Korea's 'Charter Communications' — A Telecommunications Peer\", \"summary\": \"LG Uplus is best understood as a Korean telecommunications peer with a similar role to Charter Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Charter Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8382,
+      "expected_headline": "LG Uplus Maps Closest To 'Charter Communications' — A Telecommunications Peer",
+      "raw_output": "{\"headline\": \"LG Uplus Maps Closest To 'Charter Communications' — A Telecommunications Peer\", \"summary\": \"LG Uplus is matched with Charter Communications as the closest US-listed reference peer for this Korean telecommunications business. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Charter Communications is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Uplus Is South Korea's 'Charter Communications' — A Telecommunications Peer",
-        "summary": "LG Uplus is best understood as a Korean telecommunications peer with a similar role to Charter Communications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Charter Communications is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Uplus Maps Closest To 'Charter Communications' — A Telecommunications Peer",
+        "summary": "LG Uplus is matched with Charter Communications as the closest US-listed reference peer for this Korean telecommunications business. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Charter Communications is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -462,12 +462,12 @@
       "primary_peer_ticker": "DOW",
       "primary_peer_name": "Dow",
       "confidence_level": "HIGH",
-      "confidence_score": 0.8562,
-      "expected_headline": "LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer",
-      "raw_output": "{\"headline\": \"LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer\", \"summary\": \"LG Chem is best understood as a Korean specialty chemicals peer with a similar role to Dow. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.8571,
+      "expected_headline": "LG Chem Maps Closest To 'Dow' — A Specialty Chemicals Peer",
+      "raw_output": "{\"headline\": \"LG Chem Maps Closest To 'Dow' — A Specialty Chemicals Peer\", \"summary\": \"LG Chem is matched with Dow as the closest US-listed reference peer for this Korean specialty chemicals. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Chem Is South Korea's 'Dow' — A Specialty Chemicals Peer",
-        "summary": "LG Chem is best understood as a Korean specialty chemicals peer with a similar role to Dow. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Chem Maps Closest To 'Dow' — A Specialty Chemicals Peer",
+        "summary": "LG Chem is matched with Dow as the closest US-listed reference peer for this Korean specialty chemicals. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -483,12 +483,12 @@
       "primary_peer_ticker": "OSK",
       "primary_peer_name": "Oshkosh (Holding )",
       "confidence_level": "HIGH",
-      "confidence_score": 0.751,
-      "expected_headline": "Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
-      "raw_output": "{\"headline\": \"Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"Samsung C&T is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7523,
+      "expected_headline": "Samsung C&T Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer",
+      "raw_output": "{\"headline\": \"Samsung C&T Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"Samsung C&T is matched with Oshkosh (Holding ) as the closest US-listed reference peer for this Korean investment holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung C&T Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
-        "summary": "Samsung C&T is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung C&T Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer",
+        "summary": "Samsung C&T is matched with Oshkosh (Holding ) as the closest US-listed reference peer for this Korean investment holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -504,12 +504,12 @@
       "primary_peer_ticker": "EXP",
       "primary_peer_name": "Eagle Materials",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7413,
-      "expected_headline": "Korea Zinc Is South Korea's 'Eagle Materials' — A Metals and Materials Peer",
-      "raw_output": "{\"headline\": \"Korea Zinc Is South Korea's 'Eagle Materials' — A Metals and Materials Peer\", \"summary\": \"Korea Zinc is best understood as a Korean metals and materials peer with a similar role to Eagle Materials. The match is driven first by sector and industry fit: both companies sit in Materials and operate around metals and materials. Scale and financial data are used as secondary context: Eagle Materials is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7416,
+      "expected_headline": "Korea Zinc Maps Closest To 'Eagle Materials' — A Metals and Materials Peer",
+      "raw_output": "{\"headline\": \"Korea Zinc Maps Closest To 'Eagle Materials' — A Metals and Materials Peer\", \"summary\": \"Korea Zinc is matched with Eagle Materials as the closest US-listed reference peer for this Korean metals and materials. The match is driven first by sector and industry fit: both companies sit in Materials and operate around metals and materials. Scale and financial data are used as secondary context: Eagle Materials is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Korea Zinc Is South Korea's 'Eagle Materials' — A Metals and Materials Peer",
-        "summary": "Korea Zinc is best understood as a Korean metals and materials peer with a similar role to Eagle Materials. The match is driven first by sector and industry fit: both companies sit in Materials and operate around metals and materials. Scale and financial data are used as secondary context: Eagle Materials is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Korea Zinc Maps Closest To 'Eagle Materials' — A Metals and Materials Peer",
+        "summary": "Korea Zinc is matched with Eagle Materials as the closest US-listed reference peer for this Korean metals and materials. The match is driven first by sector and industry fit: both companies sit in Materials and operate around metals and materials. Scale and financial data are used as secondary context: Eagle Materials is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -525,12 +525,12 @@
       "primary_peer_ticker": "MAN",
       "primary_peer_name": "ManpowerGroup",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6693,
-      "expected_headline": "EcoPro Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
-      "raw_output": "{\"headline\": \"EcoPro Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"EcoPro is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6704,
+      "expected_headline": "EcoPro Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer",
+      "raw_output": "{\"headline\": \"EcoPro Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"EcoPro is matched with ManpowerGroup as the closest US-listed reference peer for this Korean energy infrastructure. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "EcoPro Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
-        "summary": "EcoPro is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match."
+        "headline": "EcoPro Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer",
+        "summary": "EcoPro is matched with ManpowerGroup as the closest US-listed reference peer for this Korean energy infrastructure. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -546,12 +546,12 @@
       "primary_peer_ticker": "BHE",
       "primary_peer_name": "Benchmark Electronics",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.633,
-      "expected_headline": "EcoPro BM Is South Korea's 'Benchmark Electronics' — A Semiconductors Peer",
-      "raw_output": "{\"headline\": \"EcoPro BM Is South Korea's 'Benchmark Electronics' — A Semiconductors Peer\", \"summary\": \"EcoPro BM is best understood as a Korean semiconductors peer with a similar role to Benchmark Electronics. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Benchmark Electronics is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6361,
+      "expected_headline": "EcoPro BM Maps Closest To 'Benchmark Electronics' — A Semiconductors Peer",
+      "raw_output": "{\"headline\": \"EcoPro BM Maps Closest To 'Benchmark Electronics' — A Semiconductors Peer\", \"summary\": \"EcoPro BM is matched with Benchmark Electronics as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Benchmark Electronics is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "EcoPro BM Is South Korea's 'Benchmark Electronics' — A Semiconductors Peer",
-        "summary": "EcoPro BM is best understood as a Korean semiconductors peer with a similar role to Benchmark Electronics. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Benchmark Electronics is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "EcoPro BM Maps Closest To 'Benchmark Electronics' — A Semiconductors Peer",
+        "summary": "EcoPro BM is matched with Benchmark Electronics as the closest US-listed reference peer for this Korean semiconductor business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Benchmark Electronics is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -567,12 +567,12 @@
       "primary_peer_ticker": "ULTA",
       "primary_peer_name": "Ulta Beauty",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7992,
-      "expected_headline": "Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer",
-      "raw_output": "{\"headline\": \"Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer\", \"summary\": \"Amorepacific is best understood as a Korean household and personal products peer with a similar role to Ulta Beauty. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7991,
+      "expected_headline": "Amorepacific Maps Closest To 'Ulta Beauty' — A Household and Personal Products Peer",
+      "raw_output": "{\"headline\": \"Amorepacific Maps Closest To 'Ulta Beauty' — A Household and Personal Products Peer\", \"summary\": \"Amorepacific is matched with Ulta Beauty as the closest US-listed reference peer for this Korean household and personal products. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Amorepacific Is South Korea's 'Ulta Beauty' — A Household and Personal Products Peer",
-        "summary": "Amorepacific is best understood as a Korean household and personal products peer with a similar role to Ulta Beauty. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match."
+        "headline": "Amorepacific Maps Closest To 'Ulta Beauty' — A Household and Personal Products Peer",
+        "summary": "Amorepacific is matched with Ulta Beauty as the closest US-listed reference peer for this Korean household and personal products. The match is driven first by sector and industry fit: both companies sit in Consumer Staples and operate around household and personal products. Scale and financial data are used as secondary context: Ulta Beauty is treated as a large-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -588,12 +588,12 @@
       "primary_peer_ticker": "ACMR",
       "primary_peer_name": "ACM Research, . Class A",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.7185,
-      "expected_headline": "Samsung SDS Is South Korea's 'ACM Research' — A Software Peer",
-      "raw_output": "{\"headline\": \"Samsung SDS Is South Korea's 'ACM Research' — A Software Peer\", \"summary\": \"Samsung SDS is best understood as a Korean software peer with a similar role to ACM Research. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7183,
+      "expected_headline": "Samsung SDS Maps Closest To 'ACM Research' — A Software Peer",
+      "raw_output": "{\"headline\": \"Samsung SDS Maps Closest To 'ACM Research' — A Software Peer\", \"summary\": \"Samsung SDS is matched with ACM Research as the closest US-listed reference peer for this Korean software business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "Samsung SDS Is South Korea's 'ACM Research' — A Software Peer",
-        "summary": "Samsung SDS is best understood as a Korean software peer with a similar role to ACM Research. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "Samsung SDS Maps Closest To 'ACM Research' — A Software Peer",
+        "summary": "Samsung SDS is matched with ACM Research as the closest US-listed reference peer for this Korean software business. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around software. Scale and financial data are used as secondary context: ACM Research is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -609,12 +609,12 @@
       "primary_peer_ticker": "OSK",
       "primary_peer_name": "Oshkosh (Holding )",
       "confidence_level": "HIGH",
-      "confidence_score": 0.7686,
-      "expected_headline": "LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
-      "raw_output": "{\"headline\": \"LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"LG Corp. is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.7693,
+      "expected_headline": "LG Corp. Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer",
+      "raw_output": "{\"headline\": \"LG Corp. Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer\", \"summary\": \"LG Corp. is matched with Oshkosh (Holding ) as the closest US-listed reference peer for this Korean investment holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "LG Corp. Is South Korea's 'Oshkosh (Holding )' — An Investment Holding Peer",
-        "summary": "LG Corp. is best understood as a Korean investment holding peer with a similar role to Oshkosh (Holding ). The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
+        "headline": "LG Corp. Maps Closest To 'Oshkosh (Holding )' — An Investment Holding Peer",
+        "summary": "LG Corp. is matched with Oshkosh (Holding ) as the closest US-listed reference peer for this Korean investment holding. The match is driven first by sector and industry fit: both companies sit in Financials and operate around investment holding companies. Scale and financial data are used as secondary context: Oshkosh (Holding ) is treated as a mid-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,
@@ -630,12 +630,12 @@
       "primary_peer_ticker": "MAN",
       "primary_peer_name": "ManpowerGroup",
       "confidence_level": "MEDIUM",
-      "confidence_score": 0.6756,
-      "expected_headline": "SK Innovation Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
-      "raw_output": "{\"headline\": \"SK Innovation Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"SK Innovation is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
+      "confidence_score": 0.6777,
+      "expected_headline": "SK Innovation Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer",
+      "raw_output": "{\"headline\": \"SK Innovation Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer\", \"summary\": \"SK Innovation is matched with ManpowerGroup as the closest US-listed reference peer for this Korean energy infrastructure. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match.\"}",
       "parsed": {
-        "headline": "SK Innovation Is South Korea's 'ManpowerGroup' — An Energy Infrastructure Peer",
-        "summary": "SK Innovation is best understood as a Korean energy infrastructure peer with a similar role to ManpowerGroup. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match."
+        "headline": "SK Innovation Maps Closest To 'ManpowerGroup' — An Energy Infrastructure Peer",
+        "summary": "SK Innovation is matched with ManpowerGroup as the closest US-listed reference peer for this Korean energy infrastructure. The match is driven first by sector and industry fit: both companies sit in Energy and operate around energy infrastructure. Scale and financial data are used as secondary context: ManpowerGroup is treated as a small-cap US-market reference, not as a one-for-one size match."
       },
       "status": "pass",
       "json_valid": true,

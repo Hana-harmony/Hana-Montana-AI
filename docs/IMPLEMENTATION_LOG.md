@@ -1,5 +1,13 @@
 # 구현 기록
 
+## 2026-07-03 옴니렌즈 AI 품질 하드닝
+- 뉴스·공시 What/Why/Impact 요약에서 공시 배경 문장과 투자자 영향 문장이 뒤바뀌는 문제를 수정했다. reason/impact keyword를 분리하고 투자자 행동 문장은 impact 후보로 우선 배치한다.
+- 한국 증시·코스피·코스닥 같은 시장 전체 뉴스는 내부 종목 universe fallback만으로 대표 종목을 강제하지 않도록 market-wide title gate를 추가했다. 관련 종목 목록은 유지하되 `stock_code`는 `null`로 반환한다.
+- 글로벌 피어 headline/summary는 `South Korea's <peer>` 식의 과도한 동일시 대신 `Maps Closest To <peer>`와 `closest US-listed reference peer` 표현을 사용한다. 시가총액/매출 비율이 과도한 원천값은 재무 유사도 score를 0.54로 cap하고 matched factor에 directional data quality 경고를 남긴다.
+- 한국 금융 용어 seed glossary에 `초전도체주`, `로봇주`, `2차전지주`, `저PBR`을 추가해 흔한 테마주/정책 표현이 API key 없이도 dictionary-backed explanation으로 처리되도록 했다.
+- `reports/korean-financial-term-explanation-eval.json` 기준 샘플 11건 정확도 1.0, 사전 커버리지 0.909091, 캐시 가능률 0.909091, quality gate pass를 기록했다.
+- 글로벌 피어 설명 SFT 데이터셋 3,967건을 새 canonical 문구로 재생성했고 readiness는 failure 0건/pass다. Qwen3 LoRA를 새 canonical으로 재학습해 test loss 0.000, test perplexity 1.000을 기록했고, raw generation 대표 30건 기준 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 1.0을 기록했다.
+
 ## 2026-07-01 글로벌 피어 business profile ML classifier
 - 전체 한국 종목에 적용되는 business profile ML classifier를 추가했다.
 - 입력 feature는 Naver 동일업종 비교군, OpenDART 회사 업종코드, WiseReport 사업개요, 재무 규모 토큰, 종목명/alias를 함께 사용한다.
@@ -14,7 +22,7 @@
 - prompt를 `global-peer-structured-rag-explainer-v7`로 승격하고 한국 종목 3,967개 전체 SFT 데이터셋을 재생성했다. grounded target failure 0건, readiness `pass`를 기록했다.
 - `mlx-community/Qwen3-0.6B-4bit` LoRA를 500 iters 재학습했다. final validation loss 0.000, test loss 0.000, test perplexity 1.000, peak memory 2.238GB를 기록했다.
 - 실제 `mlx_lm.generate` raw output 대표 30종목 검증에서 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 100%를 기록했다.
-- 대표 출력은 `Samsung Electronics Is South Korea's 'Micron Technology'`, `SK hynix Is South Korea's 'Micron Technology'`, `LG Energy Solution Is South Korea's 'Tesla'`처럼 영어 표시명과 점수 없는 설명으로 고정했다. 전 종목 결과와 raw generation 평가 모두 사용자 문구 기준 한글 종목명 0건, 점수 문구 0건을 확인했다.
+- 대표 출력은 이후 품질 하드닝에서 `Samsung Electronics Maps Closest To 'Micron Technology'`, `SK hynix Maps Closest To 'Micron Technology'`, `LG Energy Solution Maps Closest To 'Tesla'`처럼 보수적인 reference peer 설명으로 개정했다. 전 종목 결과와 raw generation 평가 모두 사용자 문구 기준 한글 종목명 0건, 점수 문구 0건을 확인한다.
 
 ## 2026-06-30 글로벌 피어 Qwen3 설명 LLM v6 strict raw generation 개선
 - 사용자 지적에 따라 template fallback 품질이 아니라 Qwen3 raw generation 자체 품질을 goal로 재정의했다.
@@ -1021,4 +1029,4 @@
 - `KoreanFinancialTermExplanationService`는 seed 사전 hit, 기사 문맥 RAG, OpenAI Responses API web search fallback provider, 검수 필요 fallback을 분리한다.
 - `POST /api/v1/korean-financial-terms/explain` API를 추가했다.
 - `scripts/evaluate_korean_financial_term_explainer.py`와 `data/evaluation/korean_financial_term_explanation_gold.jsonl`을 추가해 seed/unknown 경로를 평가한다.
-- 현재 `reports/korean-financial-term-explanation-eval.json` 기준 샘플 8건 정확도 1.0, 사전 커버리지 0.875, 캐시 가능률 0.875, quality gate pass다.
+- 현재 `reports/korean-financial-term-explanation-eval.json` 기준 샘플 11건 정확도 1.0, 사전 커버리지 0.909091, 캐시 가능률 0.909091, quality gate pass다.

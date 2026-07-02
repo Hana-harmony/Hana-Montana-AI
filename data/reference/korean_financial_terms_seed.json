@@ -98,5 +98,45 @@
     "plain_explanation": "\"자사주 소각\" means cancelling treasury shares. It reduces the number of shares outstanding and is usually read as a shareholder-return action.",
     "example": "자사주 소각 발표 means the company announced treasury share cancellation.",
     "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "초전도체주",
+    "english_term": "superconductor-themed stock",
+    "category": "theme_stock",
+    "aliases": ["초전도체 테마주", "superconductor stocks", "superconductor-themed stocks"],
+    "definition": "A Korean stock grouped by investors under the superconductors investment theme, often moving on research, policy, or speculative theme news rather than confirmed earnings.",
+    "plain_explanation": "\"초전도체주\" means a superconductor-themed stock in Korean market news. It describes stocks investors associate with the superconductors theme, so the label is about market narrative and does not prove the company has verified commercial technology.",
+    "example": "초전도체주 급등 means superconductor-themed stocks rallied.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "로봇주",
+    "english_term": "robotics-themed stock",
+    "category": "theme_stock",
+    "aliases": ["로봇 테마주", "robot stocks", "robotics stocks"],
+    "definition": "A Korean stock grouped by investors under the robotics or automation theme.",
+    "plain_explanation": "\"로봇주\" means a robotics-themed stock. Korean market articles use it for companies expected by investors to benefit from robots, factory automation, or related policy and corporate spending.",
+    "example": "로봇주 강세 means robotics-themed stocks rose.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "2차전지주",
+    "english_term": "secondary-battery stock",
+    "category": "theme_stock",
+    "aliases": ["이차전지주", "배터리주", "battery stocks", "secondary battery stocks"],
+    "definition": "A Korean stock associated with rechargeable battery makers, materials, equipment, or the broader EV battery supply chain.",
+    "plain_explanation": "\"2차전지주\" means a stock tied to rechargeable batteries and the EV battery supply chain. It can refer to cell makers, cathode/anode materials, separators, electrolytes, or battery equipment companies.",
+    "example": "2차전지주 반등 means secondary-battery stocks rebounded.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "저PBR",
+    "english_term": "low price-to-book",
+    "category": "valuation_metric",
+    "aliases": ["저피비알", "low PBR", "low price to book"],
+    "definition": "A valuation term for stocks trading at a low price-to-book ratio, often discussed in Korea's value-up policy theme.",
+    "plain_explanation": "\"저PBR\" means a low price-to-book ratio. Korean articles often mention it when banks, insurers, holding companies, or other value-up beneficiaries trade below book value.",
+    "example": "저PBR 종목 강세 means low price-to-book stocks rose.",
+    "source": "HANNAH_SEED_GLOSSARY"
   }
 ]
