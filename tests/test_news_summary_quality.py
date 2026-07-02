@@ -316,3 +316,48 @@ def test_news_analysis_does_not_emit_disclosure_tag() -> None:
 
     assert "CAPITAL_ACTION" in response.event_tags
     assert "DISCLOSURE" not in response.event_tags
+
+
+def test_market_wide_news_does_not_force_primary_stock_from_internal_mentions() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="한국 증시, 인도 제치고 시총 세계 6위 등극",
+            snippet="삼성전자와 SK하이닉스가 코스피 상승을 이끌었다.",
+            content=(
+                "한국 주식시장 시가총액이 인도를 추월하며 세계 6위로 올라섰다. "
+                "인공지능 메모리 반도체 랠리에 올라탄 삼성전자와 SK하이닉스가 "
+                "코스피 상승을 이끌었다. "
+                "시장에서는 반도체 대형주 쏠림과 지수 상승 지속성을 함께 점검해야 "
+                "한다는 평가가 나온다."
+            ),
+            original_url="https://news.example.com/korea-market-cap",
+        )
+    )
+
+    assert response.stock_code is None
+    assert response.stock_name is None
+    assert "GENERAL_MARKET" in response.event_tags
+    assert {"005930", "000660"}.issubset(set(response.related_stocks))
+    assert "시장에서는 반도체 대형주 쏠림" in response.summary_lines.impact
+
+
+def test_disclosure_summary_separates_reason_from_investor_impact() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "삼성전자, 14조5800억원 규모 자사주 소각 결정",
+        "주주가치 제고를 위해 보유 자기주식 일부를 소각한다고 공시했다.",
+        (
+            "삼성전자는 주주가치 제고를 위해 14조5800억원 규모의 자기주식을 "
+            "소각하기로 결정했다고 공시했다. "
+            "이번 결정은 발행주식 수 감소와 주주환원 정책 강화 목적이다. "
+            "회사는 이사회 결의 후 관련 절차에 따라 소각을 진행할 예정이다. "
+            "투자자는 실제 소각 일정과 향후 배당 정책 변화를 확인해야 한다."
+        ),
+        "HIGH",
+        "POSITIVE",
+    )
+
+    assert "주주환원 정책 강화 목적" in summary.why
+    assert "투자자는 실제 소각 일정" in summary.impact

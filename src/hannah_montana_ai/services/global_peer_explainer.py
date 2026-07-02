@@ -13,7 +13,7 @@ from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchReq
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
 EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v7"
-TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v1"
+TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v2"
 KOREA_ENGLISH_DISPLAY_NAMES = {
     "000270": "Kia",
     "000660": "SK hynix",
@@ -193,13 +193,14 @@ class GlobalPeerExplanationGenerator:
         stock_name = self._stock_display_name(request)
         peer_name = self._display_peer_name(peer.company_name)
         business_label = self._business_label(peer)
+        business_phrase = self._summary_business_phrase(business_label)
         headline = (
-            f"{stock_name} Is South Korea's '{peer_name}' — "
+            f"{stock_name} Maps Closest To '{peer_name}' — "
             f"{self._article_for(business_label)} {business_label}"
         )
         summary = (
-            f"{stock_name} is best understood as a Korean {business_label.lower()} with a "
-            f"similar role to {peer_name}. {self._domain_sentence(peer)} "
+            f"{stock_name} is matched with {peer_name} as the closest US-listed reference "
+            f"peer for this Korean {business_phrase}. {self._domain_sentence(peer)} "
             f"{self._financial_sentence(peer)}"
         )
         return GlobalPeerExplanation(
@@ -468,6 +469,19 @@ class GlobalPeerExplanationGenerator:
         return "Global Peer"
 
     @staticmethod
+    def _summary_business_phrase(business_label: str) -> str:
+        normalized = re.sub(r"\s+Peer$", "", business_label).strip()
+        replacements = {
+            "Semiconductors": "semiconductor business",
+            "Internet Platforms": "internet-platform business",
+            "Automotive": "automotive business",
+            "Telecommunications": "telecommunications business",
+            "Software": "software business",
+        }
+        phrase = replacements.get(normalized, normalized.lower())
+        return phrase or "listed company"
+
+    @staticmethod
     def _stock_display_name(request: GlobalPeerMatchRequest) -> str:
         anchor = KOREA_ANCHORS.get(request.stock_code)
         if anchor and anchor.display_name:
@@ -570,7 +584,7 @@ class GlobalPeerExplanationGenerator:
         business_label: str,
     ) -> str:
         return (
-            f"{display_name} Is South Korea's '{peer_display_name}' — "
+            f"{display_name} Maps Closest To '{peer_display_name}' — "
             f"{GlobalPeerExplanationGenerator._article_for(business_label)} {business_label}"
         )
 

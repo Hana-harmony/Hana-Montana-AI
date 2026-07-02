@@ -452,6 +452,11 @@ class GlobalPeerMatcher:
         industry = str(profile.get("industry") or "Unclassified")
         business_model = str(profile.get("business_model") or "Operating company")
         scale_bucket = str(profile.get("scale_bucket") or "UNKNOWN")
+        financial_score = self._calibrated_financial_similarity_score(
+            stock_profile,
+            profile,
+            financial_score,
+        )
         matched_factors = self._matched_factors(
             request=request,
             stock_profile=stock_profile,
@@ -572,6 +577,15 @@ class GlobalPeerMatcher:
         stock_scale = str(stock_profile.get("scale_bucket") or "UNKNOWN")
         peer_scale = str(peer_profile.get("scale_bucket") or "UNKNOWN")
         same_scale = stock_scale != "UNKNOWN" and stock_scale == peer_scale
+        if self._has_market_cap_outlier(stock_profile) or self._has_market_cap_outlier(
+            peer_profile
+        ):
+            factors.append(
+                "Financial comparability: market-cap input is treated as directional "
+                f"because the source value looks high relative to revenue; adjusted score "
+                f"{financial_score:.4f}."
+            )
+            return factors
         if financial_score >= 0.88:
             if same_scale:
                 factors.append(
@@ -611,6 +625,25 @@ class GlobalPeerMatcher:
                     "relative US-market positioning rather than a strict Korean-size match."
                 )
         return factors
+
+    @classmethod
+    def _calibrated_financial_similarity_score(
+        cls,
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+        financial_score: float,
+    ) -> float:
+        if cls._has_market_cap_outlier(stock_profile) or cls._has_market_cap_outlier(peer_profile):
+            return min(financial_score, 0.54)
+        return financial_score
+
+    @classmethod
+    def _has_market_cap_outlier(cls, profile: dict[str, object]) -> bool:
+        market_cap = cls._optional_float(profile.get("market_cap_usd"))
+        revenue = cls._optional_float(profile.get("revenue_usd"))
+        if market_cap is None or revenue is None or revenue <= 0:
+            return False
+        return market_cap / revenue >= 30.0
 
     @staticmethod
     def _market_cap_percentiles(
@@ -695,7 +728,7 @@ class GlobalPeerMatcher:
             )
         stock_name = request.stock_name_en or request.stock_name
         tag = primary_peer.business_tags[0] if primary_peer.business_tags else "Global Peer"
-        return f"{stock_name} Is South Korea's '{primary_peer.company_name}' — A {tag.title()} Peer"
+        return f"{stock_name} Maps Closest To '{primary_peer.company_name}' — A {tag.title()} Peer"
 
     def _summary(self, request: GlobalPeerMatchRequest, primary_peer: GlobalPeerMatch) -> str:
         anchor = KOREA_ANCHORS.get(request.stock_code)
