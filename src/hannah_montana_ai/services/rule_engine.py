@@ -32,7 +32,65 @@ class FinancialRuleEngine:
         "하락",
         "급등",
         "급락",
+        "코스피",
+        "코스닥",
+        "지수",
+        "쏠림",
     )
+    reason_keywords = (
+        "때문",
+        "영향",
+        "배경",
+        "목적",
+        "위해",
+        "따라",
+        "증가",
+        "감소",
+        "계약",
+        "실적",
+        "공시",
+        "수주",
+        "소송",
+        "주주가치",
+        "주주환원",
+        "가격 반등",
+        "수요",
+        "랠리",
+        "상승을 이끌",
+    )
+    strong_reason_keywords = (
+        "때문",
+        "영향",
+        "배경",
+        "목적",
+        "위해",
+        "주주가치",
+        "주주환원",
+        "가격 반등",
+        "수요",
+    )
+    impact_keywords = (
+        "주가",
+        "매출",
+        "영업이익",
+        "손익",
+        "리스크",
+        "전망",
+        "시장",
+        "투자자",
+        "거래",
+        "코스피",
+        "코스닥",
+        "지수",
+        "쏠림",
+        "상장폐지",
+        "거래정지",
+        "지분 희석",
+        "배당",
+        "일정",
+        "확인",
+    )
+    investor_action_keywords = ("투자자는", "사용자는", "확인해야", "점검해야")
     boilerplate_keywords = (
         "로그인",
         "회원가입",
@@ -181,16 +239,49 @@ class FinancialRuleEngine:
                 if summary_candidates
                 else self.summarize(fallback_title, snippet)
             )
-        why = self._first_matching_sentence(
+        why = self._first_semantic_sentence(
             summary_candidates,
-            ("때문", "영향", "증가", "감소", "계약", "실적", "공시", "수주", "투자", "소송"),
+            self.strong_reason_keywords,
+            excluded={what},
+            reject_keywords=self.investor_action_keywords,
         )
+        if not why:
+            why = self._first_semantic_sentence(
+                summary_candidates,
+                self.reason_keywords,
+                excluded={what},
+                reject_keywords=self.investor_action_keywords,
+            )
+        if not why or self._line(why) == self._line(what):
+            why = self._first_semantic_sentence(
+                ranked_sentences,
+                self.strong_reason_keywords,
+                excluded={what},
+                reject_keywords=self.investor_action_keywords,
+            )
+        if not why or self._line(why) == self._line(what):
+            why = self._first_semantic_sentence(
+                ranked_sentences,
+                self.reason_keywords,
+                excluded={what},
+                reject_keywords=self.investor_action_keywords,
+            )
         if not why or self._line(why) == self._line(what):
             why = self._first_distinct_sentence(summary_candidates, excluded={what})
-        impact_sentence = self._first_matching_sentence(
+        impact_sentence = self._first_semantic_sentence(
             summary_candidates,
-            ("주가", "매출", "영업이익", "손익", "리스크", "전망", "시장", "투자자", "거래"),
+            self.impact_keywords,
+            excluded={what, why},
         )
+        if not impact_sentence or self._line(impact_sentence) in {
+            self._line(what),
+            self._line(why),
+        }:
+            impact_sentence = self._first_semantic_sentence(
+                ranked_sentences,
+                self.impact_keywords,
+                excluded={what, why},
+            )
         if not impact_sentence or self._line(impact_sentence) in {
             self._line(what),
             self._line(why),
@@ -331,6 +422,25 @@ class FinancialRuleEngine:
 
     def _first_matching_sentence(self, sentences: list[str], keywords: tuple[str, ...]) -> str:
         for sentence in sentences:
+            if self._contains_any(sentence, keywords):
+                return sentence
+        return ""
+
+    def _first_semantic_sentence(
+        self,
+        sentences: list[str],
+        keywords: tuple[str, ...],
+        *,
+        excluded: set[str],
+        reject_keywords: tuple[str, ...] = (),
+    ) -> str:
+        excluded_lines = {self._line(text) for text in excluded if text}
+        for sentence in sentences:
+            line = self._line(sentence)
+            if line in excluded_lines:
+                continue
+            if reject_keywords and self._contains_any(sentence, reject_keywords):
+                continue
             if self._contains_any(sentence, keywords):
                 return sentence
         return ""

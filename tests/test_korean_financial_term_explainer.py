@@ -118,9 +118,9 @@ def test_unknown_financial_term_requires_review_without_web_provider() -> None:
 
     response = service.explain(
         KoreanFinancialTermExplainRequest(
-            term="초전도체주",
-            title="초전도체주가 급등했다",
-            context="초전도체주가 테마성 수급으로 급등했다는 보도가 나왔다.",
+            term="양자컴퓨팅밈주",
+            title="양자컴퓨팅밈주가 급등했다",
+            context="양자컴퓨팅밈주라는 표현이 온라인 수급과 함께 언급됐다.",
         )
     )
 
@@ -128,6 +128,28 @@ def test_unknown_financial_term_requires_review_without_web_provider() -> None:
     assert response.display_mode == "REVIEW_REQUIRED"
     assert response.cacheable is False
     assert "definitive" in response.explanation
+
+
+def test_common_theme_stock_terms_are_dictionary_backed_without_web_provider() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-rag",
+    )
+
+    response = service.explain(
+        KoreanFinancialTermExplainRequest(
+            term="초전도체주",
+            title="초전도체주 테마성 급등",
+            context="초전도체주가 테마성 수급으로 급등했다는 보도가 나왔다.",
+            allow_web_search=False,
+        )
+    )
+
+    assert response.source == "DICTIONARY"
+    assert response.display_mode == "EXPLANATION"
+    assert response.cacheable is True
+    assert response.english_term == "superconductor-themed stock"
+    assert "does not prove" in response.explanation
 
 
 def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation() -> None:
@@ -139,9 +161,9 @@ def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation()
 
     response = service.explain(
         KoreanFinancialTermExplainRequest(
-            term="로봇주",
-            title="로봇주 강세",
-            context="로봇주가 정부 정책 기대감과 자동화 투자 확대로 강세를 보였다.",
+            term="우주항공주",
+            title="우주항공주 강세",
+            context="우주항공주가 정부 정책 기대감과 위성 투자 확대로 강세를 보였다.",
             allow_web_search=True,
         )
     )
@@ -149,7 +171,7 @@ def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation()
     assert response.source == "OPENAI_WEB_SEARCH_RAG"
     assert response.display_mode == "EXPLANATION"
     assert response.cacheable is True
-    assert response.english_term == "robotics-themed stock"
+    assert response.english_term == "aerospace-themed stock"
     assert response.evidence[0].source_type == "article_context"
     assert response.evidence[1].source_type == "web_search"
 
@@ -169,22 +191,22 @@ class _FakeTermProvider:
         context_evidence: tuple[FinancialTermEvidence, ...],
     ) -> GeneratedTermExplanation:
         return GeneratedTermExplanation(
-            english_term="robotics-themed stock",
+            english_term="aerospace-themed stock",
             category="theme_stock",
-            definition="A Korean stock grouped by investors under the robotics investment theme.",
+            definition="A Korean stock grouped by investors under the aerospace investment theme.",
             explanation=(
-                "\"로봇주\" means a robotics-themed stock in Korean market news. "
-                "It is usually used for companies expected to benefit from automation, robotics, "
-                "or related government and corporate investment themes."
+                "\"우주항공주\" means an aerospace-themed stock in Korean market news. "
+                "It is usually used for companies expected to benefit from satellites, launch "
+                "systems, defense aerospace, or related policy themes."
             ),
-            example="로봇주 강세 means robotics-themed stocks rallied.",
+            example="우주항공주 강세 means aerospace-themed stocks rallied.",
             confidence_score=0.86,
             evidence=(
                 *context_evidence,
                 FinancialTermEvidence(
-                    title="Robotics theme explanation",
-                    snippet="Market reports use 로봇주 for robotics-themed stocks.",
-                    url="https://example.com/robot-theme",
+                    title="Aerospace theme explanation",
+                    snippet="Market reports use 우주항공주 for aerospace-themed stocks.",
+                    url="https://example.com/aerospace-theme",
                     source_type="web_search",
                 ),
             ),

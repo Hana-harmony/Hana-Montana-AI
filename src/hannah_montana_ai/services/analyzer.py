@@ -86,6 +86,24 @@ class AlertAnalyzer:
     )
     _MACRO_CONTEXT_TERMS = ("수출", "업황", "공급망", "환율", "금리", "물가")
     _GENERAL_MARKET_CONTEXT_TERMS = ("시총", "주가 급등", "증시")
+    _MARKET_WIDE_TITLE_PREFIXES = (
+        "한국 증시",
+        "국내 증시",
+        "한국 주식시장",
+        "국내 주식시장",
+        "코스피",
+        "코스닥",
+        "증시",
+    )
+    _MARKET_WIDE_TITLE_TERMS = (
+        "시총 세계",
+        "시장 시가총액",
+        "증시 시총",
+        "지수 상승",
+        "지수 하락",
+        "외국인 순매수",
+        "외국인 순매도",
+    )
     _RISK_CONTEXT_TERMS = (
         "감사의견 거절",
         "거래정지",
@@ -348,6 +366,8 @@ class AlertAnalyzer:
         if title_match is not None:
             confidence = 1.0 if title_match in request_universe else 0.97
             return StockMatchResult(title_match, confidence)
+        if not request_universe and self._is_market_wide_title(title):
+            return StockMatchResult(None, 0.0)
         exact_match = self._best_primary_stock_match(
             text,
             request_universe,
@@ -356,6 +376,8 @@ class AlertAnalyzer:
         if exact_match is not None:
             confidence = 1.0 if exact_match in request_universe else 0.96
             return StockMatchResult(exact_match, confidence)
+        if self._is_market_wide_title(title) and exact_match not in request_universe:
+            return StockMatchResult(None, 0.0)
         ml_match = self._match_leading_internal_stock_with_ml(text)
         if ml_match is not None:
             return ml_match
@@ -626,6 +648,14 @@ class AlertAnalyzer:
             short_term and short_term in long_term
             for short_term in short_terms
             for long_term in long_terms
+        )
+
+    def _is_market_wide_title(self, title: str) -> bool:
+        normalized = re.sub(r"\s+", " ", title).strip()
+        if not normalized:
+            return False
+        return normalized.startswith(self._MARKET_WIDE_TITLE_PREFIXES) or any(
+            term in normalized for term in self._MARKET_WIDE_TITLE_TERMS
         )
 
     def _normalized_non_code_stock_terms(
