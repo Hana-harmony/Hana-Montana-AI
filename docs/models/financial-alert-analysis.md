@@ -24,9 +24,21 @@
 
 ## 모델
 - 버전: `financial-ml-tfidf-logreg-20260622090407`
-- 구조: TF-IDF char/word n-gram + Logistic Regression
-- stock linker: 전체 한국 종목 universe 기반 종목명/종목코드 매핑
+- 이벤트 구조: TF-IDF char/word n-gram, `source_type`, 한국 금융 token feature를 결합한 One-vs-Rest Logistic Regression multilabel classifier
+- 감성 구조: TF-IDF char n-gram, 한국 금융 token feature, Logistic Regression 다중분류
+- 중요도 구조: `source_type`, TF-IDF char n-gram, 한국 금융 token feature, Logistic Regression 다중분류
+- stock linker: `stock_linker_ml.joblib`의 TF-IDF char n-gram nearest-neighbor entity linker와 선두 term 검증
+- 전문 v2: 제목/snippet 모델을 baseline으로 유지하고, 권리 확인된 전문이 있으면 full content summary와 content hash를 추가한다.
 - pseudo-label은 teacher confidence gate와 라벨 quota를 통과한 샘플만 사용한다.
+- 사람이 검수하지 않은 실제 전문 약한 라벨은 supervised loss와 holdout 정답에서 제외한다.
+
+## 학습/추론 구성
+- 학습 스크립트: `scripts/train_ml_model.py`
+- 모델 trainer: `src/hannah_montana_ai/training/ml_trainer.py`
+- Serving loader: `src/hannah_montana_ai/services/model.py`
+- 종목 linker trainer: `src/hannah_montana_ai/training/stock_linker_trainer.py`
+- 종목 universe: `data/reference/korea_stock_universe.csv`의 국내 3,967개 종목
+- 이벤트 threshold: 기본 0.30, 실제 뉴스 gold 기준 라벨별 calibration 적용
 
 ## 평가
 | 평가셋 | 샘플 | 이벤트 macro F1 | 이벤트 recall | 감성 accuracy | 중요도 accuracy | 종목 accuracy |
@@ -38,8 +50,10 @@
 
 ## 산출물
 - Artifact: `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`
+- Stock linker artifact: `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`
 - Release report: `reports/model-release-report.json`
 - Evaluation report: `reports/ml-model-evaluation.json`
+- Confidence calibration: `reports/model-confidence-calibration.json`
 
 ## 한계
 - Stock review gold에서 희소 이벤트 라벨 macro F1이 낮다.

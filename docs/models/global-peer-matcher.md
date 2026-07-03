@@ -25,7 +25,19 @@
 - 미국 universe: 12,916개
 - Eligible US company peer: 4,714개
 - 구조: TF-IDF retrieval, SVD semantic embedding, business profile classifier, 재무/업종/규모 feature, pairwise LogisticRegression reranker
-- 설명 생성은 deterministic structured template이 기본이며, local LLM 모드는 strict gate 실패 시 template으로 fallback한다.
+- Business profile classifier: `FeatureUnion(TfidfVectorizer(char_wb 2-5), TfidfVectorizer(word 1-2)) + LogisticRegression(class_weight=balanced)`
+- Pairwise ranker: curated peer pair를 positive label로 쓰는 `LogisticRegression(class_weight=balanced)`
+- Ranking feature: text similarity, semantic similarity, financial similarity, same sector/industry/business model/scale bucket, market cap/revenue gap, operating margin gap
+
+## 설명 생성
+- 기본 serving: deterministic structured template
+- Optional local LLM: `mlx-community/Qwen3-0.6B-4bit` LoRA를 학습하고, 운영에서는 Qwen3-0.6B GGUF Q4를 OpenAI-compatible local server로 연결한다.
+- LoRA adapter: `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora`
+- Prompt version: `global-peer-structured-rag-explainer-v7`
+- 학습 split: train 3,571 / valid 198 / test 198
+- 학습 설정: 500 iters, batch size 1, learning rate 1e-5, 8 layers, trainable 1.442M / total 596.050M params
+- 검증: raw Qwen3 generation 30종목 기준 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 1.0
+- Fallback: endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, headline/summary exact mismatch, 점수 노출, 투자조언 문구는 template으로 대체한다.
 
 ## 평가
 | 항목 | 값 |
@@ -41,7 +53,10 @@
 
 ## 산출물
 - Artifact: `src/hannah_montana_ai/model_store/global_peer_ml.joblib`
+- Qwen3 LoRA adapter: `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/`
 - Training report: `reports/global-peer-training-report.json`
+- Qwen3 training report: `reports/global-peer-qwen3-explainer-training.json`
+- Qwen3 generation eval: `reports/global-peer-qwen3-generation-eval.json`
 - Full coverage report: `reports/global-peer-full-coverage-report.json`
 - All results: `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`
 - Human-readable all results: `docs/GLOBAL_PEER_ALL_RESULTS.md`
