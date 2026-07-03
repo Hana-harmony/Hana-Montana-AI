@@ -3,13 +3,13 @@
 ## 목적
 - Hana-OmniLens-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
 - v2에서는 권리 확인이 끝난 뉴스·공시 전문을 추가 입력으로 받아 What/Why/Impact 3줄 요약과 전문 기반 중복 키를 생성한다.
-- ChatGPT API에 의존하지 않고 자체 학습한 금융 NLP ML 모델을 사용한다.
+- 뉴스·공시 분석, 종목 링커, 외국인 보유 예측, 글로벌 피어 매칭, 한국 금융 용어 해설을 독립 모델 또는 검증된 룰 조합으로 제공한다.
 
 ## 서비스 구성
 - `api`: 분석 API route
 - `core`: 환경 설정
 - `domain`: request, response schema
-- `services`: Rule Engine, 모델 로더, 분석 orchestration
+- `services`: 모델 로더, 분석 orchestration, 예측·해설 서비스
 - `model_store`: 배포 가능한 모델 artifact
 
 ## API 경계
