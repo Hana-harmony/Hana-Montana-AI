@@ -130,7 +130,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert 0.0 <= payload["sentiment_confidence"] <= 1.0
     assert 0.0 <= payload["importance_confidence"] <= 1.0
     assert payload["stock_match_confidence"] == 1.0
-    assert payload["data_source"] == "Naver/OpenDART/NLP/DeepLTranslationAdapter"
+    assert payload["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
 
 
 def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:

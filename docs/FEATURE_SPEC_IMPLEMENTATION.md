@@ -1,7 +1,7 @@
 # 기능정의서 구현 계약
 
 ## 적용 범위
-- 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, DeepL, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
+- 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, GPT 번역, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
 - 본 구현은 외부 어댑터가 넘긴 검증된 입력값을 기준으로 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 상태를 계산하고 단일 JSON 계약으로 반환한다.
 - 모든 비즈니스 REST endpoint는 `success/status/code/message/data/timestamp` 공통 응답 envelope를 사용하며, 아래 출력 핵심 필드는 모두 `data` 내부에 위치한다.
 - API는 내부 네트워크용이며 별도 사용자 토큰을 검증하지 않는다.
@@ -57,8 +57,8 @@
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
   - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
-  - 실제 DeepL 호출은 Hana-OmniLens-API 어댑터가 담당하며, AI 서비스는 로컬 금융 용어집 번역 보조와 품질 플래그만 생성한다.
-  - `build_translation_sample_report.py`는 실제 뉴스·공시 gold 표본의 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 같은 row에 기록해 DeepL/Papago live smoke 출력과 `external_translation_join_key`로 비교할 수 있게 한다.
+  - 실제 GPT 번역 호출은 Hana-OmniLens-API 어댑터가 담당하며, AI 서비스는 로컬 금융 용어집 번역 보조와 품질 플래그만 생성한다.
+  - `build_translation_sample_report.py`는 실제 뉴스·공시 gold 표본의 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 같은 row에 기록해 OmniLens GPT smoke 출력과 `external_translation_join_key`로 비교할 수 있게 한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
@@ -69,7 +69,7 @@
   - `is_holder_target`, `is_watchlist_target`
   - `glossary_terms`, `translation_quality_flags`
   - `translation_provider`, `translation_model_version`, `translation_status`
-  - `data_source="Naver/OpenDART/NLP/DeepLTranslationAdapter"`
+  - `data_source="Naver/OpenDART/NLP/OpenAITranslationAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/documents/verify`
