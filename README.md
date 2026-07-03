@@ -1,81 +1,65 @@
 # Hannah-Montana-AI
 
-Hana-OmniLens-API의 뉴스·공시 알림 분석을 담당하는 FastAPI 기반 자체 금융 NLP 서비스다.
+Hana OmniLens의 AI 모델 API 서버다. 뉴스·공시 분석만 담당하는 NLP 서버가 아니라, 외국인 보유 예측, 글로벌 피어 매칭, 한국 금융 용어 해설, 세무/문서 규칙 모델까지 제공한다.
 
-## 범위
-- 종목 매핑
-- 이벤트 분류
-- 감성 분류
-- 중요도 분류
-- What/Why/Impact 3줄 요약
-- 중복 제거 키 생성
-- 금융 용어 normalization과 번역 품질 보조
+## 핵심 기능
+- 뉴스·공시 분석: 종목 매핑, 이벤트 태그, 감성, 중요도, What/Why/Impact 요약, 중복 키
+- 외국인 보유 예측: 제한 종목의 다음 거래일 외국인 보유수량과 한도소진율 boundary 예측
+- 글로벌 피어: 한국 상장사와 유사한 미국 상장 peer, headline, summary, matched factors 생성
+- 한국 금융 용어: 사전/RAG 기반 영어 해설, evidence, confidence, cache 정책
+- 주문/세무 보조: order status, tax refund status, tax document verification 규칙 응답
 
-## 빠른 시작
-```bash
-uv sync --all-groups
-uv run pytest
-uv run python scripts/verify_secret_hygiene.py
-uv run uvicorn hannah_montana_ai.main:app --reload
-```
-
-로컬 Docker 실행:
-```bash
-docker compose -f compose.local.yml up --build
-curl http://localhost:8000/health
-curl http://localhost:8000/docs
-```
-
-## 학습 파이프라인
-```bash
-uv run python scripts/collect_training_data.py --reuse-existing-raw --max-news-per-query 1000 --dart-days 365 --dart-pages 10
-uv run python scripts/build_real_full_content_training_data.py --max-news 1200 --max-disclosures 320 --per-label-limit 110
-uv run python scripts/build_augmented_training_data.py
-uv run python scripts/build_gold_evaluation_data.py
-uv run python scripts/train_ml_model.py
-uv run python scripts/evaluate_ml_model.py
-uv run python scripts/build_model_release_report.py
-uv run python scripts/build_pseudo_label_monitoring_report.py
-uv run python scripts/build_live_news_quality_audit.py --stock-sample-size 60 --max-news-per-query 2 --sample-limit 160 --require-query-stock-match
-uv run python scripts/build_translation_sample_report.py --sample-limit-per-source 5
-```
-
-로컬 외부 API 키는 `secrets.local.env.example`을 복사한 뒤 커밋하지 않는 `secrets.local.env`에서만 작성해 읽는다.
-수집 credential은 학습 데이터 수집 스크립트에서만 사용하며, AI 런타임은 provider credential이나 협력사용 API key를 요구하지 않는다.
-수집 실패나 rate limit으로 새 raw 수가 기존보다 줄어들면 기본값으로 기존 코퍼스를 덮어쓰지 않는다.
-수집된 대량 weak-label 후보는 supervised teacher 모델의 confidence gate와 라벨별 quota를 통과한 pseudo-label만 이벤트 모델 학습에 승격한다.
-학습 결과는 `reports/ml-training-report.json`의 80:20 holdout 검증, `reports/ml-model-evaluation.json`의 gold 평가셋 지표, `reports/model-release-report.json`의 버전별 release gate, `reports/pseudo-label-promotion-monitoring.json`의 pseudo-label 운영 상태로 기록한다.
-최종 운영 readiness는 `reports/service-readiness-report.json`에서 모델 release, live-news smoke/drift, 전 종목 reference coverage, stock linker, confidence observe-only 정책을 통합해 확인한다.
-번역 품질 보조 결과는 `reports/translation-sample-report.json`에 실제 뉴스·공시 gold 원문, 로컬 glossary 번역, AI 분석 결과, review finding을 함께 기록한다.
-분석 응답은 이벤트·감성·중요도·종목 매핑 confidence를 포함한다. 이 값은 품질 관측과 UI 표시용 메타데이터이며, Hannah는 신뢰도 기반 자동 차단 결정을 만들지 않는다.
-
-현재 운영 모델은 Naver News Search 발견 데이터와 OpenDART 공시검색 row를 v1 baseline으로 유지하되, v2에서는 사용 허가된 뉴스 원문과 OpenDART document 전문을 저장한다. 사람이 검수하지 않은 전문 약한 라벨은 이벤트·감성·중요도 supervised loss에서 제외하고, 전문은 요약/분석 입력 품질 검증과 검수 후보 생성에 사용한다. 추가 학습은 관련 종목이 제목·snippet·전문에서 확인된 기사만 live quality audit의 query-relevant gate에 포함해 검색 노이즈가 모델 품질 지표를 오염시키지 않도록 한다.
-
-AI 서비스는 협력사용 `OMNILENS_API_KEY`나 별도 서비스 토큰을 요구하지 않는다. 배포 환경에서는 외부에 포트를 공개하지 않고 Spring 컨테이너에서만 접근 가능한 내부 네트워크로 격리한다.
-
-## 주요 엔드포인트
+## API
 - `GET /health`
 - `POST /api/v1/alerts/analyze`
 - `POST /api/v1/market/foreign-ownership/predict`
-- `POST /api/v1/stocks/order-status`
+- `POST /api/v1/market/foreign-ownership/model/retrain`
+- `POST /api/v1/market/global-peers/match`
+- `POST /api/v1/korean-financial-terms/explain`
 - `POST /api/v1/intelligence/events`
+- `POST /api/v1/stocks/order-status`
 - `POST /api/v1/tax/documents/verify`
 - `POST /api/v1/tax/refund-status`
 
-비즈니스 API는 공통 응답 envelope로 `success/status/code/message/data/timestamp`를 반환한다.
-분석 API는 응답 계약을 유지하면서 내부 audit log에 모델 버전, latency, 예측 라벨, confidence, 입력 hash를 남긴다.
-인텔리전스 이벤트 API는 로컬 금융 용어집으로 제목·요약의 핵심 용어를 영어권 거래소 사용자가 이해할 표현으로 보정하고, 적용된 용어와 품질 플래그를 응답과 WebSocket 패킷에 포함한다.
+응답은 `success/status/code/message/data/timestamp` 공통 envelope을 사용한다.
+
+## 실행
+```bash
+uv sync --all-groups
+uv run pytest
+uv run uvicorn hannah_montana_ai.main:app --reload
+```
+
+Docker:
+```bash
+docker compose -f compose.local.yml up --build
+curl http://localhost:8000/health
+```
+
+## 검증
+```bash
+uv run ruff check .
+uv run mypy
+uv run bandit -c pyproject.toml -r src
+uv run pytest
+```
+
+## 모델 문서
+- [뉴스·공시 분석 모델](docs/models/financial-alert-analysis.md)
+- [외국인 보유 예측 모델](docs/models/foreign-ownership-forecast.md)
+- [글로벌 피어 매칭 모델](docs/models/global-peer-matcher.md)
+- [한국 금융 용어 해설 모델](docs/models/korean-financial-term-explainer.md)
+- [모델 문서 인덱스](docs/MODEL_CARD.md)
+
+## 보안 경계
+- 협력사용 `OMNILENS_API_KEY`를 요구하거나 저장하지 않는다.
+- 외부 provider credential은 학습/수집 스크립트의 로컬 secret 파일에서만 읽고 커밋하지 않는다.
+- 운영에서는 외부에 포트를 직접 공개하지 않고 Spring 서비스가 접근하는 내부 네트워크에 둔다.
 
 ## 문서
-- [기여 가이드](CONTRIBUTING.md)
 - [아키텍처](docs/ARCHITECTURE.md)
 - [운영](docs/OPERATIONS.md)
-- [보안](docs/SECURITY.md)
 - [테스트](docs/TESTING.md)
+- [보안](docs/SECURITY.md)
 - [구현 기록](docs/IMPLEMENTATION_LOG.md)
-- [API 표준](docs/API_STANDARD.md)
-- [전체 구현 순서](docs/IMPLEMENTATION_SEQUENCE.md)
-- [모델 카드](docs/MODEL_CARD.md)
-- [기능 분류와 레포 책임](docs/FEATURE_CLASSIFICATION.md)
-- [로드맵](docs/ROADMAP.md)
-- [깃 전략](docs/GIT_STRATEGY.md)
+- [AI 모델 감사](docs/HANNAH_AI_MODEL_AUDIT.md)
