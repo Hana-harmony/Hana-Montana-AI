@@ -297,17 +297,11 @@ class FinancialRuleEngine:
                 "원문에서 확인된 최신 공시·뉴스 맥락입니다."
             )
         if not impact_sentence:
-            impact_sentence = (
-                f"영향은 {importance.lower()} 중요도와 {sentiment.lower()} 감성으로 분류되어 "
-                "보유·관심 종목 사용자 확인이 필요합니다."
-            )
+            impact_sentence = self._investor_check_sentence(fallback_subject)
         if self._line(why) == self._line(what):
             why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
         if self._line(impact_sentence) in {self._line(what), self._line(why)}:
-            impact_sentence = (
-                f"중요도 {importance.lower()}, 감성 {sentiment.lower()}로 분류되어 "
-                "보유·관심 종목 사용자에게 노출할 필요가 있습니다."
-            )
+            impact_sentence = self._investor_check_sentence(fallback_subject)
         return SummaryLines(
             what=self._line(what),
             why=self._line(why),
@@ -372,6 +366,19 @@ class FinancialRuleEngine:
 
     def _first_title_context_sentence(self, sentences: list[str], title: str) -> str:
         title_terms = self._title_terms(title)
+        market_axis_terms = {
+            term
+            for term in title_terms
+            if term in {"기관", "외국인", "개인", "매수세", "매도세", "회복", "반등"}
+            or term.endswith("선")
+        }
+        if market_axis_terms:
+            for sentence in sentences[:8]:
+                if any(term in sentence for term in market_axis_terms) and self._contains_any(
+                    sentence,
+                    self.financial_context_keywords,
+                ):
+                    return sentence
         for sentence in sentences:
             if any(term in sentence for term in title_terms) and self._contains_any(
                 sentence,
@@ -451,6 +458,13 @@ class FinancialRuleEngine:
             if self._line(sentence) not in excluded_lines:
                 return sentence
         return ""
+
+    def _investor_check_sentence(self, subject: str) -> str:
+        display_subject = self._line(subject) or "해당 이슈"
+        return (
+            f"투자자는 {display_subject}가 보유·관심 종목의 수급, 실적 전망, "
+            "변동성에 미치는 영향을 확인해야 합니다."
+        )
 
     def _line(self, text: str) -> str:
         normalized = re.sub(r"\s+", " ", text).strip()
