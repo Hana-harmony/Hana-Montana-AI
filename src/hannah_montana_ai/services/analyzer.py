@@ -754,6 +754,8 @@ class AlertAnalyzer:
         has_severe_negative = any(
             term in text for term in self._SEVERE_NEGATIVE_SENTIMENT_CONTEXT_TERMS
         )
+        if self._has_mixed_market_sentiment(text):
+            return "NEUTRAL"
         if negative_score > positive_score and (has_severe_negative or negative_score >= 2):
             return "NEGATIVE"
         has_neutral_context = any(
@@ -764,6 +766,17 @@ class AlertAnalyzer:
         if positive_score > negative_score and sentiment != "NEGATIVE":
             return "POSITIVE"
         return sentiment
+
+    def _has_mixed_market_sentiment(self, text: str) -> bool:
+        if not ("코스피" in text and "코스닥" in text):
+            return False
+        has_positive_axis = any(
+            term in text for term in ("회복", "반등", "상승 전환", "순매수", "유입")
+        )
+        has_negative_axis = any(
+            term in text for term in ("하락", "약세", "순매도", "내렸다", "밀렸다")
+        )
+        return has_positive_axis and has_negative_axis and "반면" in text
 
     def _augment_importance(
         self,

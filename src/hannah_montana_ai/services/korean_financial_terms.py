@@ -341,7 +341,8 @@ def build_openai_term_provider_from_settings(settings: Settings) -> TermExplanat
 
 
 def _load_entries(path: Path) -> tuple[FinancialTermEntry, ...]:
-    rows = json.loads(path.read_text(encoding="utf-8"))
+    seed_path = _resolve_seed_path(path)
+    rows = json.loads(seed_path.read_text(encoding="utf-8"))
     if not isinstance(rows, list):
         raise ValueError("financial term seed must be a list")
     entries: list[FinancialTermEntry] = []
@@ -362,6 +363,15 @@ def _load_entries(path: Path) -> tuple[FinancialTermEntry, ...]:
             )
         )
     return tuple(entry for entry in entries if entry.normalized_term and entry.plain_explanation)
+
+
+def _resolve_seed_path(path: Path) -> Path:
+    if path.exists():
+        return path
+    project_root_path = Path(__file__).resolve().parents[3] / path
+    if project_root_path.exists():
+        return project_root_path
+    raise FileNotFoundError(f"financial term seed file not found: {path}")
 
 
 def _build_index(entries: tuple[FinancialTermEntry, ...]) -> dict[str, FinancialTermEntry]:

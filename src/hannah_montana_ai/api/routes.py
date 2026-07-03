@@ -95,6 +95,12 @@ def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService
     )
 
 
+def warm_runtime_dependencies() -> None:
+    get_analyzer()
+    get_global_peer_matcher()
+    get_korean_financial_term_service()
+
+
 @lru_cache
 def get_tax_refund_status_service() -> TaxRefundStatusService:
     return TaxRefundStatusService()

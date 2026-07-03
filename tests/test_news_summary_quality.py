@@ -140,6 +140,73 @@ def test_summary_uses_distinct_article_lines_before_fallback() -> None:
     assert any("시장 변동성" in line or "투자자" in line for line in lines)
 
 
+def test_market_summary_prefers_lead_index_recovery_over_later_index_tail() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "코스피가 3일 장중 기관의 대규모 매수세에 힘입어 상승 전환하며 7800선을 회복했다. "
+        "장 초반 미국 기술주 약세 영향으로 밀렸지만 반도체주를 중심으로 기관 자금이 "
+        "유입되면서 분위기가 반전됐다. "
+        "유가증권시장에서 기관은 1조3941억원을 순매수하며 지수 반등을 이끌었다. "
+        "반면 외국인은 1조3941억원을 순매도했고 개인도 5896억원어치를 순매도했다. "
+        "코스닥지수는 코스피와 다른 흐름을 보이며 전 거래일보다 22.23포인트 내렸다. "
+        "시가총액 상위 종목 가운데 알테오젠과 에코프로비엠 등은 하락세다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "코스피, 기관 매수세에 장중 7800선 회복",
+        "",
+        content,
+        "MEDIUM",
+        "POSITIVE",
+    )
+
+    assert "코스피가 3일 장중 기관" in summary.what
+    assert "기관 자금" in summary.why or "기관은 1조3941억원" in summary.why
+    assert "positive" not in summary.impact.lower()
+    assert "중요도" not in summary.impact
+
+
+def test_market_wide_mixed_index_article_is_neutral() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="코스피, 기관 매수세에 장중 7800선 회복",
+            snippet="반도체주를 중심으로 기관 자금이 유입되며 지수가 반등했다.",
+            content=(
+                "코스피가 3일 장중 기관의 대규모 매수세에 힘입어 상승 전환하며 "
+                "7800선을 회복했다. "
+                "장 초반 미국 기술주 약세 영향으로 밀렸지만 반도체주를 중심으로 "
+                "기관 자금이 유입되면서 분위기가 반전됐다. "
+                "유가증권시장에서 기관은 1조3941억원을 순매수하며 지수 반등을 이끌었다. "
+                "반면 외국인은 1조3941억원을 순매도했고 개인도 5896억원어치를 순매도했다. "
+                "코스닥지수는 코스피와 다른 흐름을 보이며 전 거래일보다 22.23포인트 내렸다."
+            ),
+            original_url="https://news.example.com/market-recovery",
+        )
+    )
+
+    assert response.sentiment == "NEUTRAL"
+    assert response.stock_code is None
+    assert "코스피가 3일 장중 기관" in response.summary_lines.what
+
+
+def test_summary_fallback_impact_does_not_expose_model_labels() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "반도체 수요 둔화 우려 확산",
+        "AI 투자 속도 조절 가능성이 제기됐다.",
+        "반도체 수요 둔화 우려가 다시 제기됐다. AI 투자 속도 조절 가능성이 배경이다.",
+        "MEDIUM",
+        "NEGATIVE",
+    )
+
+    assert "negative" not in summary.impact.lower()
+    assert "medium" not in summary.impact.lower()
+    assert "감성" not in summary.impact
+    assert "중요도" not in summary.impact
+
+
 def test_summary_removes_ad_and_related_article_tail() -> None:
     engine = FinancialRuleEngine()
     content = (

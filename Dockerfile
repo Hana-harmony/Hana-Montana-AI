@@ -4,12 +4,12 @@ WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 ENV PATH="/app/.venv/bin:${PATH}"
 
 COPY pyproject.toml uv.lock ./
 COPY src ./src
+COPY data/reference ./data/reference
 
 RUN uv sync --frozen --no-dev
 
