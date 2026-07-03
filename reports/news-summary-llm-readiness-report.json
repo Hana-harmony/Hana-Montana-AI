@@ -1,0 +1,72 @@
+{
+  "schema_version": "news-summary-llm-readiness/v1",
+  "generated_at": "2026-07-04T00:00:00+09:00",
+  "decision": "do_not_enable_live_news_summary_llm",
+  "decision_reason": [
+    "확인된 장애는 LLM 부재보다 전문 입력 누락, snippet 생략부호, rule engine hard cut, impact 메타 문장 노출이 원인이므로 기존 경로를 먼저 수정했다.",
+    "운영 CPU/메모리 예산에서는 live 뉴스 수집마다 생성형 요약을 호출하는 것보다 문장 기반 rule engine과 품질 gate가 더 예측 가능하다.",
+    "Qwen은 live summary 기본값이 아니라 offline/sidecar 후보로 유지하고, JSON schema·grounding·timeout·fallback gate를 통과한 뒤에만 승격한다."
+  ],
+  "qwen_candidate": {
+    "train_model": "mlx-community/Qwen3-0.6B-4bit LoRA",
+    "serving_model": "Qwen3-0.6B GGUF Q4",
+    "macbook_m4_pro_24gb_training_feasibility": {
+      "status": "pass_existing_measurement",
+      "source_report": "reports/global-peer-qwen3-explainer-training.json",
+      "observed_peak_memory_gb": 2.238,
+      "batch_size": 1,
+      "max_seq_length": 2048,
+      "trainable_parameters_m": 1.442,
+      "total_parameters_m": 596.05
+    },
+    "aws_cpu_serving_feasibility": {
+      "status": "sidecar_only_with_guards",
+      "target_envelope": "AWS Graviton t4g.medium-class CPU-only, 2 vCPU, 4 GiB RAM",
+      "user_requested_instance_note": "m4g.medium 요청은 운영 예산을 2 vCPU/4 GiB CPU-only envelope로 해석한다.",
+      "runtime": "llama.cpp OpenAI-compatible sidecar",
+      "guards": {
+        "max_batch_size": 1,
+        "timeout_ms": 1200,
+        "max_input_chars": 1200,
+        "fallback": "FinancialRuleEngine summary",
+        "json_schema": "SummaryLines {what, why, impact}",
+        "grounding": "각 line은 제목/snippet/전문에서 확인 가능한 사실만 사용",
+        "quality_gate": [
+          "line must not end with ellipsis",
+          "line must not contain importance/sentiment/classification meta",
+          "line must end on sentence boundary",
+          "impact must describe investor-facing effect or required check"
+        ]
+      }
+    }
+  },
+  "live_path_after_fix": {
+    "summary_engine": "FinancialRuleEngine",
+    "input_priority": [
+      "licensed full content",
+      "snippet",
+      "title"
+    ],
+    "postprocessing": [
+      "sentence-boundary truncate",
+      "ellipsis rejection",
+      "classification meta rejection",
+      "investor impact fallback"
+    ],
+    "fallback": "rule engine remains the source of truth until Qwen generation passes live A/B gates"
+  },
+  "local_translation_model": {
+    "implemented_model": "local-financial-glossary-v2",
+    "role": "로컬 금융 용어·종목명 보존 baseline과 GPT 번역 품질 비교",
+    "comparison_report": "../Hana-OmniLens-API/reports/openai-translation-smoke-report.json",
+    "promotion_gate": [
+      "GPT 대비 핵심 금융 용어 보존율 통과",
+      "숫자·날짜·종목코드 보존",
+      "CPU peak RSS와 latency 예산 통과",
+      "fallback status를 payload에 명시"
+    ],
+    "live_default": "OpenAI GPT translation in Hana-OmniLens-API",
+    "offline_training_option": "MacBook M4 Pro 24GB에서 Qwen3-0.6B 4bit LoRA/QLoRA로 금융 번역 후보를 학습하고 GGUF Q4 sidecar로만 검증"
+  },
+  "status": "pass_for_rule_engine_fix_and_llm_defer"
+}

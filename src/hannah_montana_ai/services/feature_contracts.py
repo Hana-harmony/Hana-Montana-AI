@@ -543,7 +543,7 @@ class IntelligenceEventService:
             sentiment_confidence=analysis.sentiment_confidence,
             importance_confidence=analysis.importance_confidence,
             stock_match_confidence=analysis.stock_match_confidence,
-            data_source="Naver/OpenDART/NLP/DeepLTranslationAdapter",
+            data_source="Naver/OpenDART/NLP/OpenAITranslationAdapter",
         )
 
 

@@ -1,5 +1,12 @@
 # 구현 기록
 
+## 2026-07-04 - 뉴스·공시 What/Why/Impact 품질 gate와 LLM readiness
+- 요약 rule engine에서 글자 수 hard cut을 제거하고 문장 경계 기반 truncate로 바꿨다.
+- snippet 생략부호와 중요도·감성·classification 메타 문장을 요약 후보에서 제외한다.
+- impact가 분류 설명으로 노출되지 않도록 투자자 영향/확인 문장 fallback을 추가했다.
+- Qwen은 live 요약 기본값으로 도입하지 않고, `reports/news-summary-llm-readiness-report.json`에 MacBook M4 Pro 24GB 학습 실측 근거와 운영 CPU sidecar guard를 남겼다.
+- 로컬 번역 baseline은 `local-financial-glossary-v2`로 유지하고, GPT 번역 비교는 OmniLens `reports/openai-translation-smoke-report.json`과 join key로 연결한다.
+
 ## 2026-07-03 옴니렌즈 AI 품질 하드닝
 - 뉴스·공시 What/Why/Impact 요약에서 공시 배경 문장과 투자자 영향 문장이 뒤바뀌는 문제를 수정했다. reason/impact keyword를 분리하고 투자자 행동 문장은 impact 후보로 우선 배치한다.
 - 한국 증시·코스피·코스닥 같은 시장 전체 뉴스는 내부 종목 universe fallback만으로 대표 종목을 강제하지 않도록 market-wide title gate를 추가했다. 관련 종목 목록은 유지하되 `stock_code`는 `null`로 반환한다.
@@ -859,7 +866,7 @@
 - service readiness는 사람이 승인한 coverage gold가 아직 0건이라 계속 `fail`이다.
 
 ## 2026-06-19 - 하네스·문서 최신화
-- Papago와 한국수출입은행 환율 provider 표현을 현재 경계에 맞게 제거했다. AI 서비스는 외부 credential을 관리하지 않고, 번역 provider 연동은 Hana-OmniLens-API의 DeepL adapter가 담당한다.
+- Papago와 한국수출입은행 환율 provider 표현을 현재 경계에 맞게 제거했다. AI 서비스는 외부 credential을 관리하지 않고, 번역 provider 연동은 Hana-OmniLens-API의 GPT adapter가 담당한다.
 - 외국인 보유 row는 KIS 현재가 REST snapshot 스키마를 기준으로 설명하되, 기존 `parse_krx_foreign_holding_row` 함수명은 하위 호환을 위해 유지한다고 명시했다.
 - current release 기준 service readiness와 audited gold readiness는 `pass`이며, 사람 검수 gold 확장과 운영 drift 점검은 지속 품질 관리 항목으로 정리했다.
 
@@ -879,7 +886,7 @@
 ## 2026-06-20 - 번역 샘플 비교 리포트와 금융 용어집 v2
 - `local-financial-glossary-v2`로 번역 품질 보조 모델 버전을 올리고 실공시 오역 위험이 큰 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 glossary/fallback rule에 추가했다.
 - `build_translation_sample_report.py`가 실제 Naver 뉴스 gold와 OpenDART 공시 gold 표본을 Hannah AI 분석 결과, 로컬 금융용어 번역 보조, glossary, translation quality flag, review finding과 함께 `reports/translation-sample-report.json`으로 기록한다.
-- DeepL/Papago live provider 호출은 Hana-OmniLens-API 책임으로 유지하고, Hannah 리포트는 `external_translation_join_key`로 외부 provider smoke 출력과 비교할 수 있게 했다.
+- GPT live provider 호출은 Hana-OmniLens-API 책임으로 유지하고, Hannah 리포트는 `external_translation_join_key`로 외부 provider smoke 출력과 비교할 수 있게 했다.
 
 ## 2026-06-20 - AI confidence serving metadata
 - `/api/v1/alerts/analyze` 응답에 `event_confidence`, `sentiment_confidence`, `importance_confidence`, `stock_match_confidence`를 추가했다.

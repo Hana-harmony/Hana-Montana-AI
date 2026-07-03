@@ -207,6 +207,104 @@ def test_summary_fallback_impact_does_not_expose_model_labels() -> None:
     assert "중요도" not in summary.impact
 
 
+def test_summary_rejects_snippet_ellipsis_lines() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 실적 개선 기대",
+        "반도체 수요 회복으로 영업이익 전망이 상향...",
+        "",
+        "MEDIUM",
+        "POSITIVE",
+    )
+
+    lines = [summary.what, summary.why, summary.impact]
+    assert all("..." not in line and "…" not in line for line in lines)
+    assert all(line.strip() for line in lines)
+
+
+def test_full_content_summary_beats_snippet_only_ellipsis() -> None:
+    analyzer = AlertAnalyzer()
+    response = analyzer.analyze(
+        AlertAnalysisRequest(
+            source_type="NEWS",
+            title="삼성전자 실적 개선 기대",
+            snippet="반도체 수요 회복으로 영업이익 전망이 상향...",
+            content=(
+                "삼성전자는 AI 서버 투자 확대로 HBM과 메모리 수요가 늘며 "
+                "반도체 실적 회복 기대가 커졌다. "
+                "메모리 가격 반등과 주요 고객사의 데이터센터 투자가 이번 회복의 "
+                "핵심 배경으로 거론된다. "
+                "투자자는 영업이익 회복 속도와 고부가 제품 비중 확대 여부를 확인해야 한다."
+            ),
+            original_url="https://news.example.com/full-content-summary",
+            stock_universe=[
+                StockCandidate(
+                    stock_code="005930",
+                    stock_name="삼성전자",
+                    stock_name_en="Samsung Electronics",
+                )
+            ],
+        )
+    )
+
+    joined = " ".join(
+        [
+            response.summary_lines.what,
+            response.summary_lines.why,
+            response.summary_lines.impact,
+        ]
+    )
+    assert response.content_availability == "FULL_TEXT"
+    assert "..." not in joined
+    assert "HBM" in joined
+    assert "데이터센터" in joined
+    assert "영업이익 회복 속도" in joined
+
+
+def test_summary_truncates_only_on_sentence_boundary() -> None:
+    engine = FinancialRuleEngine()
+    long_context = "삼성전자는 " + "반도체 수요 회복과 HBM 공급 확대를 " * 9
+    content = (
+        f"{long_context}바탕으로 영업이익 개선 기대가 커졌다고 밝혔다."
+        f"다만 {'세부 사업부별 수익성 확인이 필요하다는 설명이 이어졌다' * 4}. "
+        "메모리 가격 반등과 데이터센터 투자가 핵심 배경이다. "
+        "투자자는 영업이익 회복 속도와 고부가 제품 비중을 확인해야 한다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 반도체 실적 개선 기대",
+        "",
+        content,
+        "HIGH",
+        "POSITIVE",
+    )
+
+    assert len(summary.what) < 300
+    assert summary.what.endswith("밝혔다.")
+    assert not summary.what.endswith("확대")
+
+
+def test_impact_rejects_classification_meta_sentence() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 실적 개선",
+        "",
+        (
+            "삼성전자는 AI 서버 투자 확대로 반도체 실적 개선 기대가 커졌다. "
+            "메모리 가격 반등과 HBM 공급 확대가 주요 배경이다. "
+            "The impact is classified as high importance and positive sentiment. "
+            "투자자는 영업이익 회복 속도와 수요 지속성을 확인해야 한다."
+        ),
+        "HIGH",
+        "POSITIVE",
+    )
+
+    assert "classified" not in summary.impact.lower()
+    assert "importance" not in summary.impact.lower()
+    assert "sentiment" not in summary.impact.lower()
+    assert "투자자는 영업이익" in summary.impact
+
+
 def test_summary_removes_ad_and_related_article_tail() -> None:
     engine = FinancialRuleEngine()
     content = (
