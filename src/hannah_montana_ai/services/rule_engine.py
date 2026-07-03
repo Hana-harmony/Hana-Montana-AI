@@ -91,6 +91,14 @@ class FinancialRuleEngine:
         "확인",
     )
     investor_action_keywords = ("투자자는", "사용자는", "확인해야", "점검해야")
+    summary_meta_keywords = (
+        "classified",
+        "importance",
+        "sentiment",
+        "중요도",
+        "감성",
+        "분류",
+    )
     boilerplate_keywords = (
         "로그인",
         "회원가입",
@@ -207,7 +215,10 @@ class FinancialRuleEngine:
 
     def summarize(self, title: str, snippet: str) -> str:
         normalized = re.sub(r"\s+", " ", f"{title}. {snippet}").strip()
-        return normalized[:220]
+        sentences = self._article_sentences(normalized)
+        if sentences:
+            return self._line(sentences[0])
+        return self._fallback_what_sentence(title)
 
     def summarize_what_why_impact(
         self,
@@ -302,10 +313,23 @@ class FinancialRuleEngine:
             why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
         if self._line(impact_sentence) in {self._line(what), self._line(why)}:
             impact_sentence = self._investor_check_sentence(fallback_subject)
+        what_line = self._line(what)
+        if not what_line:
+            what_line = self._line(self.summarize(fallback_subject, snippet))
+        if not what_line:
+            what_line = self._fallback_what_sentence(fallback_subject)
+        why_line = self._line(why)
+        if not why_line or why_line == what_line:
+            why_line = self._line(
+                f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
+            )
+        impact_line = self._line(impact_sentence)
+        if not impact_line or impact_line in {what_line, why_line}:
+            impact_line = self._line(self._investor_check_sentence(fallback_subject))
         return SummaryLines(
-            what=self._line(what),
-            why=self._line(why),
-            impact=self._line(impact_sentence),
+            what=what_line,
+            why=why_line,
+            impact=impact_line,
         )
 
     def clean_article_text(self, content: str, title: str) -> str:
@@ -319,8 +343,18 @@ class FinancialRuleEngine:
             reverse=True,
         )
         selected = set(ranked[:30])
+        cleaned_sentences: list[str] = []
+        current_length = 0
+        for sentence in sentences:
+            if sentence not in selected:
+                continue
+            next_length = current_length + len(sentence) + (1 if cleaned_sentences else 0)
+            if next_length > 20_000:
+                break
+            cleaned_sentences.append(sentence)
+            current_length = next_length
         # 기사 문맥 순서를 보존해 모델 입력이 자연스럽게 이어지도록 한다.
-        return " ".join(sentence for sentence in sentences if sentence in selected)[:20_000]
+        return " ".join(cleaned_sentences)
 
     def holder_target(self, importance: Importance) -> bool:
         return importance in {"HIGH", "CRITICAL"}
@@ -396,6 +430,8 @@ class FinancialRuleEngine:
             return False
         if len(re.findall(r"\[[^\]]{2,24}\]", normalized)) >= 2:
             return False
+        if self._is_low_quality_summary_line(normalized):
+            return False
         if re.search(r"\S+@\S+", normalized):
             return False
         if any(keyword in normalized for keyword in self.boilerplate_keywords):
@@ -444,6 +480,8 @@ class FinancialRuleEngine:
         excluded_lines = {self._line(text) for text in excluded if text}
         for sentence in sentences:
             line = self._line(sentence)
+            if not line:
+                continue
             if line in excluded_lines:
                 continue
             if reject_keywords and self._contains_any(sentence, reject_keywords):
@@ -455,7 +493,8 @@ class FinancialRuleEngine:
     def _first_distinct_sentence(self, sentences: list[str], excluded: set[str]) -> str:
         excluded_lines = {self._line(text) for text in excluded if text}
         for sentence in sentences:
-            if self._line(sentence) not in excluded_lines:
+            line = self._line(sentence)
+            if line and line not in excluded_lines:
                 return sentence
         return ""
 
@@ -465,6 +504,10 @@ class FinancialRuleEngine:
             f"투자자는 {display_subject}가 보유·관심 종목의 수급, 실적 전망, "
             "변동성에 미치는 영향을 확인해야 합니다."
         )
+
+    def _fallback_what_sentence(self, subject: str) -> str:
+        display_subject = self._line(subject) or "해당 공시·뉴스"
+        return f"원문은 {display_subject} 관련 최신 시장·기업 이벤트를 다룹니다."
 
     def _line(self, text: str) -> str:
         normalized = re.sub(r"\s+", " ", text).strip()
@@ -476,4 +519,27 @@ class FinancialRuleEngine:
             normalized,
         ).strip()
         normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
-        return normalized[:300]
+        if self._is_low_quality_summary_line(normalized):
+            return ""
+        return self._truncate_sentence_boundary(normalized, 300)
+
+    def _is_low_quality_summary_line(self, text: str) -> bool:
+        normalized = re.sub(r"\s+", " ", text).strip()
+        if not normalized:
+            return True
+        if "..." in normalized or "…" in normalized:
+            return True
+        lower = normalized.lower()
+        return any(keyword in lower for keyword in self.summary_meta_keywords)
+
+    def _truncate_sentence_boundary(self, text: str, max_length: int) -> str:
+        if len(text) <= max_length:
+            return text
+        boundary_positions = [
+            match.end()
+            for match in re.finditer(r"[.!?。]|다(?=\s|$)|요(?=\s|$)", text)
+            if match.end() <= max_length
+        ]
+        if not boundary_positions:
+            return ""
+        return text[: boundary_positions[-1]].strip()

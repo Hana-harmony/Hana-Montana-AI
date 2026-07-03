@@ -17,7 +17,7 @@
 
 | 기능 | 담당 레포 |
 | --- | --- |
-| KIS/KRX/Naver/OpenDART/DeepL credential 관리 | Hana-OmniLens-API |
+| KIS/KRX/Naver/OpenDART/GPT 번역 credential 관리 | Hana-OmniLens-API |
 | 협력사 REST/WebSocket API와 API key 인증 | Hana-OmniLens-API |
 | 뉴스·공시 이벤트 수신 후 사용자별 푸시 대상자 매칭 | Stock-exchange-BE |
 | MTS 종목 상세, K-News 피드, 알림함 UI | Stock-exchange-FE |
