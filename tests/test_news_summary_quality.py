@@ -1,3 +1,5 @@
+import re
+
 from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
@@ -30,7 +32,7 @@ def test_summary_ignores_news_site_navigation_noise() -> None:
     assert "NEWS STAND" not in summary.impact
     assert "SK하이닉스" in summary.what
     assert "급등" in summary.why or "HBM" in summary.why
-    assert "사용자" in summary.impact or "시장" in summary.impact
+    assert "사용자" in summary.impact or "시장" in summary.impact or "주가" in summary.impact
 
 
 def test_clean_article_text_keeps_financial_sentences_in_original_order() -> None:
@@ -222,6 +224,40 @@ def test_summary_rejects_snippet_ellipsis_lines() -> None:
     assert all(line.strip() for line in lines)
 
 
+def test_summary_rejects_incomplete_snippet_fragments_without_ellipsis() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 실적 개선 기대",
+        "반도체 수요 회복으로 영업이익 전망이 상향",
+        "",
+        "MEDIUM",
+        "POSITIVE",
+    )
+
+    lines = [summary.what, summary.why, summary.impact]
+    assert all("전망이 상향" not in line for line in lines)
+    assert all(_ends_as_sentence(line) for line in lines)
+
+
+def test_summary_fallback_preserves_clean_title_subject() -> None:
+    engine = FinancialRuleEngine()
+    summary = engine.summarize_what_why_impact(
+        "NH-Amundi운용, 반도체 ETF 리밸런싱...SK스퀘어 신규 편입",
+        "SK하이닉스와 삼성전자 등 반도체 종목을 담는 ETF가 정기 리밸런싱을 마쳤다...",
+        "",
+        "MEDIUM",
+        "NEUTRAL",
+    )
+
+    lines = [summary.what, summary.why, summary.impact]
+    joined = " ".join(lines)
+    assert "반도체 ETF 리밸런싱 SK스퀘어 신규 편입" in joined
+    assert "신규 편입과 관련된 핵심 배경" in summary.why
+    assert "신규 편입이 보유·관심 종목" in summary.impact
+    assert all("..." not in line and "…" not in line for line in lines)
+    assert all(_ends_as_sentence(line) for line in lines)
+
+
 def test_full_content_summary_beats_snippet_only_ellipsis() -> None:
     analyzer = AlertAnalyzer()
     response = analyzer.analyze(
@@ -259,6 +295,30 @@ def test_full_content_summary_beats_snippet_only_ellipsis() -> None:
     assert "HBM" in joined
     assert "데이터센터" in joined
     assert "영업이익 회복 속도" in joined
+
+
+def test_summary_skips_long_fragment_before_complete_sentence() -> None:
+    engine = FinancialRuleEngine()
+    incomplete_lead = (
+        "삼성전자는 AI 서버 투자 확대와 HBM 공급 증가, 메모리 가격 반등, "
+        "데이터센터 고객사의 발주 확대를 기반으로 영업이익 개선 기대가"
+    )
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 반도체 실적 개선 기대",
+        "",
+        (
+            f"{incomplete_lead}\n"
+            "메모리 가격 반등과 데이터센터 투자가 핵심 배경이다. "
+            "투자자는 영업이익 회복 속도와 고부가 제품 비중을 확인해야 한다."
+        ),
+        "HIGH",
+        "POSITIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert incomplete_lead not in joined
+    assert "메모리 가격 반등과 데이터센터 투자가 핵심 배경이다" in joined
+    assert all(_ends_as_sentence(line) for line in [summary.what, summary.why, summary.impact])
 
 
 def test_summary_truncates_only_on_sentence_boundary() -> None:
@@ -329,6 +389,73 @@ def test_summary_removes_ad_and_related_article_tail() -> None:
     assert "최신 기사" not in joined
     assert "삼성전자" in joined
     assert "영업이익" in joined or "메모리 가격" in joined
+
+
+def test_summary_removes_investment_disclaimer_boilerplate() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "한화솔루션은 장 초반 상승 출발했지만 매도세가 확대되며 약세로 마감했다. "
+        "[※ 본 기사는 투자 권유를 목적으로 하지 않습니다. "
+        "모든 투자에 대한 최종 판단과 책임은 투자자 본인에게 있습니다.] "
+        "유상증자에 따른 신주인수권 배정 이슈가 시장 관심을 받고 있다. "
+        "투자자는 신주인수권 배정 일정과 주가 변동성을 확인해야 한다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "한화솔루션 주가 약세",
+        "",
+        content,
+        "HIGH",
+        "NEGATIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert "투자 권유" not in joined
+    assert "최종 판단" not in joined
+    assert "투자자 본인" not in joined
+    assert "신주인수권" in joined
+
+
+def test_summary_removes_byline_caption_and_paid_content_boilerplate() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "이석호 기자 삼성전자가 북미 최대 교육 기술 전시회에 참가해 "
+        "교육용 전자칠판에 탑재된 새 솔루션을 공개했다. "
+        "[이데일리 박순엽 기자] 국내 성장주 대표 지수인 코스닥150을 활용한 "
+        "커버드콜 상장지수펀드(ETF)가 시장에 나왔다. "
+        "/ 한국투자증권(위), 유진투자증권(아래 왼쪽), 신한투자증권(아래 오른쪽) "
+        "옴니버스 계좌 서비스 이미지다. "
+        "사진 = SBS '김부장' 캡처 소지섭이 행방불명된 딸을 추적했다. "
+        "(사진=핀포인트 DB) 외국인 투자자들이 코스닥 시장에서 반도체 관련 종목을 사들였다. "
+        "삼성전자는 AI 교육 솔루션 확대를 통해 북미 기업·교육 시장 접점을 넓히고 있다. "
+        "B2B 디스플레이 수요와 교육 소프트웨어 결합이 주요 배경이다. "
+        "투자자는 디스플레이 매출 기여도와 북미 수주 흐름을 확인해야 한다. "
+        "관련종목 하나금융지주 086790 # 추천 키워드 # 하나금융 # 법인카드 "
+        "이 기사는 2026년 7월 2일 유료콘텐츠서비스에 표출된 기사입니다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "삼성전자, 북미 교육 기술 전시회서 전자칠판 공개",
+        "",
+        content,
+        "MEDIUM",
+        "POSITIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert "이석호 기자" not in joined
+    assert "박순엽 기자" not in joined
+    assert "한국투자증권" not in joined
+    assert "SBS" not in joined
+    assert "캡처" not in joined
+    assert "사진=핀포인트" not in joined
+    assert "관련종목" not in joined
+    assert "추천 키워드" not in joined
+    assert "유료콘텐츠서비스" not in joined
+    assert summary.what.startswith("삼성전자가 북미 최대 교육 기술 전시회")
+    assert "삼성전자" in joined
+    assert "북미" in joined or "B2B" in joined
+    assert all(_ends_as_sentence(line) for line in [summary.what, summary.why, summary.impact])
 
 
 def test_summary_ignores_related_story_bracket_cluster() -> None:
@@ -526,3 +653,12 @@ def test_disclosure_summary_separates_reason_from_investor_impact() -> None:
 
     assert "주주환원 정책 강화 목적" in summary.why
     assert "투자자는 실제 소각 일정" in summary.impact
+
+
+def _ends_as_sentence(line: str) -> bool:
+    return bool(
+        re.search(
+            r"([.!?。]|다|요|니다|습니다|한다|했다|됐다|된다|였다|이다|합니다|했습니다|됩니다|입니다)$",
+            line,
+        )
+    )
