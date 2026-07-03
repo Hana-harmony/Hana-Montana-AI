@@ -1,10 +1,34 @@
+import logging
+import threading
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from hannah_montana_ai.api.common import FieldErrorDetail, error_response
 from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
-from hannah_montana_ai.api.routes import router
+from hannah_montana_ai.api.routes import router, warm_runtime_dependencies
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    threading.Thread(
+        target=_warm_runtime_dependencies,
+        name="hannah-runtime-warmup",
+        daemon=True,
+    ).start()
+    yield
+
+
+def _warm_runtime_dependencies() -> None:
+    try:
+        warm_runtime_dependencies()
+    except Exception:
+        logger.exception("Runtime dependency warmup failed")
 
 
 def create_app() -> FastAPI:
@@ -13,6 +37,7 @@ def create_app() -> FastAPI:
         version="0.1.0",
         docs_url="/docs",
         redoc_url=None,
+        lifespan=lifespan,
     )
 
     @app.exception_handler(ApiException)

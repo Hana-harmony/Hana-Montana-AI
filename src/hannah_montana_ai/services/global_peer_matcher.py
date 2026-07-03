@@ -37,6 +37,7 @@ from hannah_montana_ai.training.global_peer_trainer import (
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry
 
 ConfidenceLevel = Literal["LOW", "MEDIUM", "HIGH"]
+PAIRWISE_CANDIDATE_POOL_SIZE = 512
 
 
 class GlobalPeerMatcher:
@@ -73,13 +74,30 @@ class GlobalPeerMatcher:
         text_similarities = cosine_similarity(query_vector, self._eligible_us_matrix)[0]
         semantic_similarities = self._semantic_similarities(query_vector)
         financial_similarities = self._financial_similarities(stock_profile)
-        similarities = self._combined_similarities(
+        base_similarities = self._base_similarities(
             stock_profile,
             text_similarities,
             semantic_similarities,
             financial_similarities,
         )
-        ranked_indices = similarities.argsort()[::-1]
+        candidate_indices = self._candidate_indices(
+            stock_profile=stock_profile,
+            base_similarities=base_similarities,
+            limit=max(PAIRWISE_CANDIDATE_POOL_SIZE, request.peer_count * 96),
+        )
+        similarities = self._combined_similarities(
+            stock_profile,
+            base_similarities,
+            text_similarities,
+            semantic_similarities,
+            financial_similarities,
+            candidate_indices,
+        )
+        ranked_indices = sorted(
+            candidate_indices,
+            key=lambda index: float(similarities[index]),
+            reverse=True,
+        )
 
         selected_indices = self._selected_indices(
             ranked_indices=[int(index) for index in ranked_indices],
@@ -236,18 +254,41 @@ class GlobalPeerMatcher:
             dtype=float,
         )
 
-    def _combined_similarities(
+    def _base_similarities(
         self,
         stock_profile: dict[str, object],
         text_similarities: np.ndarray,
         semantic_similarities: np.ndarray,
         financial_similarities: np.ndarray,
     ) -> np.ndarray:
-        base_scores = (
+        base_scores = np.asarray(
             (0.50 * text_similarities)
             + (0.30 * semantic_similarities)
             + (0.20 * financial_similarities)
         )
+        for index in range(len(self._eligible_us_profiles)):
+            base_scores[index] *= self._domain_priority_multiplier(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
+            base_scores[index] *= self._same_company_penalty(
+                stock_profile,
+                self._eligible_us_profiles[index],
+            )
+        return base_scores
+
+    def _combined_similarities(
+        self,
+        stock_profile: dict[str, object],
+        base_scores: np.ndarray,
+        text_similarities: np.ndarray,
+        semantic_similarities: np.ndarray,
+        financial_similarities: np.ndarray,
+        candidate_indices: list[int],
+    ) -> np.ndarray:
+        combined = np.array(base_scores, dtype=float)
+        if not candidate_indices:
+            return combined
         feature_rows = np.array(
             [
                 self._pairwise_feature_vector(
@@ -257,13 +298,14 @@ class GlobalPeerMatcher:
                     semantic_similarities[index],
                     financial_similarities[index],
                 )
-                for index in range(len(self._eligible_us_profiles))
+                for index in candidate_indices
             ],
             dtype=float,
         )
         ranker_scores = self._pairwise_ranker.predict_proba(feature_rows)[:, 1]
-        combined = (0.60 * ranker_scores) + (0.40 * base_scores)
-        for index, financial_score in enumerate(financial_similarities):
+        for position, index in enumerate(candidate_indices):
+            financial_score = financial_similarities[index]
+            combined[index] = (0.60 * ranker_scores[position]) + (0.40 * base_scores[index])
             candidate_vector = self._eligible_us_profiles[index].get("financial_feature_vector", [])
             if (
                 financial_similarities.any()
@@ -274,15 +316,59 @@ class GlobalPeerMatcher:
                     combined[index],
                     (0.10 * base_scores[index]) + (0.03 * financial_score),
                 )
-            combined[index] *= self._domain_priority_multiplier(
-                stock_profile,
-                self._eligible_us_profiles[index],
-            )
-            combined[index] *= self._same_company_penalty(
-                stock_profile,
-                self._eligible_us_profiles[index],
-            )
         return np.asarray(combined, dtype=float)
+
+    def _candidate_indices(
+        self,
+        *,
+        stock_profile: dict[str, object],
+        base_similarities: np.ndarray,
+        limit: int,
+    ) -> list[int]:
+        pool_size = min(len(self._eligible_us_profiles), max(1, limit))
+        if pool_size >= len(self._eligible_us_profiles):
+            base_top_indices = list(range(len(self._eligible_us_profiles)))
+        else:
+            partition = np.argpartition(base_similarities, -pool_size)[-pool_size:]
+            base_top_indices = [
+                int(index)
+                for index in sorted(
+                    partition,
+                    key=lambda candidate: float(base_similarities[int(candidate)]),
+                    reverse=True,
+                )
+            ]
+        domain_indices = self._domain_candidate_indices(stock_profile, base_similarities, pool_size)
+        return list(dict.fromkeys([*domain_indices, *base_top_indices]))
+
+    def _domain_candidate_indices(
+        self,
+        stock_profile: dict[str, object],
+        base_similarities: np.ndarray,
+        limit: int,
+    ) -> list[int]:
+        compatible = [
+            index
+            for index, peer_profile in enumerate(self._eligible_us_profiles)
+            if self._is_domain_compatible(stock_profile, peer_profile)
+        ]
+        compatible.sort(key=lambda index: float(base_similarities[index]), reverse=True)
+        return compatible[: min(limit, len(compatible))]
+
+    @staticmethod
+    def _is_domain_compatible(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> bool:
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        peer_sector = str(peer_profile.get("sector") or "Unclassified")
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        if stock_industry not in generic_industries and peer_industry == stock_industry:
+            return True
+        return stock_sector not in generic_sectors and peer_sector == stock_sector
 
     @staticmethod
     def _domain_priority_multiplier(
