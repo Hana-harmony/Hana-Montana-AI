@@ -21,7 +21,12 @@ class FinancialRuleEngine:
         "투자",
         "반도체",
         "배터리",
+        "기술",
+        "서비스",
+        "솔루션",
+        "고객",
         "공시",
+        "공개",
         "거래",
         "외국인",
         "환율",
@@ -173,10 +178,23 @@ class FinancialRuleEngine:
         "format_size",
         "사진 확대",
         "기자 입력",
+        "캡처",
+        "관련종목",
+        "추천 키워드",
+        "유료콘텐츠서비스",
+        "표출된 기사입니다",
+        "연재물",
         "회원용",
         "나만의 AI 비서",
         "증권 홈",
         "오늘 나온 보고서",
+        "본 기사는",
+        "투자 권유",
+        "최종 판단",
+        "투자자 본인",
+        "네티즌 어워즈",
+        "투표하러 가기",
+        "돈 되는 뉴스",
     )
     roundup_title_keywords = (
         "오늘의 주요공시",
@@ -229,7 +247,8 @@ class FinancialRuleEngine:
         sentiment: Sentiment,
     ) -> SummaryLines:
         article_sentences = self._article_sentences(content or snippet)
-        context_text = f"{title} {snippet}" if self._is_roundup_title(title) else title
+        is_roundup_title = self._is_roundup_title(title)
+        context_text = f"{title} {snippet}" if is_roundup_title else title
         ranked_sentences = self._ranked_article_sentences(article_sentences, context_text)
         title_terms = self._title_terms(context_text)
         related_ranked_sentences = [
@@ -242,9 +261,13 @@ class FinancialRuleEngine:
             if len(related_ranked_sentences) >= 2
             else ranked_sentences
         )
-        what = self._first_title_context_sentence(article_sentences, context_text)
+        what = self._first_title_context_sentence(
+            article_sentences,
+            context_text,
+            prefer_title_match=not is_roundup_title,
+        )
         if not what:
-            fallback_title = "" if self._is_roundup_title(title) else title
+            fallback_title = "" if is_roundup_title else title
             what = (
                 summary_candidates[0]
                 if summary_candidates
@@ -301,16 +324,23 @@ class FinancialRuleEngine:
                 summary_candidates,
                 excluded={what, why},
             )
-        fallback_subject = "해당 공시·뉴스" if self._is_roundup_title(title) else title
+        fallback_subject = (
+            "해당 공시·뉴스"
+            if is_roundup_title
+            else self._subject_fragment(title) or "해당 공시·뉴스"
+        )
         if not why:
             why = (
-                f"{fallback_subject}와 관련된 핵심 배경은 "
+                f"{fallback_subject}{self._josa(fallback_subject, '과', '와')} 관련된 핵심 배경은 "
                 "원문에서 확인된 최신 공시·뉴스 맥락입니다."
             )
         if not impact_sentence:
             impact_sentence = self._investor_check_sentence(fallback_subject)
         if self._line(why) == self._line(what):
-            why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
+            why = (
+                f"{fallback_subject}의 배경은 "
+                "원문에서 확인된 최신 시장·기업 이벤트입니다."
+            )
         if self._line(impact_sentence) in {self._line(what), self._line(why)}:
             impact_sentence = self._investor_check_sentence(fallback_subject)
         what_line = self._line(what)
@@ -369,20 +399,27 @@ class FinancialRuleEngine:
         return sum(1 for keyword in keywords if keyword in text)
 
     def _sentences(self, text: str) -> list[str]:
-        normalized = re.sub(r"\s+", " ", text).strip()
-        if not normalized:
-            return []
-        return [
-            sentence.strip()
-            for sentence in re.split(r"(?<=[.!?。])\s+|(?<=다)\s+", normalized)
-            if sentence.strip()
+        chunks = [
+            re.sub(r"\s+", " ", chunk).strip()
+            for chunk in re.split(r"[\r\n]+", text)
+            if re.sub(r"\s+", " ", chunk).strip()
         ]
+        if not chunks:
+            return []
+        sentences: list[str] = []
+        for chunk in chunks:
+            sentences.extend(
+                sentence.strip()
+                for sentence in re.split(r"(?<=[.!?。])\s+|(?<=다)\s+", chunk)
+                if sentence.strip()
+            )
+        return sentences
 
     def _article_sentences(self, text: str) -> list[str]:
         return [
-            sentence
+            candidate
             for sentence in self._sentences(text)
-            if self._is_article_sentence(sentence)
+            if (candidate := self._article_sentence_candidate(sentence))
         ]
 
     def _ranked_article_sentences(self, sentences: list[str], title: str) -> list[str]:
@@ -398,8 +435,20 @@ class FinancialRuleEngine:
             reverse=True,
         )
 
-    def _first_title_context_sentence(self, sentences: list[str], title: str) -> str:
+    def _first_title_context_sentence(
+        self,
+        sentences: list[str],
+        title: str,
+        *,
+        prefer_title_match: bool = True,
+    ) -> str:
         title_terms = self._title_terms(title)
+        title_match_threshold = min(2, len(title_terms))
+        if prefer_title_match and title_match_threshold:
+            for sentence in sentences[:6]:
+                matched_terms = sum(1 for term in title_terms if term in sentence)
+                if matched_terms >= title_match_threshold:
+                    return sentence
         market_axis_terms = {
             term
             for term in title_terms
@@ -425,23 +474,32 @@ class FinancialRuleEngine:
         return ""
 
     def _is_article_sentence(self, sentence: str) -> bool:
+        return bool(self._article_sentence_candidate(sentence))
+
+    def _article_sentence_candidate(self, sentence: str) -> str:
         normalized = re.sub(r"\s+", " ", sentence).strip()
+        normalized = self._strip_photo_credit(normalized)
+        normalized = self._strip_byline(normalized)
         if len(normalized) < 24 or len(normalized) > 500:
-            return False
+            return ""
+        if normalized.startswith(("/", "\\")):
+            return ""
         if len(re.findall(r"\[[^\]]{2,24}\]", normalized)) >= 2:
-            return False
+            return ""
         if self._is_low_quality_summary_line(normalized):
-            return False
+            return ""
+        if not self._has_sentence_completion(normalized):
+            return ""
         if re.search(r"\S+@\S+", normalized):
-            return False
+            return ""
         if any(keyword in normalized for keyword in self.boilerplate_keywords):
-            return False
+            return ""
         if normalized.count(" ") > 38 and not self._contains_any(
             normalized,
             self.financial_context_keywords,
         ):
-            return False
-        return True
+            return ""
+        return normalized
 
     def _sentence_score(self, sentence: str, title_terms: set[str]) -> int:
         score = min(len(sentence), 180)
@@ -499,29 +557,60 @@ class FinancialRuleEngine:
         return ""
 
     def _investor_check_sentence(self, subject: str) -> str:
-        display_subject = self._line(subject) or "해당 이슈"
+        display_subject = self._subject_fragment(subject) or "해당 이슈"
         return (
-            f"투자자는 {display_subject}가 보유·관심 종목의 수급, 실적 전망, "
+            f"투자자는 {display_subject}{self._josa(display_subject, '이', '가')} "
+            "보유·관심 종목의 수급, 실적 전망, "
             "변동성에 미치는 영향을 확인해야 합니다."
         )
 
     def _fallback_what_sentence(self, subject: str) -> str:
-        display_subject = self._line(subject) or "해당 공시·뉴스"
+        display_subject = self._subject_fragment(subject) or "해당 공시·뉴스"
         return f"원문은 {display_subject} 관련 최신 시장·기업 이벤트를 다룹니다."
+
+    def _subject_fragment(self, text: str) -> str:
+        normalized = re.sub(r"\s+", " ", text).strip()
+        normalized = normalized.replace("...", " ").replace("…", " ")
+        normalized = re.sub(r"\S+@\S+", "", normalized).strip()
+        normalized = self._strip_photo_credit(normalized)
+        normalized = self._strip_byline(normalized)
+        normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+        if not normalized:
+            return ""
+        lower = normalized.lower()
+        if any(keyword in lower for keyword in self.summary_meta_keywords):
+            return ""
+        return self._truncate_fragment(normalized, 80)
 
     def _line(self, text: str) -> str:
         normalized = re.sub(r"\s+", " ", text).strip()
         normalized = re.sub(r"\S+@\S+", "", normalized).strip()
-        normalized = re.sub(r"^/?사진=[^ ]+\s*", "", normalized).strip()
+        normalized = self._strip_photo_credit(normalized)
+        normalized = self._strip_byline(normalized)
+        normalized = re.sub(r"^[.·ㆍ•▲△▶▷/\-\s]+", "", normalized).strip()
+        if self._is_low_quality_summary_line(normalized):
+            return ""
+        if not self._has_sentence_completion(normalized):
+            return ""
+        return self._truncate_sentence_boundary(normalized, 300)
+
+    def _strip_photo_credit(self, text: str) -> str:
+        return re.sub(r"^\(?/?사진\s*=[^)]+\)?\s*", "", text).strip()
+
+    def _strip_byline(self, text: str) -> str:
         normalized = re.sub(
             r"^[가-힣A-Za-z0-9_. -]{2,24}=[가-힣]{2,4}\s*기자\s*",
             "",
+            text,
+        ).strip()
+        normalized = re.sub(
+            r"^\[[^\]]{1,30}\s+[가-힣]{2,4}\s*기자\]\s*",
+            "",
             normalized,
         ).strip()
-        normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
-        if self._is_low_quality_summary_line(normalized):
-            return ""
-        return self._truncate_sentence_boundary(normalized, 300)
+        normalized = re.sub(r"^[가-힣]{2,4}\s*기자\s+", "", normalized).strip()
+        return normalized
 
     def _is_low_quality_summary_line(self, text: str) -> bool:
         normalized = re.sub(r"\s+", " ", text).strip()
@@ -531,6 +620,17 @@ class FinancialRuleEngine:
             return True
         lower = normalized.lower()
         return any(keyword in lower for keyword in self.summary_meta_keywords)
+
+    def _has_sentence_completion(self, text: str) -> bool:
+        normalized = re.sub(r"\s+", " ", text).strip()
+        if not normalized:
+            return False
+        return bool(
+            re.search(
+                r"([.!?。]|다|요|니다|습니다|한다|했다|됐다|된다|였다|이다|합니다|했습니다|됩니다|입니다)$",
+                normalized,
+            )
+        )
 
     def _truncate_sentence_boundary(self, text: str, max_length: int) -> str:
         if len(text) <= max_length:
@@ -543,3 +643,24 @@ class FinancialRuleEngine:
         if not boundary_positions:
             return ""
         return text[: boundary_positions[-1]].strip()
+
+    def _truncate_fragment(self, text: str, max_length: int) -> str:
+        if len(text) <= max_length:
+            return text
+        boundary_positions = [
+            match.start()
+            for match in re.finditer(r"\s+", text)
+            if match.start() <= max_length
+        ]
+        if not boundary_positions:
+            return text[:max_length].strip()
+        return text[: boundary_positions[-1]].strip()
+
+    def _josa(self, text: str, with_final: str, without_final: str) -> str:
+        subject = text.strip()
+        if not subject:
+            return without_final
+        last_char = subject[-1]
+        if "가" <= last_char <= "힣":
+            return with_final if (ord(last_char) - ord("가")) % 28 else without_final
+        return without_final
