@@ -59,10 +59,21 @@ class AlertAnalyzer:
         ("개인", "individual investors", "investor_type", ()),
     )
     _FINANCIAL_GLOSSARY_DESCRIPTIONS = {
+        "개미": "Korean stock-market slang for individual retail investors.",
+        "대장주": (
+            "Refers to the leading stock in a particular sector or the entire market that "
+            "dictates the overall trend."
+        ),
+        "따따블": "Korean IPO slang for a stock jumping to four times its offering price on debut.",
+        "품절주": "A stock with very limited tradable float, often prone to sharp price moves.",
         "삼전닉스": (
             "Korean market slang combining Samsung Electronics and SK Hynix, usually referring "
             "to the two dominant semiconductor bellwethers."
         ),
+        "빚투": "Korean market slang for leveraged retail investing funded with borrowed money.",
+        "어닝쇼크": "An earnings result materially below market expectations.",
+        "어닝서프라이즈": "An earnings result materially above market expectations.",
+        "공시": "A regulatory disclosure released through Korea's official filing channels.",
     }
     _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
