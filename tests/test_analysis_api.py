@@ -112,6 +112,41 @@ def test_analyze_alert_explains_samjeon_nix_market_slang() -> None:
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
 
 
+def test_analyze_alert_does_not_emit_generic_financial_words_as_glossary() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "삼성전자 실적 개선에 외국인 순매수",
+            "snippet": "기관과 개인 투자자도 공시 이후 반도체 실적 전망을 확인했다.",
+            "content": (
+                "삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다. "
+                "외국인과 기관 수급 변화가 시장 관심을 모았다. "
+                "투자자는 공시 이후 영업이익 전망을 확인해야 한다."
+            ),
+            "original_url": "https://example.com/news/generic-glossary",
+            "stock_universe": [
+                {
+                    "stock_code": "005930",
+                    "stock_name": "삼성전자",
+                    "stock_name_en": "Samsung Electronics",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    normalized_terms = {term["normalized_term"] for term in payload["glossary_terms"]}
+    assert normalized_terms.isdisjoint({"실적", "외국인", "기관", "개인", "공시"})
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in payload["translation_quality_flags"]
+
+
 def test_validation_error_returns_common_error_shape() -> None:
     client = TestClient(app)
     response = client.post(
