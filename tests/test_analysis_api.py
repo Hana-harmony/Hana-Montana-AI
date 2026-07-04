@@ -73,8 +73,14 @@ def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
     assert response.status_code == 200
     payload = response.json()["data"]
     terms = {term["normalized_term"]: term["english_term"] for term in payload["glossary_terms"]}
+    descriptions = {
+        term["normalized_term"]: term["description"]
+        for term in payload["glossary_terms"]
+    }
     assert terms["개미"] == "retail investors"
     assert terms["대장주"] == "bellwether stock"
+    assert "individual retail investors" in descriptions["개미"]
+    assert "leading stock" in descriptions["대장주"]
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
 
 
