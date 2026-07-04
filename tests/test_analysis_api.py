@@ -72,12 +72,37 @@ def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
 
     assert response.status_code == 200
     payload = response.json()["data"]
-    terms = {
-        term["normalized_term"]: term["english_term"]
-        for term in payload["glossary_terms"]
-    }
+    terms = {term["normalized_term"]: term["english_term"] for term in payload["glossary_terms"]}
     assert terms["개미"] == "retail investors"
     assert terms["대장주"] == "bellwether stock"
+    assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
+
+
+def test_analyze_alert_explains_samjeon_nix_market_slang() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": '"삼전닉스" 수익률 안부럽다',
+            "snippet": "외국인 순매수에 삼성전자와 SK하이닉스가 함께 강세를 보였다.",
+            "original_url": "https://example.com/news/samjeon-nix",
+            "stock_universe": [],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    samjeon_nix = next(
+        term for term in payload["glossary_terms"] if term["normalized_term"] == "삼전닉스"
+    )
+    assert samjeon_nix["source_term"] == "삼전닉스"
+    assert samjeon_nix["english_term"] == "Samjeon Nix"
+    assert "Samsung Electronics and SK Hynix" in samjeon_nix["description"]
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
 
 
