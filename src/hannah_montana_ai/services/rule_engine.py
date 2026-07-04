@@ -246,7 +246,10 @@ class FinancialRuleEngine:
         importance: Importance,
         sentiment: Sentiment,
     ) -> SummaryLines:
-        article_sentences = self._article_sentences(content or snippet)
+        content_sentences = self._article_sentences(content)
+        article_sentences = (
+            content_sentences if content_sentences else self._article_sentences(snippet)
+        )
         is_roundup_title = self._is_roundup_title(title)
         context_text = f"{title} {snippet}" if is_roundup_title else title
         ranked_sentences = self._ranked_article_sentences(article_sentences, context_text)
@@ -324,6 +327,12 @@ class FinancialRuleEngine:
                 summary_candidates,
                 excluded={what, why},
             )
+        article_backed_summary = self._article_backed_summary_lines(
+            article_sentences,
+            (what, why, impact_sentence),
+        )
+        if article_backed_summary:
+            return article_backed_summary
         fallback_subject = (
             "해당 공시·뉴스"
             if is_roundup_title
@@ -555,6 +564,33 @@ class FinancialRuleEngine:
             if line and line not in excluded_lines:
                 return sentence
         return ""
+
+    def _article_backed_summary_lines(
+        self,
+        article_sentences: list[str],
+        candidates: tuple[str, str, str],
+    ) -> SummaryLines | None:
+        article_lines = [line for sentence in article_sentences if (line := self._line(sentence))]
+        if len(article_lines) < 3:
+            return None
+
+        selected: list[str] = []
+        article_line_set = set(article_lines)
+        for candidate in candidates:
+            line = self._line(candidate)
+            if line and line in article_line_set and line not in selected:
+                selected.append(line)
+
+        for line in article_lines:
+            if line not in selected:
+                selected.append(line)
+            if len(selected) == 3:
+                return SummaryLines(
+                    what=selected[0],
+                    why=selected[1],
+                    impact=selected[2],
+                )
+        return None
 
     def _investor_check_sentence(self, subject: str) -> str:
         display_subject = self._subject_fragment(subject) or "해당 이슈"
