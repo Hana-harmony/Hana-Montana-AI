@@ -616,6 +616,8 @@ class FinancialRuleEngine:
         normalized = re.sub(r"\s+", " ", text).strip()
         if not normalized:
             return True
+        if len(normalized) > 120 and not re.search(r"\s", normalized):
+            return True
         if "..." in normalized or "…" in normalized:
             return True
         lower = normalized.lower()
@@ -653,7 +655,7 @@ class FinancialRuleEngine:
             if match.start() <= max_length
         ]
         if not boundary_positions:
-            return text[:max_length].strip()
+            return ""
         return text[: boundary_positions[-1]].strip()
 
     def _josa(self, text: str, with_final: str, without_final: str) -> str:

@@ -344,6 +344,24 @@ def test_summary_truncates_only_on_sentence_boundary() -> None:
     assert not summary.what.endswith("확대")
 
 
+def test_summary_fallback_does_not_cut_unspaced_long_title_subject() -> None:
+    engine = FinancialRuleEngine()
+    long_title = "삼성전자" + ("반도체수요회복" * 40)
+
+    summary = engine.summarize_what_why_impact(
+        long_title,
+        "영업이익 전망이 상향",
+        "",
+        "MEDIUM",
+        "POSITIVE",
+    )
+
+    joined = " ".join([summary.what, summary.why, summary.impact])
+    assert long_title[:80] not in joined
+    assert "해당 공시·뉴스" in joined
+    assert all(_ends_as_sentence(line) for line in [summary.what, summary.why, summary.impact])
+
+
 def test_impact_rejects_classification_meta_sentence() -> None:
     engine = FinancialRuleEngine()
     summary = engine.summarize_what_why_impact(
