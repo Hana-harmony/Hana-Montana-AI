@@ -74,8 +74,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
             "title": "삼성전자 2분기 영업이익 증가",
             "snippet": "반도체 수요 회복으로 실적 개선 기대가 커졌다.",
             "content": (
-                "삼성전자는 반도체 수요 회복과 공급계약 증가로 "
-                "영업이익 개선이 예상된다고 밝혔다."
+                "삼성전자는 반도체 수요 회복과 공급계약 증가로 영업이익 개선이 예상된다고 밝혔다."
             ),
             "original_url": "https://example.com/news/intelligence-1",
             "provider": "naver-news",
@@ -122,6 +121,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
         "normalized_term": "영업이익",
         "english_term": "operating profit",
         "category": "metric",
+        "description": "",
     } in payload["glossary_terms"]
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"

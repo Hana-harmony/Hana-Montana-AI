@@ -158,6 +158,7 @@ class FinancialGlossaryTerm(BaseModel):
     normalized_term: str = Field(min_length=1, max_length=80)
     english_term: str = Field(min_length=1, max_length=120)
     category: str = Field(min_length=1, max_length=40)
+    description: str = Field(default="", max_length=360)
 
 
 class AlertAnalysisResponse(BaseModel):

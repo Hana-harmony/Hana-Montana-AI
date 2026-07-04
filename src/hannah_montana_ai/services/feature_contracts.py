@@ -40,6 +40,12 @@ DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
 
 FINANCIAL_TRANSLATION_GLOSSARY = (
+    (
+        "삼전닉스",
+        "Samjeon Nix",
+        "market_slang",
+        ("삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon-Nix"),
+    ),
     ("삼성전자", "Samsung Electronics", "stock", ("삼전", "Samsung Elec")),
     ("SK하이닉스", "SK hynix", "stock", ("하이닉스",)),
     ("한화시스템", "Hanwha Systems", "stock", ()),
@@ -369,9 +375,7 @@ class TaxRefundAdvanceModel:
         tax_case_type = _tax_case_type(request)
         total_withheld_tax = sum(transaction.withheld_tax for transaction in request.transactions)
         eligible_for_refund = required_documents_completed and tax_case_type == "CASE_01"
-        dividend_refund_amount = (
-            _dividend_refund_amount(request) if eligible_for_refund else 0
-        )
+        dividend_refund_amount = _dividend_refund_amount(request) if eligible_for_refund else 0
         capital_gains_refund_amount = (
             _capital_gains_refund_amount(request) if eligible_for_refund else 0
         )
@@ -637,9 +641,7 @@ def _ordered_glossary_entries() -> tuple[_GlossaryEntry, ...]:
     return tuple(
         sorted(
             entries,
-            key=lambda entry: max(
-                len(term) for term in (entry.normalized_term, *entry.aliases)
-            ),
+            key=lambda entry: max(len(term) for term in (entry.normalized_term, *entry.aliases)),
             reverse=True,
         )
     )
@@ -763,8 +765,7 @@ def _order_availability(
         reasons.append("FOREIGN_LIMIT_CAUTION")
 
     buy_order_available = (
-        trading_state.immediate_execution_available
-        and ownership.usage_status != "LIMIT_REACHED"
+        trading_state.immediate_execution_available and ownership.usage_status != "LIMIT_REACHED"
     )
     sell_order_available = trading_state.immediate_execution_available
     indicator: OrderAvailabilityIndicator
@@ -804,8 +805,7 @@ def _order_guidance_message(
 
 def _alert_id(request: IntelligenceEventRequest) -> str:
     payload = (
-        f"{request.source_type}:{request.title}:"
-        f"{request.original_url}:{request.target_language}"
+        f"{request.source_type}:{request.title}:{request.original_url}:{request.target_language}"
     )
     return sha256(payload.encode()).hexdigest()
 
@@ -928,9 +928,7 @@ def _dividend_refund_amount(request: TaxRefundStatusRequest) -> int:
         for transaction in request.transactions
         if transaction.transaction_type == "DIVIDEND"
     )
-    return round(
-        gross_dividend * (DIVIDEND_DOMESTIC_WITHHOLDING_RATE - DIVIDEND_TREATY_LIMIT_RATE)
-    )
+    return round(gross_dividend * (DIVIDEND_DOMESTIC_WITHHOLDING_RATE - DIVIDEND_TREATY_LIMIT_RATE))
 
 
 def _capital_gains_refund_amount(request: TaxRefundStatusRequest) -> int:

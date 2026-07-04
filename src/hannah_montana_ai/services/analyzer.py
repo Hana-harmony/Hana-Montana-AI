@@ -43,6 +43,12 @@ class AlertAnalyzer:
         ("대장주", "bellwether stock", "market_slang", ("대표주", "주도주")),
         ("따따블", "IPO quadruple jump", "ipo_slang", ("공모가 4배",)),
         ("품절주", "low-float stock", "market_slang", ()),
+        (
+            "삼전닉스",
+            "Samjeon Nix",
+            "market_slang",
+            ("삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon Nix", "Samjeon-Nix"),
+        ),
         ("빚투", "leveraged retail investing", "risk_slang", ()),
         ("어닝쇼크", "earnings shock", "event", ()),
         ("어닝서프라이즈", "earnings surprise", "event", ()),
@@ -52,6 +58,12 @@ class AlertAnalyzer:
         ("기관", "institutional investors", "investor_type", ()),
         ("개인", "individual investors", "investor_type", ()),
     )
+    _FINANCIAL_GLOSSARY_DESCRIPTIONS = {
+        "삼전닉스": (
+            "Korean market slang combining Samsung Electronics and SK Hynix, usually referring "
+            "to the two dominant semiconductor bellwethers."
+        ),
+    }
     _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
         {
@@ -212,9 +224,7 @@ class AlertAnalyzer:
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
-        self._internal_stock_universe = _load_internal_stock_universe(
-            settings.stock_universe_path
-        )
+        self._internal_stock_universe = _load_internal_stock_universe(settings.stock_universe_path)
         self._internal_stock_by_code = {
             stock.stock_code: stock for stock in self._internal_stock_universe
         }
@@ -294,9 +304,7 @@ class AlertAnalyzer:
             holder_target=self.rule_engine.holder_target(importance),
             watchlist_target=self.rule_engine.watchlist_target(importance),
             glossary_terms=glossary_terms,
-            translation_quality_flags=(
-                ["FINANCIAL_GLOSSARY_APPLIED"] if glossary_terms else []
-            ),
+            translation_quality_flags=(["FINANCIAL_GLOSSARY_APPLIED"] if glossary_terms else []),
             duplicate_key=duplicate_key,
             cluster_key=self._cluster_key(request, stock_code, duplicate_key),
             model_version=self.model.version,
@@ -326,6 +334,10 @@ class AlertAnalyzer:
                     normalized_term=normalized_term,
                     english_term=english_term,
                     category=category,
+                    description=self._FINANCIAL_GLOSSARY_DESCRIPTIONS.get(
+                        normalized_term,
+                        "",
+                    ),
                 )
             )
             seen_terms.add(normalized_term)
@@ -557,9 +569,7 @@ class AlertAnalyzer:
             normalized_candidate = normalize_stock_term(candidate)
             if not normalized_candidate:
                 continue
-            if not allow_short_terms and not self._is_usable_stock_match_term(
-                normalized_candidate
-            ):
+            if not allow_short_terms and not self._is_usable_stock_match_term(normalized_candidate):
                 continue
             start = 0
             while True:
@@ -620,9 +630,7 @@ class AlertAnalyzer:
         long_position, long_stock = long_match
         if short_stock.stock_code == long_stock.stock_code:
             return False
-        if self._stock_match_specificity(long_stock) <= self._stock_match_specificity(
-            short_stock
-        ):
+        if self._stock_match_specificity(long_stock) <= self._stock_match_specificity(short_stock):
             return False
         if short_position != long_position and not self._is_ambiguous_short_request_stock(
             short_stock
@@ -745,12 +753,8 @@ class AlertAnalyzer:
         return sorted(tag_set)
 
     def _augment_sentiment(self, text: str, sentiment: Sentiment) -> Sentiment:
-        negative_score = sum(
-            1 for term in self._NEGATIVE_SENTIMENT_CONTEXT_TERMS if term in text
-        )
-        positive_score = sum(
-            1 for term in self._POSITIVE_SENTIMENT_CONTEXT_TERMS if term in text
-        )
+        negative_score = sum(1 for term in self._NEGATIVE_SENTIMENT_CONTEXT_TERMS if term in text)
+        positive_score = sum(1 for term in self._POSITIVE_SENTIMENT_CONTEXT_TERMS if term in text)
         has_severe_negative = any(
             term in text for term in self._SEVERE_NEGATIVE_SENTIMENT_CONTEXT_TERMS
         )
@@ -758,9 +762,7 @@ class AlertAnalyzer:
             return "NEUTRAL"
         if negative_score > positive_score and (has_severe_negative or negative_score >= 2):
             return "NEGATIVE"
-        has_neutral_context = any(
-            term in text for term in self._NEUTRAL_SENTIMENT_CONTEXT_TERMS
-        )
+        has_neutral_context = any(term in text for term in self._NEUTRAL_SENTIMENT_CONTEXT_TERMS)
         if sentiment == "POSITIVE" and has_neutral_context and not has_severe_negative:
             return "NEUTRAL"
         if positive_score > negative_score and sentiment != "NEGATIVE":
@@ -787,9 +789,7 @@ class AlertAnalyzer:
         rule_importance = self._rule_importance_floor(text, source_type)
         priority = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
         elevated = (
-            rule_importance
-            if priority[rule_importance] > priority[importance]
-            else importance
+            rule_importance if priority[rule_importance] > priority[importance] else importance
         )
         return self._cap_importance(text, elevated)
 
