@@ -17,6 +17,7 @@ from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, load_stock_universe
 
 VALID_MARKETS: set[str] = {"KOSPI", "KOSDAQ", "KONEX", "OTHER"}
+ANCHOR_SAMPLE_WEIGHT = 24
 
 
 def build_global_peer_explanation_llm_dataset(
@@ -49,18 +50,23 @@ def build_global_peer_explanation_llm_dataset(
             if not _target_is_grounded(target, stock, response.primary_peer.company_name):
                 grounded_failures += 1
             confidence_counts[response.confidence_level] += 1
-            rows.append(
-                {
-                    "stock_code": stock.stock_code,
-                    "stock_name": stock.stock_name,
-                    "stock_name_en": response.stock_name_en,
-                    "primary_peer_ticker": response.primary_peer.ticker,
-                    "primary_peer_name": response.primary_peer.company_name,
-                    "confidence_level": response.confidence_level,
-                    "confidence_score": response.confidence_score,
-                    **example,
-                }
-            )
+            base_row = {
+                "stock_code": stock.stock_code,
+                "stock_name": stock.stock_name,
+                "stock_name_en": response.stock_name_en,
+                "primary_peer_ticker": response.primary_peer.ticker,
+                "primary_peer_name": response.primary_peer.company_name,
+                "confidence_level": response.confidence_level,
+                "confidence_score": response.confidence_score,
+                **example,
+            }
+            for sample_variant in range(_sample_weight(stock.stock_code)):
+                rows.append(
+                    {
+                        **base_row,
+                        "sample_variant": sample_variant,
+                    }
+                )
         except Exception as exception:  # pragma: no cover - 배치 실패는 리포트에 남긴다.
             failures.append(
                 {
@@ -88,6 +94,7 @@ def build_global_peer_explanation_llm_dataset(
         "stock_universe_path": str(stock_universe_path),
         "model_path": str(model_path),
         "sample_count": len(rows),
+        "anchor_sample_weight": ANCHOR_SAMPLE_WEIGHT,
         "failure_count": len(failures),
         "confidence_distribution": dict(sorted(confidence_counts.items())),
         "grounded_target_failure_count": grounded_failures,
@@ -111,6 +118,10 @@ def _request_for(stock: StockUniverseEntry) -> GlobalPeerMatchRequest:
         aliases=list(stock.aliases),
         peer_count=5,
     )
+
+
+def _sample_weight(stock_code: str) -> int:
+    return ANCHOR_SAMPLE_WEIGHT if stock_code in KOREA_ANCHORS else 1
 
 
 def _target_is_grounded(

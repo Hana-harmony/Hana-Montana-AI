@@ -19,6 +19,8 @@ from hannah_montana_ai.domain.schemas import (
     IntelligenceEventResponse,
     KoreanFinancialTermExplainRequest,
     KoreanFinancialTermExplainResponse,
+    KoreanTranslationRequest,
+    KoreanTranslationResponse,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
     TaxDocumentVerificationRequest,
@@ -44,7 +46,11 @@ from hannah_montana_ai.services.global_peer_explainer import GlobalPeerExplanati
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.korean_financial_terms import (
     KoreanFinancialTermExplanationService,
-    build_openai_term_provider_from_settings,
+    build_term_provider_from_settings,
+)
+from hannah_montana_ai.services.korean_translation_generator import (
+    KoreanTranslationContext,
+    KoreanTranslationGenerator,
 )
 from hannah_montana_ai.services.model import ModelArtifactError
 
@@ -91,8 +97,13 @@ def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService
     return KoreanFinancialTermExplanationService(
         seed_path=settings.korean_financial_terms_seed_path,
         model_version=settings.korean_financial_term_model_version,
-        provider=build_openai_term_provider_from_settings(settings),
+        provider=build_term_provider_from_settings(settings),
     )
+
+
+@lru_cache
+def get_korean_translation_service() -> KoreanTranslationGenerator:
+    return KoreanTranslationGenerator.from_settings(get_settings())
 
 
 def warm_runtime_dependencies() -> None:
@@ -216,6 +227,33 @@ def explain_korean_financial_term(
     request: KoreanFinancialTermExplainRequest,
 ) -> ApiResponse[KoreanFinancialTermExplainResponse]:
     return success_response(get_korean_financial_term_service().explain(request))
+
+
+@router.post(
+    "/translation/ko-en",
+    response_model=ApiResponse[KoreanTranslationResponse],
+)
+def translate_korean_to_english(
+    request: KoreanTranslationRequest,
+) -> ApiResponse[KoreanTranslationResponse]:
+    result = get_korean_translation_service().translate(
+        KoreanTranslationContext(
+            text=request.text,
+            source_type=request.source_type,
+            title=request.title,
+            glossary_terms=request.glossary_terms,
+        )
+    )
+    return success_response(
+        KoreanTranslationResponse(
+            translated_text=result.translated_text,
+            provider=result.provider,
+            model_version=result.model_version,
+            status=result.status,
+            prompt_version=result.prompt_version,
+            quality_flags=result.quality_flags,
+        )
+    )
 
 
 @router.post(

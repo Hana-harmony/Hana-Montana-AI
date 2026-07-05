@@ -1,7 +1,9 @@
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import (
     FinancialTermEvidence,
     KoreanFinancialTermExplainRequest,
@@ -10,6 +12,9 @@ from hannah_montana_ai.main import app
 from hannah_montana_ai.services.korean_financial_terms import (
     GeneratedTermExplanation,
     KoreanFinancialTermExplanationService,
+    LocalQwenTermExplanationProvider,
+    MlxQwenTermExplanationClient,
+    build_term_provider_from_settings,
 )
 
 
@@ -152,6 +157,123 @@ def test_common_theme_stock_terms_are_dictionary_backed_without_web_provider() -
     assert "does not prove" in response.explanation
 
 
+def test_samjeon_nix_is_dictionary_backed_korean_market_slang() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-rag",
+    )
+
+    response = service.explain(
+        KoreanFinancialTermExplainRequest(
+            term="Samjeon Nix",
+            title='"Samjeon Nix" returns are enviable',
+            context="The translated article uses Samjeon Nix for Samsung Electronics and SK hynix.",
+        )
+    )
+
+    assert response.source == "DICTIONARY"
+    assert response.normalized_term == "삼전닉스"
+    assert response.english_term == "Samsung Electronics and SK hynix basket"
+    assert "Samsung Electronics and SK hynix" in response.explanation
+    assert "literal translation" in response.explanation
+
+
+def test_local_qwen_term_provider_promotes_unknown_korean_term() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-qwen3",
+        provider=LocalQwenTermExplanationProvider(
+            model_name="Qwen3-0.6B-test",
+            max_tokens=320,
+            client=_FakeTermGenerationClient(
+                {
+                    "english_term": "aerospace-themed stock",
+                    "category": "theme_stock",
+                    "definition": (
+                        "\"우주항공주\" means a Korean stock grouped under the aerospace "
+                        "investment theme."
+                    ),
+                    "explanation": (
+                        "\"우주항공주\" is used when articles link stocks to satellites, "
+                        "launch systems, defense aerospace, or space policy. In this article, "
+                        "the term is grounded by references to policy expectations and satellite "
+                        "investment."
+                    ),
+                    "example": "우주항공주 강세 means aerospace-themed stocks rallied.",
+                    "confidence_score": 0.86,
+                }
+            ),
+        ),
+    )
+
+    response = service.explain(
+        KoreanFinancialTermExplainRequest(
+            term="우주항공주",
+            title="우주항공주 강세",
+            context="우주항공주가 정부 정책 기대감과 위성 투자 확대로 강세를 보였다.",
+        )
+    )
+
+    assert response.source == "LOCAL_OPEN_SOURCE_LLM_RAG"
+    assert response.display_mode == "EXPLANATION"
+    assert response.cacheable is True
+    assert response.english_term == "aerospace-themed stock"
+    assert "LOCAL_QWEN_RAG" in response.quality_flags
+
+
+def test_local_qwen_term_provider_rejects_generic_english_finance_word() -> None:
+    provider = LocalQwenTermExplanationProvider(
+        model_name="Qwen3-0.6B-test",
+        max_tokens=320,
+        client=_FakeTermGenerationClient(
+            {
+                "english_term": "earnings",
+                "category": "metric",
+                "definition": "\"earnings\" means company profit.",
+                "explanation": (
+                    "\"earnings\" is a generic finance word in English. It should not be "
+                    "treated as a Korean local-market glossary term."
+                ),
+                "example": "earnings improved means profit improved.",
+                "confidence_score": 0.9,
+            }
+        ),
+    )
+
+    result = provider.generate(
+        KoreanFinancialTermExplainRequest(
+            term="earnings",
+            title="Samsung earnings improve",
+            context="earnings improved after chip demand recovered.",
+        ),
+        (
+            FinancialTermEvidence(
+                title="Samsung earnings improve",
+                snippet="earnings improved after chip demand recovered.",
+                source_type="article_context",
+            ),
+        ),
+    )
+
+    assert result is None
+
+
+def test_korean_financial_term_local_llm_settings_use_direct_qwen3_mlx_client() -> None:
+    provider = build_term_provider_from_settings(
+        Settings(
+            korean_financial_term_generation_mode="local_llm",
+            korean_financial_term_llm_endpoint="",
+            korean_financial_term_mlx_model="mlx-community/Qwen3-0.6B-4bit",
+            korean_financial_term_mlx_adapter_path=Path(
+                "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora"
+            ),
+        )
+    )
+
+    assert isinstance(provider, LocalQwenTermExplanationProvider)
+    assert isinstance(provider._client, MlxQwenTermExplanationClient)
+
+
 def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation() -> None:
     service = KoreanFinancialTermExplanationService(
         seed_path=Path("data/reference/korean_financial_terms_seed.json"),
@@ -212,3 +334,13 @@ class _FakeTermProvider:
             ),
             source="OPENAI_WEB_SEARCH_RAG",
         )
+
+
+class _FakeTermGenerationClient:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self._payload = payload
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        assert messages
+        assert max_tokens > 0
+        return json.dumps(self._payload, ensure_ascii=False)

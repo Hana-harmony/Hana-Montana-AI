@@ -138,5 +138,15 @@
     "plain_explanation": "\"저PBR\" means a low price-to-book ratio. Korean articles often mention it when banks, insurers, holding companies, or other value-up beneficiaries trade below book value.",
     "example": "저PBR 종목 강세 means low price-to-book stocks rose.",
     "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "삼전닉스",
+    "english_term": "Samsung Electronics and SK hynix basket",
+    "category": "market_slang",
+    "aliases": ["삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon Nix", "Samjeon-Nix"],
+    "definition": "Korean market slang combining Samsung Electronics and SK hynix, usually used when local articles discuss the two major memory-chip stocks together.",
+    "plain_explanation": "\"삼전닉스\" is a coined Korean market nickname for Samsung Electronics and SK hynix as a pair. It helps foreign investors understand that the article is talking about Korea's two flagship memory-chip names together, not a separate listed company.",
+    "example": "삼전닉스 강세 means Samsung Electronics and SK hynix rose together.",
+    "source": "HANNAH_SEED_GLOSSARY"
   }
 ]

@@ -1,22 +1,43 @@
-# 뉴스·공시 요약 LLM readiness
+# 뉴스·공시 요약 Qwen3 LLM
 
 ## 결론
-현재 live 뉴스·공시 What/Why/Impact 요약에는 Qwen을 기본 적용하지 않는다. 이번 결함은 생성 모델 부재가 아니라 전문 입력 누락, snippet 생략부호, 글자 수 hard cut, impact 메타 문장 노출이 원인이었으므로 기존 입력·rule·postprocessing 경로를 먼저 수정했다.
+뉴스·공시 What/Why/Impact 요약은 기본값으로 rule engine을 유지하고,
+`HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 실제 Qwen3-0.6B LoRA 생성기를 사용한다.
+이 모드에서는 전문 기반 article text를 넣고 Qwen이 영어 JSON `{what, why, impact}`를 생성한다.
 
-## 현재 live 경로
-- 전문이 있으면 full content를 우선 사용한다.
-- 문장 경계 기반 truncate로 중간 잘림을 피한다.
-- `...`, `…`, 중요도·감성·classification 메타 문장은 요약 후보에서 제외한다.
-- impact는 투자자가 확인해야 할 실제 영향 또는 점검 문장으로 fallback한다.
+## 구현 경로
+- 로컬 개발: `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 MLX로 직접 로드한다.
+- 운영 CPU 환경: Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 연결한다.
+- `AlertAnalyzer`는 먼저 rule engine fallback 요약을 만든 뒤, full content가 있을 때만 `NewsSummaryGenerator`를 호출한다.
+- Qwen 출력이 실패하면 기존 rule summary를 그대로 반환한다.
 
-## Qwen 후보 조건
-- 학습 후보: `mlx-community/Qwen3-0.6B-4bit` LoRA.
-- 기존 실측: `reports/global-peer-qwen3-explainer-training.json`에서 batch size 1, max seq 2048, peak memory 2.238GB를 기록했다.
-- 운영 후보: `Qwen3-0.6B GGUF Q4`를 API 프로세스 안에 적재하지 않고 llama.cpp OpenAI-compatible sidecar로만 연결한다.
-- 운영 guard: batch size 1, timeout 1200ms, 입력 1200자 제한, JSON schema 검증, grounding 검증, rule engine fallback.
+## 품질 gate
+Qwen 출력은 다음 조건을 모두 통과해야 live 응답의 `summary_lines`로 채택된다.
+- strict JSON keys: `what`, `why`, `impact`.
+- 각 값은 영어 한 문장이다.
+- 말줄임표, 줄바꿈, bullet, 중간 잘림 fragment를 허용하지 않는다.
+- 중요도·감성·classification·priority 같은 내부 메타 문구를 허용하지 않는다.
+- buy/sell/price target/guaranteed return 같은 투자 조언 문구를 허용하지 않는다.
+- 원문 한국어 금융 키워드와 영어 요약 사이의 근거 매칭을 확인한다.
 
-## 승격 기준
-Qwen 요약은 `SummaryLines {what, why, impact}` JSON만 반환해야 하며, 각 line은 원문 근거가 있어야 한다. 생략부호, 문장 중간 잘림, 중요도·감성 메타, 투자 조언 문구가 나오면 즉시 rule engine 결과로 fallback한다.
+## 학습·검증 결과
+- SFT 데이터셋: `data/training/news_summary_wwi_sft.jsonl`, 128 samples.
+- MLX split: `data/training/news_summary_wwi_mlx`, train 116 / valid 6 / test 6.
+- Adapter: `src/hannah_montana_ai/model_store/news_summary_qwen3_lora/adapters.safetensors`.
+- 학습 report: `reports/news-summary-qwen3-training.json`.
+- raw generation 평가: `reports/news-summary-qwen3-generation-eval.json`, 5/5 pass.
+- API smoke: 뉴스와 공시 full-content 요청에서 영어 What/Why/Impact 세 문장을 반환했다.
 
-## 로컬 번역 모델
-현재 구현된 로컬 번역 baseline은 `local-financial-glossary-v2`다. GPT 번역과의 비교는 OmniLens의 `reports/openai-translation-smoke-report.json`에 기록하며, 숫자·날짜·종목코드·한국 금융 고유어 보존율과 CPU 메모리/속도 예산이 통과되기 전까지 live 기본 번역은 OpenAI GPT 경로로 둔다.
+## 운영 변수
+```bash
+HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm
+HANNAH_NEWS_SUMMARY_LLM_ENDPOINT=
+HANNAH_NEWS_SUMMARY_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit
+HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/news_summary_qwen3_lora
+HANNAH_NEWS_SUMMARY_LLM_MODEL=Qwen3-0.6B-GGUF-Q4
+HANNAH_NEWS_SUMMARY_LLM_TIMEOUT_SECONDS=4.0
+HANNAH_NEWS_SUMMARY_LLM_MAX_TOKENS=260
+```
+
+## 남은 분리 과제
+뉴스·공시 본문 전체 번역은 별도 번역 모델 경로에서 해결한다. 이 문서는 What/Why/Impact 세 줄 요약 생성만 다룬다.

@@ -1,0 +1,14 @@
+{
+  "schema_version": "news-summary-qwen3-readiness/v1",
+  "generated_at": "2026-07-05T04:27:37.779456+00:00",
+  "prompt_version": "news-summary-qwen3-wwi-v1",
+  "recommended_train_model": "Qwen/Qwen3-0.6B-MLX-4bit LoRA",
+  "recommended_serving_model": "Qwen3-0.6B GGUF Q4",
+  "dataset_path": "data/training/news_summary_wwi_sft.jsonl",
+  "sample_count": 128,
+  "case_count": 16,
+  "variant_count": 8,
+  "target_failure_count": 0,
+  "target_failures": [],
+  "quality_status": "pass"
+}

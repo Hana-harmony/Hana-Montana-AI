@@ -1,5 +1,29 @@
 # 구현 기록
 
+## 2026-07-05 한국어 전문 번역 Qwen3 LLM 실제 serving 전환
+- GPT/DeepL 의존 번역 경로와 분리해 `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 번역기를 실제 API serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 호출한다.
+- `POST /api/v1/translation/ko-en`을 추가하고, disabled 기본값에서는 `LOCAL_TRANSLATION_DISABLED` source fallback만 반환하게 했다.
+- `data/training/korean_translation_sft.jsonl` 39건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 420 iters 학습했다. train split 31, valid 4, test 4, final train loss 0.019, final validation loss 0.025를 기록했다.
+- raw Qwen3 generation 평가는 뉴스·공시·localism 대표 4건 기준 4/4 pass다. `Ants`, `Samjeon Nix`, `bellwether stock`, `treasury-share cancellation`, `trading-halt`, `remediation plan` 같은 필수 표면형을 검증한다.
+- 출력 gate는 한글 잔존, 원문 반환, 요약 축약, 말줄임표, meta/refusal, glossary localism 누락을 모두 실패 처리한다.
+
+## 2026-07-05 뉴스·공시 What/Why/Impact Qwen3 요약 LLM 실제 serving 전환
+- 사용자 지적에 따라 뉴스·공시 3줄 요약이 rule fallback과 문서상 후보에 머무르던 상태를 수정하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 생성기를 실제 `AlertAnalyzer` serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 호출한다.
+- Qwen 입력은 full content가 있을 때만 사용하며, 출력은 strict JSON `{what, why, impact}`와 영어 한 문장 3개, 생략부호 금지, 중요도·감성 메타 금지, 투자 조언 금지, 원문 근거 매칭 gate를 통과해야 채택된다.
+- `data/training/news_summary_wwi_sft.jsonl` 128건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 480 iters 학습했다. train split 116, valid 6, test 6, peak memory 1.422GB, test perplexity 1.000을 기록했다.
+- raw Qwen3 generation 평가는 뉴스·공시 대표 5건 기준 JSON valid 5/5, 영어 문장 5/5, grounded 5/5, pass rate 1.0이다.
+- 로컬 API smoke에서 뉴스와 공시 full-content 요청 모두 영어 What/Why/Impact 세 문장으로 응답함을 확인했다.
+
+## 2026-07-05 한국 금융 용어 Qwen3 설명 LLM 실제 serving 전환
+- 사용자 지적에 따라 한국 금융 용어 RAG가 사전과 OpenAI fallback만 쓰던 상태를 수정하고, `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 설명기를 실제 API serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 호출한다.
+- `earnings`, `Foreign investors` 같은 일반 영어 금융 단어는 glossary 후보에서 제외하고, 한글 클릭 용어와 기사 evidence가 있을 때만 local Qwen 생성으로 보낸다.
+- `삼전닉스`를 seed glossary에 추가해 `Samjeon Nix` alias도 Samsung Electronics와 SK hynix 묶음 표현으로 dictionary-backed explanation을 제공한다.
+- `data/training/korean_financial_term_explanation_sft.jsonl` 362건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 520 iters 학습했다. final validation loss 0.005, test loss 0.007, test perplexity 1.007, peak memory 1.498GB를 기록했다.
+- raw Qwen3 generation 평가는 미등록 한글 용어 5건 기준 JSON valid 5/5, category match 5/5, grounded 5/5, pass rate 1.0이다. API smoke에서 `우주항공주`는 `LOCAL_OPEN_SOURCE_LLM_RAG`, `earnings`는 `REVIEW_REQUIRED`, `Samjeon Nix`는 `DICTIONARY`로 확인했다.
+
 ## 2026-07-04 - 뉴스·공시 What/Why/Impact 품질 gate와 LLM readiness
 - 요약 rule engine에서 글자 수 hard cut을 제거하고 문장 경계 기반 truncate로 바꿨다.
 - snippet 생략부호와 중요도·감성·classification 메타 문장을 요약 후보에서 제외한다.
@@ -13,7 +37,7 @@
 - 글로벌 피어 headline/summary는 `South Korea's <peer>` 식의 과도한 동일시 대신 `Maps Closest To <peer>`와 `closest US-listed reference peer` 표현을 사용한다. 시가총액/매출 비율이 과도한 원천값은 재무 유사도 score를 0.54로 cap하고 matched factor에 directional data quality 경고를 남긴다.
 - 한국 금융 용어 seed glossary에 `초전도체주`, `로봇주`, `2차전지주`, `저PBR`을 추가해 흔한 테마주/정책 표현이 API key 없이도 dictionary-backed explanation으로 처리되도록 했다.
 - `reports/korean-financial-term-explanation-eval.json` 기준 샘플 11건 정확도 1.0, 사전 커버리지 0.909091, 캐시 가능률 0.909091, quality gate pass를 기록했다.
-- 글로벌 피어 설명 SFT 데이터셋 3,967건을 새 canonical 문구로 재생성했고 readiness는 failure 0건/pass다. Qwen3 LoRA를 새 canonical으로 재학습해 test loss 0.000, test perplexity 1.000을 기록했고, raw generation 대표 30건 기준 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 1.0을 기록했다.
+- 글로벌 피어 설명 SFT 데이터셋 3,967건은 v8에서 template copy가 아닌 grounded generation target으로 전환했다. raw generation 평가는 JSON valid, grounded, template copy 0건을 기준으로 한다.
 
 ## 2026-07-01 글로벌 피어 business profile ML classifier
 - 전체 한국 종목에 적용되는 business profile ML classifier를 추가했다.
@@ -22,6 +46,13 @@
 - holdout 평가에서 accuracy 0.973485, macro F1 0.967205, weighted F1 0.974094를 기록했다.
 - 기존 generic/legacy LOW 후보 12개는 모두 `not_low_confidence`로 개선했고, 전종목 all-results quality gate는 pass다.
 - 전종목 LOW confidence는 22.1326%, specific profile 3,089개 기준 LOW confidence는 0개다.
+
+## 2026-07-05 글로벌 피어 Qwen3 설명 LLM v8 실제 생성 전환
+- 사용자 지적에 따라 local LLM 경로가 template copy처럼 보이지 않도록 `canonical_title_text`, `canonical_summary_text` exact-match 계약을 제거했다.
+- prompt를 `global-peer-structured-rag-explainer-v8`로 승격하고 일반 종목의 `reference_draft`는 안정화용 style guide로만 둔다. 구버전 anchor 문구를 끌고 가던 anchor 종목은 reference draft를 제외한다. Qwen3 출력은 한국 종목 영어명, 미국 peer명, 업종/규모 근거를 포함하되 template을 그대로 복사하면 운영 guard에서 실패한다.
+- SFT target을 template과 다른 grounded generation 문장으로 재작성했다. raw generation 평가도 exact headline/summary 통과가 아니라 `template_copy_count == 0`, grounded 30/30, JSON valid 30/30을 기준으로 바꿨다.
+- anchor 14개는 sample weight 24로 가중해 Qwen3가 anchor 전용 JSON 구조를 안정적으로 학습하게 했다. 최종 readiness sample count는 4,289건, split은 train 3,861 / valid 214 / test 214다.
+- 최종 raw generation 대표 30종목 검증은 JSON valid 30/30, template copy 0/30, grounded 30/30, pass rate 1.0이다.
 
 ## 2026-07-01 글로벌 피어 Qwen3 설명 LLM v7 사용자 노출 문구 정정
 - 사용자 지적에 따라 LLM `headline`/`summary`에서 `similarity score`, `confidence`, `Hannah ranker` 같은 내부 점수 문구를 제거했다.

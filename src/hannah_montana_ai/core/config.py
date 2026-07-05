@@ -38,8 +38,45 @@ class Settings(BaseModel):
     korean_financial_term_model_version: str = Field(
         default_factory=lambda: os.getenv(
             "HANNAH_KOREAN_FINANCIAL_TERM_MODEL_VERSION",
-            "k-finance-term-rag-v2",
+            "k-finance-term-qwen3-rag-v1",
         )
+    )
+    korean_financial_term_generation_mode: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE",
+            "dictionary",
+        )
+    )
+    korean_financial_term_llm_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT", "")
+    )
+    korean_financial_term_llm_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL",
+            "Qwen3-0.6B-GGUF-Q4",
+        )
+    )
+    korean_financial_term_mlx_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_FINANCIAL_TERM_MLX_MODEL",
+            "mlx-community/Qwen3-0.6B-4bit",
+        )
+    )
+    korean_financial_term_mlx_adapter_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_KOREAN_FINANCIAL_TERM_MLX_ADAPTER_PATH",
+                "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora",
+            )
+        )
+    )
+    korean_financial_term_llm_timeout_seconds: float = Field(
+        default_factory=lambda: float(
+            os.getenv("HANNAH_KOREAN_FINANCIAL_TERM_LLM_TIMEOUT_SECONDS", "4.0")
+        )
+    )
+    korean_financial_term_llm_max_tokens: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_KOREAN_FINANCIAL_TERM_LLM_MAX_TOKENS", "320"))
     )
     openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
     openai_term_explanation_enabled: bool = Field(
@@ -92,6 +129,69 @@ class Settings(BaseModel):
     )
     global_peer_explanation_llm_max_tokens: int = Field(
         default_factory=lambda: int(os.getenv("HANNAH_GLOBAL_PEER_LLM_MAX_TOKENS", "220"))
+    )
+    news_summary_generation_mode: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_GENERATION_MODE", "rule")
+    )
+    news_summary_llm_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_ENDPOINT", "")
+    )
+    news_summary_llm_model: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
+    )
+    news_summary_mlx_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_NEWS_SUMMARY_MLX_MODEL",
+            "mlx-community/Qwen3-0.6B-4bit",
+        )
+    )
+    news_summary_mlx_adapter_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH",
+                "src/hannah_montana_ai/model_store/news_summary_qwen3_lora",
+            )
+        )
+    )
+    news_summary_llm_timeout_seconds: float = Field(
+        default_factory=lambda: float(os.getenv("HANNAH_NEWS_SUMMARY_LLM_TIMEOUT_SECONDS", "4.0"))
+    )
+    news_summary_llm_max_tokens: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_NEWS_SUMMARY_LLM_MAX_TOKENS", "260"))
+    )
+    korean_translation_generation_mode: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_KOREAN_TRANSLATION_GENERATION_MODE", "disabled")
+    )
+    korean_translation_llm_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT", "")
+    )
+    korean_translation_llm_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_TRANSLATION_LLM_MODEL",
+            "Qwen3-0.6B-GGUF-Q4",
+        )
+    )
+    korean_translation_mlx_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_KOREAN_TRANSLATION_MLX_MODEL",
+            "mlx-community/Qwen3-0.6B-4bit",
+        )
+    )
+    korean_translation_mlx_adapter_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_KOREAN_TRANSLATION_MLX_ADAPTER_PATH",
+                "src/hannah_montana_ai/model_store/korean_translation_qwen3_lora",
+            )
+        )
+    )
+    korean_translation_llm_timeout_seconds: float = Field(
+        default_factory=lambda: float(
+            os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS", "8.0")
+        )
+    )
+    korean_translation_llm_max_tokens: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS", "900"))
     )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"
