@@ -2,10 +2,13 @@ import json
 import re
 from pathlib import Path
 
+from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
 from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationContext,
     GlobalPeerExplanationGenerator,
+    MlxQwenPeerExplanationClient,
+    OpenAiCompatiblePeerExplanationClient,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.training.global_peer_trainer import (
@@ -23,6 +26,21 @@ class _FakePeerExplanationClient:
 
     def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
         return self.content
+
+
+class _FakeMlxTokenizer:
+    def __init__(self) -> None:
+        self.last_messages: list[dict[str, str]] = []
+        self.last_kwargs: dict[str, object] = {}
+
+    def apply_chat_template(
+        self,
+        messages: list[dict[str, str]],
+        **kwargs: object,
+    ) -> str:
+        self.last_messages = messages
+        self.last_kwargs = kwargs
+        return "rendered-qwen-chat-prompt"
 
 
 def test_us_stock_universe_covers_full_listed_symbol_directory() -> None:
@@ -64,6 +82,91 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
     assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
     assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v7"
+
+
+def test_global_peer_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_client() -> None:
+    settings = Settings(
+        global_peer_explanation_mode="local_llm",
+        global_peer_explanation_llm_endpoint="",
+        global_peer_explanation_mlx_model="mlx-community/Qwen3-0.6B-4bit",
+        global_peer_explanation_mlx_adapter_path=Path(
+            "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora"
+        ),
+    )
+
+    generator = GlobalPeerExplanationGenerator.from_settings(settings)
+
+    assert generator._enabled is True
+    assert isinstance(generator._client, MlxQwenPeerExplanationClient)
+    assert generator._model_name == "mlx-community/Qwen3-0.6B-4bit"
+
+
+def test_global_peer_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
+    settings = Settings(
+        global_peer_explanation_mode="local_llm",
+        global_peer_explanation_llm_endpoint="http://127.0.0.1:8089",
+        global_peer_explanation_llm_model="Qwen3-0.6B-GGUF-Q4",
+    )
+
+    generator = GlobalPeerExplanationGenerator.from_settings(settings)
+
+    assert generator._enabled is True
+    assert isinstance(generator._client, OpenAiCompatiblePeerExplanationClient)
+    assert generator._model_name == "Qwen3-0.6B-GGUF-Q4"
+
+
+def test_mlx_qwen_peer_explanation_client_loads_adapter_and_generates_text() -> None:
+    calls: dict[str, object] = {}
+    fake_model = object()
+    fake_tokenizer = _FakeMlxTokenizer()
+    adapter_path = Path("src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora")
+
+    def fake_loader(model_name: str, adapter_path_arg: Path | None) -> tuple[object, object]:
+        calls["model_name"] = model_name
+        calls["adapter_path"] = adapter_path_arg
+        return fake_model, fake_tokenizer
+
+    def fake_generator(
+        model: object,
+        tokenizer: object,
+        prompt: str,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        calls["model"] = model
+        calls["tokenizer"] = tokenizer
+        calls["prompt"] = prompt
+        calls["max_tokens"] = max_tokens
+        calls["temperature"] = temperature
+        return '{"headline":"Generated headline","summary":"Generated summary"}'
+
+    client = MlxQwenPeerExplanationClient(
+        model="mlx-community/Qwen3-0.6B-4bit",
+        adapter_path=adapter_path,
+        temperature=0.0,
+        model_loader=fake_loader,
+        text_generator=fake_generator,
+    )
+
+    output = client.generate(
+        [
+            {"role": "system", "content": "Use only facts."},
+            {"role": "user", "content": "Return JSON."},
+        ],
+        max_tokens=64,
+    )
+
+    assert output == '{"headline":"Generated headline","summary":"Generated summary"}'
+    assert calls["model_name"] == "mlx-community/Qwen3-0.6B-4bit"
+    assert calls["adapter_path"] == adapter_path
+    assert calls["model"] is fake_model
+    assert calls["tokenizer"] is fake_tokenizer
+    assert calls["prompt"] == "rendered-qwen-chat-prompt"
+    assert calls["max_tokens"] == 64
+    assert calls["temperature"] == 0.0
+    assert fake_tokenizer.last_kwargs["tokenize"] is False
+    assert fake_tokenizer.last_kwargs["add_generation_prompt"] is True
+    assert fake_tokenizer.last_kwargs["enable_thinking"] is False
 
 
 def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:

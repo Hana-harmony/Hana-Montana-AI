@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import importlib
 import json
 import re
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Protocol
+from pathlib import Path
+from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
@@ -71,6 +74,10 @@ class PeerExplanationClient(Protocol):
         pass
 
 
+type MlxModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
+type MlxTextGenerator = Callable[[Any, Any, str, int, float], str]
+
+
 class OpenAiCompatiblePeerExplanationClient:
     def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
         self._endpoint = endpoint.rstrip("/")
@@ -112,6 +119,113 @@ class OpenAiCompatiblePeerExplanationClient:
         return content
 
 
+class MlxQwenPeerExplanationClient:
+    def __init__(
+        self,
+        *,
+        model: str,
+        adapter_path: Path | None,
+        temperature: float = 0.0,
+        model_loader: MlxModelLoader | None = None,
+        text_generator: MlxTextGenerator | None = None,
+    ) -> None:
+        self._model_name = model
+        self._adapter_path = adapter_path
+        self._temperature = temperature
+        self._model_loader = model_loader or self._load_mlx_model
+        self._text_generator = text_generator or self._generate_mlx_text
+        self._pipeline: tuple[Any, Any] | None = None
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        model, tokenizer = self._load_pipeline()
+        prompt = self._format_chat_prompt(messages, tokenizer)
+        return self._text_generator(
+            model,
+            tokenizer,
+            prompt,
+            max_tokens,
+            self._temperature,
+        )
+
+    def _load_pipeline(self) -> tuple[Any, Any]:
+        if self._pipeline is None:
+            self._pipeline = self._model_loader(self._model_name, self._adapter_path)
+        return self._pipeline
+
+    @staticmethod
+    def _load_mlx_model(model_name: str, adapter_path: Path | None) -> tuple[Any, Any]:
+        try:
+            mlx_lm = importlib.import_module("mlx_lm")
+        except ImportError as exception:
+            raise ValueError(
+                "mlx_lm is required for direct Qwen3 local LLM generation"
+            ) from exception
+        load = cast(Callable[..., tuple[Any, Any]], mlx_lm.load)
+        return load(
+            model_name,
+            adapter_path=str(adapter_path) if adapter_path is not None else None,
+        )
+
+    @staticmethod
+    def _generate_mlx_text(
+        model: Any,
+        tokenizer: Any,
+        prompt: str,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        try:
+            mlx_lm = importlib.import_module("mlx_lm")
+        except ImportError as exception:
+            raise ValueError(
+                "mlx_lm is required for direct Qwen3 local LLM generation"
+            ) from exception
+        sample_utils = importlib.import_module("mlx_lm.sample_utils")
+        make_sampler = cast(Callable[..., Callable[[Any], Any]], sample_utils.make_sampler)
+        sampler = make_sampler(temp=temperature)
+        generate = cast(Callable[..., str], mlx_lm.generate)
+        return generate(
+            model,
+            tokenizer,
+            prompt=prompt,
+            max_tokens=max_tokens,
+            sampler=sampler,
+            verbose=False,
+        )
+
+    @staticmethod
+    def _format_chat_prompt(messages: list[dict[str, str]], tokenizer: Any) -> str:
+        apply_chat_template = getattr(tokenizer, "apply_chat_template", None)
+        if callable(apply_chat_template):
+            try:
+                return cast(
+                    str,
+                    apply_chat_template(
+                        messages,
+                        tokenize=False,
+                        add_generation_prompt=True,
+                        enable_thinking=False,
+                    ),
+                )
+            except TypeError:
+                return cast(
+                    str,
+                    apply_chat_template(
+                        messages,
+                        tokenize=False,
+                        add_generation_prompt=True,
+                    ),
+                )
+
+        rendered_messages = []
+        for message in messages:
+            role = message.get("role", "user")
+            content = message.get("content", "")
+            rendered_messages.append(f"<|im_start|>{role}\n{content}<|im_end|>")
+        rendered_messages.append("<|im_start|>assistant\n")
+        return "\n".join(rendered_messages)
+
+
 class GlobalPeerExplanationGenerator:
     def __init__(
         self,
@@ -128,20 +242,27 @@ class GlobalPeerExplanationGenerator:
 
     @classmethod
     def from_settings(cls, settings: Settings) -> GlobalPeerExplanationGenerator:
-        enabled = (
-            settings.global_peer_explanation_mode == "local_llm"
-            and bool(settings.global_peer_explanation_llm_endpoint)
-        )
+        enabled = settings.global_peer_explanation_mode == "local_llm"
         client: PeerExplanationClient | None = None
         if enabled:
-            client = OpenAiCompatiblePeerExplanationClient(
-                endpoint=settings.global_peer_explanation_llm_endpoint,
-                model=settings.global_peer_explanation_llm_model,
-                timeout_seconds=settings.global_peer_explanation_llm_timeout_seconds,
-            )
+            if settings.global_peer_explanation_llm_endpoint:
+                client = OpenAiCompatiblePeerExplanationClient(
+                    endpoint=settings.global_peer_explanation_llm_endpoint,
+                    model=settings.global_peer_explanation_llm_model,
+                    timeout_seconds=settings.global_peer_explanation_llm_timeout_seconds,
+                )
+            else:
+                client = MlxQwenPeerExplanationClient(
+                    model=settings.global_peer_explanation_mlx_model,
+                    adapter_path=settings.global_peer_explanation_mlx_adapter_path,
+                )
         return cls(
             enabled=enabled,
-            model_name=settings.global_peer_explanation_llm_model,
+            model_name=(
+                settings.global_peer_explanation_llm_model
+                if settings.global_peer_explanation_llm_endpoint
+                else settings.global_peer_explanation_mlx_model
+            ),
             max_tokens=settings.global_peer_explanation_llm_max_tokens,
             client=client,
         )

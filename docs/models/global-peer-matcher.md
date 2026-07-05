@@ -31,7 +31,7 @@
 
 ## 설명 생성
 - 기본 serving: deterministic structured template
-- Optional local LLM: `mlx-community/Qwen3-0.6B-4bit` LoRA를 학습하고, 운영에서는 Qwen3-0.6B GGUF Q4를 OpenAI-compatible local server로 연결한다.
+- Optional local LLM: `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`에서 endpoint가 없으면 `mlx-community/Qwen3-0.6B-4bit`와 LoRA adapter를 MLX로 직접 로드한다. endpoint가 있으면 Qwen3-0.6B GGUF Q4를 OpenAI-compatible local server로 연결한다.
 - LoRA adapter: `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora`
 - Prompt version: `global-peer-structured-rag-explainer-v7`
 - 학습 split: train 3,571 / valid 198 / test 198

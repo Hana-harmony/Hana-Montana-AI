@@ -73,6 +73,20 @@ class Settings(BaseModel):
     global_peer_explanation_llm_model: str = Field(
         default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
     )
+    global_peer_explanation_mlx_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_GLOBAL_PEER_MLX_MODEL",
+            "mlx-community/Qwen3-0.6B-4bit",
+        )
+    )
+    global_peer_explanation_mlx_adapter_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_GLOBAL_PEER_MLX_ADAPTER_PATH",
+                "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora",
+            )
+        )
+    )
     global_peer_explanation_llm_timeout_seconds: float = Field(
         default_factory=lambda: float(os.getenv("HANNAH_GLOBAL_PEER_LLM_TIMEOUT_SECONDS", "2.5"))
     )
