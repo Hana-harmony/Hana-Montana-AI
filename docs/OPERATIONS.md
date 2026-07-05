@@ -79,6 +79,19 @@ uv run --extra llm-training python scripts/train_news_summary_qwen3.py
 uv run --extra llm-training python scripts/evaluate_news_summary_qwen3_generation.py --min-pass-rate 1.0
 ```
 
+## 한국어 전문 번역 Qwen
+- `POST /api/v1/translation/ko-en`은 기본값으로 명시적 source fallback을 반환한다.
+- `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`을 켜면 한국 뉴스·공시 원문과 glossary terms를 Qwen3-0.6B LoRA 번역기로 넘긴다.
+- 로컬 개발은 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`를 비워 두면 `HANNAH_KOREAN_TRANSLATION_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit`와 `HANNAH_KOREAN_TRANSLATION_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 MLX로 직접 로드한다.
+- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_KOREAN_TRANSLATION_LLM_MODEL=<served-model-name>`을 설정한다.
+- Qwen 출력은 strict JSON, 한글 잔존 금지, 요약 축약 금지, 말줄임표 금지, glossary localism 보존 gate를 통과해야 `TRANSLATED`로 채택된다. 실패하면 원문 fallback과 quality flag를 반환한다.
+- 학습과 검증은 `data/training/korean_translation_sft.jsonl`, `data/training/korean_translation_mlx`, `reports/korean-translation-qwen3-readiness.json`, `reports/korean-translation-qwen3-training.json`, `reports/korean-translation-qwen3-generation-eval.json`에 저장한다.
+```bash
+uv run python scripts/build_korean_translation_qwen3_dataset.py
+uv run --extra llm-training python scripts/train_korean_translation_qwen3.py
+uv run --extra llm-training python scripts/evaluate_korean_translation_qwen3_generation.py --min-pass-rate 1.0
+```
+
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
 - 로그에는 `model_version`, `latency_ms`, 예측 이벤트·감성·중요도, 종목코드, 결과 상태를 기록한다.

@@ -162,6 +162,31 @@ class FinancialGlossaryTerm(BaseModel):
     description: str = Field(default="", max_length=360)
 
 
+TranslationStatus = Literal[
+    "TRANSLATED",
+    "PARTIAL_SOURCE_LANGUAGE_FALLBACK",
+    "SOURCE_LANGUAGE_FALLBACK",
+]
+
+
+class KoreanTranslationRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=20000)
+    source_language: Literal["ko"] = "ko"
+    target_language: Literal["en"] = "en"
+    source_type: SourceType = "NEWS"
+    title: str = Field(default="", max_length=300)
+    glossary_terms: list[FinancialGlossaryTerm] = Field(default_factory=list, max_length=30)
+
+
+class KoreanTranslationResponse(BaseModel):
+    translated_text: str = Field(default="", max_length=24000)
+    provider: str = Field(min_length=1, max_length=80)
+    model_version: str = Field(min_length=1, max_length=120)
+    status: TranslationStatus
+    prompt_version: str = Field(default="", max_length=80)
+    quality_flags: list[str] = Field(default_factory=list, max_length=20)
+
+
 class AlertAnalysisResponse(BaseModel):
     stock_code: str | None
     stock_name: str | None
