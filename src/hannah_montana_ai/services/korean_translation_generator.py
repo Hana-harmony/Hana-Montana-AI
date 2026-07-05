@@ -202,19 +202,101 @@ class KoreanTranslationGenerator:
         "korean financial news",
     )
     _LOCALISM_REPLACEMENTS = {
-        "개미": ("Ants", ("retail investors", "individual investors", "ant investors")),
-        "대장주": ("bellwether stock", ("market leader stock", "leading stock")),
-        "따따블": ("dda-dda-ble", ("IPO quadruple jump", "quadruple IPO jump")),
-        "품절주": ("low-float stock", ("thin-float stock", "scarce-float stock")),
+        "개미": (
+            "Ants",
+            (
+                "retail investor",
+                "retail investors",
+                "individual investor",
+                "individual investors",
+                "ant investor",
+                "ant investors",
+                "small investor",
+                "small investors",
+                "mom-and-pop investor",
+                "mom-and-pop investors",
+                "mom and pop investor",
+                "mom and pop investors",
+                "Triangunxi's",
+                "Triangunxi",
+                "Gaemi's",
+                "Gaemi",
+                "country-investor",
+                "country-investors",
+                "country investor",
+                "country investors",
+            ),
+        ),
+        "대장주": (
+            "bellwether stock",
+            (
+                "sector leader stock",
+                "sector leader stocks",
+                "market leader stock",
+                "market leader stocks",
+                "leading stock",
+                "leading stocks",
+                "leading share",
+                "leading shares",
+                "flagship stock",
+                "flagship stocks",
+                "flagship share",
+                "flagship shares",
+                "bellwether stocks",
+                "semiconductor leader",
+                "semiconductor leaders",
+                "semiconductor bellwether",
+                "semiconductor bellwethers",
+                "semiconductor bellwether stocks",
+                "large-cap stock",
+                "large-cap stocks",
+                "large cap stock",
+                "large cap stocks",
+                "blue-chip stock",
+                "blue-chip stocks",
+                "blue chip stock",
+                "blue chip stocks",
+            ),
+        ),
+        "따따블": (
+            "dda-dda-ble",
+            (
+                "IPO quadruple jump",
+                "IPO quadruple jumps",
+                "quadruple IPO jump",
+                "quadruple IPO jumps",
+                "fourfold IPO jump",
+                "fourfold IPO jumps",
+            ),
+        ),
+        "품절주": (
+            "low-float stock",
+            (
+                "thin-float stock",
+                "thin-float stocks",
+                "scarce-float stock",
+                "scarce-float stocks",
+                "low float stock",
+                "low float stocks",
+            ),
+        ),
         "삼전닉스": (
             "Samjeon Nix",
             (
                 "Samsung Electronics and SK Hynix",
                 "Samsung Electronics-SK Hynix",
                 "Samsung Electronics/SK Hynix",
+                "Samsung Electronics & SK Hynix",
+                "Samsung Electronics + SK Hynix",
+                "Samsung Electronics, SK Hynix",
                 "Samsung Electronics and SK hynix",
                 "Samsung Electronics-SK hynix",
                 "Samsung Electronics/SK hynix",
+                "Samsung Electronics & SK hynix",
+                "Samsung Electronics + SK hynix",
+                "Samsung Electronics, SK hynix",
+                "Samsung Electronics and SK Hynix basket",
+                "Samsung Electronics and SK hynix basket",
             ),
         ),
     }
@@ -304,18 +386,25 @@ class KoreanTranslationGenerator:
     ) -> KoreanTranslationResult:
         if self._client is None:
             return self._fallback("", ["LOCAL_TRANSLATION_DISABLED"])
+        active_glossary_terms = self._active_glossary_terms(
+            chunk,
+            context.glossary_terms or [],
+        )
         try:
-            output = self._client.generate(self._messages(chunk, context), self._max_tokens)
+            output = self._client.generate(
+                self._messages(chunk, context, active_glossary_terms),
+                self._max_tokens,
+            )
             translated = self._parse_translation(output)
         except Exception:
             return self._fallback("", ["LOCAL_TRANSLATION_PROVIDER_ERROR"])
 
         translated = self._apply_glossary_surfaces(
             self._normalize_text(translated),
-            context.glossary_terms or [],
+            active_glossary_terms,
         )
         quality_flags = self._quality_flags(chunk, translated)
-        quality_flags.extend(self._glossary_quality_flags(translated, context.glossary_terms or []))
+        quality_flags.extend(self._glossary_quality_flags(translated, active_glossary_terms))
         if quality_flags:
             return self._fallback("", quality_flags)
         return KoreanTranslationResult(
@@ -331,6 +420,7 @@ class KoreanTranslationGenerator:
         self,
         text: str,
         context: KoreanTranslationContext,
+        glossary_terms: list[FinancialGlossaryTerm],
     ) -> list[dict[str, str]]:
         glossary = [
             {
@@ -339,7 +429,7 @@ class KoreanTranslationGenerator:
                 "english_term": term.english_term,
                 "category": term.category,
             }
-            for term in (context.glossary_terms or [])
+            for term in glossary_terms
         ]
         payload = {
             "task": "Translate Korean financial news or disclosures into English.",
@@ -350,6 +440,7 @@ class KoreanTranslationGenerator:
                 "Use natural English for foreign retail investors.",
                 "Preserve stock codes, numbers, dates, URLs, currencies, and company names.",
                 "Use glossary terms when provided.",
+                "When glossary includes Korean market slang, use the glossary surface exactly.",
                 "Do not leave Korean Hangul characters in the translation.",
             ],
             "source_type": context.source_type,
@@ -370,6 +461,22 @@ class KoreanTranslationGenerator:
                 "content": json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
             },
         ]
+
+    def _active_glossary_terms(
+        self,
+        source_text: str,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> list[FinancialGlossaryTerm]:
+        return [
+            term
+            for term in glossary_terms
+            if self._contains_source_term(source_text, term.source_term)
+            or self._contains_source_term(source_text, term.normalized_term)
+        ]
+
+    def _contains_source_term(self, source_text: str, term: str) -> bool:
+        candidate = term.strip()
+        return bool(candidate) and candidate in source_text
 
     def _parse_translation(self, raw_output: str) -> str:
         cleaned = raw_output.strip()
@@ -426,18 +533,40 @@ class KoreanTranslationGenerator:
         glossary_terms: list[FinancialGlossaryTerm],
     ) -> str:
         result = translated_text
-        normalized_terms = {term.normalized_term for term in glossary_terms}
+        terms_by_normalized = {term.normalized_term: term for term in glossary_terms}
         for normalized_term, (preferred, alternatives) in self._LOCALISM_REPLACEMENTS.items():
-            if normalized_term not in normalized_terms:
+            if normalized_term not in terms_by_normalized:
                 continue
+            result = self._replace_localism_surface(result, preferred, (preferred,))
             if self._contains_phrase(result, preferred):
                 continue
-            for alternative in alternatives:
-                pattern = re.compile(
-                    r"\b" + re.escape(alternative) + r"\b",
-                    re.IGNORECASE | re.UNICODE,
-                )
-                result = pattern.sub(preferred, result)
+            term = terms_by_normalized[normalized_term]
+            result = self._replace_localism_surface(
+                result,
+                preferred,
+                (*alternatives, term.english_term),
+            )
+        return result
+
+    def _replace_localism_surface(
+        self,
+        text: str,
+        preferred: str,
+        alternatives: tuple[str, ...],
+    ) -> str:
+        result = text
+        for alternative in sorted(set(alternatives), key=len, reverse=True):
+            candidate = alternative.strip()
+            if not candidate:
+                continue
+            pattern = re.compile(
+                r"\b(?:(?:a|an|the)\s+)?"
+                + re.escape(candidate).replace(r"\ ", r"\s+")
+                + r"\b",
+                re.IGNORECASE | re.UNICODE,
+            )
+            replacement = preferred + "'" if candidate.lower().endswith("'s") else preferred
+            result = pattern.sub(replacement, result)
         return result
 
     def _glossary_quality_flags(
