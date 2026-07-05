@@ -1,0 +1,118 @@
+{
+  "schema_version": "korean-term-qwen3-generation-eval/v1",
+  "generated_at": "2026-07-05T03:36:14.198858+00:00",
+  "prompt_version": "k-finance-term-qwen3-rag-prompt-v1",
+  "model": "mlx-community/Qwen3-0.6B-4bit",
+  "adapter_dir": "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora",
+  "sample_count": 5,
+  "pass_count": 5,
+  "pass_rate": 1.0,
+  "json_valid_count": 5,
+  "category_match_count": 5,
+  "english_term_match_count": 5,
+  "grounded_count": 5,
+  "min_pass_rate": 1.0,
+  "quality_status": "pass",
+  "results": [
+    {
+      "term": "우주항공주",
+      "expected_category": "theme_stock",
+      "expected_english_term": "aerospace-themed stock",
+      "raw_output": "{\"english_term\": \"aerospace-themed stock\", \"category\": \"theme_stock\", \"definition\": \"\\\"우주항공주\\\" means a Korean stock grouped under the aerospace investment theme.\", \"explanation\": \"\\\"우주항공주\\\" is used when articles link stocks to satellites, launch systems, defense aerospace, or space policy. In this article, the term is grounded by references to policy expectations and satellite investment.\", \"example\": \"우주항공주 강세 means aerospace-themed stocks rallied.\", \"confidence_score\": 0.9}",
+      "parsed": {
+        "english_term": "aerospace-themed stock",
+        "category": "theme_stock",
+        "definition": "\"우주항공주\" means a Korean stock grouped under the aerospace investment theme.",
+        "explanation": "\"우주항공주\" is used when articles link stocks to satellites, launch systems, defense aerospace, or space policy. In this article, the term is grounded by references to policy expectations and satellite investment.",
+        "example": "우주항공주 강세 means aerospace-themed stocks rallied.",
+        "confidence_score": 0.9
+      },
+      "status": "pass",
+      "json_valid": true,
+      "category_match": true,
+      "english_term_match": true,
+      "grounded": true,
+      "failure_reasons": []
+    },
+    {
+      "term": "양자컴퓨팅밈주",
+      "expected_category": "theme_stock",
+      "expected_english_term": "quantum-computing meme stock",
+      "raw_output": "{\"english_term\": \"quantum-computing meme stock\", \"category\": \"theme_stock\", \"definition\": \"\\\"양자컴퓨팅밈주\\\" means a Korean stock framed by investors as a speculative quantum-computing meme theme.\", \"explanation\": \"\\\"양자컴퓨팅밈주\\\" describes a stock moving on online attention around investors. It became common after the article grouped it with other online stocks.\", \"example\": \"양자컴퓨팅밈주 급등 means quantum-computing meme stocks rose.\", \"confidence_score\": 0.9}",
+      "parsed": {
+        "english_term": "quantum-computing meme stock",
+        "category": "theme_stock",
+        "definition": "\"양자컴퓨팅밈주\" means a Korean stock framed by investors as a speculative quantum-computing meme theme.",
+        "explanation": "\"양자컴퓨팅밈주\" describes a stock moving on online attention around investors. It became common after the article grouped it with other online stocks.",
+        "example": "양자컴퓨팅밈주 급등 means quantum-computing meme stocks rose.",
+        "confidence_score": 0.9
+      },
+      "status": "pass",
+      "json_valid": true,
+      "category_match": true,
+      "english_term_match": true,
+      "grounded": true,
+      "failure_reasons": []
+    },
+    {
+      "term": "HBM주",
+      "expected_category": "theme_stock",
+      "expected_english_term": "HBM-themed stock",
+      "raw_output": "{\"english_term\": \"HBM-themed stock\", \"category\": \"theme_stock\", \"definition\": \"\\\"HBM주\\\" means a Korean stock associated with high-bandwidth memory demand, like AI servers, rather than a direct investment recommendation.\", \"explanation\": \"\\\"HBM주\\\" is used when Korean market articles link AI server demand to high-bandwidth memory. In this article, HBM주 recovered after the AI server became expensive.\", \"example\": \"HBM주 반등 means HBM-themed stocks rose.\", \"confidence_score\": 0.9}",
+      "parsed": {
+        "english_term": "HBM-themed stock",
+        "category": "theme_stock",
+        "definition": "\"HBM주\" means a Korean stock associated with high-bandwidth memory demand, like AI servers, rather than a direct investment recommendation.",
+        "explanation": "\"HBM주\" is used when Korean market articles link AI server demand to high-bandwidth memory. In this article, HBM주 recovered after the AI server became expensive.",
+        "example": "HBM주 반등 means HBM-themed stocks rose.",
+        "confidence_score": 0.9
+      },
+      "status": "pass",
+      "json_valid": true,
+      "category_match": true,
+      "english_term_match": true,
+      "grounded": true,
+      "failure_reasons": []
+    },
+    {
+      "term": "원전주",
+      "expected_category": "theme_stock",
+      "expected_english_term": "nuclear-power-themed stock",
+      "raw_output": "{\"english_term\": \"nuclear-power-themed stock\", \"category\": \"theme_stock\", \"definition\": \"\\\"원전주\\\" means a stock grouped under the nuclear power construction, equipment, or policy theme.\", \"explanation\": \"\\\"원전주\\\" appears when articles connect stocks to nuclear plant projects, equipment orders, or energy policy. In this article, the term is grounded by project and policy expectations rather than direct investment advice.\", \"example\": \"원전주 강세 means nuclear-power-themed stocks rose.\", \"confidence_score\": 0.9}",
+      "parsed": {
+        "english_term": "nuclear-power-themed stock",
+        "category": "theme_stock",
+        "definition": "\"원전주\" means a stock grouped under the nuclear power construction, equipment, or policy theme.",
+        "explanation": "\"원전주\" appears when articles connect stocks to nuclear plant projects, equipment orders, or energy policy. In this article, the term is grounded by project and policy expectations rather than direct investment advice.",
+        "example": "원전주 강세 means nuclear-power-themed stocks rose.",
+        "confidence_score": 0.9
+      },
+      "status": "pass",
+      "json_valid": true,
+      "category_match": true,
+      "english_term_match": true,
+      "grounded": true,
+      "failure_reasons": []
+    },
+    {
+      "term": "방산주",
+      "expected_category": "theme_stock",
+      "expected_english_term": "defense-themed stock",
+      "raw_output": "{\"english_term\": \"defense-themed stock\", \"category\": \"theme_stock\", \"definition\": \"\\\"방산주\\\" means a Korean stock associated with defense equipment, weapons systems, or military export themes.\", \"explanation\": \"\\\"방산주\\\" is used when Korean market articles group companies by defense orders, exports, or geopolitical demand. In this article, the term is grounded by defense-contract expectations, exports, and geopolitical demand.\", \"example\": \"방산주 강세 means defense-themed stocks rallied.\", \"confidence_score\": 0.9}",
+      "parsed": {
+        "english_term": "defense-themed stock",
+        "category": "theme_stock",
+        "definition": "\"방산주\" means a Korean stock associated with defense equipment, weapons systems, or military export themes.",
+        "explanation": "\"방산주\" is used when Korean market articles group companies by defense orders, exports, or geopolitical demand. In this article, the term is grounded by defense-contract expectations, exports, and geopolitical demand.",
+        "example": "방산주 강세 means defense-themed stocks rallied.",
+        "confidence_score": 0.9
+      },
+      "status": "pass",
+      "json_valid": true,
+      "category_match": true,
+      "english_term_match": true,
+      "grounded": true,
+      "failure_reasons": []
+    }
+  ]
+}

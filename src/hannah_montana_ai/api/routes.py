@@ -44,7 +44,7 @@ from hannah_montana_ai.services.global_peer_explainer import GlobalPeerExplanati
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.korean_financial_terms import (
     KoreanFinancialTermExplanationService,
-    build_openai_term_provider_from_settings,
+    build_term_provider_from_settings,
 )
 from hannah_montana_ai.services.model import ModelArtifactError
 
@@ -91,7 +91,7 @@ def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService
     return KoreanFinancialTermExplanationService(
         seed_path=settings.korean_financial_terms_seed_path,
         model_version=settings.korean_financial_term_model_version,
-        provider=build_openai_term_provider_from_settings(settings),
+        provider=build_term_provider_from_settings(settings),
     )
 
 

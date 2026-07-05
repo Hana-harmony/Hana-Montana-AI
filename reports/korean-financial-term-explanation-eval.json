@@ -1,7 +1,7 @@
 {
   "schema_version": "korean-financial-term-explanation-eval/v1",
-  "generated_at": "2026-07-02T19:19:27.883254+00:00",
-  "model_version": "k-finance-term-rag-v2",
+  "generated_at": "2026-07-05T03:35:17.099928+00:00",
+  "model_version": "k-finance-term-qwen3-rag-v1",
   "sample_count": 11,
   "passed_count": 11,
   "accuracy": 1.0,
