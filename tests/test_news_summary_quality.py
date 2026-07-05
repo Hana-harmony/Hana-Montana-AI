@@ -297,6 +297,30 @@ def test_full_content_summary_beats_snippet_only_ellipsis() -> None:
     assert "영업이익 회복 속도" in joined
 
 
+def test_full_content_summary_returns_three_article_backed_single_sentence_lines() -> None:
+    engine = FinancialRuleEngine()
+    content = (
+        "삼성전자는 AI 서버 투자 확대로 HBM 공급 확대 계획을 밝혔다. "
+        "메모리 가격 반등과 데이터센터 고객사의 발주 증가가 이번 회복의 핵심 배경이다. "
+        "투자자는 영업이익 회복 속도와 고부가 제품 비중 확대 여부를 확인해야 한다."
+    )
+
+    summary = engine.summarize_what_why_impact(
+        "삼성전자 HBM 공급 확대",
+        "HBM 공급 확대 계획이 알려졌지만 일부 문장이...",
+        content,
+        "HIGH",
+        "POSITIVE",
+    )
+
+    lines = [summary.what, summary.why, summary.impact]
+    assert len(set(lines)) == 3
+    assert all(line in content for line in lines)
+    assert all(_ends_as_sentence(line) for line in lines)
+    assert not any("원문에서 확인된" in line for line in lines)
+    assert not any("보유·관심 종목" in line for line in lines)
+
+
 def test_summary_skips_long_fragment_before_complete_sentence() -> None:
     engine = FinancialRuleEngine()
     incomplete_lead = (

@@ -52,11 +52,6 @@ class AlertAnalyzer:
         ("빚투", "leveraged retail investing", "risk_slang", ()),
         ("어닝쇼크", "earnings shock", "event", ()),
         ("어닝서프라이즈", "earnings surprise", "event", ()),
-        ("실적", "earnings", "event", ()),
-        ("공시", "disclosure", "source", ()),
-        ("외국인", "foreign investors", "investor_type", ()),
-        ("기관", "institutional investors", "investor_type", ()),
-        ("개인", "individual investors", "investor_type", ()),
     )
     _FINANCIAL_GLOSSARY_DESCRIPTIONS = {
         "개미": "Korean stock-market slang for individual retail investors.",
@@ -73,7 +68,6 @@ class AlertAnalyzer:
         "빚투": "Korean market slang for leveraged retail investing funded with borrowed money.",
         "어닝쇼크": "An earnings result materially below market expectations.",
         "어닝서프라이즈": "An earnings result materially above market expectations.",
-        "공시": "A regulatory disclosure released through Korea's official filing channels.",
     }
     _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
