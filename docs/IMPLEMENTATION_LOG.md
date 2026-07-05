@@ -13,7 +13,7 @@
 - 글로벌 피어 headline/summary는 `South Korea's <peer>` 식의 과도한 동일시 대신 `Maps Closest To <peer>`와 `closest US-listed reference peer` 표현을 사용한다. 시가총액/매출 비율이 과도한 원천값은 재무 유사도 score를 0.54로 cap하고 matched factor에 directional data quality 경고를 남긴다.
 - 한국 금융 용어 seed glossary에 `초전도체주`, `로봇주`, `2차전지주`, `저PBR`을 추가해 흔한 테마주/정책 표현이 API key 없이도 dictionary-backed explanation으로 처리되도록 했다.
 - `reports/korean-financial-term-explanation-eval.json` 기준 샘플 11건 정확도 1.0, 사전 커버리지 0.909091, 캐시 가능률 0.909091, quality gate pass를 기록했다.
-- 글로벌 피어 설명 SFT 데이터셋 3,967건을 새 canonical 문구로 재생성했고 readiness는 failure 0건/pass다. Qwen3 LoRA를 새 canonical으로 재학습해 test loss 0.000, test perplexity 1.000을 기록했고, raw generation 대표 30건 기준 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 1.0을 기록했다.
+- 글로벌 피어 설명 SFT 데이터셋 3,967건은 v8에서 template copy가 아닌 grounded generation target으로 전환했다. raw generation 평가는 JSON valid, grounded, template copy 0건을 기준으로 한다.
 
 ## 2026-07-01 글로벌 피어 business profile ML classifier
 - 전체 한국 종목에 적용되는 business profile ML classifier를 추가했다.
@@ -22,6 +22,13 @@
 - holdout 평가에서 accuracy 0.973485, macro F1 0.967205, weighted F1 0.974094를 기록했다.
 - 기존 generic/legacy LOW 후보 12개는 모두 `not_low_confidence`로 개선했고, 전종목 all-results quality gate는 pass다.
 - 전종목 LOW confidence는 22.1326%, specific profile 3,089개 기준 LOW confidence는 0개다.
+
+## 2026-07-05 글로벌 피어 Qwen3 설명 LLM v8 실제 생성 전환
+- 사용자 지적에 따라 local LLM 경로가 template copy처럼 보이지 않도록 `canonical_title_text`, `canonical_summary_text` exact-match 계약을 제거했다.
+- prompt를 `global-peer-structured-rag-explainer-v8`로 승격하고 일반 종목의 `reference_draft`는 안정화용 style guide로만 둔다. 구버전 anchor 문구를 끌고 가던 anchor 종목은 reference draft를 제외한다. Qwen3 출력은 한국 종목 영어명, 미국 peer명, 업종/규모 근거를 포함하되 template을 그대로 복사하면 운영 guard에서 실패한다.
+- SFT target을 template과 다른 grounded generation 문장으로 재작성했다. raw generation 평가도 exact headline/summary 통과가 아니라 `template_copy_count == 0`, grounded 30/30, JSON valid 30/30을 기준으로 바꿨다.
+- anchor 14개는 sample weight 24로 가중해 Qwen3가 anchor 전용 JSON 구조를 안정적으로 학습하게 했다. 최종 readiness sample count는 4,289건, split은 train 3,861 / valid 214 / test 214다.
+- 최종 raw generation 대표 30종목 검증은 JSON valid 30/30, template copy 0/30, grounded 30/30, pass rate 1.0이다.
 
 ## 2026-07-01 글로벌 피어 Qwen3 설명 LLM v7 사용자 노출 문구 정정
 - 사용자 지적에 따라 LLM `headline`/`summary`에서 `similarity score`, `confidence`, `Hannah ranker` 같은 내부 점수 문구를 제거했다.

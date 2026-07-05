@@ -33,11 +33,12 @@
 - 기본 serving: deterministic structured template
 - Optional local LLM: `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`에서 endpoint가 없으면 `mlx-community/Qwen3-0.6B-4bit`와 LoRA adapter를 MLX로 직접 로드한다. endpoint가 있으면 Qwen3-0.6B GGUF Q4를 OpenAI-compatible local server로 연결한다.
 - LoRA adapter: `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora`
-- Prompt version: `global-peer-structured-rag-explainer-v7`
-- 학습 split: train 3,571 / valid 198 / test 198
+- Prompt version: `global-peer-structured-rag-explainer-v8`
+- 학습 데이터: 4,289개, anchor sample weight 24
+- 학습 split: train 3,861 / valid 214 / test 214
 - 학습 설정: 500 iters, batch size 1, learning rate 1e-5, 8 layers, trainable 1.442M / total 596.050M params
-- 검증: raw Qwen3 generation 30종목 기준 JSON valid 30/30, exact headline 30/30, exact summary 30/30, grounded 30/30, pass rate 1.0
-- Fallback: endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, headline/summary exact mismatch, 점수 노출, 투자조언 문구는 template으로 대체한다.
+- 검증: raw Qwen3 generation 30종목 기준 JSON valid 30/30, template copy 0/30, grounded 30/30, pass rate 1.0
+- Fallback: endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, template copy, 점수 노출, 투자조언 문구는 template으로 대체한다.
 
 ## 평가
 | 항목 | 값 |

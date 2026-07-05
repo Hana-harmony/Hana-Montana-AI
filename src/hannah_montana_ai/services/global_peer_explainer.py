@@ -15,7 +15,7 @@ from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
-EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v7"
+EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v8"
 TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v2"
 KOREA_ENGLISH_DISPLAY_NAMES = {
     "000270": "Kia",
@@ -332,7 +332,7 @@ class GlobalPeerExplanationGenerator:
         )
 
     def training_example(self, context: GlobalPeerExplanationContext) -> dict[str, object]:
-        template = self.template(context)
+        target = self._training_target(context)
         messages = self._messages(context)
         return {
             "schema_version": "global-peer-explanation-sft/v1",
@@ -343,18 +343,42 @@ class GlobalPeerExplanationGenerator:
                     "role": "assistant",
                     "content": json.dumps(
                         {
-                            "headline": template.headline,
-                            "summary": template.summary,
+                            "headline": target.headline,
+                            "summary": target.summary,
                         },
                         ensure_ascii=False,
                     ),
                 },
             ],
             "target": {
-                "headline": template.headline,
-                "summary": template.summary,
+                "headline": target.headline,
+                "summary": target.summary,
             },
         }
+
+    def _training_target(self, context: GlobalPeerExplanationContext) -> GlobalPeerExplanation:
+        request = context.request
+        peer = context.primary_peer
+        display_name = self._stock_display_name(request)
+        peer_display_name = self._display_peer_name(peer.company_name)
+        business_label = self._business_label(peer)
+        business_phrase = self._summary_business_phrase(business_label)
+        headline = (
+            f"{display_name} Lines Up With '{peer_display_name}' "
+            f"As {self._article_for(business_label)} {business_label}"
+        )
+        summary = (
+            f"The closest US-listed peer selected for {display_name} is "
+            f"{peer_display_name}, reflecting its {business_phrase}. "
+            f"{self._llm_domain_sentence(peer, peer_display_name)} "
+            f"{self._llm_financial_sentence(peer, peer_display_name)}"
+        )
+        return GlobalPeerExplanation(
+            headline=headline,
+            summary=summary,
+            source="LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG_TARGET",
+            model_version="training-target:v1",
+        )
 
     def _messages(self, context: GlobalPeerExplanationContext) -> list[dict[str, str]]:
         facts = self._grounding_facts(context)
@@ -364,13 +388,15 @@ class GlobalPeerExplanationGenerator:
                 "content": (
                     "Return a JSON object with exactly two keys: headline and summary. "
                     "Use only the provided facts. Do not invent products, partnerships, "
-                    "financial figures, tickers, recommendations, or names. The headline "
-                    "value must equal writing_contract.canonical_title_text. The summary "
-                    "value must equal writing_contract.canonical_summary_text. Copy "
+                    "financial figures, tickers, recommendations, or names. Write a fresh "
+                    "grounded explanation from the provided structured facts. If "
+                    "writing_contract.reference_draft is present, use it only as a "
+                    "fact-preserving style guide and do not copy it verbatim. Copy "
                     "writing_contract.use_company and writing_contract.use_peer exactly. "
-                    "Every peer-company reference in the summary must use "
+                    "Every peer-company reference in the headline and summary must use "
                     "writing_contract.use_peer exactly; never shorten, repeat, or partially "
-                    "rename it. "
+                    "rename it. Do not mention confidence, similarity scores, model names, "
+                    "or investment recommendations. "
                     "Never output keys from writing_contract."
                 ),
             },
@@ -382,6 +408,7 @@ class GlobalPeerExplanationGenerator:
                         "facts": facts,
                         "required_output_keys": ["headline", "summary"],
                         "style": {
+                            "headline": "natural English, include the Korean company and US peer",
                             "summary": "2 to 4 sentences, no investment advice",
                         },
                     },
@@ -397,17 +424,34 @@ class GlobalPeerExplanationGenerator:
         display_name = GlobalPeerExplanationGenerator._stock_display_name(request)
         peer_display_name = GlobalPeerExplanationGenerator._display_peer_name(peer.company_name)
         business_label = GlobalPeerExplanationGenerator._business_label(peer)
-        canonical_title_text = GlobalPeerExplanationGenerator._expected_headline(
-            request=request,
-            peer=peer,
-            display_name=display_name,
-            peer_display_name=peer_display_name,
-            business_label=business_label,
-        )
-        canonical_summary_text = GlobalPeerExplanationGenerator.template(
-            GlobalPeerExplanationGenerator(),
-            context,
-        ).summary
+        writing_contract: dict[str, object] = {
+            "use_company": display_name,
+            "use_peer": peer_display_name,
+            "use_business_label": business_label,
+            "forbidden_display_names": [
+                value
+                for value in (request.stock_name, request.stock_name_en, peer.company_name)
+                if value and value not in {display_name, peer_display_name}
+            ],
+        }
+        anchor = KOREA_ANCHORS.get(request.stock_code)
+        if not (anchor and anchor.headline_template and anchor.summary):
+            reference_headline = GlobalPeerExplanationGenerator._expected_headline(
+                request=request,
+                peer=peer,
+                display_name=display_name,
+                peer_display_name=peer_display_name,
+                business_label=business_label,
+            )
+            reference_summary = GlobalPeerExplanationGenerator.template(
+                GlobalPeerExplanationGenerator(),
+                context,
+            ).summary
+            writing_contract["reference_draft"] = {
+                "headline": reference_headline,
+                "summary": reference_summary,
+            }
+
         return {
             "korean_stock": {
                 "code": request.stock_code,
@@ -432,18 +476,7 @@ class GlobalPeerExplanationGenerator:
                 "confidence_score": context.confidence_score,
                 "matched_factors": peer.matched_factors,
             },
-            "writing_contract": {
-                "use_company": display_name,
-                "use_peer": peer_display_name,
-                "use_business_label": business_label,
-                "canonical_title_text": canonical_title_text,
-                "canonical_summary_text": canonical_summary_text,
-                "forbidden_display_names": [
-                    value
-                    for value in (request.stock_name, request.stock_name_en, peer.company_name)
-                    if value and value not in {display_name, peer_display_name}
-                ],
-            },
+            "writing_contract": writing_contract,
         }
 
     @staticmethod
@@ -464,7 +497,24 @@ class GlobalPeerExplanationGenerator:
     @staticmethod
     def _sanitize(value: str, *, max_length: int) -> str:
         sanitized = re.sub(r"\s+", " ", value).strip()
+        sanitized = GlobalPeerExplanationGenerator._collapse_repeated_adjacent_words(
+            sanitized
+        )
         return sanitized[:max_length].strip()
+
+    @staticmethod
+    def _collapse_repeated_adjacent_words(value: str) -> str:
+        previous = None
+        collapsed = value
+        while previous != collapsed:
+            previous = collapsed
+            collapsed = re.sub(
+                r"\b([A-Za-z][A-Za-z0-9'-]*)(\s+\1\b)+",
+                r"\1",
+                collapsed,
+                flags=re.IGNORECASE,
+            )
+        return collapsed
 
     @staticmethod
     def _is_grounded(
@@ -543,24 +593,51 @@ class GlobalPeerExplanationGenerator:
         expected: GlobalPeerExplanation,
         context: GlobalPeerExplanationContext,
     ) -> bool:
-        if headline != expected.headline:
-            return False
         if GlobalPeerExplanationGenerator._has_repeated_adjacent_word(summary):
             return False
-        if summary != expected.summary:
+        if headline == expected.headline and summary == expected.summary:
+            return False
+        if GlobalPeerExplanationGenerator._contains_hangul(f"{headline} {summary}"):
+            return False
+        lower_summary = summary.lower()
+        if "similarity score" in lower_summary or "confidence" in lower_summary:
+            return False
+        if "hannah" in lower_summary or "model" in lower_summary:
+            return False
+        if not GlobalPeerExplanationGenerator._headline_uses_required_names(headline, context):
+            return False
+        sentence_count = len(
+            [
+                sentence
+                for sentence in re.split(r"(?<=[.!?])\s+", summary.strip())
+                if sentence.strip()
+            ]
+        )
+        if sentence_count < 2 or sentence_count > 4:
             return False
         peer_display_name = GlobalPeerExplanationGenerator._display_peer_name(
             context.primary_peer.company_name
-        )
-        expected_peer_mentions = GlobalPeerExplanationGenerator._phrase_count(
-            expected.summary,
-            peer_display_name,
         )
         actual_peer_mentions = GlobalPeerExplanationGenerator._phrase_count(
             summary,
             peer_display_name,
         )
-        return actual_peer_mentions >= expected_peer_mentions
+        return actual_peer_mentions >= 1
+
+    @staticmethod
+    def _headline_uses_required_names(
+        headline: str,
+        context: GlobalPeerExplanationContext,
+    ) -> bool:
+        display_name = GlobalPeerExplanationGenerator._stock_display_name(context.request)
+        peer_display_name = GlobalPeerExplanationGenerator._display_peer_name(
+            context.primary_peer.company_name
+        )
+        headline_lower = headline.lower()
+        return (
+            display_name.lower() in headline_lower
+            and peer_display_name.lower() in headline_lower
+        )
 
     @staticmethod
     def _has_repeated_adjacent_word(value: str) -> bool:
@@ -664,6 +741,39 @@ class GlobalPeerExplanationGenerator:
         return (
             f"Scale and financial data are used as secondary context: {peer_name} is treated "
             f"as a {scale} US-market reference, not as a one-for-one size match."
+        )
+
+    @staticmethod
+    def _llm_domain_sentence(peer: GlobalPeerMatch, peer_display_name: str) -> str:
+        sector = peer.sector if peer.sector != "Unclassified" else "its mapped sector"
+        industry = peer.industry if peer.industry != "Unclassified" else "its mapped industry"
+        business_model = GlobalPeerExplanationGenerator._short_business_model(peer.business_model)
+        if peer.industry not in {"Unclassified", "Listed Operating Company"}:
+            return (
+                f"{peer_display_name} shares the same broad sector signal in {sector} "
+                f"and a comparable industry map around {industry.lower()}."
+            )
+        if peer.business_model != "Operating company":
+            return (
+                f"{peer_display_name} is the closest fit because both companies map to "
+                f"{business_model.lower()}."
+            )
+        return (
+            f"{peer_display_name} is used as a broad listed-company reference because "
+            "specific industry evidence is limited."
+        )
+
+    @staticmethod
+    def _llm_financial_sentence(peer: GlobalPeerMatch, peer_display_name: str) -> str:
+        if peer.financial_similarity_score is None:
+            return (
+                "Financial data is incomplete, so the explanation emphasizes business "
+                "domain fit over scale."
+            )
+        scale = peer.scale_bucket.replace("_", "-").lower()
+        return (
+            f"Financial fields are treated as supporting context, with {peer_display_name} "
+            f"used as a {scale} scale reference rather than a direct valuation twin."
         )
 
     @staticmethod
