@@ -130,6 +130,35 @@ class Settings(BaseModel):
     global_peer_explanation_llm_max_tokens: int = Field(
         default_factory=lambda: int(os.getenv("HANNAH_GLOBAL_PEER_LLM_MAX_TOKENS", "220"))
     )
+    news_summary_generation_mode: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_GENERATION_MODE", "rule")
+    )
+    news_summary_llm_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_ENDPOINT", "")
+    )
+    news_summary_llm_model: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
+    )
+    news_summary_mlx_model: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_NEWS_SUMMARY_MLX_MODEL",
+            "mlx-community/Qwen3-0.6B-4bit",
+        )
+    )
+    news_summary_mlx_adapter_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH",
+                "src/hannah_montana_ai/model_store/news_summary_qwen3_lora",
+            )
+        )
+    )
+    news_summary_llm_timeout_seconds: float = Field(
+        default_factory=lambda: float(os.getenv("HANNAH_NEWS_SUMMARY_LLM_TIMEOUT_SECONDS", "4.0"))
+    )
+    news_summary_llm_max_tokens: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_NEWS_SUMMARY_LLM_MAX_TOKENS", "260"))
+    )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"
     )
