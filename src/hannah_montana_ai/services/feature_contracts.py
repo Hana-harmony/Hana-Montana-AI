@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import html
+import re
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Literal
+from typing import Literal, Protocol
 
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
@@ -15,6 +16,7 @@ from hannah_montana_ai.domain.schemas import (
     IntelligenceEventResponse,
     OrderAvailabilityIndicator,
     PriceLimitStatus,
+    SourceType,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
     TaxCaseType,
@@ -25,6 +27,11 @@ from hannah_montana_ai.domain.schemas import (
     TaxRefundWorkflowStatus,
 )
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.korean_translation_generator import (
+    SOURCE_LANGUAGE_FALLBACK_PROVIDER,
+    KoreanTranslationContext,
+    KoreanTranslationResult,
+)
 
 FOREIGN_LIMIT_WARNING_BUFFER_PERCENT = 1.0
 DIVIDEND_DOMESTIC_WITHHOLDING_RATE = 0.22
@@ -38,6 +45,12 @@ TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
 TAX_REFUND_MODEL_VERSION = "us-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
+
+
+class KoreanTranslationService(Protocol):
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        pass
+
 
 FINANCIAL_TRANSLATION_GLOSSARY = (
     (
@@ -144,6 +157,25 @@ FINANCIAL_TRANSLATION_GLOSSARY = (
     ("외국인", "foreign investor", "investor_type", ()),
     ("환급", "refund", "tax", ()),
 )
+DISPLAY_FINANCIAL_GLOSSARY_TERMS = frozenset(
+    {
+        "삼전닉스",
+        "빚투",
+        "어닝쇼크",
+        "어닝서프라이즈",
+    }
+)
+QWEN_TRANSLATION_GLOSSARY_CATEGORY_PRIORITY = {
+    "stock": 0,
+    "market_slang": 1,
+    "risk": 2,
+    "event": 3,
+    "disclosure": 4,
+    "market_state": 5,
+    "index": 6,
+    "fx": 7,
+    "metric": 8,
+}
 
 
 @dataclass(frozen=True)
@@ -296,6 +328,9 @@ class FinancialTranslationModel:
     version = TRANSLATION_MODEL_VERSION
     provider = "local-financial-glossary"
 
+    def __init__(self, translation_generator: KoreanTranslationService | None = None) -> None:
+        self._translation_generator = translation_generator
+
     def translate_event(
         self,
         request: IntelligenceEventRequest,
@@ -309,29 +344,103 @@ class FinancialTranslationModel:
             summary_translation.glossary_terms,
             content_translation.glossary_terms,
         )
+        display_glossary_terms = _display_glossary_terms(glossary_terms)
+        qwen_glossary_terms = _qwen_translation_glossary_terms(glossary_terms)
+        qwen_title_translation = self._translate_with_qwen(
+            text=request.title,
+            source_type=request.source_type,
+            title=request.title,
+            glossary_terms=qwen_glossary_terms,
+        )
+        qwen_summary_translation = self._translate_with_qwen(
+            text=summary,
+            source_type=request.source_type,
+            title=request.title,
+            glossary_terms=qwen_glossary_terms,
+        )
+        qwen_content_translation = self._translate_with_qwen(
+            text=request.content,
+            source_type=request.source_type,
+            title=request.title,
+            glossary_terms=qwen_glossary_terms,
+        )
+        translated_title = _preferred_translation(
+            qwen_title_translation,
+            title_translation.translated_text,
+        )
+        translated_summary = _preferred_translation(
+            qwen_summary_translation,
+            summary_translation.translated_text,
+        )
+        translated_content = _preferred_translation(
+            qwen_content_translation,
+            content_translation.translated_text,
+        )
         quality_flags = _translation_quality_flags(
             request.title,
-            title_translation.translated_text,
+            translated_title,
             summary,
-            summary_translation.translated_text,
-            glossary_terms,
+            translated_summary,
+            display_glossary_terms,
+            translation_terms_applied=bool(glossary_terms),
         )
+        quality_flags.extend(
+            _qwen_translation_quality_flags(
+                qwen_title_translation,
+                qwen_summary_translation,
+                qwen_content_translation,
+            )
+        )
+        if _contains_hangul(translated_content):
+            quality_flags.append("UNTRANSLATED_CONTENT_REVIEW_REQUIRED")
+        quality_flags = list(dict.fromkeys(quality_flags))
         translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"] = (
             "TRANSLATED"
-            if title_translation.translated_text != html.unescape(request.title)
-            or summary_translation.translated_text != html.unescape(summary)
-            or content_translation.translated_text != html.unescape(request.content)
+            if translated_title != html.unescape(request.title)
+            or translated_summary != html.unescape(summary)
+            or translated_content != html.unescape(request.content)
             else "SOURCE_LANGUAGE_FALLBACK"
         )
+        provider = _translation_provider(
+            qwen_title_translation,
+            qwen_summary_translation,
+            qwen_content_translation,
+            fallback=self.provider,
+        )
+        model_version = _translation_model_version(
+            qwen_title_translation,
+            qwen_summary_translation,
+            qwen_content_translation,
+            fallback=self.version,
+        )
         return TranslationPrediction(
-            translated_title=title_translation.translated_text,
-            translated_summary=summary_translation.translated_text,
-            translated_content=content_translation.translated_text,
+            translated_title=translated_title,
+            translated_summary=translated_summary,
+            translated_content=translated_content,
             translation_status=translation_status,
-            glossary_terms=glossary_terms,
+            glossary_terms=display_glossary_terms,
             quality_flags=quality_flags,
-            provider=self.provider,
-            model_version=self.version,
+            provider=provider,
+            model_version=model_version,
+        )
+
+    def _translate_with_qwen(
+        self,
+        *,
+        text: str,
+        source_type: SourceType,
+        title: str,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> KoreanTranslationResult | None:
+        if self._translation_generator is None or not _contains_hangul(text):
+            return None
+        return self._translation_generator.translate(
+            KoreanTranslationContext(
+                text=text,
+                source_type=source_type,
+                title=title,
+                glossary_terms=glossary_terms,
+            )
         )
 
 
@@ -488,9 +597,13 @@ class StockOrderStatusService:
 
 
 class IntelligenceEventService:
-    def __init__(self, analyzer: AlertAnalyzer) -> None:
+    def __init__(
+        self,
+        analyzer: AlertAnalyzer,
+        translation_model: FinancialTranslationModel | None = None,
+    ) -> None:
         self._analyzer = analyzer
-        self._translation_model = FinancialTranslationModel()
+        self._translation_model = translation_model or FinancialTranslationModel()
 
     def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
         analysis_request = AlertAnalysisRequest(
@@ -662,12 +775,99 @@ def _merge_glossary_terms(
     return merged
 
 
+def _display_glossary_terms(terms: list[FinancialGlossaryTerm]) -> list[FinancialGlossaryTerm]:
+    return [
+        term
+        for term in terms
+        if term.normalized_term in DISPLAY_FINANCIAL_GLOSSARY_TERMS
+        and _contains_hangul(term.normalized_term)
+    ]
+
+
+def _qwen_translation_glossary_terms(
+    terms: list[FinancialGlossaryTerm],
+) -> list[FinancialGlossaryTerm]:
+    return sorted(
+        [term for term in terms if term.category in QWEN_TRANSLATION_GLOSSARY_CATEGORY_PRIORITY],
+        key=lambda term: (
+            QWEN_TRANSLATION_GLOSSARY_CATEGORY_PRIORITY[term.category],
+            term.normalized_term,
+        ),
+    )
+
+
+def _preferred_translation(
+    qwen_result: KoreanTranslationResult | None,
+    fallback_text: str,
+) -> str:
+    if (
+        qwen_result is not None
+        and qwen_result.translated_text.strip()
+        and not qwen_result.quality_flags
+        and qwen_result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+    ):
+        return qwen_result.translated_text.strip()
+    return fallback_text
+
+
+def _qwen_translation_quality_flags(
+    *results: KoreanTranslationResult | None,
+) -> list[str]:
+    flags: list[str] = []
+    for result in results:
+        if result is None:
+            continue
+        for flag in result.quality_flags:
+            flags.append(f"QWEN_TRANSLATION_{flag}")
+    if any(
+        result is not None
+        and result.translated_text.strip()
+        and not result.quality_flags
+        and result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+        for result in results
+    ):
+        flags.append("QWEN_TRANSLATION_APPLIED")
+    return flags
+
+
+def _translation_provider(
+    *results: KoreanTranslationResult | None,
+    fallback: str,
+) -> str:
+    for result in results:
+        if (
+            result is not None
+            and result.translated_text.strip()
+            and not result.quality_flags
+            and result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+        ):
+            return result.provider
+    return fallback
+
+
+def _translation_model_version(
+    *results: KoreanTranslationResult | None,
+    fallback: str,
+) -> str:
+    for result in results:
+        if (
+            result is not None
+            and result.translated_text.strip()
+            and not result.quality_flags
+            and result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+        ):
+            return result.model_version
+    return fallback
+
+
 def _translation_quality_flags(
     title: str,
     translated_title: str,
     summary: str,
     translated_summary: str,
     glossary_terms: list[FinancialGlossaryTerm],
+    *,
+    translation_terms_applied: bool = False,
 ) -> list[str]:
     flags: list[str] = []
     if glossary_terms:
@@ -677,6 +877,8 @@ def _translation_quality_flags(
         translated_summary,
     ):
         flags.append("UNTRANSLATED_FINANCIAL_TERM_REVIEW_REQUIRED")
+    if translation_terms_applied and "FINANCIAL_TRANSLATION_TERMS_APPLIED" not in flags:
+        flags.append("FINANCIAL_TRANSLATION_TERMS_APPLIED")
     if not flags:
         flags.append("SOURCE_LANGUAGE_FALLBACK_REVIEW_REQUIRED")
     return flags
@@ -689,7 +891,12 @@ def _contains_korean_financial_term(source_text: str, translated_text: str) -> b
         term in translated_text
         for normalized_term, _, _, aliases in FINANCIAL_TRANSLATION_GLOSSARY
         for term in (normalized_term, *aliases)
+        if _contains_hangul(term)
     )
+
+
+def _contains_hangul(value: str) -> bool:
+    return bool(re.search(r"[가-힣]", value))
 
 
 class TaxDocumentVerificationService:

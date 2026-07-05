@@ -31,6 +31,7 @@ from hannah_montana_ai.domain.schemas import (
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.audit import AnalysisAuditLogger
 from hannah_montana_ai.services.feature_contracts import (
+    FinancialTranslationModel,
     IntelligenceEventService,
     StockOrderStatusService,
     TaxDocumentVerificationService,
@@ -270,7 +271,12 @@ def build_intelligence_event(
             ErrorCode.MODEL_UNAVAILABLE,
             "ML model artifact is unavailable",
         ) from exception
-    return success_response(IntelligenceEventService(analyzer).build_response(request))
+    return success_response(
+        IntelligenceEventService(
+            analyzer,
+            translation_model=FinancialTranslationModel(get_korean_translation_service()),
+        ).build_response(request)
+    )
 
 
 @router.post(

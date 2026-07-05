@@ -4,7 +4,15 @@ from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
+from hannah_montana_ai.domain.schemas import IntelligenceEventRequest, StockCandidate
 from hannah_montana_ai.main import app
+from hannah_montana_ai.services.feature_contracts import FinancialTranslationModel
+from hannah_montana_ai.services.korean_translation_generator import (
+    KOREAN_TRANSLATION_PROMPT_VERSION,
+    LOCAL_TRANSLATION_PROVIDER,
+    KoreanTranslationContext,
+    KoreanTranslationResult,
+)
 
 
 def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_limit() -> None:
@@ -116,14 +124,9 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "EARNINGS" in payload["event_tags"]
     assert payload["event_tag"] in payload["event_tags"]
     assert payload["is_watchlist_target"] is True
-    assert {
-        "source_term": "영업이익",
-        "normalized_term": "영업이익",
-        "english_term": "operating profit",
-        "category": "metric",
-        "description": "",
-    } in payload["glossary_terms"]
-    assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
+    assert payload["glossary_terms"] == []
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in payload["translation_quality_flags"]
+    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"
     assert payload["translation_model_version"] == "local-financial-glossary-v2"
     assert 0.0 <= payload["event_confidence"] <= 1.0
@@ -131,6 +134,41 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert 0.0 <= payload["importance_confidence"] <= 1.0
     assert payload["stock_match_confidence"] == 1.0
     assert payload["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
+
+
+def test_intelligence_event_translation_uses_qwen_generator_for_article_body() -> None:
+    model = FinancialTranslationModel(translation_generator=_FakeQwenTranslationGenerator())
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title="삼성전자 2분기 영업이익 증가",
+        snippet="반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+        content="삼성전자는 반도체 수요 회복과 공급계약 증가로 영업이익 개선이 예상된다고 밝혔다.",
+        original_url="https://example.com/news/intelligence-qwen",
+        stock_universe=[
+            StockCandidate(
+                stock_code="005930",
+                stock_name="삼성전자",
+                stock_name_en="Samsung Electronics",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "삼성전자는 반도체 수요 회복으로 영업이익 개선 기대가 커졌다고 밝혔다.",
+    )
+
+    assert prediction.provider == LOCAL_TRANSLATION_PROVIDER
+    assert prediction.model_version == "fake-qwen3-translation"
+    assert prediction.translated_title == "Samsung Electronics reported higher operating profit."
+    assert prediction.translated_content == (
+        "Samsung Electronics said operating profit is expected to improve as "
+        "semiconductor demand recovers and supply contracts increase."
+    )
+    assert not re.search(r"[가-힣]", prediction.translated_content)
+    assert prediction.glossary_terms == []
+    assert "QWEN_TRANSLATION_APPLIED" in prediction.quality_flags
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in prediction.quality_flags
 
 
 def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
@@ -207,6 +245,30 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert "자동 환수" in payload["risk_disclosure_message"]
     assert payload["tax_model_version"] == "us-treaty-refund-case-engine-v1"
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
+
+
+class _FakeQwenTranslationGenerator:
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        if context.text.startswith("삼성전자 2분기"):
+            translated = "Samsung Electronics reported higher operating profit."
+        elif context.text.startswith("삼성전자는 반도체 수요 회복과 공급계약"):
+            translated = (
+                "Samsung Electronics said operating profit is expected to improve as "
+                "semiconductor demand recovers and supply contracts increase."
+            )
+        else:
+            translated = (
+                "Samsung Electronics said earnings expectations improved as "
+                "semiconductor demand recovered."
+            )
+        return KoreanTranslationResult(
+            translated_text=translated,
+            provider=LOCAL_TRANSLATION_PROVIDER,
+            model_version="fake-qwen3-translation",
+            status="TRANSLATED",
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=[],
+        )
 
 
 def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None:

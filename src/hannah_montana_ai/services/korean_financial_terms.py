@@ -30,6 +30,15 @@ REVIEW_CACHE_TTL_SECONDS = 24 * 60 * 60
 LOCAL_QWEN_TERM_SOURCE = "LOCAL_OPEN_SOURCE_LLM_RAG"
 OPENAI_TERM_SOURCE = "OPENAI_WEB_SEARCH_RAG"
 ALLOWED_GENERATED_SOURCES = {LOCAL_QWEN_TERM_SOURCE, OPENAI_TERM_SOURCE}
+ENGLISH_LOCALISM_LOOKUP_TERMS = frozenset(
+    {
+        "ant",
+        "ants",
+        "gaemi",
+        "gaemee",
+        "samjeonnix",
+    }
+)
 TERM_GENERATION_CATEGORIES = {
     "market_slang",
     "ipo_slang",
@@ -551,6 +560,11 @@ class KoreanFinancialTermExplanationService:
         normalized_request_term = _normalize_term(request.term)
         matched_entry = self._index.get(normalized_request_term)
         context_evidence = _context_evidence(request)
+        if not _contains_hangul(request.term) and not _is_allowed_english_localism_lookup(
+            request.term,
+            matched_entry,
+        ):
+            return self._from_non_korean_generic_term(request, context_evidence)
         if matched_entry:
             return self._from_dictionary(request, matched_entry, context_evidence)
 
@@ -561,6 +575,36 @@ class KoreanFinancialTermExplanationService:
             return self._from_generated(request, provider_result)
 
         return self._from_unverified_context(request, context_evidence)
+
+    def _from_non_korean_generic_term(
+        self,
+        request: KoreanFinancialTermExplainRequest,
+        context_evidence: tuple[FinancialTermEvidence, ...],
+    ) -> KoreanFinancialTermExplainResponse:
+        normalized_term = _normalize_display_term(request.term)
+        return KoreanFinancialTermExplainResponse(
+            term=request.term,
+            normalized_term=normalized_term,
+            english_term="",
+            category="not_glossary",
+            definition="",
+            explanation=(
+                f'"{normalized_term}" is not a Korean local-market glossary term. '
+                "Only Korean slang, policy themes, IPO slang, disclosure terms, risk terms, "
+                "and explicit local-market romanizations are eligible for explanation."
+            ),
+            example="",
+            confidence_score=0.0,
+            confidence_level="LOW",
+            display_mode="TEXT_ONLY",
+            source="INTERNAL_CONTEXT_RAG",
+            cacheable=False,
+            cache_ttl_seconds=REVIEW_CACHE_TTL_SECONDS,
+            evidence=list(context_evidence[:3]),
+            quality_flags=["NON_KOREAN_GLOSSARY_TERM_IGNORED"],
+            model_version=self._model_version,
+            generated_at=datetime.now(UTC),
+        )
 
     def _from_dictionary(
         self,
@@ -648,13 +692,13 @@ class KoreanFinancialTermExplanationService:
         context_evidence: tuple[FinancialTermEvidence, ...],
     ) -> KoreanFinancialTermExplainResponse:
         explanation = (
-            f"\"{request.term}\" is not verified in the Korean financial term dictionary yet. "
+            f'"{request.term}" is not verified in the Korean financial term dictionary yet. '
             "The term should be reviewed with recent article context before showing a "
             "definitive explanation."
         )
         if context_evidence:
             explanation = (
-                f"\"{request.term}\" appears in this Korean market article, "
+                f'"{request.term}" appears in this Korean market article, '
                 "but the system does not "
                 "yet have enough verified evidence to provide a definitive foreign-investor "
                 "explanation."
@@ -783,6 +827,19 @@ def _contains_hangul(value: str) -> bool:
     return bool(re.search(r"[가-힣]", value))
 
 
+def _is_allowed_english_localism_lookup(
+    term: str,
+    entry: FinancialTermEntry | None,
+) -> bool:
+    if entry is None:
+        return False
+    normalized = _normalize_term(term)
+    if normalized not in ENGLISH_LOCALISM_LOOKUP_TERMS:
+        return False
+    aliases = {_normalize_term(alias) for alias in entry.aliases}
+    return normalized in aliases
+
+
 def _is_english_display_term(term: str, entry: FinancialTermEntry) -> bool:
     normalized_request = _normalize_term(term)
     if not normalized_request:
@@ -811,7 +868,7 @@ def _english_dictionary_explanation(term: str, entry: FinancialTermEntry) -> str
         "capital_action": "Korean corporate-action news",
     }.get(entry.category, "Korean market news")
     return (
-        f"The term \"{display_term}\" refers to {definition}. "
+        f'The term "{display_term}" refers to {definition}. '
         f"In {category_context}, it helps foreign investors understand the local "
         "market role or narrative without relying on a literal translation."
     )
@@ -819,7 +876,7 @@ def _english_dictionary_explanation(term: str, entry: FinancialTermEntry) -> str
 
 def _english_dictionary_example(term: str, entry: FinancialTermEntry) -> str:
     display_term = " ".join(term.split()).strip() or entry.english_term
-    return f"In a translated article, \"{display_term}\" is the clickable local-market term."
+    return f'In a translated article, "{display_term}" is the clickable local-market term.'
 
 
 def _context_evidence(
@@ -939,8 +996,7 @@ def _sanitize_text(value: str, *, max_length: int) -> str:
 def _has_repeated_adjacent_word(value: str) -> bool:
     words = re.findall(r"\b[A-Za-z][A-Za-z0-9'-]*\b", value.lower())
     return any(
-        left == right and len(left) > 2
-        for left, right in zip(words, words[1:], strict=False)
+        left == right and len(left) > 2 for left, right in zip(words, words[1:], strict=False)
     )
 
 

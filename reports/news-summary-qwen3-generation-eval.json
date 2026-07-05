@@ -1,6 +1,6 @@
 {
   "schema_version": "news-summary-qwen3-generation-eval/v1",
-  "generated_at": "2026-07-05T04:32:03.372763+00:00",
+  "generated_at": "2026-07-05T14:04:57.179506+00:00",
   "prompt_version": "news-summary-qwen3-wwi-v1",
   "model": "mlx-community/Qwen3-0.6B-4bit",
   "adapter_dir": "src/hannah_montana_ai/model_store/news_summary_qwen3_lora",

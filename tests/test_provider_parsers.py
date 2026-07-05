@@ -25,7 +25,7 @@ from hannah_montana_ai.services.provider_parsers import (
 def test_provider_parsers_build_stock_order_model_input_from_kis_and_krx_rows() -> None:
     master = parse_kis_master_csv(
         "종목코드,종목명,영문명,시장구분,발행주식수,전일종가,상한가,하한가\n"
-        "005930,삼성전자,Samsung Electronics,KOSPI,\"100,000,000\",65000,84500,45500\n"
+        '005930,삼성전자,Samsung Electronics,KOSPI,"100,000,000",65000,84500,45500\n'
     )[0]
     quote = parse_kis_realtime_packet("005930|84500|Y|N|단일가")
     foreign_holding = parse_krx_foreign_holding_row(
@@ -274,9 +274,9 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert "Samsung Electronics" in response.translated_body
     assert response.body_source_type == "FULL_TEXT"
     assert response.content_availability == "FULL_TEXT"
-    assert response.glossary_terms
-    assert response.glossary_terms[0].english_term == "Samsung Electronics"
-    assert "FINANCIAL_GLOSSARY_APPLIED" in response.translation_quality_flags
+    assert response.glossary_terms == []
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in response.translation_quality_flags
+    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in response.translation_quality_flags
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
     assert websocket_event["partner_id"] == "US_BROKER"
@@ -286,8 +286,9 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert websocket_event["translated_body"] == response.translated_body
     assert websocket_event["body_source_type"] == "FULL_TEXT"
     assert websocket_event["content_availability"] == "FULL_TEXT"
-    assert websocket_event["glossary_terms"][0]["english_term"] == "Samsung Electronics"
-    assert "FINANCIAL_GLOSSARY_APPLIED" in websocket_event["translation_quality_flags"]
+    assert websocket_event["glossary_terms"] == []
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in websocket_event["translation_quality_flags"]
+    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in websocket_event["translation_quality_flags"]
     assert websocket_event["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
 
 

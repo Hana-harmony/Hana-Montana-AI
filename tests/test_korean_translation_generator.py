@@ -271,8 +271,7 @@ def test_korean_translation_canonicalizes_preferred_localism_case() -> None:
 
 def test_korean_translation_repairs_qwen_gaemi_romanization() -> None:
     client = FakeTranslationClient(
-        "{\"translation\":\"Investors should check Samjeon Nix and Triangunxi's trading "
-        'levels."}'
+        '{"translation":"Investors should check Samjeon Nix and Triangunxi\'s trading levels."}'
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
@@ -403,9 +402,7 @@ def test_korean_translation_rejects_prompt_leakage_and_missing_market_terms() ->
 
 def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> None:
     client = FakeTranslationClient(
-        json_translation(
-            "KOSPI and KOSX fell as IPO stocks traded below their offering prices."
-        )
+        json_translation("KOSPI and KOSX fell as IPO stocks traded below their offering prices.")
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
@@ -429,8 +426,7 @@ def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> N
 
 def test_korean_translation_rejects_repeated_long_phrase() -> None:
     repeated = (
-        "Naver's KRW e-commerce platform broke even after a 76 percent drop "
-        "from its KRW price."
+        "Naver's KRW e-commerce platform broke even after a 76 percent drop from its KRW price."
     )
     client = FakeTranslationClient(json_translation(" ".join([repeated, repeated, repeated])))
     generator = KoreanTranslationGenerator(
@@ -485,6 +481,35 @@ def test_korean_translation_rejects_unsupported_numeric_fact_and_uppercase_word_
     assert result.translated_text == ""
     assert "UNSUPPORTED_NUMERIC_FACT" in result.quality_flags
     assert "UPPERCASE_WORD_SALAD" in result.quality_flags
+
+
+def test_korean_translation_repairs_stock_name_surface_from_glossary() -> None:
+    client = FakeTranslationClient(
+        json_translation("Samjeon Electronics expects operating profit to improve.")
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자는 영업이익 개선이 예상된다고 밝혔다.",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="삼성전자",
+                    normalized_term="삼성전자",
+                    english_term="Samsung Electronics",
+                    category="stock",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "Samsung Electronics expects operating profit to improve."
+    assert result.quality_flags == []
 
 
 def test_korean_translation_api_uses_configured_generator(monkeypatch) -> None:

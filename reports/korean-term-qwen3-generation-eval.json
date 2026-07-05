@@ -1,6 +1,6 @@
 {
   "schema_version": "korean-term-qwen3-generation-eval/v1",
-  "generated_at": "2026-07-05T03:36:14.198858+00:00",
+  "generated_at": "2026-07-05T14:04:59.576994+00:00",
   "prompt_version": "k-finance-term-qwen3-rag-prompt-v1",
   "model": "mlx-community/Qwen3-0.6B-4bit",
   "adapter_dir": "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora",
