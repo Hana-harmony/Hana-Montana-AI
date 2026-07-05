@@ -23,6 +23,24 @@ DEFAULT_PSEUDO_LABEL_MONITORING_REPORT_PATH = (
 DEFAULT_CONFIDENCE_CALIBRATION_REPORT_PATH = (
     PROJECT_ROOT / "reports/model-confidence-calibration.json"
 )
+DEFAULT_KOREAN_TERM_QWEN_TRAINING_REPORT_PATH = (
+    PROJECT_ROOT / "reports/korean-term-qwen3-explainer-training.json"
+)
+DEFAULT_NEWS_SUMMARY_QWEN_TRAINING_REPORT_PATH = (
+    PROJECT_ROOT / "reports/news-summary-qwen3-training.json"
+)
+DEFAULT_KOREAN_TRANSLATION_QWEN_TRAINING_REPORT_PATH = (
+    PROJECT_ROOT / "reports/korean-translation-qwen3-training.json"
+)
+DEFAULT_KOREAN_TERM_QWEN_EVAL_REPORT_PATH = (
+    PROJECT_ROOT / "reports/korean-term-qwen3-generation-eval.json"
+)
+DEFAULT_NEWS_SUMMARY_QWEN_EVAL_REPORT_PATH = (
+    PROJECT_ROOT / "reports/news-summary-qwen3-generation-eval.json"
+)
+DEFAULT_KOREAN_TRANSLATION_QWEN_EVAL_REPORT_PATH = (
+    PROJECT_ROOT / "reports/korean-translation-qwen3-generation-eval.json"
+)
 DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "reports/service-readiness-report.json"
 
 
@@ -46,6 +64,24 @@ def main() -> None:
         confidence_calibration_report=_read_json(
             _project_path(args.confidence_calibration_report)
         ),
+        qwen_training_reports={
+            "korean_financial_terms": _read_json(
+                _project_path(args.korean_term_qwen_training_report)
+            ),
+            "news_summary": _read_json(_project_path(args.news_summary_qwen_training_report)),
+            "korean_translation": _read_json(
+                _project_path(args.korean_translation_qwen_training_report)
+            ),
+        },
+        qwen_generation_eval_reports={
+            "korean_financial_terms": _read_json(
+                _project_path(args.korean_term_qwen_eval_report)
+            ),
+            "news_summary": _read_json(_project_path(args.news_summary_qwen_eval_report)),
+            "korean_translation": _read_json(
+                _project_path(args.korean_translation_qwen_eval_report)
+            ),
+        },
     )
     output_path = _project_path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,6 +130,36 @@ def _parse_args() -> argparse.Namespace:
         "--confidence-calibration-report",
         type=Path,
         default=DEFAULT_CONFIDENCE_CALIBRATION_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--korean-term-qwen-training-report",
+        type=Path,
+        default=DEFAULT_KOREAN_TERM_QWEN_TRAINING_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--news-summary-qwen-training-report",
+        type=Path,
+        default=DEFAULT_NEWS_SUMMARY_QWEN_TRAINING_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--korean-translation-qwen-training-report",
+        type=Path,
+        default=DEFAULT_KOREAN_TRANSLATION_QWEN_TRAINING_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--korean-term-qwen-eval-report",
+        type=Path,
+        default=DEFAULT_KOREAN_TERM_QWEN_EVAL_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--news-summary-qwen-eval-report",
+        type=Path,
+        default=DEFAULT_NEWS_SUMMARY_QWEN_EVAL_REPORT_PATH,
+    )
+    parser.add_argument(
+        "--korean-translation-qwen-eval-report",
+        type=Path,
+        default=DEFAULT_KOREAN_TRANSLATION_QWEN_EVAL_REPORT_PATH,
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     return parser.parse_args()
