@@ -14,7 +14,7 @@ Hana OmniLens의 AI 모델 API 서버다. 뉴스·공시 분석만 담당하는 
 | --- | --- | --- |
 | 뉴스·공시 분석 | TF-IDF char/word n-gram, 한국 금융 token, One-vs-Rest/다중분류 Logistic Regression, TF-IDF stock linker | `financial_nlp_ml.joblib`, `stock_linker_ml.joblib` |
 | 외국인 보유 예측 | `stock_routed_ml_ensemble`, Ridge/HistGradientBoosting/ExtraTrees/residual/hurdle 후보, walk-forward validation, N-HiTS/PatchTST SOTA 진단 | `foreign_ownership_quantity_ml.joblib` |
-| 글로벌 피어 매칭 | TF-IDF retrieval, SVD semantic embedding, business profile Logistic Regression, pairwise LogisticRegression reranker, optional Qwen3 LoRA 설명기 | `global_peer_ml.joblib`, `global_peer_qwen3_explainer_lora/` |
+| 글로벌 피어 매칭 | TF-IDF retrieval, SVD semantic embedding, business profile Logistic Regression, pairwise LogisticRegression reranker, optional Qwen3-0.6B MLX/sidecar LoRA 설명기 | `global_peer_ml.joblib`, `global_peer_qwen3_explainer_lora/` |
 | 한국 금융 용어 | seed dictionary, 내부 문맥 RAG, OpenAI web search fallback, Qwen 로컬/배치 후보 생성 | `k-finance-term-rag-v2` |
 
 ## API
