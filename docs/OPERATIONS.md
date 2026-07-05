@@ -66,6 +66,19 @@ uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 - `earnings`, `Foreign investors` 같은 일반 영어 금융 단어와 투자자 유형은 glossary 생성 대상이 아니므로 local LLM 호출 전에 review 경로로 둔다. Qwen 응답은 strict JSON, 클릭 한글 용어 포함, 2문장 설명, 투자 조언 금지 gate를 통과해야 `LOCAL_OPEN_SOURCE_LLM_RAG`로 노출한다.
 - 학습과 검증은 `data/training/korean_financial_term_explanation_sft.jsonl`, `reports/korean-financial-term-llm-readiness.json`, `reports/korean-term-qwen3-explainer-training.json`, `reports/korean-term-qwen3-generation-eval.json`에 저장한다.
 
+## 뉴스·공시 What/Why/Impact Qwen 요약
+- `POST /api/v1/alerts/analyze`와 `POST /api/v1/intelligence/events`는 기본값으로 rule summary를 사용한다.
+- `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`을 켜면 full content 요청에서 Qwen3-0.6B LoRA가 영어 `what`, `why`, `impact` JSON을 생성한다.
+- 로컬 개발은 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`를 비워 두면 `HANNAH_NEWS_SUMMARY_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit`와 `HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 MLX로 직접 로드한다.
+- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_NEWS_SUMMARY_LLM_MODEL=<served-model-name>`을 설정한다.
+- Qwen 출력은 strict JSON, 영어 한 문장 3개, 생략부호 금지, 중요도·감성 메타 금지, 투자 조언 금지, 기사 근거 매칭 gate를 통과해야 채택된다. 실패하면 rule summary로 fallback한다.
+- 학습과 검증은 `data/training/news_summary_wwi_sft.jsonl`, `data/training/news_summary_wwi_mlx`, `reports/news-summary-qwen3-readiness.json`, `reports/news-summary-qwen3-training.json`, `reports/news-summary-qwen3-generation-eval.json`에 저장한다.
+```bash
+uv run python scripts/build_news_summary_llm_dataset.py
+uv run --extra llm-training python scripts/train_news_summary_qwen3.py
+uv run --extra llm-training python scripts/evaluate_news_summary_qwen3_generation.py --min-pass-rate 1.0
+```
+
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
 - 로그에는 `model_version`, `latency_ms`, 예측 이벤트·감성·중요도, 종목코드, 결과 상태를 기록한다.
@@ -171,7 +184,7 @@ uv run python scripts/build_live_news_quality_audit.py \
 - live quality audit은 서비스 승격 전 최소 1,000건 이상 최신 미학습 표본으로 실행하고, query-relevant pass rate, full-content rate, sampled stock model match rate를 함께 본다.
 - 기사 원문은 요약 품질 개선과 검수 후보 생성에 사용하고, 이벤트·감성·중요도 정답 라벨은 `human_review_approved`, `codex_review_approved`, teacher confidence gate를 통과한 pseudo label만 학습에 반영한다.
 - live audit은 전체 pass rate와 query-relevant pass rate를 분리해 기록한다. 운영 판단은 검색 provider 노이즈가 제거된 query-relevant pass rate를 우선 보되, 전체 pass rate는 수집기 검색 품질 개선 지표로 추적한다.
-- What/Why/Impact 요약은 LLM 없이 rule engine과 금융 ML 결과로 생성한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
+- What/Why/Impact 요약은 기본값으로 rule engine과 금융 ML 결과를 사용하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 생성기를 사용한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
 - 최신 라이브 표본에서는 짧은 종목명 과매칭, 본문 boilerplate 유입, `SUMMARY_ONLY` 과신을 우선 확인한다. 대표 종목이 긴 고유 종목명보다 짧은 요청 후보명으로 치우치거나, 요약에 광고·푸터·관련기사 문구가 들어가면 release 후보에서 제외한다.
 - 새 모델 artifact는 `reports/model-release-report.json`, `reports/service-readiness-report.json`, `reports/live-news-quality-audit-report.json`이 모두 pass 기준을 만족할 때만 승격한다.
 

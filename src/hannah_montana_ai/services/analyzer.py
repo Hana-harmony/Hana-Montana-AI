@@ -17,6 +17,10 @@ from hannah_montana_ai.domain.schemas import (
     StockCandidate,
 )
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
+from hannah_montana_ai.services.news_summary_generator import (
+    NewsSummaryContext,
+    NewsSummaryGenerator,
+)
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 from hannah_montana_ai.services.stock_linker import MachineLearningStockLinker
 from hannah_montana_ai.training.stock_universe import (
@@ -224,11 +228,12 @@ class AlertAnalyzer:
         }
     )
 
-    def __init__(self) -> None:
+    def __init__(self, summary_generator: NewsSummaryGenerator | None = None) -> None:
         settings = get_settings()
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
+        self.summary_generator = summary_generator or NewsSummaryGenerator.from_settings(settings)
         self._internal_stock_universe = _load_internal_stock_universe(settings.stock_universe_path)
         self._internal_stock_by_code = {
             stock.stock_code: stock for stock in self._internal_stock_universe
@@ -277,12 +282,27 @@ class AlertAnalyzer:
                 importance_confidence,
             )
         )
-        summary_lines = self.rule_engine.summarize_what_why_impact(
+        fallback_summary_lines = self.rule_engine.summarize_what_why_impact(
             request.title,
             request.snippet,
             analysis_content,
             importance,
             sentiment,
+        )
+        summary_lines = self.summary_generator.generate(
+            NewsSummaryContext(
+                title=request.title,
+                snippet=request.snippet,
+                content=analysis_content,
+                source_type=request.source_type,
+                importance=importance,
+                sentiment=sentiment,
+                event_tags=event_tags,
+                stock_code=stock_code,
+                stock_name=stock_name,
+                stock_name_en=primary_stock.stock_name_en if primary_stock else "",
+                fallback=fallback_summary_lines,
+            )
         )
         summary = "\n".join(
             line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
