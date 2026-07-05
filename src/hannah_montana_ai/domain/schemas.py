@@ -12,6 +12,7 @@ MarketType = Literal["KOSPI", "KOSDAQ", "KONEX", "OTHER"]
 FinancialTermSourceType = Literal[
     "DICTIONARY",
     "INTERNAL_CONTEXT_RAG",
+    "LOCAL_OPEN_SOURCE_LLM_RAG",
     "OPENAI_WEB_SEARCH_RAG",
     "UNVERIFIED_CONTEXT",
 ]

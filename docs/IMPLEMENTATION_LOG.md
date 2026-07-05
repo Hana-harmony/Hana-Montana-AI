@@ -1,5 +1,13 @@
 # 구현 기록
 
+## 2026-07-05 한국 금융 용어 Qwen3 설명 LLM 실제 serving 전환
+- 사용자 지적에 따라 한국 금융 용어 RAG가 사전과 OpenAI fallback만 쓰던 상태를 수정하고, `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 설명기를 실제 API serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 호출한다.
+- `earnings`, `Foreign investors` 같은 일반 영어 금융 단어는 glossary 후보에서 제외하고, 한글 클릭 용어와 기사 evidence가 있을 때만 local Qwen 생성으로 보낸다.
+- `삼전닉스`를 seed glossary에 추가해 `Samjeon Nix` alias도 Samsung Electronics와 SK hynix 묶음 표현으로 dictionary-backed explanation을 제공한다.
+- `data/training/korean_financial_term_explanation_sft.jsonl` 362건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 520 iters 학습했다. final validation loss 0.005, test loss 0.007, test perplexity 1.007, peak memory 1.498GB를 기록했다.
+- raw Qwen3 generation 평가는 미등록 한글 용어 5건 기준 JSON valid 5/5, category match 5/5, grounded 5/5, pass rate 1.0이다. API smoke에서 `우주항공주`는 `LOCAL_OPEN_SOURCE_LLM_RAG`, `earnings`는 `REVIEW_REQUIRED`, `Samjeon Nix`는 `DICTIONARY`로 확인했다.
+
 ## 2026-07-04 - 뉴스·공시 What/Why/Impact 품질 gate와 LLM readiness
 - 요약 rule engine에서 글자 수 hard cut을 제거하고 문장 경계 기반 truncate로 바꿨다.
 - snippet 생략부호와 중요도·감성·classification 메타 문장을 요약 후보에서 제외한다.

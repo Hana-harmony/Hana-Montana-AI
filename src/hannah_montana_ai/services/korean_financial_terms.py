@@ -1,12 +1,17 @@
 import hashlib
 import http.client
+import importlib
 import json
 import re
 import ssl
+import urllib.error
+import urllib.parse
+import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 from urllib.parse import urlparse
 
 from hannah_montana_ai.core.config import Settings
@@ -14,13 +19,29 @@ from hannah_montana_ai.domain.schemas import (
     FinancialTermConfidenceLevel,
     FinancialTermDisplayMode,
     FinancialTermEvidence,
+    FinancialTermSourceType,
     KoreanFinancialTermExplainRequest,
     KoreanFinancialTermExplainResponse,
 )
 
-MODEL_PROMPT_VERSION = "k-finance-term-rag-prompt-v1"
+MODEL_PROMPT_VERSION = "k-finance-term-qwen3-rag-prompt-v1"
 RESPONSE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
 REVIEW_CACHE_TTL_SECONDS = 24 * 60 * 60
+LOCAL_QWEN_TERM_SOURCE = "LOCAL_OPEN_SOURCE_LLM_RAG"
+OPENAI_TERM_SOURCE = "OPENAI_WEB_SEARCH_RAG"
+ALLOWED_GENERATED_SOURCES = {LOCAL_QWEN_TERM_SOURCE, OPENAI_TERM_SOURCE}
+TERM_GENERATION_CATEGORIES = {
+    "market_slang",
+    "ipo_slang",
+    "policy_theme",
+    "capital_market",
+    "risk_slang",
+    "metric",
+    "theme_stock",
+    "capital_action",
+    "valuation_metric",
+    "unknown",
+}
 _TOKEN_PATTERN = re.compile(r"[0-9A-Za-z가-힣%+.\-]+")
 _SENTENCE_SPLIT_PATTERN = re.compile(r"(?<=[.!?。！？])\s+|(?<=[다요음임됨함했다였다])\.\s*")
 _INVESTMENT_ADVICE_PATTERN = re.compile(
@@ -63,6 +84,162 @@ class TermExplanationProvider(Protocol):
         context_evidence: tuple[FinancialTermEvidence, ...],
     ) -> GeneratedTermExplanation | None:
         pass
+
+
+class TermGenerationClient(Protocol):
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        pass
+
+
+type MlxTermModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
+type MlxTermTextGenerator = Callable[[Any, Any, str, int, float], str]
+
+
+class OpenAiCompatibleTermExplanationClient:
+    def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
+        self._endpoint = endpoint.rstrip("/")
+        self._model = model
+        self._timeout_seconds = timeout_seconds
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        parsed_url = urllib.parse.urlparse(self._endpoint)
+        if parsed_url.scheme not in {"http", "https"}:
+            raise ValueError("LLM endpoint must use http or https")
+        payload = {
+            "model": self._model,
+            "messages": messages,
+            "temperature": 0.1,
+            "top_p": 0.8,
+            "max_tokens": max_tokens,
+            "response_format": {"type": "json_object"},
+        }
+        request = urllib.request.Request(  # noqa: S310
+            f"{self._endpoint}/v1/chat/completions",
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(  # noqa: S310  # nosec B310
+            request,
+            timeout=self._timeout_seconds,
+        ) as response:
+            body = json.loads(response.read().decode("utf-8"))
+        choices = body.get("choices")
+        if not isinstance(choices, list) or not choices:
+            raise ValueError("LLM response has no choices")
+        message = choices[0].get("message")
+        if not isinstance(message, dict):
+            raise ValueError("LLM response has no message")
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError("LLM response content is empty")
+        return content
+
+
+class MlxQwenTermExplanationClient:
+    def __init__(
+        self,
+        *,
+        model: str,
+        adapter_path: Path | None,
+        temperature: float = 0.0,
+        model_loader: MlxTermModelLoader | None = None,
+        text_generator: MlxTermTextGenerator | None = None,
+    ) -> None:
+        self._model_name = model
+        self._adapter_path = adapter_path
+        self._temperature = temperature
+        self._model_loader = model_loader or self._load_mlx_model
+        self._text_generator = text_generator or self._generate_mlx_text
+        self._pipeline: tuple[Any, Any] | None = None
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        model, tokenizer = self._load_pipeline()
+        prompt = self._format_chat_prompt(messages, tokenizer)
+        return self._text_generator(
+            model,
+            tokenizer,
+            prompt,
+            max_tokens,
+            self._temperature,
+        )
+
+    def _load_pipeline(self) -> tuple[Any, Any]:
+        if self._pipeline is None:
+            self._pipeline = self._model_loader(self._model_name, self._adapter_path)
+        return self._pipeline
+
+    @staticmethod
+    def _load_mlx_model(model_name: str, adapter_path: Path | None) -> tuple[Any, Any]:
+        try:
+            mlx_lm = importlib.import_module("mlx_lm")
+        except ImportError as exception:
+            raise ValueError(
+                "mlx_lm is required for direct Korean term Qwen3 local generation"
+            ) from exception
+        load = cast(Callable[..., tuple[Any, Any]], mlx_lm.load)
+        return load(
+            model_name,
+            adapter_path=str(adapter_path) if adapter_path is not None else None,
+        )
+
+    @staticmethod
+    def _generate_mlx_text(
+        model: Any,
+        tokenizer: Any,
+        prompt: str,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        try:
+            mlx_lm = importlib.import_module("mlx_lm")
+        except ImportError as exception:
+            raise ValueError(
+                "mlx_lm is required for direct Korean term Qwen3 local generation"
+            ) from exception
+        sample_utils = importlib.import_module("mlx_lm.sample_utils")
+        make_sampler = cast(Callable[..., Callable[[Any], Any]], sample_utils.make_sampler)
+        generate = cast(Callable[..., str], mlx_lm.generate)
+        return generate(
+            model,
+            tokenizer,
+            prompt=prompt,
+            max_tokens=max_tokens,
+            sampler=make_sampler(temp=temperature),
+            verbose=False,
+        )
+
+    @staticmethod
+    def _format_chat_prompt(messages: list[dict[str, str]], tokenizer: Any) -> str:
+        apply_chat_template = getattr(tokenizer, "apply_chat_template", None)
+        if callable(apply_chat_template):
+            try:
+                return cast(
+                    str,
+                    apply_chat_template(
+                        messages,
+                        tokenize=False,
+                        add_generation_prompt=True,
+                        enable_thinking=False,
+                    ),
+                )
+            except TypeError:
+                return cast(
+                    str,
+                    apply_chat_template(
+                        messages,
+                        tokenize=False,
+                        add_generation_prompt=True,
+                    ),
+                )
+
+        rendered_messages = []
+        for message in messages:
+            role = message.get("role", "user")
+            content = message.get("content", "")
+            rendered_messages.append(f"<|im_start|>{role}\n{content}<|im_end|>")
+        rendered_messages.append("<|im_start|>assistant\n")
+        return "\n".join(rendered_messages)
 
 
 class OpenAIWebSearchTermExplanationProvider:
@@ -182,6 +359,178 @@ class OpenAIWebSearchTermExplanationProvider:
             connection.close()
 
 
+class LocalQwenTermExplanationProvider:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        max_tokens: int,
+        client: TermGenerationClient,
+    ) -> None:
+        self._model_name = model_name
+        self._max_tokens = max_tokens
+        self._client = client
+
+    def generate(
+        self,
+        request: KoreanFinancialTermExplainRequest,
+        context_evidence: tuple[FinancialTermEvidence, ...],
+    ) -> GeneratedTermExplanation | None:
+        if not _contains_hangul(request.term) or not context_evidence:
+            return None
+        try:
+            raw_content = self._client.generate(
+                self.messages(request, context_evidence),
+                max_tokens=self._max_tokens,
+            )
+            parsed = _parse_json_object(_strip_thinking(raw_content))
+            generated = self._generated_from_payload(
+                parsed,
+                request=request,
+                context_evidence=context_evidence,
+            )
+            if not generated or not self._is_quality_output(generated, request):
+                return None
+            return generated
+        except (OSError, ValueError, json.JSONDecodeError, urllib.error.URLError):
+            return None
+
+    @staticmethod
+    def messages(
+        request: KoreanFinancialTermExplainRequest,
+        context_evidence: tuple[FinancialTermEvidence, ...],
+    ) -> list[dict[str, str]]:
+        return [
+            {
+                "role": "system",
+                "content": (
+                    "Return strict JSON with exactly these keys: english_term, category, "
+                    "definition, explanation, example, confidence_score. Explain only the "
+                    "clicked Korean stock-market slang, theme, policy, IPO, risk, or metric "
+                    "term. Use only the supplied article evidence and curated category list. "
+                    "Do not explain generic English finance words, investor types, or ordinary "
+                    "company names as glossary terms. Do not give investment advice. Write the "
+                    "definition and explanation in English for foreign investors. The Korean "
+                    "clicked term may appear only as the quoted subject."
+                ),
+            },
+            {
+                "role": "user",
+                "content": json.dumps(
+                    {
+                        "term": request.term,
+                        "locale": request.locale,
+                        "source_type": request.source_type,
+                        "article_title": request.title,
+                        "article_context_evidence": [
+                            evidence.model_dump(mode="json") for evidence in context_evidence
+                        ],
+                        "stock_code": request.stock_code,
+                        "stock_name": request.stock_name,
+                        "allowed_categories": sorted(TERM_GENERATION_CATEGORIES),
+                        "quality_contract": {
+                            "english_term": "short plain English label, not a ticker",
+                            "definition": "one sentence under 80 words",
+                            "explanation": "2 sentences, grounded in article evidence",
+                            "example": "short English example using the clicked term",
+                            "confidence_score": "0.70 to 0.92 for evidence-backed outputs",
+                        },
+                    },
+                    ensure_ascii=False,
+                ),
+            },
+        ]
+
+    @staticmethod
+    def training_example(
+        request: KoreanFinancialTermExplainRequest,
+        context_evidence: tuple[FinancialTermEvidence, ...],
+        target: GeneratedTermExplanation,
+    ) -> dict[str, object]:
+        return {
+            "schema_version": "korean-financial-term-explanation-sft/v1",
+            "prompt_version": MODEL_PROMPT_VERSION,
+            "messages": [
+                *LocalQwenTermExplanationProvider.messages(request, context_evidence),
+                {
+                    "role": "assistant",
+                    "content": json.dumps(
+                        {
+                            "english_term": target.english_term,
+                            "category": target.category,
+                            "definition": target.definition,
+                            "explanation": target.explanation,
+                            "example": target.example,
+                            "confidence_score": target.confidence_score,
+                        },
+                        ensure_ascii=False,
+                    ),
+                },
+            ],
+            "target": {
+                "english_term": target.english_term,
+                "category": target.category,
+                "definition": target.definition,
+                "explanation": target.explanation,
+                "example": target.example,
+                "confidence_score": target.confidence_score,
+            },
+        }
+
+    def _generated_from_payload(
+        self,
+        payload: dict[str, object],
+        *,
+        request: KoreanFinancialTermExplainRequest,
+        context_evidence: tuple[FinancialTermEvidence, ...],
+    ) -> GeneratedTermExplanation | None:
+        english_term = str(payload.get("english_term", "")).strip()[:120]
+        category = str(payload.get("category", "unknown")).strip()[:60] or "unknown"
+        definition = _sanitize_text(str(payload.get("definition", "")), max_length=1000)
+        explanation = _sanitize_text(str(payload.get("explanation", "")), max_length=1200)
+        example = _sanitize_text(str(payload.get("example", "")), max_length=500)
+        score = _bounded_float(payload.get("confidence_score"), default=0.72)
+        if category not in TERM_GENERATION_CATEGORIES:
+            return None
+        if not english_term or not definition or not explanation:
+            return None
+        if _INVESTMENT_ADVICE_PATTERN.search(f"{definition} {explanation} {example}"):
+            return None
+        if request.term not in f"{definition} {explanation} {example}":
+            return None
+        return GeneratedTermExplanation(
+            english_term=english_term,
+            category=category,
+            definition=definition,
+            explanation=explanation,
+            example=example,
+            confidence_score=score,
+            evidence=context_evidence[:6],
+            source=LOCAL_QWEN_TERM_SOURCE,
+        )
+
+    def _is_quality_output(
+        self,
+        generated: GeneratedTermExplanation,
+        request: KoreanFinancialTermExplainRequest,
+    ) -> bool:
+        combined = f"{generated.definition} {generated.explanation} {generated.example}"
+        if _has_repeated_adjacent_word(combined):
+            return False
+        if generated.english_term.lower() in {"earnings", "foreign investors", "institutions"}:
+            return False
+        if "not verified" in combined.lower() or "review required" in combined.lower():
+            return False
+        sentences = [
+            sentence
+            for sentence in re.split(r"(?<=[.!?])\s+", generated.explanation.strip())
+            if sentence.strip()
+        ]
+        if len(sentences) != 2:
+            return False
+        return request.term in combined
+
+
 class KoreanFinancialTermExplanationService:
     def __init__(
         self,
@@ -261,7 +610,9 @@ class KoreanFinancialTermExplanationService:
         generated: GeneratedTermExplanation,
     ) -> KoreanFinancialTermExplainResponse:
         score = generated.confidence_score
-        flags = ["WEB_SEARCH_RAG", "CACHEABLE_AFTER_REVIEW" if score < 0.82 else "CACHEABLE"]
+        source = _generated_source(generated.source)
+        source_flag = "LOCAL_QWEN_RAG" if source == LOCAL_QWEN_TERM_SOURCE else "WEB_SEARCH_RAG"
+        flags = [source_flag, "CACHEABLE_AFTER_REVIEW" if score < 0.82 else "CACHEABLE"]
         if _INVESTMENT_ADVICE_PATTERN.search(generated.explanation):
             flags.append("INVESTMENT_ADVICE_FILTERED")
             score = min(score, 0.39)
@@ -280,7 +631,7 @@ class KoreanFinancialTermExplanationService:
             confidence_score=round(score, 4),
             confidence_level=confidence_level,
             display_mode=display_mode,
-            source="OPENAI_WEB_SEARCH_RAG",
+            source=source,
             cacheable=score >= 0.70,
             cache_ttl_seconds=(
                 RESPONSE_CACHE_TTL_SECONDS if score >= 0.82 else REVIEW_CACHE_TTL_SECONDS
@@ -327,6 +678,29 @@ class KoreanFinancialTermExplanationService:
             model_version=self._model_version,
             generated_at=datetime.now(UTC),
         )
+
+
+def build_term_provider_from_settings(settings: Settings) -> TermExplanationProvider | None:
+    if settings.korean_financial_term_generation_mode == "local_llm":
+        if settings.korean_financial_term_llm_endpoint:
+            return LocalQwenTermExplanationProvider(
+                model_name=settings.korean_financial_term_llm_model,
+                max_tokens=settings.korean_financial_term_llm_max_tokens,
+                client=OpenAiCompatibleTermExplanationClient(
+                    endpoint=settings.korean_financial_term_llm_endpoint,
+                    model=settings.korean_financial_term_llm_model,
+                    timeout_seconds=settings.korean_financial_term_llm_timeout_seconds,
+                ),
+            )
+        return LocalQwenTermExplanationProvider(
+            model_name=settings.korean_financial_term_mlx_model,
+            max_tokens=settings.korean_financial_term_llm_max_tokens,
+            client=MlxQwenTermExplanationClient(
+                model=settings.korean_financial_term_mlx_model,
+                adapter_path=settings.korean_financial_term_mlx_adapter_path,
+            ),
+        )
+    return build_openai_term_provider_from_settings(settings)
 
 
 def build_openai_term_provider_from_settings(settings: Settings) -> TermExplanationProvider | None:
@@ -403,6 +777,10 @@ def _normalize_term(value: str) -> str:
 def _normalize_display_term(value: str) -> str:
     compact = " ".join(value.split()).strip()
     return compact[:80] if compact else value[:80]
+
+
+def _contains_hangul(value: str) -> bool:
+    return bool(re.search(r"[가-힣]", value))
 
 
 def _is_english_display_term(term: str, entry: FinancialTermEntry) -> bool:
@@ -547,6 +925,29 @@ def _parse_json_object(text: str) -> dict[str, object]:
     if isinstance(parsed, dict):
         return parsed
     return {}
+
+
+def _strip_thinking(text: str) -> str:
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+
+def _sanitize_text(value: str, *, max_length: int) -> str:
+    sanitized = re.sub(r"\s+", " ", value).strip()
+    return sanitized[:max_length].strip()
+
+
+def _has_repeated_adjacent_word(value: str) -> bool:
+    words = re.findall(r"\b[A-Za-z][A-Za-z0-9'-]*\b", value.lower())
+    return any(
+        left == right and len(left) > 2
+        for left, right in zip(words, words[1:], strict=False)
+    )
+
+
+def _generated_source(source: str) -> FinancialTermSourceType:
+    if source in ALLOWED_GENERATED_SOURCES:
+        return cast(FinancialTermSourceType, source)
+    return "UNVERIFIED_CONTEXT"
 
 
 def _bounded_float(value: Any, *, default: float) -> float:
