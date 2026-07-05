@@ -1,5 +1,13 @@
 # 구현 기록
 
+## 2026-07-05 한국어 전문 번역 Qwen3 LLM 실제 serving 전환
+- GPT/DeepL 의존 번역 경로와 분리해 `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 번역기를 실제 API serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 호출한다.
+- `POST /api/v1/translation/ko-en`을 추가하고, disabled 기본값에서는 `LOCAL_TRANSLATION_DISABLED` source fallback만 반환하게 했다.
+- `data/training/korean_translation_sft.jsonl` 39건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 420 iters 학습했다. train split 31, valid 4, test 4, final train loss 0.019, final validation loss 0.025를 기록했다.
+- raw Qwen3 generation 평가는 뉴스·공시·localism 대표 4건 기준 4/4 pass다. `Ants`, `Samjeon Nix`, `bellwether stock`, `treasury-share cancellation`, `trading-halt`, `remediation plan` 같은 필수 표면형을 검증한다.
+- 출력 gate는 한글 잔존, 원문 반환, 요약 축약, 말줄임표, meta/refusal, glossary localism 누락을 모두 실패 처리한다.
+
 ## 2026-07-05 뉴스·공시 What/Why/Impact Qwen3 요약 LLM 실제 serving 전환
 - 사용자 지적에 따라 뉴스·공시 3줄 요약이 rule fallback과 문서상 후보에 머무르던 상태를 수정하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 생성기를 실제 `AlertAnalyzer` serving 경로에 연결했다.
 - 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 호출한다.
