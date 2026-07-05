@@ -23,6 +23,7 @@ from hannah_montana_ai.domain.schemas import (
     KoreanFinancialTermExplainRequest,
     KoreanFinancialTermExplainResponse,
 )
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 MODEL_PROMPT_VERSION = "k-finance-term-qwen3-rag-prompt-v1"
 RESPONSE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
@@ -741,7 +742,10 @@ def build_term_provider_from_settings(settings: Settings) -> TermExplanationProv
             max_tokens=settings.korean_financial_term_llm_max_tokens,
             client=MlxQwenTermExplanationClient(
                 model=settings.korean_financial_term_mlx_model,
-                adapter_path=settings.korean_financial_term_mlx_adapter_path,
+                adapter_path=require_lora_adapter_artifact(
+                    settings.korean_financial_term_mlx_adapter_path,
+                    "Korean financial term Qwen3 LoRA adapter",
+                ),
             ),
         )
     return build_openai_term_provider_from_settings(settings)

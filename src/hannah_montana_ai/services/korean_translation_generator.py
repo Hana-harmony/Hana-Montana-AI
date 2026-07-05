@@ -12,6 +12,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, TranslationStatus
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v1"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
@@ -347,14 +348,12 @@ class KoreanTranslationGenerator:
             )
             model_name = f"local-llm:{settings.korean_translation_llm_model}"
         else:
-            adapter_path = (
-                settings.korean_translation_mlx_adapter_path
-                if settings.korean_translation_mlx_adapter_path.exists()
-                else None
-            )
             client = MlxQwenKoreanTranslationClient(
                 model=settings.korean_translation_mlx_model,
-                adapter_path=adapter_path,
+                adapter_path=require_lora_adapter_artifact(
+                    settings.korean_translation_mlx_adapter_path,
+                    "Korean translation Qwen3 LoRA adapter",
+                ),
             )
             model_name = f"local-llm:{settings.korean_translation_mlx_model}"
         return cls(

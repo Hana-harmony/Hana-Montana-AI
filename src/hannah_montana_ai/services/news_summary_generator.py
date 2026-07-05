@@ -13,6 +13,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType, SummaryLines
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 NEWS_SUMMARY_PROMPT_VERSION = "news-summary-qwen3-wwi-v1"
 
@@ -329,7 +330,10 @@ class NewsSummaryGenerator:
             else:
                 client = MlxQwenNewsSummaryClient(
                     model=settings.news_summary_mlx_model,
-                    adapter_path=settings.news_summary_mlx_adapter_path,
+                    adapter_path=require_lora_adapter_artifact(
+                        settings.news_summary_mlx_adapter_path,
+                        "News summary Qwen3 LoRA adapter",
+                    ),
                 )
         return cls(
             enabled=enabled,

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.core.config import Settings
@@ -16,6 +17,7 @@ from hannah_montana_ai.services.korean_financial_terms import (
     MlxQwenTermExplanationClient,
     build_term_provider_from_settings,
 )
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
 def test_financial_term_explain_api_returns_dictionary_hit_for_retail_slang() -> None:
@@ -292,6 +294,17 @@ def test_korean_financial_term_local_llm_settings_use_direct_qwen3_mlx_client() 
 
     assert isinstance(provider, LocalQwenTermExplanationProvider)
     assert isinstance(provider._client, MlxQwenTermExplanationClient)
+
+
+def test_korean_financial_term_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        build_term_provider_from_settings(
+            Settings(
+                korean_financial_term_generation_mode="local_llm",
+                korean_financial_term_llm_endpoint="",
+                korean_financial_term_mlx_adapter_path=tmp_path / "missing-term-lora",
+            )
+        )
 
 
 def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation() -> None:

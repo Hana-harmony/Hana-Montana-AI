@@ -1,8 +1,11 @@
 from pathlib import Path
 
+import pytest
+
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate, SummaryLines
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 from hannah_montana_ai.services.news_summary_generator import (
     MlxQwenNewsSummaryClient,
     NewsSummaryContext,
@@ -47,6 +50,17 @@ def test_news_summary_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_c
     assert generator._enabled is True
     assert isinstance(generator._client, MlxQwenNewsSummaryClient)
     assert generator._model_name == "mlx-community/Qwen3-0.6B-4bit"
+
+
+def test_news_summary_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        NewsSummaryGenerator.from_settings(
+            Settings(
+                news_summary_generation_mode="local_llm",
+                news_summary_llm_endpoint="",
+                news_summary_mlx_adapter_path=tmp_path / "missing-summary-lora",
+            )
+        )
 
 
 def test_news_summary_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:

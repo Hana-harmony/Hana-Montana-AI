@@ -1,5 +1,7 @@
 import json
+from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api import routes
@@ -12,6 +14,7 @@ from hannah_montana_ai.services.korean_translation_generator import (
     MlxQwenKoreanTranslationClient,
     OpenAiCompatibleKoreanTranslationClient,
 )
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
 class FakeTranslationClient:
@@ -36,6 +39,17 @@ def test_korean_translation_local_llm_settings_use_direct_qwen3_mlx_client() -> 
     assert generator._enabled is True
     assert isinstance(generator._client, MlxQwenKoreanTranslationClient)
     assert generator._model_name == "local-llm:mlx-community/Qwen3-0.6B-4bit"
+
+
+def test_korean_translation_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        KoreanTranslationGenerator.from_settings(
+            Settings(
+                korean_translation_generation_mode="local_llm",
+                korean_translation_llm_endpoint="",
+                korean_translation_mlx_adapter_path=tmp_path / "missing-translation-lora",
+            )
+        )
 
 
 def test_korean_translation_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
