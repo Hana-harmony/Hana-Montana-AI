@@ -19,6 +19,22 @@ class ModelArtifactInvalidError(ModelArtifactError):
     pass
 
 
+def require_lora_adapter_artifact(adapter_path: Path, artifact_name: str) -> Path:
+    if not adapter_path.exists() or not adapter_path.is_dir():
+        raise ModelArtifactNotFoundError(f"{artifact_name} not found: {adapter_path}")
+
+    required_files = {"adapter_config.json", "adapters.safetensors"}
+    missing_files = sorted(
+        file_name for file_name in required_files if not (adapter_path / file_name).is_file()
+    )
+    if missing_files:
+        joined_files = ", ".join(missing_files)
+        message = f"{artifact_name} is missing required files: {joined_files} ({adapter_path})"
+        raise ModelArtifactInvalidError(message)
+
+    return adapter_path
+
+
 class MachineLearningFinancialNlpModel:
     def __init__(self, model_path: Path) -> None:
         if not model_path.exists():

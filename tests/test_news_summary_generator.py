@@ -1,8 +1,11 @@
 from pathlib import Path
 
+import pytest
+
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate, SummaryLines
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 from hannah_montana_ai.services.news_summary_generator import (
     MlxQwenNewsSummaryClient,
     NewsSummaryContext,
@@ -49,6 +52,17 @@ def test_news_summary_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_c
     assert generator._model_name == "mlx-community/Qwen3-0.6B-4bit"
 
 
+def test_news_summary_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        NewsSummaryGenerator.from_settings(
+            Settings(
+                news_summary_generation_mode="local_llm",
+                news_summary_llm_endpoint="",
+                news_summary_mlx_adapter_path=tmp_path / "missing-summary-lora",
+            )
+        )
+
+
 def test_news_summary_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
     settings = Settings(
         news_summary_generation_mode="local_llm",
@@ -93,7 +107,7 @@ def test_news_summary_qwen_output_replaces_rule_fallback_for_full_text() -> None
     assert "article_text" in client.messages[1]["content"]
 
 
-def test_news_summary_qwen_output_falls_back_on_korean_fragment_or_meta() -> None:
+def test_news_summary_qwen_output_falls_back_to_english_lines_on_korean_fragment_or_meta() -> None:
     fallback = SummaryLines(
         what="삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다.",
         why="메모리 가격 반등과 HBM 공급 확대가 주요 배경이다.",
@@ -113,7 +127,51 @@ def test_news_summary_qwen_output_falls_back_on_korean_fragment_or_meta() -> Non
 
     summary = generator.generate(context)
 
-    assert summary == fallback
+    assert summary != fallback
+    assert summary.what == (
+        "Samsung Electronics drew attention in the article around earnings recovery expectations."
+    )
+    assert "HBM demand" in summary.why
+    assert "operating-profit recovery" in summary.impact
+    assert not any(
+        any("가" <= char <= "힣" for char in line)
+        for line in (summary.what, summary.why, summary.impact)
+    )
+
+
+def test_news_summary_enabled_short_content_falls_back_to_english_lines() -> None:
+    fallback = SummaryLines(
+        what="삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다.",
+        why="메모리 가격 반등과 HBM 공급 확대가 주요 배경이다.",
+        impact="투자자는 영업이익 회복 속도와 수요 지속성을 확인해야 한다.",
+    )
+    context = NewsSummaryContext(
+        title="코스피, 외국인 순매수에 반등",
+        snippet="외국인 자금 유입으로 코스피가 장중 반등했다.",
+        content="외국인 순매수에 코스피가 반등했다.",
+        source_type="NEWS",
+        importance="MEDIUM",
+        sentiment="POSITIVE",
+        event_tags=["GENERAL_MARKET"],
+        stock_code=None,
+        stock_name=None,
+        stock_name_en="",
+        fallback=fallback,
+    )
+    generator = NewsSummaryGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=FakeNewsSummaryClient("{}"),
+    )
+
+    summary = generator.generate(context)
+
+    assert summary.what == "KOSPI drew attention in the article around foreign-investor net buying."
+    assert summary.why == "The article links the move to foreign-investor flow."
+    assert (
+        summary.impact
+        == "Investors should track whether investor flows continue as the story develops."
+    )
 
 
 def test_alert_analyzer_passes_full_context_to_news_summary_generator() -> None:

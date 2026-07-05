@@ -12,6 +12,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, TranslationStatus
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v1"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
@@ -311,6 +312,15 @@ class KoreanTranslationGenerator:
             ),
         ),
     }
+    _GENERAL_GLOSSARY_SURFACE_ALIASES = {
+        "Samsung Electronics": (
+            "Samjeon Electronics",
+            "Samsung Elec",
+            "Samsung Electronics Co.",
+        ),
+        "SK hynix": ("SK Hynix", "SK Hynix Inc."),
+        "Hanwha Systems": ("Hanwha System",),
+    }
 
     def __init__(
         self,
@@ -338,14 +348,12 @@ class KoreanTranslationGenerator:
             )
             model_name = f"local-llm:{settings.korean_translation_llm_model}"
         else:
-            adapter_path = (
-                settings.korean_translation_mlx_adapter_path
-                if settings.korean_translation_mlx_adapter_path.exists()
-                else None
-            )
             client = MlxQwenKoreanTranslationClient(
                 model=settings.korean_translation_mlx_model,
-                adapter_path=adapter_path,
+                adapter_path=require_lora_adapter_artifact(
+                    settings.korean_translation_mlx_adapter_path,
+                    "Korean translation Qwen3 LoRA adapter",
+                ),
             )
             model_name = f"local-llm:{settings.korean_translation_mlx_model}"
         return cls(
@@ -412,8 +420,11 @@ class KoreanTranslationGenerator:
 
         translated = self._apply_market_surfaces(
             chunk,
-            self._apply_glossary_surfaces(
-                self._normalize_text(translated),
+            self._apply_general_glossary_surfaces(
+                self._apply_glossary_surfaces(
+                    self._normalize_text(translated),
+                    active_glossary_terms,
+                ),
                 active_glossary_terms,
             ),
         )
@@ -424,6 +435,9 @@ class KoreanTranslationGenerator:
         )
         quality_flags = self._quality_flags(chunk, translated)
         quality_flags.extend(self._glossary_quality_flags(translated, active_glossary_terms))
+        quality_flags.extend(
+            self._general_glossary_quality_flags(translated, active_glossary_terms)
+        )
         quality_flags.extend(self._market_surface_quality_flags(chunk, translated))
         quality_flags.extend(self._source_acronym_quality_flags(chunk, translated))
         quality_flags.extend(self._semantic_mismatch_quality_flags(chunk, translated))
@@ -590,9 +604,7 @@ class KoreanTranslationGenerator:
             if not candidate:
                 continue
             pattern = re.compile(
-                r"\b(?:(?:a|an|the)\s+)?"
-                + re.escape(candidate).replace(r"\ ", r"\s+")
-                + r"\b",
+                r"\b(?:(?:a|an|the)\s+)?" + re.escape(candidate).replace(r"\ ", r"\s+") + r"\b",
                 re.IGNORECASE | re.UNICODE,
             )
             replacement = preferred + "'" if candidate.lower().endswith("'s") else preferred
@@ -613,6 +625,38 @@ class KoreanTranslationGenerator:
             ):
                 flags.append(f"GLOSSARY_TERM_MISSING:{normalized_term}")
         return flags
+
+    def _apply_general_glossary_surfaces(
+        self,
+        translated_text: str,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> str:
+        result = translated_text
+        for term in glossary_terms:
+            if term.normalized_term in self._LOCALISM_REPLACEMENTS:
+                continue
+            if term.category != "stock":
+                continue
+            alternatives = self._GENERAL_GLOSSARY_SURFACE_ALIASES.get(term.english_term, ())
+            result = self._replace_localism_surface(
+                result,
+                term.english_term,
+                (term.english_term, *alternatives),
+            )
+        return result
+
+    def _general_glossary_quality_flags(
+        self,
+        translated_text: str,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> list[str]:
+        return [
+            f"GLOSSARY_TERM_MISSING:{term.normalized_term}"
+            for term in glossary_terms
+            if term.category == "stock"
+            and term.normalized_term not in self._LOCALISM_REPLACEMENTS
+            and not self._contains_phrase(translated_text, term.english_term)
+        ]
 
     def _repair_terse_localism_translation(
         self,

@@ -13,6 +13,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType, SummaryLines
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 NEWS_SUMMARY_PROMPT_VERSION = "news-summary-qwen3-wwi-v1"
 
@@ -252,6 +253,55 @@ class NewsSummaryGenerator:
         "합병": ("merger",),
         "분할": ("spin-off", "split"),
     }
+    _ENGLISH_FALLBACK_TOPICS = (
+        (("삼전닉스",), "Samsung Electronics and SK hynix trading"),
+        (("영업이익",), "earnings recovery expectations"),
+        (("실적",), "earnings recovery expectations"),
+        (("어닝",), "earnings recovery expectations"),
+        (("HBM", "메모리", "반도체"), "semiconductor and HBM demand"),
+        (("외국인", "순매수"), "foreign-investor net buying"),
+        (("외국인", "순매도"), "foreign-investor net selling"),
+        (("기관", "순매수"), "institutional net buying"),
+        (("기관", "순매도"), "institutional net selling"),
+        (("코스피",), "the KOSPI market move"),
+        (("코스닥",), "the KOSDAQ market move"),
+        (("환율",), "exchange-rate pressure"),
+        (("금리",), "interest-rate pressure"),
+        (("수주", "계약"), "order and contract momentum"),
+        (("공급",), "supply conditions"),
+        (("자사주", "소각"), "treasury-share cancellation"),
+        (("유상증자",), "paid-in capital increase"),
+        (("배당",), "dividend policy"),
+        (("상장폐지", "거래정지"), "listing and trading-risk issues"),
+    )
+    _ENGLISH_FALLBACK_DRIVERS = (
+        (("HBM",), "HBM demand"),
+        (("메모리",), "memory-market conditions"),
+        (("데이터센터",), "data-center investment"),
+        (("외국인",), "foreign-investor flow"),
+        (("기관",), "institutional flow"),
+        (("환율",), "currency moves"),
+        (("금리",), "interest-rate expectations"),
+        (("수주",), "new orders"),
+        (("공급",), "supply changes"),
+        (("정책",), "policy expectations"),
+        (("공시",), "the company disclosure"),
+    )
+    _ENGLISH_FALLBACK_WATCH_ITEMS = (
+        (("영업이익",), "operating-profit recovery and earnings guidance"),
+        (("실적",), "operating-profit recovery and earnings guidance"),
+        (("HBM", "메모리"), "memory pricing and HBM shipment momentum"),
+        (("외국인", "기관"), "whether investor flows continue"),
+        (("외국인",), "whether investor flows continue"),
+        (("기관",), "whether investor flows continue"),
+        (("코스피", "코스닥"), "index breadth and follow-through buying"),
+        (("환율",), "currency sensitivity and foreign flow"),
+        (("금리",), "rate expectations and valuation pressure"),
+        (("수주", "계약"), "order backlog and revenue timing"),
+        (("유상증자",), "dilution risk and funding use"),
+        (("자사주", "소각"), "shareholder-return execution"),
+        (("상장폐지", "거래정지"), "trading restrictions and disclosure follow-up"),
+    )
 
     def __init__(
         self,
@@ -280,7 +330,10 @@ class NewsSummaryGenerator:
             else:
                 client = MlxQwenNewsSummaryClient(
                     model=settings.news_summary_mlx_model,
-                    adapter_path=settings.news_summary_mlx_adapter_path,
+                    adapter_path=require_lora_adapter_artifact(
+                        settings.news_summary_mlx_adapter_path,
+                        "News summary Qwen3 LoRA adapter",
+                    ),
                 )
         return cls(
             enabled=enabled,
@@ -297,7 +350,7 @@ class NewsSummaryGenerator:
         if not self._enabled or self._client is None:
             return context.fallback
         if not self._has_usable_full_text(context.content):
-            return context.fallback
+            return self._english_fallback(context)
 
         try:
             raw_content = self._client.generate(
@@ -311,10 +364,10 @@ class NewsSummaryGenerator:
                 impact=self._sanitize(candidate.get("impact", "")),
             )
             if not self._is_quality_output(summary, context):
-                return context.fallback
+                return self._english_fallback(context)
             return summary
         except (OSError, ValueError, json.JSONDecodeError, urllib.error.URLError):
-            return context.fallback
+            return self._english_fallback(context)
 
     @classmethod
     def messages(cls, context: NewsSummaryContext) -> list[dict[str, str]]:
@@ -510,3 +563,60 @@ class NewsSummaryGenerator:
         if len(normalized) <= 6500:
             return normalized
         return normalized[:6500].rsplit(" ", 1)[0].strip()
+
+    @classmethod
+    def _english_fallback(cls, context: NewsSummaryContext) -> SummaryLines:
+        evidence = " ".join((context.title, context.snippet, context.content))
+        subject = cls._english_subject(context, evidence)
+        topic = cls._first_fallback_phrase(
+            evidence, cls._ENGLISH_FALLBACK_TOPICS, "the reported event"
+        )
+        drivers = cls._fallback_driver_phrase(evidence)
+        watch_item = cls._first_fallback_phrase(
+            evidence,
+            cls._ENGLISH_FALLBACK_WATCH_ITEMS,
+            "the next disclosure and market reaction",
+        )
+        return SummaryLines(
+            what=f"{subject} drew attention in the article around {topic}.",
+            why=f"The article links the move to {drivers}.",
+            impact=f"Investors should track {watch_item} as the story develops.",
+        )
+
+    @classmethod
+    def _english_subject(cls, context: NewsSummaryContext, evidence: str) -> str:
+        if context.stock_name_en:
+            return context.stock_name_en
+        if context.stock_code:
+            return context.stock_code
+        if "코스피" in evidence and "코스닥" in evidence:
+            return "KOSPI and KOSDAQ"
+        if "코스피" in evidence:
+            return "KOSPI"
+        if "코스닥" in evidence:
+            return "KOSDAQ"
+        if context.source_type == "DISCLOSURE":
+            return "The issuer"
+        return "The article"
+
+    @classmethod
+    def _fallback_driver_phrase(cls, evidence: str) -> str:
+        drivers = [
+            phrase
+            for required_terms, phrase in cls._ENGLISH_FALLBACK_DRIVERS
+            if all(term in evidence for term in required_terms)
+        ]
+        if not drivers:
+            return "the article-backed market context"
+        return ", ".join(dict.fromkeys(drivers[:3]))
+
+    @staticmethod
+    def _first_fallback_phrase(
+        evidence: str,
+        candidates: tuple[tuple[tuple[str, ...], str], ...],
+        fallback: str,
+    ) -> str:
+        for required_terms, phrase in candidates:
+            if all(term in evidence for term in required_terms):
+                return phrase
+        return fallback

@@ -1,5 +1,7 @@
 import json
+from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api import routes
@@ -12,6 +14,7 @@ from hannah_montana_ai.services.korean_translation_generator import (
     MlxQwenKoreanTranslationClient,
     OpenAiCompatibleKoreanTranslationClient,
 )
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
 class FakeTranslationClient:
@@ -36,6 +39,17 @@ def test_korean_translation_local_llm_settings_use_direct_qwen3_mlx_client() -> 
     assert generator._enabled is True
     assert isinstance(generator._client, MlxQwenKoreanTranslationClient)
     assert generator._model_name == "local-llm:mlx-community/Qwen3-0.6B-4bit"
+
+
+def test_korean_translation_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        KoreanTranslationGenerator.from_settings(
+            Settings(
+                korean_translation_generation_mode="local_llm",
+                korean_translation_llm_endpoint="",
+                korean_translation_mlx_adapter_path=tmp_path / "missing-translation-lora",
+            )
+        )
 
 
 def test_korean_translation_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
@@ -271,8 +285,7 @@ def test_korean_translation_canonicalizes_preferred_localism_case() -> None:
 
 def test_korean_translation_repairs_qwen_gaemi_romanization() -> None:
     client = FakeTranslationClient(
-        "{\"translation\":\"Investors should check Samjeon Nix and Triangunxi's trading "
-        'levels."}'
+        '{"translation":"Investors should check Samjeon Nix and Triangunxi\'s trading levels."}'
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
@@ -403,9 +416,7 @@ def test_korean_translation_rejects_prompt_leakage_and_missing_market_terms() ->
 
 def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> None:
     client = FakeTranslationClient(
-        json_translation(
-            "KOSPI and KOSX fell as IPO stocks traded below their offering prices."
-        )
+        json_translation("KOSPI and KOSX fell as IPO stocks traded below their offering prices.")
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
@@ -429,8 +440,7 @@ def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> N
 
 def test_korean_translation_rejects_repeated_long_phrase() -> None:
     repeated = (
-        "Naver's KRW e-commerce platform broke even after a 76 percent drop "
-        "from its KRW price."
+        "Naver's KRW e-commerce platform broke even after a 76 percent drop from its KRW price."
     )
     client = FakeTranslationClient(json_translation(" ".join([repeated, repeated, repeated])))
     generator = KoreanTranslationGenerator(
@@ -485,6 +495,35 @@ def test_korean_translation_rejects_unsupported_numeric_fact_and_uppercase_word_
     assert result.translated_text == ""
     assert "UNSUPPORTED_NUMERIC_FACT" in result.quality_flags
     assert "UPPERCASE_WORD_SALAD" in result.quality_flags
+
+
+def test_korean_translation_repairs_stock_name_surface_from_glossary() -> None:
+    client = FakeTranslationClient(
+        json_translation("Samjeon Electronics expects operating profit to improve.")
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자는 영업이익 개선이 예상된다고 밝혔다.",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="삼성전자",
+                    normalized_term="삼성전자",
+                    english_term="Samsung Electronics",
+                    category="stock",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "Samsung Electronics expects operating profit to improve."
+    assert result.quality_flags == []
 
 
 def test_korean_translation_api_uses_configured_generator(monkeypatch) -> None:

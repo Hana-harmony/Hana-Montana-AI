@@ -2,8 +2,8 @@
   "schema_version": "korean-translation-qwen3-generation-eval/v1",
   "model": "mlx-community/Qwen3-0.6B-4bit",
   "adapter_dir": "src/hannah_montana_ai/model_store/korean_translation_qwen3_lora",
-  "sample_count": 4,
-  "pass_count": 4,
+  "sample_count": 5,
+  "pass_count": 5,
   "pass_rate": 1.0,
   "rows": [
     {
@@ -27,6 +27,18 @@
         "Ants",
         "Samjeon Nix",
         "bellwether"
+      ],
+      "pass": true
+    },
+    {
+      "id": "samsung-operating-profit-recovery",
+      "status": "TRANSLATED",
+      "quality_flags": [],
+      "translated_text": "Samsung Electronics disclosed that operating profit expectations improved as demand for semiconductors and supply contracts increased.",
+      "required_terms": [
+        "Samsung Electronics",
+        "operating profit",
+        "semiconductor"
       ],
       "pass": true
     },
