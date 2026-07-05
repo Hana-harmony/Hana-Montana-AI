@@ -231,7 +231,7 @@ def test_korean_translation_ignores_glossary_terms_absent_from_chunk() -> None:
     payload = json.loads(client.calls[0][1]["content"])
 
     assert result.status == "TRANSLATED"
-    assert result.translated_text == "Ants, Samjeon Nix net bought."
+    assert result.translated_text == "Ants net bought Samjeon Nix."
     assert result.quality_flags == []
     assert [term["normalized_term"] for term in payload["glossary"]] == ["개미", "삼전닉스"]
 
@@ -265,7 +265,7 @@ def test_korean_translation_canonicalizes_preferred_localism_case() -> None:
     )
 
     assert result.status == "TRANSLATED"
-    assert result.translated_text == "Ants, Samjeon Nix net bought."
+    assert result.translated_text == "Ants net bought Samjeon Nix."
     assert result.quality_flags == []
 
 
@@ -336,8 +336,155 @@ def test_korean_translation_repairs_qwen_country_investor_mistranslation() -> No
     )
 
     assert result.status == "TRANSLATED"
-    assert result.translated_text == "Samjeon Nix rose as Ants net buying increased."
+    assert result.translated_text == "Ants net bought Samjeon Nix."
     assert result.quality_flags == []
+
+
+def test_korean_translation_repairs_terse_localism_when_qwen_leaves_hangul() -> None:
+    client = FakeTranslationClient('{"translation":"개미, 삼전닉스는 순매수를 공시했다."}')
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="개미, 삼전닉스 순매수",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="개미",
+                    normalized_term="개미",
+                    english_term="retail investors",
+                    category="market_slang",
+                ),
+                FinancialGlossaryTerm(
+                    source_term="삼전닉스",
+                    normalized_term="삼전닉스",
+                    english_term="Samjeon Nix",
+                    category="market_slang",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "Ants net bought Samjeon Nix."
+    assert result.quality_flags == []
+
+
+def test_korean_translation_rejects_prompt_leakage_and_missing_market_terms() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Korean exporters net a higher price for US dollars. The company's "
+            "assigned task is to return only compact JSON with key translation."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="‘쏠림과 변동’의 코스피… 1조 클럽은 줄고 VI는 역대 최대",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert "META_OR_REFUSAL_TEXT" in result.quality_flags
+    assert "MARKET_TERM_MISSING:KOSPI" in result.quality_flags
+    assert "SEMANTIC_MISMATCH:KOREAN_EXPORTERS" in result.quality_flags
+    assert "SOURCE_ACRONYM_MISSING:VI" in result.quality_flags
+
+
+def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "KOSPI and KOSX fell as IPO stocks traded below their offering prices."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="코스피와 코스닥은 IPO 종목이 공모가를 밑돌면서 하락했다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == (
+        "KOSPI and KOSDAQ fell as IPO stocks traded below their offering prices."
+    )
+    assert result.quality_flags == []
+
+
+def test_korean_translation_rejects_repeated_long_phrase() -> None:
+    repeated = (
+        "Naver's KRW e-commerce platform broke even after a 76 percent drop "
+        "from its KRW price."
+    )
+    client = FakeTranslationClient(json_translation(" ".join([repeated, repeated, repeated])))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "상반기 증시 랠리에도 기업공개 시장의 체감 온도는 낮았다. "
+                "올해 신규 상장 기업 다수가 공모가를 밑돌았다. "
+                "투자심리 회복이 지연되면서 새내기주 부진이 이어졌다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert "REPEATED_TRANSLATION_PHRASE" in result.quality_flags
+
+
+def test_korean_translation_rejects_unsupported_numeric_fact_and_uppercase_word_salad() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "SANILSE HONDA KOREAN NEXUS REACHIMENT increased revenue by 15% in Q1 2024."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자 실적 개선",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="삼성전자",
+                    normalized_term="삼성전자",
+                    english_term="Samsung Electronics",
+                    category="company",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert "UNSUPPORTED_NUMERIC_FACT" in result.quality_flags
+    assert "UPPERCASE_WORD_SALAD" in result.quality_flags
 
 
 def test_korean_translation_api_uses_configured_generator(monkeypatch) -> None:
