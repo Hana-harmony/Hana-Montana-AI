@@ -91,10 +91,21 @@ def test_translation_sample_report_compares_real_sample_shape(tmp_path: Path) ->
 
     assert report["schema_version"] == TRANSLATION_SAMPLE_REPORT_SCHEMA_VERSION
     assert report["sample_count"] == 2
-    assert report["summary"]["glossary_applied_count"] == 2
+    assert report["summary"]["glossary_applied_count"] == 1
+    assert report["summary"]["quality_flag_counts"]["FINANCIAL_TRANSLATION_TERMS_APPLIED"] == 2
+    assert (
+        report["summary"]["review_finding_counts"][
+            "DISCLOSURE_GLOSSARY_CANDIDATE_REVIEW_REQUIRED"
+        ]
+        == 1
+    )
     assert report["external_translation_boundary"]["join_key"] == "external_translation_join_key"
     news_row = report["rows"][0]
     disclosure_row = report["rows"][1]
+    assert [term["normalized_term"] for term in news_row["translation"]["glossary_terms"]] == [
+        "어닝서프라이즈"
+    ]
+    assert disclosure_row["translation"]["glossary_terms"] == []
     assert "earnings surprise" in news_row["translation"]["translated_title"]
     assert "operating profit" in news_row["translation"]["translated_title"]
     assert news_row["comparison"]["sentiment_match"] is True
