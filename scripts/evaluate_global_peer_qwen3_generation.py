@@ -143,7 +143,8 @@ def evaluate_generation(
                 "primary_peer_name": response.primary_peer.company_name,
                 "confidence_level": response.confidence_level,
                 "confidence_score": response.confidence_score,
-                "expected_headline": expected.headline,
+                "reference_headline": expected.headline,
+                "reference_summary": expected.summary,
                 "raw_output": raw_output,
                 "parsed": parsed,
                 **validation,
@@ -154,6 +155,7 @@ def evaluate_generation(
     passed = sum(1 for row in rows if row.get("status") == "pass")
     json_valid = sum(1 for row in rows if row.get("json_valid") is True)
     exact_headline = sum(1 for row in rows if row.get("exact_headline") is True)
+    template_copy = sum(1 for row in rows if row.get("template_copy") is True)
     grounded = sum(1 for row in rows if row.get("grounded") is True)
     pass_rate = passed / attempted if attempted else 0.0
     report = {
@@ -168,6 +170,8 @@ def evaluate_generation(
         "json_valid_count": json_valid,
         "exact_headline_count": exact_headline,
         "exact_summary_count": sum(1 for row in rows if row.get("exact_summary") is True),
+        "template_copy_count": template_copy,
+        "non_template_generation_count": attempted - template_copy,
         "grounded_count": grounded,
         "min_pass_rate": min_pass_rate,
         "quality_status": "pass" if pass_rate >= min_pass_rate else "fail",
@@ -237,7 +241,7 @@ def _validate_generation(
     *,
     parsed: dict[str, str],
     parse_error: str,
-            expected: GlobalPeerExplanation,
+    expected: GlobalPeerExplanation,
     context: GlobalPeerExplanationContext,
     generator: GlobalPeerExplanationGenerator,
 ) -> dict[str, Any]:
@@ -248,8 +252,9 @@ def _validate_generation(
     summary = parsed.get("summary", "")
     exact_headline = headline == expected.headline
     exact_summary = summary == expected.summary
-    if not exact_headline:
-        reasons.append("headline_mismatch")
+    template_copy = exact_headline and exact_summary
+    if template_copy:
+        reasons.append("template_copy")
     grounded = generator._is_grounded(headline, summary, context)
     if not grounded:
         reasons.append("grounding_failed")
@@ -267,6 +272,7 @@ def _validate_generation(
         "json_valid": not parse_error,
         "exact_headline": exact_headline,
         "exact_summary": exact_summary,
+        "template_copy": template_copy,
         "grounded": grounded,
         "failure_reasons": reasons,
     }

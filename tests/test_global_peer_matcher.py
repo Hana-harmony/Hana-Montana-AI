@@ -81,7 +81,7 @@ def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
     assert "drug-delivery technology" in response.summary
     assert response.model_version.startswith("global-peer-hybrid-ranker-")
     assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v7"
+    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v8"
 
 
 def test_global_peer_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_client() -> None:
@@ -297,8 +297,15 @@ def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
     expected = GlobalPeerExplanationGenerator().template(context)
     llm_content = "<think>\n\n</think>\n\n" + json.dumps(
         {
-            "headline": expected.headline,
-            "summary": expected.summary,
+            "headline": "NAVER Lines Up With 'Alphabet' As An Internet Platforms Peer",
+            "summary": (
+                "The closest US-listed peer selected for NAVER is Alphabet, reflecting "
+                "its internet-platform business. Alphabet shares the same broad sector "
+                "signal in Information Technology and a comparable industry map around "
+                "internet platforms. Financial fields are treated as supporting context, "
+                "with Alphabet used as a mega-cap scale reference rather than a direct "
+                "valuation twin."
+            ),
         }
     )
     generator = GlobalPeerExplanationGenerator(
@@ -318,6 +325,84 @@ def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
 
     assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
     assert explanation.model_version == "local-llm:Qwen3-0.6B-test"
+    assert explanation.headline != expected.headline
+    assert explanation.summary != expected.summary
+
+
+def test_global_peer_llm_explainer_normalizes_repeated_local_output() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    request = GlobalPeerMatchRequest(
+        stock_code="035420",
+        stock_name="NAVER",
+        stock_name_en="NAVER",
+        market="KOSPI",
+    )
+    response = matcher.match(request)
+    context = GlobalPeerExplanationContext(
+        request=request,
+        primary_peer=response.primary_peer,
+        confidence_level=response.confidence_level,
+        confidence_score=response.confidence_score,
+    )
+    generator = GlobalPeerExplanationGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=_FakePeerExplanationClient(
+            json.dumps(
+                {
+                    "headline": "NAVER Lines Up With 'Alphabet' As An Internet Platforms Peer",
+                    "summary": (
+                        "The closest US-listed peer selected for NAVER is Alphabet, "
+                        "reflecting its internet-platform business. Alphabet shares the "
+                        "same broad sector signal in Information Technology and a comparable "
+                        "industry map around internet platforms. Financial fields are "
+                        "treated as supporting context, with Alphabet serving as a "
+                        "mega-cap US-listed US-listed reference rather than a direct "
+                        "valuation twin."
+                    ),
+                }
+            )
+        ),
+    )
+
+    explanation = generator.generate(context)
+
+    assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
+    assert "US-listed US-listed" not in explanation.summary
+
+
+def test_global_peer_llm_explainer_rejects_template_copy_output() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    request = GlobalPeerMatchRequest(
+        stock_code="035420",
+        stock_name="NAVER",
+        stock_name_en="NAVER",
+        market="KOSPI",
+    )
+    response = matcher.match(request)
+    context = GlobalPeerExplanationContext(
+        request=request,
+        primary_peer=response.primary_peer,
+        confidence_level=response.confidence_level,
+        confidence_score=response.confidence_score,
+    )
+    expected = GlobalPeerExplanationGenerator().template(context)
+    generator = GlobalPeerExplanationGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=_FakePeerExplanationClient(
+            json.dumps(
+                {
+                    "headline": expected.headline,
+                    "summary": expected.summary,
+                }
+            )
+        ),
+    )
+
+    explanation = generator.generate(context)
+
+    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
     assert explanation.headline == expected.headline
 
 
@@ -498,7 +583,7 @@ def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
     training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
 
     assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
-    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v7"
+    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v8"
     assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
     assert readiness["sample_count"] >= 3_000
     assert readiness["failure_count"] == 0
@@ -525,22 +610,22 @@ def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
     report = json.loads(Path("reports/global-peer-qwen3-generation-eval.json").read_text())
 
     assert report["schema_version"] == "global-peer-qwen3-generation-eval/v1"
-    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v7"
+    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v8"
     assert report["stock_count"] == 30
     assert report["pass_count"] == 30
     assert report["pass_rate"] == 1.0
     assert report["json_valid_count"] == 30
-    assert report["exact_headline_count"] == 30
-    assert report["exact_summary_count"] == 30
+    assert report["template_copy_count"] == 0
+    assert report["non_template_generation_count"] == 30
     assert report["grounded_count"] == 30
     assert report["quality_status"] == "pass"
     parsed_outputs = [
         f"{row['parsed']['headline']} {row['parsed']['summary']}" for row in report["results"]
     ]
     combined_outputs = " ".join(parsed_outputs)
-    assert "Samsung Electronics Maps Closest To" in combined_outputs
-    assert "LG Energy Solution Maps Closest To" in combined_outputs
-    assert "SK hynix Maps Closest To" in combined_outputs
+    assert "Samsung Electronics Lines Up With" in combined_outputs
+    assert "LG Energy Solution Lines Up With" in combined_outputs
+    assert "SK hynix Lines Up With" in combined_outputs
     assert "similarity score" not in combined_outputs.lower()
     assert "confidence" not in combined_outputs.lower()
     assert "Hannah's global peer ranker" not in combined_outputs
