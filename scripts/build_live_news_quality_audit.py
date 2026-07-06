@@ -1,8 +1,12 @@
 import argparse
+import json
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 from build_real_full_content_training_data import NEWS_POLICY, fetch_news_content
 
+from hannah_montana_ai.domain.schemas import IntelligenceEventRequest, IntelligenceEventResponse
 from hannah_montana_ai.training.collector import load_local_env
 from hannah_montana_ai.training.live_news_evaluation import DEFAULT_LIVE_NEWS_INTENTS
 from hannah_montana_ai.training.live_news_quality_audit import (
@@ -29,6 +33,14 @@ def main() -> None:
 
     load_local_env(env_path)
     stock_universe = load_stock_universe(stock_universe_path)
+    event_builder = (
+        HttpIntelligenceEventClient(
+            args.ai_base_url,
+            timeout_seconds=args.ai_timeout_seconds,
+        )
+        if args.ai_base_url.strip()
+        else None
+    )
     batch = build_live_news_quality_audit_batch(
         stock_universe=stock_universe,
         stock_universe_path=stock_universe_path,
@@ -40,6 +52,7 @@ def main() -> None:
         sleep_seconds=args.sleep_seconds,
         max_retries=args.max_retries,
         sample_limit=args.sample_limit,
+        event_builder=event_builder,
         content_fetcher=_fetch_article_content,
         require_query_stock_match=args.require_query_stock_match,
     )
@@ -63,6 +76,29 @@ def _fetch_article_content(url: str, title: str) -> ArticleContent | None:
     )
 
 
+class HttpIntelligenceEventClient:
+    def __init__(self, base_url: str, timeout_seconds: float = 90.0) -> None:
+        parsed_url = urllib.parse.urlparse(base_url)
+        if parsed_url.scheme not in {"http", "https"}:
+            raise ValueError("--ai-base-url must use http or https")
+        self._endpoint = base_url.rstrip("/") + "/api/v1/intelligence/events"
+        self._timeout_seconds = timeout_seconds
+
+    def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
+        http_request = urllib.request.Request(  # noqa: S310
+            self._endpoint,
+            data=json.dumps(request.model_dump(mode="json")).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(http_request, timeout=self._timeout_seconds) as response:  # noqa: S310
+            envelope = json.loads(response.read().decode("utf-8"))
+        data = envelope.get("data")
+        if not envelope.get("success") or not isinstance(data, dict):
+            raise RuntimeError(f"Hannah AI intelligence event failed: {envelope}")
+        return IntelligenceEventResponse.model_validate(data)
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build a live full-content news AI summary quality audit report."
@@ -78,6 +114,17 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--sleep-seconds", type=float, default=0.2)
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--sample-limit", type=int)
+    parser.add_argument(
+        "--ai-base-url",
+        default="",
+        help="실행 중인 Hannah AI 서버를 통해 /api/v1/intelligence/events를 검증한다.",
+    )
+    parser.add_argument(
+        "--ai-timeout-seconds",
+        type=float,
+        default=240.0,
+        help="AI 이벤트 응답 검증 HTTP timeout.",
+    )
     parser.add_argument(
         "--require-query-stock-match",
         action="store_true",

@@ -45,6 +45,8 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert 0.0 <= payload["data"]["sentiment_confidence"] <= 1.0
     assert 0.0 <= payload["data"]["importance_confidence"] <= 1.0
     assert payload["data"]["stock_match_confidence"] == 1.0
+    assert payload["data"]["content_availability"] == "SUMMARY_ONLY"
+    assert payload["data"]["original_content"] == "반도체 수요 회복으로 실적 개선 기대가 커졌다."
 
 
 def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
@@ -145,6 +147,65 @@ def test_analyze_alert_does_not_emit_generic_financial_words_as_glossary() -> No
     normalized_terms = {term["normalized_term"] for term in payload["glossary_terms"]}
     assert normalized_terms.isdisjoint({"실적", "외국인", "기관", "개인", "공시"})
     assert "FINANCIAL_GLOSSARY_APPLIED" not in payload["translation_quality_flags"]
+
+
+def test_analyze_alert_rejects_tangential_sponsor_sports_stock_match() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "[mhn포토] 이지민, 남몰래 브이",
+            "snippet": "이지민(KB금융그룹)이 18번홀 경기를 펼치고 있다.",
+            "content": (
+                "홈 골프 [mhn포토] 이지민, 남몰래 브이. 제16회 롯데 오픈 최종 "
+                "4라운드가 열렸다. 이지민(KB금융그룹)이 18번홀 경기를 펼치고 있다."
+            ),
+            "original_url": "https://example.com/sports-photo",
+            "stock_universe": [
+                {
+                    "stock_code": "105560",
+                    "stock_name": "KB금융",
+                    "stock_name_en": "KB Financial Group",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["stock_code"] is None
+    assert payload["stock_match_confidence"] == 0.0
+
+
+def test_analyze_alert_rejects_tangential_galaxy_watch_sleep_study_match() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "NEWS",
+            "title": "40대가 전 연령 중 수면 최단",
+            "snippet": "삼성 갤럭시 워치를 착용한 미국 성인 수면 데이터를 분석했다.",
+            "content": (
+                "성신여자대학교 심리학과와 미국 하버드 의대 공동 연구팀은 "
+                "삼성 갤럭시 워치를 착용한 미국 성인 27만 명의 수면 데이터를 "
+                "분석했다. 모든 사람에게 통용되는 단일 수면 기준은 없다고 밝혔다."
+            ),
+            "original_url": "https://example.com/sleep-study",
+            "stock_universe": [
+                {
+                    "stock_code": "005930",
+                    "stock_name": "삼성전자",
+                    "stock_name_en": "Samsung Electronics",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["stock_code"] is None
+    assert payload["stock_match_confidence"] == 0.0
 
 
 def test_validation_error_returns_common_error_shape() -> None:

@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
+from http.client import IncompleteRead, RemoteDisconnected
 from pathlib import Path
 from typing import Any, cast
 from urllib.error import HTTPError, URLError
@@ -265,7 +266,13 @@ def _json_request_with_retry(
                 continue
             status.failed_requests += 1
             raise
-        except (TimeoutError, URLError) as exception:
+        except (
+            TimeoutError,
+            URLError,
+            RemoteDisconnected,
+            IncompleteRead,
+            ConnectionResetError,
+        ) as exception:
             status.failed_requests += 1
             if attempt < max_retries:
                 time.sleep(_retry_sleep(base_sleep_seconds, attempt))
