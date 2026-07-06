@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import re
+import ssl
 import time
 import zipfile
 from collections import Counter
@@ -19,6 +20,8 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
+
+import certifi
 
 from hannah_montana_ai.training.collector import load_local_env, read_raw_alerts
 from hannah_montana_ai.training.dataset import JSONL_SHARD_MANIFEST_SCHEMA_VERSION
@@ -47,6 +50,7 @@ MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
 REQUEST_TIMEOUT_SECONDS = 4.0
+FETCH_RETRY_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
 MAX_OUTPUT_SHARD_BYTES = 95_000_000
 CONTENT_SELECTOR_PATTERN = re.compile(
     r"""(?is)<(?P<tag>article|section|div)\b(?P<attrs>[^>]*)>(?P<body>.*?)</(?P=tag)>"""
@@ -55,10 +59,12 @@ CONTENT_ATTRIBUTE_TERMS = (
     "article",
     "articlebody",
     "article_body",
+    "article-body",
     "article_txt",
     "articletext",
     "articlecontent",
     "article_content",
+    "article_conent",
     "article-view-content",
     "article_view",
     "articlecont",
@@ -67,8 +73,35 @@ CONTENT_ATTRIBUTE_TERMS = (
     "view_content",
     "view_cont",
     "view-article",
+    "view_con_wrap",
     "contents_view",
     "content",
+    "content-area",
+)
+EXCLUDED_CONTENT_ATTRIBUTE_TERMS = (
+    "popular_news",
+    "popularnews",
+    "related_news",
+    "relatednews",
+    "comment",
+    "reply",
+    "latest",
+    "recommend",
+)
+BALANCED_CONTENT_ELEMENT_IDS = (
+    "articlebody",
+    "article-view-content-div",
+    "articleViewCon",
+)
+BALANCED_CONTENT_CLASS_TERM_GROUPS = (
+    ("article-view-content",),
+    ("view_con_wrap",),
+    ("article-veiw-body",),
+    ("article_body",),
+    ("article-body",),
+    ("news_body",),
+    ("content-area",),
+    ("news_home_list", "section_2"),
 )
 FINANCIAL_CONTEXT_TERMS = (
     "주가",
@@ -362,17 +395,35 @@ def fetch_news_content(url: str, expected_title: str = "") -> FullContent | None
     safe_url = safe_http_url(url)
     if not safe_url:
         return None
-    try:
-        html = fetch_bytes(safe_url).decode("utf-8", errors="replace")
-    except (HTTPError, IncompleteRead, OSError, TimeoutError, URLError, UnicodeError):
+    html = fetch_html_with_retry(safe_url)
+    if not html:
         return None
     text = extract_article_text(html, expected_title=expected_title)
+    content_html = html
+    content_url = safe_url
+    primary_image_urls = image_urls(html, safe_url)
+    if len(text) < MIN_CONTENT_CHARS:
+        next_amp_url = amp_url(html, safe_url)
+        if next_amp_url and next_amp_url != safe_url:
+            amp_html = fetch_html_with_retry(next_amp_url)
+            if amp_html:
+                amp_text = extract_article_text(amp_html, expected_title=expected_title)
+                if len(amp_text) > len(text):
+                    text = amp_text
+                    content_html = amp_html
+                    content_url = next_amp_url
     if len(text) < MIN_CONTENT_CHARS:
         return None
+    merged_image_urls = [
+        image_url
+        for image_url in [*image_urls(content_html, content_url), *primary_image_urls]
+        if image_url
+    ]
+    deduplicated_image_urls = list(dict.fromkeys(merged_image_urls))[:10]
     return FullContent(
         content=text[:MAX_CONTENT_CHARS],
-        canonical_url=canonical_url(html, safe_url),
-        image_urls=image_urls(html, safe_url),
+        canonical_url=canonical_url(content_html, content_url),
+        image_urls=deduplicated_image_urls,
     )
 
 
@@ -550,10 +601,31 @@ def fetch_dart_document(api_key: str, receipt_number: str) -> str:
     return content if is_valid_full_content(content) else ""
 
 
+def fetch_html_with_retry(url: str, max_attempts: int = 3) -> str:
+    for attempt in range(max_attempts):
+        try:
+            return fetch_bytes(url).decode("utf-8", errors="replace")
+        except HTTPError as exception:
+            if exception.code not in FETCH_RETRY_HTTP_CODES:
+                return ""
+            if attempt == max_attempts - 1:
+                return ""
+        except (IncompleteRead, OSError, TimeoutError, URLError, UnicodeError):
+            if attempt == max_attempts - 1:
+                return ""
+        time.sleep(min(0.2 * (2**attempt), 1.0))
+    return ""
+
+
 def fetch_bytes(url: str) -> bytes:
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:
         raise ValueError("unsupported URL scheme")
+    context = (
+        ssl.create_default_context(cafile=certifi.where())
+        if parsed.scheme == "https"
+        else None
+    )
     request = Request(  # noqa: S310
         url,
         headers={
@@ -562,7 +634,7 @@ def fetch_bytes(url: str) -> bytes:
             )
         },
     )
-    with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:  # noqa: S310
+    with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS, context=context) as response:  # noqa: S310
         return response.read(MAX_FETCH_BYTES + 1)[:MAX_FETCH_BYTES]
 
 
@@ -586,15 +658,51 @@ def extract_text(html: str) -> str:
 
 
 def extract_article_text(html: str, expected_title: str = "") -> str:
+    arranged_text = extract_content_arrange_text(html)
     cleaned = re.sub(
         r"(?is)<(script|style|noscript|iframe|svg|nav|header|footer|aside|form).*?</\1>",
         " ",
         html,
     )
     candidates: list[str] = []
+    if arranged_text:
+        candidates.append(arranged_text)
+    article_body_match = re.search(
+        r"""(?is)<article[^>]+(?:id=["']articleText["']|itemprop=["']articleBody["'])[^>]*>(?P<body>.*?)</article>""",
+        cleaned,
+    )
+    if article_body_match:
+        text = extract_text(article_body_match.group("body"))
+        if text:
+            candidates.append(text)
+    for element_id in BALANCED_CONTENT_ELEMENT_IDS:
+        element_html = extract_element_html_by_id(cleaned, element_id)
+        if element_html:
+            text = extract_text(element_html)
+            if text:
+                candidates.append(text)
+    for class_terms in BALANCED_CONTENT_CLASS_TERM_GROUPS:
+        texts = [
+            text
+            for element_html in extract_elements_html_by_class_terms(cleaned, class_terms)
+            if (text := extract_text(element_html))
+        ]
+        candidates.extend(texts)
+        if len(texts) >= 2:
+            candidates.append(" ".join(texts))
+    newdaily_match = re.search(
+        r"""(?is)<div[^>]+id=["']article_conent["'][^>]*>(?P<body>.*?)</ul>""",
+        cleaned,
+    )
+    if newdaily_match:
+        text = extract_text(newdaily_match.group("body"))
+        if text:
+            candidates.append(text)
     for match in CONTENT_SELECTOR_PATTERN.finditer(cleaned):
         attrs = normalize_text(unescape(match.group("attrs"))).lower()
         compact_attrs = re.sub(r"[^a-z0-9가-힣_-]+", "", attrs)
+        if is_excluded_content_attrs(compact_attrs):
+            continue
         if match.group("tag").lower() == "article" or any(
             term in compact_attrs for term in CONTENT_ATTRIBUTE_TERMS
         ):
@@ -607,6 +715,79 @@ def extract_article_text(html: str, expected_title: str = "") -> str:
 
     best = max(candidates, key=lambda text: content_score(text, expected_title))
     return best if content_score(best, expected_title) > 0 else extract_text(cleaned)
+
+
+def extract_content_arrange_text(html: str) -> str:
+    chunks: list[str] = []
+    for match in re.finditer(
+        r'''"type":"text","content":"(?P<content>(?:\\.|[^"\\])*)"''',
+        html,
+    ):
+        try:
+            decoded = json.loads(f'"{match.group("content")}"')
+        except json.JSONDecodeError:
+            continue
+        text = normalize_text(unescape(decoded))
+        if text:
+            chunks.append(text)
+    return " ".join(chunks)
+
+
+def extract_element_html_by_id(html: str, element_id: str) -> str:
+    start_match = re.search(
+        r"""(?is)<(?P<tag>[a-z0-9]+)\b(?=[^>]*\bid=["']"""
+        + re.escape(element_id)
+        + r"""["'])(?P<attrs>[^>]*)>""",
+        html,
+    )
+    if not start_match:
+        return ""
+    return extract_balanced_element_body(html, start_match)
+
+
+def extract_elements_html_by_class_terms(html: str, class_terms: tuple[str, ...]) -> list[str]:
+    parts: list[str] = []
+    seen: set[tuple[int, int]] = set()
+    start_pattern = re.compile(
+        r"""(?is)<(?P<tag>[a-z0-9]+)\b(?P<attrs>[^>]*\bclass=["'][^"']+["'][^>]*)>"""
+    )
+    for start_match in start_pattern.finditer(html):
+        attrs = normalize_text(unescape(start_match.group("attrs"))).lower()
+        compact_attrs = re.sub(r"[^a-z0-9가-힣_-]+", "", attrs)
+        if is_excluded_content_attrs(compact_attrs):
+            continue
+        if not all(term.lower() in attrs for term in class_terms):
+            continue
+        body = extract_balanced_element_body(html, start_match)
+        if not body:
+            continue
+        key = (start_match.start(), start_match.end() + len(body))
+        if key in seen:
+            continue
+        seen.add(key)
+        parts.append(body)
+    return parts
+
+
+def extract_balanced_element_body(html: str, start_match: re.Match[str]) -> str:
+    tag = start_match.group("tag")
+    tag_pattern = re.compile(rf"(?is)</?{re.escape(tag)}\b[^>]*>")
+    depth = 0
+    for match in tag_pattern.finditer(html, start_match.start()):
+        token = match.group(0)
+        is_end = token.startswith("</")
+        is_self_closing = token.rstrip().endswith("/>")
+        if is_end:
+            depth -= 1
+            if depth == 0:
+                return html[start_match.end() : match.start()]
+        elif not is_self_closing:
+            depth += 1
+    return ""
+
+
+def is_excluded_content_attrs(compact_attrs: str) -> bool:
+    return any(term in compact_attrs for term in EXCLUDED_CONTENT_ATTRIBUTE_TERMS)
 
 
 def content_score(text: str, expected_title: str = "") -> int:
@@ -709,11 +890,19 @@ def canonical_url(html: str, source_url: str) -> str:
     return safe_http_url(urljoin(source_url, unescape(match.group(1)))) or source_url
 
 
+def amp_url(html: str, source_url: str) -> str:
+    match = re.search(r"""<link[^>]+rel=["']amphtml["'][^>]+href=["']([^"']+)["']""", html, re.I)
+    if not match:
+        return ""
+    return safe_http_url(urljoin(source_url, unescape(match.group(1))))
+
+
 def image_urls(html: str, source_url: str) -> list[str]:
     urls: list[str] = []
     patterns = [
         r"""<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']""",
         r"""<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']""",
+        r"""<amp-img[^>]+src=["']([^"']+)["']""",
         r"""<img[^>]+src=["']([^"']+)["']""",
     ]
     for pattern in patterns:

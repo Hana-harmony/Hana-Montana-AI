@@ -179,6 +179,26 @@ def test_samjeon_nix_is_dictionary_backed_korean_market_slang() -> None:
     assert "literal translation" in response.explanation
 
 
+def test_samnik_short_form_is_dictionary_backed_korean_market_slang() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-rag",
+    )
+
+    response = service.explain(
+        KoreanFinancialTermExplainRequest(
+            term="삼닉",
+            title="삼닉 레버리지로 손실 입은 개미들",
+            context="삼닉 레버리지 상품에서 개미 투자자 손실이 커졌다는 기사다.",
+        )
+    )
+
+    assert response.source == "DICTIONARY"
+    assert response.term == "삼닉"
+    assert response.normalized_term == "삼전닉스"
+    assert "Samsung Electronics and SK hynix" in response.explanation
+
+
 def test_local_qwen_term_provider_promotes_unknown_korean_term() -> None:
     service = KoreanFinancialTermExplanationService(
         seed_path=Path("data/reference/korean_financial_terms_seed.json"),

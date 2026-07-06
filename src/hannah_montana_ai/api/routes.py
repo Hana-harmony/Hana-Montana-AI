@@ -1,3 +1,5 @@
+import hashlib
+import logging
 from functools import lru_cache
 from time import perf_counter
 
@@ -56,6 +58,7 @@ from hannah_montana_ai.services.korean_translation_generator import (
 from hannah_montana_ai.services.model import ModelArtifactError
 
 router = APIRouter(tags=["analysis"])
+logger = logging.getLogger(__name__)
 
 
 @lru_cache
@@ -237,6 +240,7 @@ def explain_korean_financial_term(
 def translate_korean_to_english(
     request: KoreanTranslationRequest,
 ) -> ApiResponse[KoreanTranslationResponse]:
+    source_hash = hashlib.sha256(request.text.encode("utf-8")).hexdigest()[:12]
     result = get_korean_translation_service().translate(
         KoreanTranslationContext(
             text=request.text,
@@ -244,6 +248,16 @@ def translate_korean_to_english(
             title=request.title,
             glossary_terms=request.glossary_terms,
         )
+    )
+    logger.info(
+        "Korean translation request completed: source_hash=%s source_len=%d "
+        "translated_len=%d status=%s provider=%s flags=%s",
+        source_hash,
+        len(request.text),
+        len(result.translated_text),
+        result.status,
+        result.provider,
+        ",".join(result.quality_flags[:5]),
     )
     return success_response(
         KoreanTranslationResponse(

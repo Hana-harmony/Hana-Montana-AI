@@ -1,4 +1,5 @@
 import os
+from http.client import RemoteDisconnected
 from pathlib import Path
 
 import pytest
@@ -121,3 +122,41 @@ def test_naver_collection_records_timeout_without_secret_or_url(monkeypatch) -> 
     assert "TimeoutError" in error_message
     assert "local-client" not in error_message
     assert "openapi.naver.com" not in error_message
+
+
+def test_naver_collection_retries_remote_disconnect(monkeypatch) -> None:
+    monkeypatch.setenv("NAVER_NEWS_CLIENT_ID", "local-client-id")
+    monkeypatch.setenv("NAVER_NEWS_CLIENT_SECRET", "local-client-secret")
+    monkeypatch.setattr(collector.time, "sleep", lambda _: None)
+    call_count = 0
+
+    def fake_json_request(_request):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            raise RemoteDisconnected("Remote end closed connection without response")
+        return {
+            "items": [
+                {
+                    "title": "하나금융지주 실적 기대",
+                    "description": "은행주 투자 심리가 개선됐다",
+                    "originallink": "https://example.test/news/2",
+                    "pubDate": "Fri, 05 Jun 2026 10:00:00 +0900",
+                }
+            ]
+        }
+
+    monkeypatch.setattr(collector, "_json_request", fake_json_request)
+
+    result = collect_naver_news(
+        max_per_query=1,
+        sleep_seconds=0,
+        max_retries=1,
+        queries=("하나금융지주",),
+    )
+
+    assert len(result.alerts) == 1
+    assert result.status.attempted_requests == 2
+    assert result.status.successful_requests == 1
+    assert result.status.failed_requests == 1
+    assert result.status.completed is True

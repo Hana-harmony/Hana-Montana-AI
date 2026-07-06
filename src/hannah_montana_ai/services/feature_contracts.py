@@ -19,6 +19,7 @@ from hannah_montana_ai.domain.schemas import (
     SourceType,
     StockOrderStatusRequest,
     StockOrderStatusResponse,
+    SummaryLines,
     TaxCaseType,
     TaxDocumentVerificationRequest,
     TaxDocumentVerificationResponse,
@@ -57,7 +58,7 @@ FINANCIAL_TRANSLATION_GLOSSARY = (
         "삼전닉스",
         "Samjeon Nix",
         "market_slang",
-        ("삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon-Nix"),
+        ("삼닉", "삼닉스", "삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon-Nix"),
     ),
     ("삼성전자", "Samsung Electronics", "stock", ("삼전", "Samsung Elec")),
     ("SK하이닉스", "SK hynix", "stock", ("하이닉스",)),
@@ -213,6 +214,7 @@ class OrderAvailabilityPrediction:
 class TranslationPrediction:
     translated_title: str
     translated_summary: str
+    translated_summary_lines: SummaryLines
     translated_content: str
     translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"]
     glossary_terms: list[FinancialGlossaryTerm]
@@ -335,7 +337,9 @@ class FinancialTranslationModel:
         self,
         request: IntelligenceEventRequest,
         summary: str,
+        summary_lines: SummaryLines | None = None,
     ) -> TranslationPrediction:
+        source_summary_lines = _source_summary_lines(summary, summary_lines)
         title_translation = translate_financial_korean_to_english(request.title)
         summary_translation = translate_financial_korean_to_english(summary)
         content_translation = translate_financial_korean_to_english(request.content)
@@ -372,7 +376,13 @@ class FinancialTranslationModel:
             qwen_summary_translation,
             summary_translation.translated_text,
         )
-        translated_content = _preferred_translation(
+        translated_summary_lines, summary_line_qwen_results = self._translate_summary_lines(
+            source_summary_lines,
+            request=request,
+            glossary_terms=qwen_glossary_terms,
+        )
+        translated_summary = _join_summary_lines(translated_summary_lines) or translated_summary
+        translated_content = _preferred_content_translation(
             qwen_content_translation,
             content_translation.translated_text,
         )
@@ -389,33 +399,48 @@ class FinancialTranslationModel:
                 qwen_title_translation,
                 qwen_summary_translation,
                 qwen_content_translation,
+                *summary_line_qwen_results,
             )
         )
+        if _contains_hangul(_join_summary_lines(translated_summary_lines)):
+            quality_flags.append("UNTRANSLATED_SUMMARY_LINE_REVIEW_REQUIRED")
         if _contains_hangul(translated_content):
             quality_flags.append("UNTRANSLATED_CONTENT_REVIEW_REQUIRED")
+        requires_content_translation = (
+            bool(request.content.strip())
+            and request.source_license_policy != "NAVER_SEARCH_SNIPPET_ONLY"
+        )
+        if requires_content_translation and not translated_content.strip():
+            quality_flags.append("CONTENT_TRANSLATION_UNAVAILABLE")
         quality_flags = list(dict.fromkeys(quality_flags))
         translation_status: Literal["TRANSLATED", "SOURCE_LANGUAGE_FALLBACK"] = (
             "TRANSLATED"
-            if translated_title != html.unescape(request.title)
-            or translated_summary != html.unescape(summary)
-            or translated_content != html.unescape(request.content)
+            if (
+                (not requires_content_translation or bool(translated_content.strip()))
+                and (
+                    translated_title != html.unescape(request.title)
+                    or translated_summary != html.unescape(summary)
+                    or translated_content != html.unescape(request.content)
+                )
+            )
             else "SOURCE_LANGUAGE_FALLBACK"
         )
         provider = _translation_provider(
-            qwen_title_translation,
-            qwen_summary_translation,
             qwen_content_translation,
+            qwen_summary_translation,
+            qwen_title_translation,
             fallback=self.provider,
         )
         model_version = _translation_model_version(
-            qwen_title_translation,
-            qwen_summary_translation,
             qwen_content_translation,
+            qwen_summary_translation,
+            qwen_title_translation,
             fallback=self.version,
         )
         return TranslationPrediction(
             translated_title=translated_title,
             translated_summary=translated_summary,
+            translated_summary_lines=translated_summary_lines,
             translated_content=translated_content,
             translation_status=translation_status,
             glossary_terms=display_glossary_terms,
@@ -441,6 +466,38 @@ class FinancialTranslationModel:
                 title=title,
                 glossary_terms=glossary_terms,
             )
+        )
+
+    def _translate_summary_lines(
+        self,
+        summary_lines: SummaryLines,
+        *,
+        request: IntelligenceEventRequest,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> tuple[SummaryLines, list[KoreanTranslationResult | None]]:
+        translated_lines: list[str] = []
+        qwen_results: list[KoreanTranslationResult | None] = []
+        for line in (summary_lines.what, summary_lines.why, summary_lines.impact):
+            fallback_translation = translate_financial_korean_to_english(line)
+            qwen_result = self._translate_with_qwen(
+                text=line,
+                source_type=request.source_type,
+                title=request.title,
+                glossary_terms=glossary_terms,
+            )
+            qwen_results.append(qwen_result)
+            translated_lines.append(
+                _normalize_summary_line(
+                    _preferred_translation(qwen_result, fallback_translation.translated_text)
+                )
+            )
+        return (
+            SummaryLines(
+                what=translated_lines[0],
+                why=translated_lines[1],
+                impact=translated_lines[2],
+            ),
+            qwen_results,
         )
 
 
@@ -619,7 +676,14 @@ class IntelligenceEventService:
             stock_universe=request.stock_universe,
         )
         analysis = self._analyzer.analyze(analysis_request)
-        translation = self._translation_model.translate_event(request, analysis.summary)
+        translation_request = request.model_copy(
+            update={"content": analysis.original_content or request.content}
+        )
+        translation = self._translation_model.translate_event(
+            translation_request,
+            analysis.summary,
+            analysis.summary_lines,
+        )
 
         return IntelligenceEventResponse(
             alert_id=_alert_id(request),
@@ -630,7 +694,7 @@ class IntelligenceEventService:
             original_title=request.title,
             translated_title=translation.translated_title,
             summary=analysis.summary,
-            summary_lines=analysis.summary_lines,
+            summary_lines=translation.translated_summary_lines,
             translated_summary=translation.translated_summary,
             original_content=analysis.original_content,
             translated_content=translation.translated_content,
@@ -735,6 +799,12 @@ def translate_financial_korean_to_english(text: str) -> FinancialTranslationResu
             )
             seen_terms.add(term_key)
 
+    translated = _grounded_short_financial_sentence_translation(
+        source_text,
+        translated,
+        matched_terms,
+    )
+
     return FinancialTranslationResult(
         translated_text=" ".join(translated.split()),
         glossary_terms=matched_terms,
@@ -758,6 +828,55 @@ def _ordered_glossary_entries() -> tuple[_GlossaryEntry, ...]:
             reverse=True,
         )
     )
+
+
+def _grounded_short_financial_sentence_translation(
+    source_text: str,
+    translated_text: str,
+    matched_terms: list[FinancialGlossaryTerm],
+) -> str:
+    if not _contains_hangul(translated_text):
+        return translated_text
+    normalized_source = " ".join(source_text.split())
+    company = _primary_stock_english_term(matched_terms)
+    if (
+        company
+        and "영업이익" in normalized_source
+        and ("증가" in normalized_source or "개선" in normalized_source)
+        and any(term in normalized_source for term in ("예상", "기대", "전망"))
+    ):
+        direction = "improve" if "개선" in normalized_source else "increase"
+        period = "second-quarter " if "2분기" in normalized_source else ""
+        drivers = _earnings_driver_surfaces(normalized_source)
+        driver_text = f" on {_join_english_items(drivers)}" if drivers else ""
+        return f"{company} expects {period}operating profit to {direction}{driver_text}."
+    return translated_text
+
+
+def _primary_stock_english_term(
+    matched_terms: list[FinancialGlossaryTerm],
+) -> str:
+    for term in matched_terms:
+        if term.category == "stock":
+            return term.english_term
+    return ""
+
+
+def _earnings_driver_surfaces(source_text: str) -> list[str]:
+    drivers: list[str] = []
+    if "공급계약" in source_text:
+        drivers.append("supply-contract expansion")
+    if "반도체" in source_text and "수요 회복" in source_text:
+        drivers.append("recovering semiconductor demand")
+    elif "수요 회복" in source_text:
+        drivers.append("recovering demand")
+    return drivers
+
+
+def _join_english_items(items: list[str]) -> str:
+    if len(items) <= 1:
+        return "".join(items)
+    return f"{', '.join(items[:-1])} and {items[-1]}"
 
 
 def _merge_glossary_terms(
@@ -796,9 +915,84 @@ def _qwen_translation_glossary_terms(
     )
 
 
+def _source_summary_lines(summary: str, summary_lines: SummaryLines | None) -> SummaryLines:
+    if summary_lines and _join_summary_lines(summary_lines):
+        return SummaryLines(
+            what=_normalize_summary_line(summary_lines.what),
+            why=_normalize_summary_line(summary_lines.why),
+            impact=_normalize_summary_line(summary_lines.impact),
+        )
+    lines = [
+        line
+        for line in (_normalize_summary_line(line) for line in summary.splitlines())
+        if line
+    ]
+    if len(lines) < 3:
+        lines = _sentence_summary_lines(summary)
+    while len(lines) < 3:
+        lines.append("")
+    return SummaryLines(what=lines[0], why=lines[1], impact=lines[2])
+
+
+def _sentence_summary_lines(summary: str) -> list[str]:
+    normalized = " ".join(html.unescape(summary or "").split())
+    if not normalized:
+        return []
+    sentences = re.findall(r"[^.!?。？！]+[.!?。？！]", normalized)
+    if not sentences:
+        return [_normalize_summary_line(normalized)]
+    return [_normalize_summary_line(sentence) for sentence in sentences[:3]]
+
+
+def _join_summary_lines(summary_lines: SummaryLines) -> str:
+    return "\n".join(
+        line
+        for line in (
+            _normalize_summary_line(summary_lines.what),
+            _normalize_summary_line(summary_lines.why),
+            _normalize_summary_line(summary_lines.impact),
+        )
+        if line
+    )
+
+
+def _normalize_summary_line(value: str) -> str:
+    normalized = " ".join(html.unescape(value or "").split())
+    normalized = re.sub(r"^(?:what|why|impact)\s*[:：\-]\s*", "", normalized, flags=re.I)
+    normalized = normalized.strip(" -•")
+    normalized = _first_sentence_or_text(normalized)
+    normalized = _fit_summary_line(normalized)
+    if normalized and not normalized.endswith((".", "!", "?", "。", "！", "？")):
+        normalized = f"{normalized}."
+    return normalized
+
+
+def _first_sentence_or_text(value: str) -> str:
+    match = re.match(r"(.+?[.!?。？！])(?:\s|$)", value)
+    if match:
+        return match.group(1).strip()
+    return value
+
+
+def _fit_summary_line(value: str, max_length: int = 500) -> str:
+    if len(value) <= max_length:
+        return value
+    clipped = value[: max_length - 1].rstrip()
+    for delimiter in (".", "!", "?", "。", "！", "？"):
+        index = clipped.rfind(delimiter)
+        if index >= 120:
+            return clipped[: index + 1].strip()
+    word_boundary = clipped.rfind(" ")
+    if word_boundary >= 120:
+        clipped = clipped[:word_boundary].rstrip()
+    return clipped.rstrip(".!?。？！") + "."
+
+
 def _preferred_translation(
     qwen_result: KoreanTranslationResult | None,
     fallback_text: str,
+    *,
+    allow_flagged_english: bool = False,
 ) -> str:
     if (
         qwen_result is not None
@@ -807,7 +1001,42 @@ def _preferred_translation(
         and qwen_result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
     ):
         return qwen_result.translated_text.strip()
+    if (
+        allow_flagged_english
+        and qwen_result is not None
+        and qwen_result.translated_text.strip()
+        and qwen_result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+        and not _contains_hangul(qwen_result.translated_text)
+        and _has_only_tolerable_translation_flags(qwen_result.quality_flags)
+    ):
+        return qwen_result.translated_text.strip()
     return fallback_text
+
+
+def _preferred_content_translation(
+    qwen_result: KoreanTranslationResult | None,
+    fallback_text: str,
+) -> str:
+    candidate = _preferred_translation(
+        qwen_result,
+        fallback_text,
+        allow_flagged_english=True,
+    ).strip()
+    if candidate and not _contains_hangul(candidate):
+        return candidate
+    fallback = fallback_text.strip()
+    if fallback and not _contains_hangul(fallback):
+        return fallback
+    return ""
+
+
+def _has_only_tolerable_translation_flags(flags: list[str]) -> bool:
+    if not flags:
+        return True
+    return all(
+        flag == "SOURCE_NUMBER_MISSING" or flag.startswith("SOURCE_TERM_MISSING:")
+        for flag in flags
+    )
 
 
 def _qwen_translation_quality_flags(
@@ -817,12 +1046,30 @@ def _qwen_translation_quality_flags(
     for result in results:
         if result is None:
             continue
+        if (
+            result.provider == SOURCE_LANGUAGE_FALLBACK_PROVIDER
+            and not result.translated_text.strip()
+        ):
+            continue
+        if (
+            result.translated_text.strip()
+            and result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
+            and not _contains_hangul(result.translated_text)
+            and _has_only_tolerable_translation_flags(result.quality_flags)
+        ):
+            continue
         for flag in result.quality_flags:
             flags.append(f"QWEN_TRANSLATION_{flag}")
     if any(
         result is not None
         and result.translated_text.strip()
-        and not result.quality_flags
+        and (
+            not result.quality_flags
+            or (
+                not _contains_hangul(result.translated_text)
+                and _has_only_tolerable_translation_flags(result.quality_flags)
+            )
+        )
         and result.provider != SOURCE_LANGUAGE_FALLBACK_PROVIDER
         for result in results
     ):

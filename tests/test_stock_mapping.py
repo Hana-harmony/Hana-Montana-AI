@@ -124,6 +124,81 @@ def test_longer_internal_stock_wins_when_short_request_candidate_is_ambiguous() 
     assert "034730" not in response.related_stocks
 
 
+def test_short_english_stock_name_ignores_media_source_context() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "오늘도 롤러코스피 등락 거듭 끝 8000선 지켜",
+            "snippet": (
+                "실적 발표를 앞둔 삼성전자는 등락을 보였다. "
+                "증시 흐름은 SBS Biz 이광호 기자가 전했다."
+            ),
+            "original_url": "https://biz.sbs.co.kr/article/20000320880",
+            "stock_universe": [
+                {
+                    "stock_code": "034120",
+                    "stock_name": "SBS",
+                    "stock_name_en": "SBS",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code != "034120"
+    assert "034120" not in response.related_stocks
+
+
+def test_short_english_stock_name_ignores_technical_acronym_context() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "삼성전자 엑시노스 S27 프로까지 확대",
+            "snippet": (
+                "AP와 D램을 나란히 수평 배치하는 사이드 바이 사이드(SBS) 구조를 도입해 "
+                "발열 제어와 성능 최적화를 동시에 구현한다."
+            ),
+            "original_url": "https://example.com/news/exynos-side-by-side",
+            "stock_universe": [
+                {
+                    "stock_code": "034120",
+                    "stock_name": "SBS",
+                    "stock_name_en": "SBS",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code != "034120"
+    assert "034120" not in response.related_stocks
+
+
+def test_turnaround_context_keeps_request_stock_primary_match() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "출하 물량 급감 충격 끝?... 화승엔터 턴어라운드 시동",
+            "original_url": "https://example.com/news/hwasung-turnaround",
+            "stock_universe": [
+                {
+                    "stock_code": "241590",
+                    "stock_name": "화승엔터",
+                    "stock_name_en": "Hwaseung Enterprise",
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code == "241590"
+    assert response.stock_name == "화승엔터"
+    assert response.related_stocks == ["241590"]
+
+
 def test_non_ambiguous_request_stock_is_not_shadowed_by_spaced_business_unit() -> None:
     request = AlertAnalysisRequest.model_validate(
         {
