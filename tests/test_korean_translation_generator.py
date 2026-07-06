@@ -2162,6 +2162,111 @@ def test_korean_translation_repairs_market_news_source_term_surfaces() -> None:
     assert result.quality_flags == []
 
 
+def test_korean_translation_repairs_sk_hynix_nmt_surface() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "AI investors expressed interest in SKHynx ADRs, while the SK Hyanix fund grew."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "글로벌 AI 투자사들이 SK하이닉스 미국 주식예탁증서(ADR)에 "
+                "투자 의향을 밝혔다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "SK hynix ADRs" in result.translated_text
+    assert "SK hynix fund" in result.translated_text
+    assert "SKHynx" not in result.translated_text
+    assert "SK Hyanix" not in result.translated_text
+    assert result.quality_flags == []
+
+
+def test_korean_translation_returns_grounded_uiseong_move_to_you_body_before_model_call() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "The move-digest service will be provided by the youth center of the 3rd army."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "농촌 주민들이 신선식품을 구입하기 위해 읍내까지 이동해야 하는 "
+                "불편을 덜어줄 이동형 먹거리 서비스가 의성에서 본격 운영된다. "
+                "의성군은 기아의 사회공헌사업인 ‘무브투유(Move to You)’를 활용한 "
+                "신선식품 배송서비스를 운영한다고 밝혔다. 이 사업은 이동형 "
+                "냉장·냉동차량이 마을을 찾아가 신선식품을 판매하는 방식이다. "
+                "지난 3일 의성군 청년센터에서 열린 출범식에는 관계기관과 주민 등 "
+                "60여 명이 참석했다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert "Uiseong County has begun operating a mobile fresh-food delivery service" in (
+        result.translated_text
+    )
+    assert "Kia's Move to You social contribution program" in result.translated_text
+    assert "move-digest" not in result.translated_text
+    assert "Republic of China" not in result.translated_text
+    assert result.quality_flags == []
+    assert client.calls == []
+
+
+def test_korean_translation_returns_grounded_lg_supplier_body_before_model_call() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "LG will provide small-cap investors with low-stake compensation."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "LG가 공정거래위원회와 함께 2·3차 협력사까지 상생협력을 확대하기 "
+                "위해 상생결제와 금융·기술 지원을 강화한다. LG는 공급망에 속한 "
+                "약 1300개 협력사가 혜택을 받을 것으로 기대하고 있다. 대금이 "
+                "2차 이하 협력사까지 전달되는 비율인 상생결제 낙수율을 10% "
+                "이상으로 확대하기로 했다. 또 약 9000억원 규모의 동반성장펀드 "
+                "운영 금액 가운데 10% 이상을 2차 이하 협력사에 지원한다. "
+                "하범종 ㈜LG 경영지원부문장 사장은 상생협력 범위를 넓히겠다고 밝혔다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert "LG is strengthening win-win payment" in result.translated_text
+    assert "KRW 900 billion win-win growth fund" in result.translated_text
+    assert "small-cap investors" not in result.translated_text
+    assert result.quality_flags == []
+    assert client.calls == []
+
+
 def test_korean_translation_rejects_recent_market_news_word_salad() -> None:
     client = FakeTranslationClient(
         json_translation(
