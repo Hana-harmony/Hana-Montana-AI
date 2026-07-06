@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -8,12 +9,20 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol, cast
 
+from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
+    IntelligenceEventRequest,
+    IntelligenceEventResponse,
     StockCandidate,
 )
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.feature_contracts import (
+    FinancialTranslationModel,
+    IntelligenceEventService,
+)
+from hannah_montana_ai.services.korean_translation_generator import KoreanTranslationGenerator
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 from hannah_montana_ai.training.collector import (
     ProviderCollectionStatus,
@@ -31,12 +40,89 @@ from hannah_montana_ai.training.weak_labeler import RawCollectedAlert
 LIVE_NEWS_QUALITY_AUDIT_ROW_SCHEMA_VERSION = "live-news-quality-audit-row/v1"
 LIVE_NEWS_QUALITY_AUDIT_REPORT_SCHEMA_VERSION = "live-news-quality-audit-report/v1"
 STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
+SHORT_STOCK_MEDIA_CONTEXT_TERMS = (
+    "biz",
+    "medianet",
+    "sbsi",
+    "뉴스",
+    "스포츠",
+    "기자",
+    "앵커",
+    "에따르면",
+    "보도",
+    "방송보도",
+    "드라마",
+    "금토드라마",
+    "금토극",
+    "그것이알고싶다",
+    "사옥",
+    "제작발표회",
+    "sidebyside",
+    "사이드바이사이드",
+)
+FINANCIAL_RELEVANCE_TERMS = (
+    "주가",
+    "주식",
+    "증시",
+    "상장",
+    "공시",
+    "계약",
+    "공급",
+    "수주",
+    "매출",
+    "영업이익",
+    "실적",
+    "투자",
+    "지분",
+    "인수",
+    "매각",
+    "배당",
+    "증권",
+    "거래",
+    "금융",
+    "코스피",
+    "코스닥",
+    "KOSPI",
+    "KOSDAQ",
+)
+SUMMARY_HALLUCINATION_TERMS = (
+    "golden electric group",
+    "electronicstronics",
+    "investor impact is better than expected",
+    "korean basis on a korean scale",
+    "more orders placed on the market",
+    "reported event",
+    "market sentiment and investor positioning",
+    "the next disclosure and market reaction",
+    "as the story develops",
+    "samsung exosphate",
+)
+TRANSLATED_CONTENT_HALLUCINATION_TERMS = (
+    "kb semaphore",
+    "newhan bank",
+    "nhan bank",
+    "korean exporters",
+    "highest bidder",
+)
+TRANSLATION_CRITICAL_FLAG_PREFIXES = (
+    "QWEN_TRANSLATION_SEMANTIC_MISMATCH",
+    "QWEN_TRANSLATION_META_OR_REFUSAL_TEXT",
+    "QWEN_TRANSLATION_REPEATED_TRANSLATION_PHRASE",
+    "QWEN_TRANSLATION_SOURCE_TERM_MISSING",
+    "QWEN_TRANSLATION_HANGUL_REMAINS",
+    "QWEN_TRANSLATION_LOCAL_TRANSLATION_PROVIDER_ERROR",
+)
 
 
 class AnalyzerLike(Protocol):
     model: Any
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
+        ...
+
+
+class EventBuilderLike(Protocol):
+    def build_response(self, request: IntelligenceEventRequest) -> IntelligenceEventResponse:
         ...
 
 
@@ -71,13 +157,23 @@ def build_live_news_quality_audit_batch(
     max_retries: int = 2,
     sample_limit: int | None = None,
     analyzer: AnalyzerLike | None = None,
+    event_builder: EventBuilderLike | None = None,
     news_collector: NewsCollector = collect_naver_news,
     content_fetcher: ArticleContentFetcher | None = None,
     require_query_stock_match: bool = False,
     generated_at: datetime | None = None,
 ) -> LiveNewsQualityAuditBatch:
     timestamp = (generated_at or datetime.now(UTC)).isoformat()
-    effective_analyzer: AnalyzerLike = analyzer or cast(AnalyzerLike, AlertAnalyzer())
+    created_analyzer = analyzer or AlertAnalyzer()
+    effective_analyzer: AnalyzerLike = cast(AnalyzerLike, created_analyzer)
+    effective_event_builder = event_builder
+    if effective_event_builder is None and analyzer is None:
+        effective_event_builder = IntelligenceEventService(
+            cast(AlertAnalyzer, created_analyzer),
+            translation_model=FinancialTranslationModel(
+                KoreanTranslationGenerator.from_settings(get_settings())
+            ),
+        )
     queries = build_live_news_queries(
         stock_universe,
         stock_sample_size=stock_sample_size,
@@ -89,6 +185,7 @@ def build_live_news_quality_audit_batch(
     seen_hashes: set[str] = set()
     filtered_query_stock_absent_count = 0
 
+    uses_event_builder = effective_event_builder is not None
     for live_query in queries:
         result = news_collector(
             max_per_query=max_news_per_query,
@@ -111,12 +208,18 @@ def build_live_news_quality_audit_batch(
             ):
                 filtered_query_stock_absent_count += 1
                 continue
+            if require_query_stock_match and not _has_financial_context(
+                alert,
+                full_content=full_content,
+            ):
+                continue
             rows.append(
                 _build_quality_row(
                     alert=alert,
                     full_content=full_content,
                     live_query=live_query,
                     analyzer=effective_analyzer,
+                    event_builder=effective_event_builder,
                     generated_at=timestamp,
                 )
             )
@@ -134,6 +237,7 @@ def build_live_news_quality_audit_batch(
                     ),
                     query_count=len(queries),
                     filtered_query_stock_absent_count=filtered_query_stock_absent_count,
+                    uses_event_builder=uses_event_builder,
                 )
 
     return _build_batch(
@@ -147,6 +251,7 @@ def build_live_news_quality_audit_batch(
         selected_stock_count=len({query.sampled_stock_code for query in queries}),
         query_count=len(queries),
         filtered_query_stock_absent_count=filtered_query_stock_absent_count,
+        uses_event_builder=uses_event_builder,
     )
 
 
@@ -170,6 +275,7 @@ def _build_batch(
     selected_stock_count: int,
     query_count: int,
     filtered_query_stock_absent_count: int,
+    uses_event_builder: bool,
 ) -> LiveNewsQualityAuditBatch:
     return LiveNewsQualityAuditBatch(
         rows=rows,
@@ -184,6 +290,7 @@ def _build_batch(
             selected_stock_count=selected_stock_count,
             query_count=query_count,
             filtered_query_stock_absent_count=filtered_query_stock_absent_count,
+            uses_event_builder=uses_event_builder,
         ),
     )
 
@@ -200,6 +307,7 @@ def build_live_news_quality_audit_report(
     selected_stock_count: int,
     query_count: int,
     filtered_query_stock_absent_count: int = 0,
+    uses_event_builder: bool = False,
 ) -> dict[str, Any]:
     finding_counts = Counter[str](
         finding for row in rows for finding in row["quality_findings"]
@@ -258,10 +366,10 @@ def build_live_news_quality_audit_report(
         "provider_status_totals": _provider_status_totals(statuses),
         "worst_rows": [_compact_worst_row(row) for row in low_quality_rows],
         "policy": {
-            "llm_usage": "disabled",
+            "llm_usage": "event_response_path" if uses_event_builder else "disabled",
             "description": (
-                "최신 뉴스 품질 감사는 LLM 없이 전문 정제, 금융 ML 분류, 규칙 기반 "
-                "What/Why/Impact 요약의 운영 품질을 관측한다."
+                "최신 뉴스 품질 감사는 전문 정제, 금융 ML 분류, What/Why/Impact "
+                "요약, 영어 번역까지 실제 이벤트 응답 품질을 관측한다."
             ),
         },
     }
@@ -273,10 +381,11 @@ def _build_quality_row(
     full_content: ArticleContent | None,
     live_query: LiveNewsQuery,
     analyzer: AnalyzerLike,
+    event_builder: EventBuilderLike | None,
     generated_at: str,
 ) -> dict[str, Any]:
     content = full_content.content if full_content else ""
-    request = AlertAnalysisRequest(
+    request = IntelligenceEventRequest(
         source_type=alert.source_type,
         title=alert.title,
         snippet=alert.snippet,
@@ -287,6 +396,8 @@ def _build_quality_row(
         if full_content
         else "NAVER_SEARCH_SNIPPET_ONLY",
         original_url=cast(Any, alert.original_url),
+        provider=alert.provider,
+        published_at=alert.published_at,
         stock_universe=[
             StockCandidate(
                 stock_code=live_query.sampled_stock_code,
@@ -295,7 +406,11 @@ def _build_quality_row(
             )
         ],
     )
-    response = analyzer.analyze(request)
+    response = (
+        event_builder.build_response(request)
+        if event_builder is not None
+        else analyzer.analyze(request)
+    )
     sampled_stock_primary_matched = response.stock_code == live_query.sampled_stock_code
     sampled_stock_related_matched = live_query.sampled_stock_code in response.related_stocks
     sampled_stock_text_matched = _stock_text_matched(
@@ -311,6 +426,7 @@ def _build_quality_row(
         sampled_stock_model_matched=(
             sampled_stock_primary_matched or sampled_stock_related_matched
         ),
+        requires_english_output=event_builder is not None,
     )
     score = _quality_score(findings)
 
@@ -347,6 +463,11 @@ def _build_quality_row(
         ),
         "sampled_stock_text_matched": sampled_stock_text_matched,
         "summary_lines": response.summary_lines.model_dump(mode="json"),
+        "translation_status": getattr(response, "translation_status", ""),
+        "translation_provider": getattr(response, "translation_provider", ""),
+        "translation_quality_flags": getattr(response, "translation_quality_flags", []),
+        "translated_summary": getattr(response, "translated_summary", ""),
+        "translated_content_excerpt": getattr(response, "translated_content", "")[:500],
         "predicted_event_tags": response.event_tags,
         "event_confidence": response.event_confidence,
         "predicted_sentiment": response.sentiment,
@@ -362,10 +483,11 @@ def _build_quality_row(
 def _quality_findings(
     *,
     alert: RawCollectedAlert,
-    response: AlertAnalysisResponse,
+    response: AlertAnalysisResponse | IntelligenceEventResponse,
     full_content: ArticleContent | None,
     sampled_stock_text_matched: bool,
     sampled_stock_model_matched: bool,
+    requires_english_output: bool = False,
 ) -> list[str]:
     findings: list[str] = []
     lines = [
@@ -390,6 +512,8 @@ def _quality_findings(
         findings.append("SUMMARY_LINE_DUPLICATED")
     if _contains_boilerplate(joined_lines):
         findings.append("SUMMARY_BOILERPLATE")
+    if any(term in joined_lines.lower() for term in SUMMARY_HALLUCINATION_TERMS):
+        findings.append("SUMMARY_HALLUCINATED_SURFACE")
     if _contains_boilerplate(_quality_content(alert, full_content)):
         findings.append("CONTENT_BOILERPLATE")
     if any(len(line) < 18 for line in lines):
@@ -410,6 +534,26 @@ def _quality_findings(
         findings.append("WHY_FALLBACK")
     if _is_fallback_line(response.summary_lines.impact):
         findings.append("IMPACT_FALLBACK")
+    if requires_english_output:
+        if _contains_hangul(joined_lines):
+            findings.append("SUMMARY_LINE_CONTAINS_HANGUL")
+        if any(line and not _has_terminal_punctuation(line) for line in lines):
+            findings.append("SUMMARY_LINE_NO_TERMINAL_PUNCTUATION")
+        if any(line and not _is_single_sentence(line) for line in lines):
+            findings.append("SUMMARY_LINE_NOT_ONE_SENTENCE")
+        translated_content = getattr(response, "translated_content", "")
+        if translated_content and _contains_hangul(translated_content):
+            findings.append("TRANSLATED_CONTENT_CONTAINS_HANGUL")
+        if _contains_translated_content_hallucinated_surface(translated_content):
+            findings.append("TRANSLATED_CONTENT_HALLUCINATED_SURFACE")
+        translation_flags = getattr(response, "translation_quality_flags", [])
+        if any(
+            str(flag).startswith(TRANSLATION_CRITICAL_FLAG_PREFIXES)
+            for flag in translation_flags
+        ):
+            findings.append("TRANSLATION_CRITICAL_REVIEW_FLAG")
+        if getattr(response, "translation_status", "") != "TRANSLATED":
+            findings.append("TRANSLATION_STATUS_FALLBACK")
 
     return sorted(set(findings))
 
@@ -421,6 +565,7 @@ def _quality_score(findings: Sequence[str]) -> int:
         "SUMMARY_LINE_EMPTY": 35,
         "SUMMARY_LINE_DUPLICATED": 22,
         "SUMMARY_BOILERPLATE": 28,
+        "SUMMARY_HALLUCINATED_SURFACE": 35,
         "CONTENT_BOILERPLATE": 8,
         "SUMMARY_LINE_TOO_SHORT": 10,
         "PREDICTED_STOCK_NULL": 18,
@@ -431,6 +576,13 @@ def _quality_score(findings: Sequence[str]) -> int:
         "LOW_IMPORTANCE_CONFIDENCE": 5,
         "WHY_FALLBACK": 6,
         "IMPACT_FALLBACK": 6,
+        "SUMMARY_LINE_CONTAINS_HANGUL": 35,
+        "SUMMARY_LINE_NO_TERMINAL_PUNCTUATION": 15,
+        "SUMMARY_LINE_NOT_ONE_SENTENCE": 12,
+        "TRANSLATED_CONTENT_CONTAINS_HANGUL": 35,
+        "TRANSLATED_CONTENT_HALLUCINATED_SURFACE": 35,
+        "TRANSLATION_CRITICAL_REVIEW_FLAG": 28,
+        "TRANSLATION_STATUS_FALLBACK": 24,
     }
     return max(0, 100 - sum(penalty.get(finding, 0) for finding in findings))
 
@@ -441,9 +593,15 @@ def _has_critical_finding(findings: Sequence[str]) -> bool:
         in {
             "SUMMARY_LINE_EMPTY",
             "SUMMARY_BOILERPLATE",
+            "SUMMARY_HALLUCINATED_SURFACE",
             "PREDICTED_STOCK_NULL",
             "QUERY_STOCK_ABSENT",
             "SAMPLED_STOCK_NOT_MATCHED",
+            "SUMMARY_LINE_CONTAINS_HANGUL",
+            "TRANSLATED_CONTENT_CONTAINS_HANGUL",
+            "TRANSLATED_CONTENT_HALLUCINATED_SURFACE",
+            "TRANSLATION_CRITICAL_REVIEW_FLAG",
+            "TRANSLATION_STATUS_FALLBACK",
         }
         for finding in findings
     )
@@ -468,6 +626,28 @@ def _is_fallback_line(text: str) -> bool:
     return normalized.startswith("중요도 ") or "최신 시장·기업 이벤트입니다" in normalized
 
 
+def _contains_hangul(value: str) -> bool:
+    return bool(re.search(r"[가-힣]", value))
+
+
+def _contains_translated_content_hallucinated_surface(value: str) -> bool:
+    lowered = value.lower()
+    for term in TRANSLATED_CONTENT_HALLUCINATION_TERMS:
+        pattern = rf"(?<![a-z]){re.escape(term)}(?![a-z])"
+        if re.search(pattern, lowered):
+            return True
+    return False
+
+
+def _has_terminal_punctuation(value: str) -> bool:
+    return value.rstrip().endswith((".", "!", "?"))
+
+
+def _is_single_sentence(value: str) -> bool:
+    masked = re.sub(r"\b(?:U\.S|U\.K|Co|Inc|Ltd|Corp)\.", "ABBR", value)
+    return len(re.findall(r"[.!?](?:\s|$)", masked)) == 1
+
+
 def _stock_text_matched(
     alert: RawCollectedAlert,
     stock_name: str,
@@ -486,10 +666,33 @@ def _stock_text_matched(
         position = normalized_text.find(normalized_name, start)
         if position < 0:
             return False
-        context = normalized_text[position : position + len(normalized_name) + 24]
-        if not any(term in context for term in STOCK_ATTRIBUTION_CONTEXT_TERMS):
+        context = normalized_text[
+            max(0, position - 24) : position + len(normalized_name) + 24
+        ]
+        if not _is_stock_attribution_context(context, normalized_name):
             return True
         start = position + len(normalized_name)
+
+
+def _is_stock_attribution_context(context: str, normalized_name: str) -> bool:
+    if any(term in context for term in STOCK_ATTRIBUTION_CONTEXT_TERMS):
+        return True
+    return (
+        normalized_name.isascii()
+        and len(normalized_name) <= 3
+        and any(term in context for term in SHORT_STOCK_MEDIA_CONTEXT_TERMS)
+    )
+
+
+def _has_financial_context(
+    alert: RawCollectedAlert,
+    *,
+    full_content: ArticleContent | None = None,
+) -> bool:
+    text = alert.text
+    if full_content:
+        text = f"{text} {full_content.content[:1200]}"
+    return any(term in text for term in FINANCIAL_RELEVANCE_TERMS)
 
 
 def _provider_status_totals(statuses: Sequence[ProviderCollectionStatus]) -> dict[str, Any]:
@@ -526,6 +729,8 @@ def _compact_worst_row(row: dict[str, Any]) -> dict[str, Any]:
         "title": row["title"],
         "original_url": row["original_url"],
         "summary_lines": row["summary_lines"],
+        "translation_status": row.get("translation_status", ""),
+        "translation_provider": row.get("translation_provider", ""),
     }
 
 

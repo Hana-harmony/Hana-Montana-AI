@@ -13,6 +13,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
+from hannah_montana_ai.services.model import require_lora_adapter_artifact
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
 EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v8"
@@ -254,7 +255,10 @@ class GlobalPeerExplanationGenerator:
             else:
                 client = MlxQwenPeerExplanationClient(
                     model=settings.global_peer_explanation_mlx_model,
-                    adapter_path=settings.global_peer_explanation_mlx_adapter_path,
+                    adapter_path=require_lora_adapter_artifact(
+                        settings.global_peer_explanation_mlx_adapter_path,
+                        "Global peer Qwen3 LoRA adapter",
+                    ),
                 )
         return cls(
             enabled=enabled,

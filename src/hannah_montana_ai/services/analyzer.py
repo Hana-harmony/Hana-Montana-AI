@@ -51,7 +51,16 @@ class AlertAnalyzer:
             "삼전닉스",
             "Samjeon Nix",
             "market_slang",
-            ("삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon Nix", "Samjeon-Nix"),
+            (
+                "삼닉",
+                "삼닉스",
+                "삼전 닉스",
+                "삼전·닉스",
+                "삼전-닉스",
+                "Samjeon Nix",
+                "Samjeon-Nix",
+                "Samnick",
+            ),
         ),
         ("빚투", "leveraged retail investing", "risk_slang", ()),
         ("어닝쇼크", "earnings shock", "event", ()),
@@ -67,13 +76,13 @@ class AlertAnalyzer:
         "품절주": "A stock with very limited tradable float, often prone to sharp price moves.",
         "삼전닉스": (
             "Korean market slang combining Samsung Electronics and SK Hynix, usually referring "
-            "to the two dominant semiconductor bellwethers."
+            "to the two dominant semiconductor bellwethers; '삼닉' is a shorter variant."
         ),
         "빚투": "Korean market slang for leveraged retail investing funded with borrowed money.",
         "어닝쇼크": "An earnings result materially below market expectations.",
         "어닝서프라이즈": "An earnings result materially above market expectations.",
     }
-    _SUMMARY_ONLY_CONFIDENCE_CAP = 0.55
+    _SUMMARY_ONLY_CONFIDENCE_CAP = 0.34
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
         {
             "속보",
@@ -219,6 +228,26 @@ class AlertAnalyzer:
         "흑자",
     )
     _STOCK_ATTRIBUTION_CONTEXT_TERMS = ("연구원", "애널리스트", "리서치", "센터장")
+    _SHORT_STOCK_MEDIA_CONTEXT_TERMS = (
+        "biz",
+        "medianet",
+        "sbsi",
+        "뉴스",
+        "스포츠",
+        "기자",
+        "앵커",
+        "에따르면",
+        "보도",
+        "방송보도",
+        "드라마",
+        "금토드라마",
+        "금토극",
+        "그것이알고싶다",
+        "사옥",
+        "제작발표회",
+        "sidebyside",
+        "사이드바이사이드",
+    )
     _INTERNAL_STOCK_MATCH_EXCLUDED_NAMES = frozenset(
         {
             "국민은행",
@@ -226,6 +255,60 @@ class AlertAnalyzer:
             "우리은행",
             "하나은행",
         }
+    )
+    _NON_FINANCIAL_MEDIA_TERMS = (
+        "골프",
+        "포토",
+        "라운드",
+        "홀 경기",
+        "선수",
+        "드라마",
+        "영화",
+        "예능",
+        "콘서트",
+        "시구",
+        "화보",
+        "수면",
+        "갤럭시 워치",
+        "갤럭시워치",
+        "건강",
+        "의대",
+        "심리학",
+        "착용",
+        "성인",
+    )
+    _FINANCIAL_RELEVANCE_TERMS = (
+        "주가",
+        "주식",
+        "증시",
+        "코스피",
+        "코스닥",
+        "투자",
+        "실적",
+        "영업이익",
+        "순이익",
+        "매출",
+        "공시",
+        "수주",
+        "계약",
+        "공급",
+        "인수",
+        "합병",
+        "분할",
+        "배당",
+        "자사주",
+        "대출",
+        "금리",
+        "환율",
+        "리밸런싱",
+        "순매수",
+        "순매도",
+        "목표주가",
+        "상장",
+        "거래정지",
+        "자금",
+        "증권",
+        "턴어라운드",
     )
 
     def __init__(self, summary_generator: NewsSummaryGenerator | None = None) -> None:
@@ -241,13 +324,16 @@ class AlertAnalyzer:
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         has_full_content = bool(request.content.strip())
-        analysis_content = self.rule_engine.clean_article_text(request.content, request.title)
+        body_source_text = request.content if has_full_content else request.snippet
+        analysis_content = self.rule_engine.clean_article_text(body_source_text, request.title)
         text = f"{request.title} {request.snippet} {analysis_content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
             request.title,
             text,
             request.stock_universe,
         )
+        if self._is_tangential_non_financial_stock_mention(text, request.stock_universe):
+            primary_stock_match = StockMatchResult(None, 0.0)
         primary_stock = primary_stock_match.stock
         event_probabilities = self.model.event_tag_probabilities(text, request.source_type)
         event_tags = self._augment_event_tags(
@@ -318,9 +404,9 @@ class AlertAnalyzer:
             summary=summary,
             summary_lines=summary_lines,
             content_availability="FULL_TEXT" if has_full_content else "SUMMARY_ONLY",
-            original_content=request.content,
-            original_body=request.content,
-            body_source_type=_body_source_type(request.source_type, request.content),
+            original_content=analysis_content,
+            original_body=analysis_content,
+            body_source_type=_body_source_type(request.source_type, analysis_content),
             image_urls=request.image_urls,
             event_tags=event_tags,
             sentiment=sentiment,
@@ -367,6 +453,18 @@ class AlertAnalyzer:
             )
             seen_terms.add(normalized_term)
         return matched_terms
+
+    def _is_tangential_non_financial_stock_mention(
+        self,
+        text: str,
+        request_universe: Sequence[StockCandidate],
+    ) -> bool:
+        if not request_universe:
+            return False
+        normalized = re.sub(r"\s+", " ", text)
+        if not any(term in normalized for term in self._NON_FINANCIAL_MEDIA_TERMS):
+            return False
+        return not any(term in normalized for term in self._FINANCIAL_RELEVANCE_TERMS)
 
     def _match_primary_stock(
         self,
@@ -605,6 +703,7 @@ class AlertAnalyzer:
                     normalized_text,
                     position,
                     len(normalized_candidate),
+                    normalized_candidate,
                 ):
                     found_positions.append(position)
                 start = position + len(normalized_candidate)
@@ -615,9 +714,16 @@ class AlertAnalyzer:
         normalized_text: str,
         position: int,
         length: int,
+        normalized_candidate: str,
     ) -> bool:
-        context = normalized_text[position : position + length + 24]
-        return any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS)
+        context = normalized_text[max(0, position - 24) : position + length + 24]
+        if any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS):
+            return True
+        return (
+            normalized_candidate.isascii()
+            and len(normalized_candidate) <= 3
+            and any(term in context for term in self._SHORT_STOCK_MEDIA_CONTEXT_TERMS)
+        )
 
     def _more_specific_same_position_match(
         self,

@@ -1,6 +1,6 @@
 {
   "schema_version": "service-readiness-report/v1",
-  "generated_at": "2026-06-22T09:49:43.345738+00:00",
+  "generated_at": "2026-07-05T14:42:24.333365+00:00",
   "overall_status": "pass",
   "model_version": "financial-ml-tfidf-logreg-20260622090407",
   "checks": {
@@ -66,6 +66,71 @@
         "real_news_gold"
       ],
       "missing_datasets": [],
+      "status": "pass"
+    },
+    "qwen_local_llm_release_gate": {
+      "base_model": "mlx-community/Qwen3-0.6B-4bit",
+      "minimum_eval_pass_rate": 1.0,
+      "minimum_eval_sample_count": 5,
+      "features": {
+        "korean_financial_terms": {
+          "feature": "korean_financial_terms",
+          "training_schema": "korean-term-qwen3-explainer-training/v1",
+          "expected_training_schema": "korean-term-qwen3-explainer-training/v1",
+          "generation_eval_schema": "korean-term-qwen3-generation-eval/v1",
+          "expected_generation_eval_schema": "korean-term-qwen3-generation-eval/v1",
+          "base_model": "mlx-community/Qwen3-0.6B-4bit",
+          "generation_eval_model": "mlx-community/Qwen3-0.6B-4bit",
+          "adapter_dir": "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora",
+          "generation_eval_adapter_dir": "src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora",
+          "training_executed": true,
+          "training_return_code": 0,
+          "sample_count": 5,
+          "pass_rate": 1.0,
+          "quality_status": "pass",
+          "serving_runtime_gate": "t4g.medium GGUF OpenAI-compatible sidecar",
+          "failure_reasons": [],
+          "status": "pass"
+        },
+        "news_summary": {
+          "feature": "news_summary",
+          "training_schema": "news-summary-qwen3-training/v1",
+          "expected_training_schema": "news-summary-qwen3-training/v1",
+          "generation_eval_schema": "news-summary-qwen3-generation-eval/v1",
+          "expected_generation_eval_schema": "news-summary-qwen3-generation-eval/v1",
+          "base_model": "mlx-community/Qwen3-0.6B-4bit",
+          "generation_eval_model": "mlx-community/Qwen3-0.6B-4bit",
+          "adapter_dir": "src/hannah_montana_ai/model_store/news_summary_qwen3_lora",
+          "generation_eval_adapter_dir": "src/hannah_montana_ai/model_store/news_summary_qwen3_lora",
+          "training_executed": true,
+          "training_return_code": 0,
+          "sample_count": 5,
+          "pass_rate": 1.0,
+          "quality_status": "pass",
+          "serving_runtime_gate": "t4g.medium GGUF OpenAI-compatible sidecar",
+          "failure_reasons": [],
+          "status": "pass"
+        },
+        "korean_translation": {
+          "feature": "korean_translation",
+          "training_schema": "korean-translation-qwen3-training/v1",
+          "expected_training_schema": "korean-translation-qwen3-training/v1",
+          "generation_eval_schema": "korean-translation-qwen3-generation-eval/v1",
+          "expected_generation_eval_schema": "korean-translation-qwen3-generation-eval/v1",
+          "base_model": "mlx-community/Qwen3-0.6B-4bit",
+          "generation_eval_model": "mlx-community/Qwen3-0.6B-4bit",
+          "adapter_dir": "src/hannah_montana_ai/model_store/korean_translation_qwen3_lora",
+          "generation_eval_adapter_dir": "src/hannah_montana_ai/model_store/korean_translation_qwen3_lora",
+          "training_executed": true,
+          "training_return_code": 0,
+          "sample_count": 5,
+          "pass_rate": 1.0,
+          "quality_status": "pass",
+          "serving_runtime_gate": "t4g.medium GGUF OpenAI-compatible sidecar",
+          "failure_reasons": [],
+          "status": "pass"
+        }
+      },
       "status": "pass"
     }
   },

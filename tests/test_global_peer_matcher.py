@@ -2,6 +2,8 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
 from hannah_montana_ai.services.global_peer_explainer import (
@@ -11,6 +13,7 @@ from hannah_montana_ai.services.global_peer_explainer import (
     OpenAiCompatiblePeerExplanationClient,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 from hannah_montana_ai.training.global_peer_trainer import (
     KoreaCompanyProfile,
     infer_business_tags_from_company_summary,
@@ -99,6 +102,17 @@ def test_global_peer_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_cl
     assert generator._enabled is True
     assert isinstance(generator._client, MlxQwenPeerExplanationClient)
     assert generator._model_name == "mlx-community/Qwen3-0.6B-4bit"
+
+
+def test_global_peer_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    settings = Settings(
+        global_peer_explanation_mode="local_llm",
+        global_peer_explanation_llm_endpoint="",
+        global_peer_explanation_mlx_adapter_path=tmp_path / "missing-peer-lora",
+    )
+
+    with pytest.raises(ModelArtifactNotFoundError):
+        GlobalPeerExplanationGenerator.from_settings(settings)
 
 
 def test_global_peer_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:

@@ -546,9 +546,9 @@ def test_summary_only_response_caps_model_confidence() -> None:
     )
 
     assert response.content_availability == "SUMMARY_ONLY"
-    assert response.event_confidence <= 0.55
-    assert response.sentiment_confidence <= 0.55
-    assert response.importance_confidence <= 0.55
+    assert response.event_confidence <= 0.34
+    assert response.sentiment_confidence <= 0.34
+    assert response.importance_confidence <= 0.34
 
 
 def test_analyzer_prefers_first_internal_stock_over_limited_request_universe() -> None:

@@ -109,6 +109,38 @@ def eval_samples() -> list[dict[str, object]]:
             "required_terms": ["Ants", "Samjeon Nix", "bellwether"],
         },
         {
+            "id": "samsung-operating-profit-recovery",
+            "context": KoreanTranslationContext(
+                text=(
+                    "삼성전자는 반도체 수요 회복과 공급계약 증가로 영업이익 개선이 "
+                    "예상된다고 밝혔다."
+                ),
+                source_type="NEWS",
+                title="삼성전자 2분기 영업이익 증가",
+                glossary_terms=[
+                    FinancialGlossaryTerm(
+                        source_term="삼성전자",
+                        normalized_term="삼성전자",
+                        english_term="Samsung Electronics",
+                        category="stock",
+                    ),
+                    FinancialGlossaryTerm(
+                        source_term="공급계약",
+                        normalized_term="공급계약",
+                        english_term="supply contract",
+                        category="event",
+                    ),
+                    FinancialGlossaryTerm(
+                        source_term="영업이익",
+                        normalized_term="영업이익",
+                        english_term="operating profit",
+                        category="metric",
+                    ),
+                ],
+            ),
+            "required_terms": ["Samsung Electronics", "operating profit", "semiconductor"],
+        },
+        {
             "id": "exchange-rate-exporters",
             "context": KoreanTranslationContext(
                 text=(

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.core.config import Settings
@@ -16,6 +17,7 @@ from hannah_montana_ai.services.korean_financial_terms import (
     MlxQwenTermExplanationClient,
     build_term_provider_from_settings,
 )
+from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
 def test_financial_term_explain_api_returns_dictionary_hit_for_retail_slang() -> None:
@@ -63,7 +65,7 @@ def test_financial_term_explain_api_maps_alias_to_seed_term() -> None:
     assert payload["source"] == "DICTIONARY"
 
 
-def test_financial_term_explain_api_maps_translated_english_term_to_seed_term() -> None:
+def test_financial_term_explain_api_ignores_generic_english_display_term() -> None:
     client = TestClient(app)
 
     response = client.post(
@@ -81,13 +83,12 @@ def test_financial_term_explain_api_maps_translated_english_term_to_seed_term() 
     assert response.status_code == 200
     payload = response.json()["data"]
     assert payload["term"] == "retail investors"
-    assert payload["normalized_term"] == "개미"
-    assert payload["english_term"] == "retail investor"
-    assert payload["source"] == "DICTIONARY"
-    assert payload["display_mode"] == "EXPLANATION"
-    assert 'The term "retail investors" refers to' in payload["explanation"]
-    assert "개미" not in payload["explanation"]
-    assert "개미" not in payload["example"]
+    assert payload["normalized_term"] == "retail investors"
+    assert payload["english_term"] == ""
+    assert payload["source"] == "INTERNAL_CONTEXT_RAG"
+    assert payload["display_mode"] == "TEXT_ONLY"
+    assert payload["quality_flags"] == ["NON_KOREAN_GLOSSARY_TERM_IGNORED"]
+    assert "not a Korean local-market glossary term" in payload["explanation"]
 
 
 def test_financial_term_explain_api_maps_literal_ant_translation_to_seed_term() -> None:
@@ -178,6 +179,26 @@ def test_samjeon_nix_is_dictionary_backed_korean_market_slang() -> None:
     assert "literal translation" in response.explanation
 
 
+def test_samnik_short_form_is_dictionary_backed_korean_market_slang() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-rag",
+    )
+
+    response = service.explain(
+        KoreanFinancialTermExplainRequest(
+            term="삼닉",
+            title="삼닉 레버리지로 손실 입은 개미들",
+            context="삼닉 레버리지 상품에서 개미 투자자 손실이 커졌다는 기사다.",
+        )
+    )
+
+    assert response.source == "DICTIONARY"
+    assert response.term == "삼닉"
+    assert response.normalized_term == "삼전닉스"
+    assert "Samsung Electronics and SK hynix" in response.explanation
+
+
 def test_local_qwen_term_provider_promotes_unknown_korean_term() -> None:
     service = KoreanFinancialTermExplanationService(
         seed_path=Path("data/reference/korean_financial_terms_seed.json"),
@@ -190,11 +211,11 @@ def test_local_qwen_term_provider_promotes_unknown_korean_term() -> None:
                     "english_term": "aerospace-themed stock",
                     "category": "theme_stock",
                     "definition": (
-                        "\"우주항공주\" means a Korean stock grouped under the aerospace "
+                        '"우주항공주" means a Korean stock grouped under the aerospace '
                         "investment theme."
                     ),
                     "explanation": (
-                        "\"우주항공주\" is used when articles link stocks to satellites, "
+                        '"우주항공주" is used when articles link stocks to satellites, '
                         "launch systems, defense aerospace, or space policy. In this article, "
                         "the term is grounded by references to policy expectations and satellite "
                         "investment."
@@ -229,9 +250,9 @@ def test_local_qwen_term_provider_rejects_generic_english_finance_word() -> None
             {
                 "english_term": "earnings",
                 "category": "metric",
-                "definition": "\"earnings\" means company profit.",
+                "definition": '"earnings" means company profit.',
                 "explanation": (
-                    "\"earnings\" is a generic finance word in English. It should not be "
+                    '"earnings" is a generic finance word in English. It should not be '
                     "treated as a Korean local-market glossary term."
                 ),
                 "example": "earnings improved means profit improved.",
@@ -258,6 +279,27 @@ def test_local_qwen_term_provider_rejects_generic_english_finance_word() -> None
     assert result is None
 
 
+def test_generic_english_finance_words_are_text_only_not_glossary_explanations() -> None:
+    service = KoreanFinancialTermExplanationService(
+        seed_path=Path("data/reference/korean_financial_terms_seed.json"),
+        model_version="test-term-rag",
+    )
+
+    for term in ("earnings", "Foreign investors"):
+        response = service.explain(
+            KoreanFinancialTermExplainRequest(
+                term=term,
+                title=f"{term} mentioned in a translated article",
+                context=f"{term} was present in the translated article text.",
+            )
+        )
+
+        assert response.display_mode == "TEXT_ONLY"
+        assert response.source == "INTERNAL_CONTEXT_RAG"
+        assert response.english_term == ""
+        assert response.quality_flags == ["NON_KOREAN_GLOSSARY_TERM_IGNORED"]
+
+
 def test_korean_financial_term_local_llm_settings_use_direct_qwen3_mlx_client() -> None:
     provider = build_term_provider_from_settings(
         Settings(
@@ -272,6 +314,17 @@ def test_korean_financial_term_local_llm_settings_use_direct_qwen3_mlx_client() 
 
     assert isinstance(provider, LocalQwenTermExplanationProvider)
     assert isinstance(provider._client, MlxQwenTermExplanationClient)
+
+
+def test_korean_financial_term_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
+    with pytest.raises(ModelArtifactNotFoundError):
+        build_term_provider_from_settings(
+            Settings(
+                korean_financial_term_generation_mode="local_llm",
+                korean_financial_term_llm_endpoint="",
+                korean_financial_term_mlx_adapter_path=tmp_path / "missing-term-lora",
+            )
+        )
 
 
 def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation() -> None:
@@ -317,7 +370,7 @@ class _FakeTermProvider:
             category="theme_stock",
             definition="A Korean stock grouped by investors under the aerospace investment theme.",
             explanation=(
-                "\"우주항공주\" means an aerospace-themed stock in Korean market news. "
+                '"우주항공주" means an aerospace-themed stock in Korean market news. '
                 "It is usually used for companies expected to benefit from satellites, launch "
                 "systems, defense aerospace, or related policy themes."
             ),

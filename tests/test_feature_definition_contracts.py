@@ -4,7 +4,16 @@ from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
+from hannah_montana_ai.domain.schemas import IntelligenceEventRequest, StockCandidate
 from hannah_montana_ai.main import app
+from hannah_montana_ai.services.feature_contracts import FinancialTranslationModel
+from hannah_montana_ai.services.korean_translation_generator import (
+    KOREAN_TRANSLATION_PROMPT_VERSION,
+    LOCAL_TRANSLATION_PROVIDER,
+    SOURCE_LANGUAGE_FALLBACK_PROVIDER,
+    KoreanTranslationContext,
+    KoreanTranslationResult,
+)
 
 
 def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_limit() -> None:
@@ -107,8 +116,12 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert payload["original_content"] == payload["original_body"]
     assert "삼성전자는 반도체 수요 회복" in payload["original_body"]
     assert payload["translated_content"] == payload["translated_body"]
-    assert "Samsung Electronics" in payload["translated_body"]
-    assert "operating profit" in payload["translated_body"]
+    assert (
+        payload["translated_body"]
+        == "Samsung Electronics expects operating profit to improve on "
+        "supply-contract expansion and recovering semiconductor demand."
+    )
+    assert payload["translation_status"] == "TRANSLATED"
     assert payload["content_availability"] == "FULL_TEXT"
     assert payload["body_source_type"] == "FULL_TEXT"
     assert payload["sentiment"] == "POSITIVE"
@@ -116,14 +129,10 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert "EARNINGS" in payload["event_tags"]
     assert payload["event_tag"] in payload["event_tags"]
     assert payload["is_watchlist_target"] is True
-    assert {
-        "source_term": "영업이익",
-        "normalized_term": "영업이익",
-        "english_term": "operating profit",
-        "category": "metric",
-        "description": "",
-    } in payload["glossary_terms"]
-    assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
+    assert payload["glossary_terms"] == []
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in payload["translation_quality_flags"]
+    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in payload["translation_quality_flags"]
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" not in payload["translation_quality_flags"]
     assert payload["translation_provider"] == "local-financial-glossary"
     assert payload["translation_model_version"] == "local-financial-glossary-v2"
     assert 0.0 <= payload["event_confidence"] <= 1.0
@@ -131,6 +140,188 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert 0.0 <= payload["importance_confidence"] <= 1.0
     assert payload["stock_match_confidence"] == 1.0
     assert payload["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
+
+
+def test_intelligence_event_translation_uses_qwen_generator_for_article_body() -> None:
+    model = FinancialTranslationModel(translation_generator=_FakeQwenTranslationGenerator())
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title="삼성전자 2분기 영업이익 증가",
+        snippet="반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+        content="삼성전자는 반도체 수요 회복과 공급계약 증가로 영업이익 개선이 예상된다고 밝혔다.",
+        original_url="https://example.com/news/intelligence-qwen",
+        stock_universe=[
+            StockCandidate(
+                stock_code="005930",
+                stock_name="삼성전자",
+                stock_name_en="Samsung Electronics",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "삼성전자는 반도체 수요 회복으로 영업이익 개선 기대가 커졌다고 밝혔다.",
+    )
+
+    assert prediction.provider == LOCAL_TRANSLATION_PROVIDER
+    assert prediction.model_version == "fake-qwen3-translation"
+    assert prediction.translated_title == "Samsung Electronics reported higher operating profit."
+    assert prediction.translated_content == (
+        "Samsung Electronics said operating profit is expected to improve as "
+        "semiconductor demand recovers and supply contracts increase."
+    )
+    assert not re.search(r"[가-힣]", prediction.translated_content)
+    assert prediction.glossary_terms == []
+    assert "QWEN_TRANSLATION_APPLIED" in prediction.quality_flags
+    assert "FINANCIAL_GLOSSARY_APPLIED" not in prediction.quality_flags
+
+
+def test_intelligence_event_translation_rejects_flagged_qwen_article_body() -> None:
+    model = FinancialTranslationModel(translation_generator=_FlaggedQwenTranslationGenerator())
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title='하나증권 "은행주 2분기 실적 양호"',
+        snippet="KB금융지주와 신한금융지주가 최선호주로 제시됐다.",
+        content=(
+            "하나증권은 은행주 2분기 실적이 양호하고 최선호주는 "
+            "KB금융지주와 신한금융지주라고 밝혔다."
+        ),
+        original_url="https://example.com/news/bank-earnings",
+        stock_universe=[
+            StockCandidate(
+                stock_code="086790",
+                stock_name="하나금융지주",
+                stock_name_en="Hana Financial",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "은행주 2분기 실적 기대가 커졌다.",
+    )
+
+    assert "KB semaphore" not in prediction.translated_content
+    assert "Newhan bank" not in prediction.translated_content
+    assert prediction.translated_content == ""
+    assert prediction.translation_status == "SOURCE_LANGUAGE_FALLBACK"
+    assert "QWEN_TRANSLATION_SEMANTIC_MISMATCH:KB_FINANCIAL" in prediction.quality_flags
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" in prediction.quality_flags
+    assert "UNTRANSLATED_CONTENT_REVIEW_REQUIRED" not in prediction.quality_flags
+
+
+def test_intelligence_event_translation_keeps_english_nmt_with_tolerable_flags() -> None:
+    model = FinancialTranslationModel(
+        translation_generator=_TolerableFlaggedContentTranslationGenerator()
+    )
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title="삼성전자 엑시노스 확대",
+        snippet="퀄컴 스냅드래곤과 엑시노스 이원화 전략이다.",
+        content=(
+            "삼성전자는 갤럭시S27 일부 모델에 엑시노스 2700을 적용하고 "
+            "미국 시장에는 퀄컴 스냅드래곤을 탑재한다."
+        ),
+        source_license_policy="licensed_naver_original_full_text_v1",
+        original_url="https://example.com/news/exynos",
+        stock_universe=[
+            StockCandidate(
+                stock_code="005930",
+                stock_name="삼성전자",
+                stock_name_en="Samsung Electronics",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "삼성전자 엑시노스 확대가 비메모리 실적 기대를 키웠다.",
+    )
+
+    assert prediction.translation_status == "TRANSLATED"
+    assert "Samsung Electronics will use Exynos 2700" in prediction.translated_content
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" not in prediction.quality_flags
+    assert not any(
+        flag.startswith("QWEN_TRANSLATION_SOURCE_TERM_MISSING")
+        for flag in prediction.quality_flags
+    )
+
+
+def test_intelligence_event_translation_ignores_unused_empty_qwen_failures() -> None:
+    model = FinancialTranslationModel(
+        translation_generator=_EmptyTitleGroundedContentTranslationGenerator()
+    )
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title="'견미리家' 투자했던 '보타바이오' 주가의 타임라인",
+        snippet="보타바이오 주가조작 사건은 대법원 판단을 기다린다.",
+        content="보타바이오와 견미리, 주가조작, 대법원 관련 기사다.",
+        original_url="https://example.com/news/botabio",
+        stock_universe=[
+            StockCandidate(
+                stock_code="026260",
+                stock_name="위너지스",
+                stock_name_en="Winergys",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "The article revisited Botabio's stock-price timeline and legal overhang.",
+    )
+
+    assert prediction.translated_content.startswith("The News1 item revisits")
+    assert "QWEN_TRANSLATION_LOCAL_TRANSLATION_PROVIDER_ERROR" not in prediction.quality_flags
+
+
+def test_intelligence_event_translation_does_not_require_summary_only_content_body() -> None:
+    class SummaryOnlyGenerator:
+        def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+            if context.text.startswith("삼성·애플"):
+                return KoreanTranslationResult(
+                    translated_text="Samsung and Apple compete on next-generation AP packaging.",
+                    provider=LOCAL_TRANSLATION_PROVIDER,
+                    model_version="fake-qwen3-translation",
+                    status="TRANSLATED",
+                    prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+                    quality_flags=[],
+                )
+            return KoreanTranslationResult(
+                translated_text="",
+                provider=SOURCE_LANGUAGE_FALLBACK_PROVIDER,
+                model_version="fake-qwen3-translation",
+                status="SOURCE_LANGUAGE_FALLBACK",
+                prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+                quality_flags=["LOCAL_TRANSLATION_PROVIDER_ERROR"],
+            )
+
+    model = FinancialTranslationModel(translation_generator=SummaryOnlyGenerator())
+    request = IntelligenceEventRequest(
+        source_type="NEWS",
+        title="삼성·애플, 차세대 AP는 패키징 승부",
+        snippet="패키징 경쟁이 심화되고 있다.",
+        content="패키징 경쟁이 심화되고 있다.",
+        source_license_policy="NAVER_SEARCH_SNIPPET_ONLY",
+        original_url="https://example.com/news/summary-only-translation",
+        stock_universe=[
+            StockCandidate(
+                stock_code="034120",
+                stock_name="SBS",
+                stock_name_en="SBS",
+            )
+        ],
+    )
+
+    prediction = model.translate_event(
+        request,
+        "SBS moved around packaging competition.",
+    )
+
+    assert prediction.translation_status == "TRANSLATED"
+    assert prediction.translated_content == ""
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" not in prediction.quality_flags
 
 
 def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
@@ -207,6 +398,105 @@ def test_tax_refund_status_contract_computes_case_01_advance_payment() -> None:
     assert "자동 환수" in payload["risk_disclosure_message"]
     assert payload["tax_model_version"] == "us-treaty-refund-case-engine-v1"
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
+
+
+class _FakeQwenTranslationGenerator:
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        if context.text.startswith("삼성전자 2분기"):
+            translated = "Samsung Electronics reported higher operating profit."
+        elif context.text.startswith("삼성전자는 반도체 수요 회복과 공급계약"):
+            translated = (
+                "Samsung Electronics said operating profit is expected to improve as "
+                "semiconductor demand recovers and supply contracts increase."
+            )
+        else:
+            translated = (
+                "Samsung Electronics said earnings expectations improved as "
+                "semiconductor demand recovered."
+            )
+        return KoreanTranslationResult(
+            translated_text=translated,
+            provider=LOCAL_TRANSLATION_PROVIDER,
+            model_version="fake-qwen3-translation",
+            status="TRANSLATED",
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=[],
+        )
+
+
+class _FlaggedQwenTranslationGenerator:
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        if context.text.startswith('하나증권 "'):
+            translated = "Hana Securities said bank stocks had solid second-quarter earnings."
+            quality_flags: list[str] = []
+        elif context.text.startswith("은행주"):
+            translated = "Bank stocks have stronger second-quarter earnings expectations."
+            quality_flags = []
+        else:
+            translated = (
+                "KB semaphore and Newhan bank's 2-month earnings improved, while "
+                "Korean exporters were treated as the highest bidder."
+            )
+            quality_flags = [
+                "SEMANTIC_MISMATCH:KB_FINANCIAL",
+                "SEMANTIC_MISMATCH:SHINHAN_FINANCIAL",
+            ]
+        return KoreanTranslationResult(
+            translated_text=translated,
+            provider=LOCAL_TRANSLATION_PROVIDER,
+            model_version="fake-qwen3-translation",
+            status="PARTIAL_SOURCE_LANGUAGE_FALLBACK" if quality_flags else "TRANSLATED",
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=quality_flags,
+        )
+
+
+class _EmptyTitleGroundedContentTranslationGenerator:
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        if "보타바이오와 견미리" in context.text:
+            return KoreanTranslationResult(
+                translated_text=(
+                    "The News1 item revisits the stock-price timeline of Botabio after "
+                    "investment by actress Kyeon Mi-ri's family."
+                ),
+                provider="article-grounded-ko-en-translation",
+                model_version="fake-grounded",
+                status="TRANSLATED",
+                prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+                quality_flags=[],
+            )
+        return KoreanTranslationResult(
+            translated_text="",
+            provider=SOURCE_LANGUAGE_FALLBACK_PROVIDER,
+            model_version="fake-qwen3-translation",
+            status="SOURCE_LANGUAGE_FALLBACK",
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=["LOCAL_TRANSLATION_PROVIDER_ERROR"],
+        )
+
+
+class _TolerableFlaggedContentTranslationGenerator:
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        if "엑시노스 2700" in context.text:
+            return KoreanTranslationResult(
+                translated_text=(
+                    "Samsung Electronics will use Exynos 2700 in some Galaxy S27 models, "
+                    "while the U.S. market will use Qualcomm Snapdragon."
+                ),
+                provider=LOCAL_TRANSLATION_PROVIDER,
+                model_version="fake-nmt",
+                status="PARTIAL_SOURCE_LANGUAGE_FALLBACK",
+                prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+                quality_flags=["SOURCE_TERM_MISSING:QUALCOMM"],
+            )
+        return KoreanTranslationResult(
+            translated_text="Samsung Electronics expanded Exynos.",
+            provider=LOCAL_TRANSLATION_PROVIDER,
+            model_version="fake-nmt",
+            status="TRANSLATED",
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=[],
+        )
 
 
 def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None:
