@@ -23,6 +23,8 @@ from hannah_montana_ai.training.foreign_ownership_quantity_trainer import (
     train_foreign_ownership_quantity_model,
 )
 
+LIGHTWEIGHT_CANDIDATE_MODELS = ("ridge_delta_ratio",)
+
 
 def test_foreign_owned_quantity_training_builds_walk_forward_artifact(tmp_path: Path) -> None:
     training_data_path = tmp_path / "foreign_ownership_quantity_history.csv"
@@ -38,6 +40,7 @@ def test_foreign_owned_quantity_training_builds_walk_forward_artifact(tmp_path: 
         minimum_promotable_stock_count=6,
         minimum_promotable_history_days=60,
         minimum_promotable_observations=300,
+        candidate_model_names=LIGHTWEIGHT_CANDIDATE_MODELS,
     )
 
     assert model_path.exists()
@@ -81,6 +84,7 @@ def test_foreign_owned_quantity_service_uses_trained_ml_artifact(tmp_path: Path)
         minimum_promotable_stock_count=6,
         minimum_promotable_history_days=60,
         minimum_promotable_observations=300,
+        candidate_model_names=LIGHTWEIGHT_CANDIDATE_MODELS,
     )
     service = ForeignOwnershipTimeseriesPredictionService(model_path=model_path)
     history = [
@@ -132,7 +136,11 @@ def test_foreign_owned_quantity_training_guards_small_production_dataset(
     model_path = tmp_path / "foreign_ownership_quantity_ml.joblib"
     _write_synthetic_foreign_ownership_quantity_history(training_data_path)
 
-    report = train_foreign_ownership_quantity_model(training_data_path, model_path)
+    report = train_foreign_ownership_quantity_model(
+        training_data_path,
+        model_path,
+        candidate_model_names=LIGHTWEIGHT_CANDIDATE_MODELS,
+    )
 
     assert report.release_status == "guarded"
     assert report.quality_gates["status"] == "fail"
@@ -156,6 +164,7 @@ def test_foreign_owned_quantity_benchmark_report_includes_policy_baselines(
         minimum_promotable_stock_count=6,
         minimum_promotable_history_days=60,
         minimum_promotable_observations=300,
+        candidate_model_names=LIGHTWEIGHT_CANDIDATE_MODELS,
     )
     report_path.write_text(
         json.dumps(report.to_dict(), ensure_ascii=False),
@@ -199,6 +208,7 @@ def test_foreign_owned_quantity_retrain_promotes_and_replaces_artifacts(
         minimum_promotable_history_days=60,
         minimum_promotable_observations=300,
         max_model_training_samples=10_000,
+        candidate_model_names=list(LIGHTWEIGHT_CANDIDATE_MODELS),
     )
     paths = ForeignOwnershipModelMaintenancePaths(
         training_data_path=tmp_path / "promoted_history.csv",
