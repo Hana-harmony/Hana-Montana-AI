@@ -2318,6 +2318,37 @@ def test_korean_translation_api_uses_configured_generator(monkeypatch) -> None:
     assert payload["translated_text"] == "Samsung Electronics improved earnings."
 
 
+def test_korean_translation_grounded_article_runs_when_local_model_disabled() -> None:
+    generator = KoreanTranslationGenerator(
+        enabled=False,
+        client=None,
+        model_name="disabled-local-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "<앵커> 반도체 수출 호조에 힘입어 5월 우리나라 경상수지가 "
+                "역대 최대 흑자를 기록했습니다. 코스피와 코스닥 모두 프로그램 "
+                "매도 호가 효력을 정지하는 매도 사이드카가 발동됐고, 5%대 "
+                "급락하며 마감했습니다. 코스닥은 10개월 만에 800선 아래로 "
+                "떨어졌습니다. SK하이닉스의 ADR 상장이 국내 투자 심리 회복으로 "
+                "이어질 거란 기대와 함께 외국인 투자자의 이탈을 가속화할 수 "
+                "있단 우려도 나오고 있습니다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert "Korea's current-account surplus hit a record high in May" in result.translated_text
+    assert "KOSDAQ fell below the 800 level" in result.translated_text
+    assert "SK hynix's ADR listing" in result.translated_text
+    assert not any("가" <= char <= "힣" for char in result.translated_text)
+    assert result.quality_flags == []
+
+
 def test_korean_translation_disabled_by_default_returns_explicit_fallback() -> None:
     get_settings.cache_clear()
     routes.get_korean_translation_service.cache_clear()

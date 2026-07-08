@@ -190,7 +190,8 @@ def test_market_wide_mixed_index_article_is_neutral() -> None:
 
     assert response.sentiment == "NEUTRAL"
     assert response.stock_code is None
-    assert "코스피가 3일 장중 기관" in response.summary_lines.what
+    assert "KOSPI" in response.summary_lines.what
+    assert "institutional" in response.summary_lines.why.lower()
 
 
 def test_summary_fallback_impact_does_not_expose_model_labels() -> None:
@@ -293,8 +294,8 @@ def test_full_content_summary_beats_snippet_only_ellipsis() -> None:
     assert response.content_availability == "FULL_TEXT"
     assert "..." not in joined
     assert "HBM" in joined
-    assert "데이터센터" in joined
-    assert "영업이익 회복 속도" in joined
+    assert "data-center" in joined
+    assert "operating-profit recovery" in joined
 
 
 def test_full_content_summary_returns_three_article_backed_single_sentence_lines() -> None:
@@ -674,7 +675,7 @@ def test_market_wide_news_does_not_force_primary_stock_from_internal_mentions() 
     assert response.stock_name is None
     assert "GENERAL_MARKET" in response.event_tags
     assert {"005930", "000660"}.issubset(set(response.related_stocks))
-    assert "시장에서는 반도체 대형주 쏠림" in response.summary_lines.impact
+    assert "Investors should track" in response.summary_lines.impact
 
 
 def test_disclosure_summary_separates_reason_from_investor_impact() -> None:
