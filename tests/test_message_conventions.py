@@ -12,6 +12,7 @@ _validate_commit_subject = verify_message_conventions._validate_commit_subject
 _commit_subjects = verify_message_conventions._commit_subjects
 _validate_pr_body = verify_message_conventions._validate_pr_body
 _validate_pr_title = verify_message_conventions._validate_pr_title
+_is_main_feature_sync_pr = verify_message_conventions._is_main_feature_sync_pr
 _subjects_after_legacy_cutoff = verify_message_conventions._subjects_after_legacy_cutoff
 
 
@@ -99,3 +100,14 @@ def test_commit_subject_collection_skips_legacy_subjects_before_convention() -> 
     ]
 
     assert _subjects_after_legacy_cutoff(subjects) == subjects[1:]
+
+
+def test_main_feature_sync_pr_skips_revalidating_feature_commit_titles(monkeypatch) -> None:
+    monkeypatch.setenv("PR_BASE_REF", "main")
+    monkeypatch.setenv("PR_HEAD_REF", "feature")
+
+    assert _is_main_feature_sync_pr() is True
+
+    monkeypatch.setenv("PR_HEAD_REF", "fix/article")
+
+    assert _is_main_feature_sync_pr() is False

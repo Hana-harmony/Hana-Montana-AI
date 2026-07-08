@@ -342,6 +342,7 @@ class ForeignOwnershipQuantityRetrainRequest(BaseModel):
     minimum_promotable_history_days: int = Field(default=2500, ge=1)
     minimum_promotable_observations: int = Field(default=50_000, ge=1)
     max_model_training_samples: int = Field(default=250_000, ge=120)
+    candidate_model_names: list[str] | None = Field(default=None, min_length=1, max_length=12)
 
 
 class ForeignOwnershipQuantityRetrainResponse(BaseModel):

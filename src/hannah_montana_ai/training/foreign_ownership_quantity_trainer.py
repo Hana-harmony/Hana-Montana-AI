@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import sys
 from collections import Counter
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from math import exp, log
@@ -174,6 +175,7 @@ def train_foreign_ownership_quantity_model(
     minimum_promotable_history_days: int = MIN_PROMOTABLE_HISTORY_DAYS,
     minimum_promotable_observations: int = MIN_PROMOTABLE_OBSERVATIONS,
     max_model_training_samples: int = DEFAULT_MAX_MODEL_TRAINING_SAMPLES,
+    candidate_model_names: Collection[str] | None = None,
 ) -> ForeignOwnershipQuantityModelTrainingReport:
     observations = load_foreign_ownership_quantity_points(training_data_path)
     restricted_stock_codes = _load_restricted_stock_codes(restricted_stock_codes_path)
@@ -196,6 +198,21 @@ def train_foreign_ownership_quantity_model(
     baseline_fold_metrics: list[dict[str, float]] = []
     fold_predictions_by_model: dict[tuple[str, int], list[float]] = {}
     candidate_models = _candidate_models()
+    if candidate_model_names is not None:
+        requested_model_names = set(candidate_model_names)
+        unknown_model_names = sorted(requested_model_names - set(candidate_models))
+        if unknown_model_names:
+            raise ValueError(
+                "Unknown foreign ownership quantity candidate models: "
+                + ", ".join(unknown_model_names)
+            )
+        candidate_models = {
+            model_name: model
+            for model_name, model in candidate_models.items()
+            if model_name in requested_model_names
+        }
+        if not candidate_models:
+            raise ValueError("At least one candidate model is required")
     model_prediction_modes = {
         model_name: _candidate_prediction_mode(model)
         for model_name, model in candidate_models.items()
