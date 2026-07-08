@@ -570,7 +570,7 @@ class NewsSummaryGenerator:
 
     def generate(self, context: NewsSummaryContext) -> SummaryLines:
         if not self._enabled or self._client is None:
-            return context.fallback
+            return self._english_fallback(context)
         if not self._has_usable_full_text(context.content):
             return self._english_fallback(context)
 
@@ -890,6 +890,8 @@ class NewsSummaryGenerator:
             return cls._kospi_per_valuation_fallback(evidence)
         if "코스피" in evidence and any(term in evidence for term in ("1조클럽", "1조 클럽")):
             return cls._kospi_trillion_club_fallback(evidence)
+        if cls._is_korean_market_plunge_context(evidence):
+            return cls._korean_market_plunge_fallback(evidence)
         if cls._is_kospi_rollercoaster_context(evidence):
             return cls._kospi_rollercoaster_fallback(evidence)
         if "환율" in evidence and any(term in evidence for term in ("1575", "1500원", "1600원")):
@@ -1716,6 +1718,36 @@ class NewsSummaryGenerator:
         )
 
     @classmethod
+    def _korean_market_plunge_fallback(cls, evidence: str) -> SummaryLines:
+        what = "KOSPI and KOSDAQ sold off sharply"
+        if "매도 사이드카" in evidence or "사이드카" in evidence:
+            what += " as sell-side circuit breakers were triggered"
+        if "800선" in evidence:
+            what += " and KOSDAQ fell below the 800 level"
+        why_parts = []
+        if any(
+            term in evidence
+            for term in ("반도체", "삼성전자", "SK하이닉스", "필라델피아반도체")
+        ):
+            why_parts.append("semiconductor weakness")
+        if any(term in evidence for term in ("중동", "이란", "국제유가", "유가")):
+            why_parts.append("Middle East risk and oil-price pressure")
+        if "단일종목" in evidence and "레버리지" in evidence:
+            why_parts.append("single-stock leveraged ETF flows")
+        if not why_parts:
+            why_parts.append("heavy program selling and weak market breadth")
+        watch_parts = ["foreign flows", "chip bellwether earnings"]
+        if "ADR" in evidence:
+            watch_parts.append("SK hynix ADR demand")
+        if "레버리지" in evidence or "ETF" in evidence:
+            watch_parts.append("ETF rebalancing flows")
+        return SummaryLines(
+            what=what + ".",
+            why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
+            impact="Investors should track " + ", ".join(dict.fromkeys(watch_parts[:3])) + ".",
+        )
+
+    @classmethod
     def _won_dollar_rate_forecast_fallback(cls, evidence: str) -> SummaryLines:
         why_parts = ["experts expecting the won-dollar rate to remain near KRW 1,500"]
         if "대미투자" in evidence:
@@ -2226,6 +2258,16 @@ class NewsSummaryGenerator:
             any(term in evidence for term in ("상폐 강화", "상장폐지", "퇴출 위기"))
             and any(term in evidence for term in ("시총 미달", "시가총액", "관리종목"))
             and any(term in evidence for term in ("코스닥", "듀오백", "SHD"))
+        )
+
+    @staticmethod
+    def _is_korean_market_plunge_context(evidence: str) -> bool:
+        return (
+            "코스피" in evidence
+            and "코스닥" in evidence
+            and "주간수급리포트" not in evidence
+            and any(term in evidence for term in ("급락", "하락", "매도 사이드카", "사이드카"))
+            and any(term in evidence for term in ("5%", "5%대", "800선", "7200선", "반도체"))
         )
 
     @staticmethod
