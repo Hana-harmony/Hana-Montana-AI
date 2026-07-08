@@ -135,6 +135,33 @@ def test_news_summary_qwen_output_falls_back_to_source_lines_on_korean_fragment_
     assert not _has_korean(summary)
 
 
+def test_news_summary_qwen_output_rejects_fragmentary_market_lines() -> None:
+    fallback = SummaryLines(
+        what="코스피는 장중 급락 후 7,200선에서 마감했다.",
+        why="반도체주 조정과 중동 지정학 리스크가 투자심리를 압박했다.",
+        impact="투자자는 외국인 수급과 반도체 대형주 변동성을 확인해야 한다.",
+    )
+    context = _sample_context(fallback=fallback)
+    client = FakeNewsSummaryClient(
+        '{"what":"() crisis intraday Korean stock market.",'
+        '"why":".",'
+        '"impact":"(WTI) 72.69 3% surge (-4.60%), (-3.43%) stock price, '
+        'SK (-6.34%), (-10.25%) IT· ·."}'
+    )
+    generator = NewsSummaryGenerator(
+        enabled=True,
+        model_name="Qwen3-0.6B-test",
+        client=client,
+    )
+
+    summary = generator.generate(context)
+
+    assert summary.what != "() crisis intraday Korean stock market."
+    assert summary.why != "."
+    assert "WTI) 72.69 3% surge" not in summary.impact
+    assert not _has_korean(summary)
+
+
 def test_news_summary_rejects_unsupported_hallucinated_hyphenated_terms() -> None:
     fallback = SummaryLines(
         what="LG화학은 반도체 스트리퍼 공급을 확대한다고 밝혔다.",
