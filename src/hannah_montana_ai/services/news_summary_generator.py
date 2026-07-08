@@ -787,10 +787,25 @@ class NewsSummaryGenerator:
             return False
         if re.search(r"^\d{6}\b", line):
             return False
+        if cls._is_fragmentary_sentence(line):
+            return False
         chunks = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", line)
         if len([chunk for chunk in chunks if chunk.strip()]) != 1:
             return False
         return len(re.findall(r"[A-Za-z0-9%$]+", line)) >= 7
+
+    @classmethod
+    def _is_fragmentary_sentence(cls, line: str) -> bool:
+        normalized = re.sub(r"\s+", " ", line).strip()
+        lower = normalized.lower()
+        if normalized.startswith("()") or lower in {".", "korean stock market."}:
+            return True
+        letter_count = len(re.findall(r"[A-Za-z]", normalized))
+        punctuation_count = len(re.findall(r"[()%,;:·]", normalized))
+        if letter_count == 0 or punctuation_count / letter_count > 0.34:
+            return True
+        word_count = len(re.findall(r"[A-Za-z]{2,}", normalized))
+        return lower.startswith("the article cites ") and word_count < 6
 
     @classmethod
     def _has_unsupported_hyphenated_term(cls, combined: str) -> bool:
