@@ -1,5 +1,12 @@
 # 구현 기록
 
+## 2026-07-08 세무 서류 실제 OCR API 연결
+- `/api/v1/tax/documents/verify`가 `document_content_base64` 이미지/PDF payload를 받으면 임시 파일로 격리한 뒤 `PaddleOCREngine`과 `hanah_tax_ocr` parser/reviewer를 실행하도록 연결했다.
+- `extracted_text`만 받은 기존 협력사 계약은 rule gate로 유지하되, 파일 payload는 실제 OCR confidence를 응답 `ocr_confidence`로 반환한다.
+- OCR 엔진이 없거나 파일을 읽을 수 없는 경우에는 임의 통과시키지 않고 `OCR_ENGINE_UNAVAILABLE` 또는 `OCR_INPUT_UNREADABLE` 사유로 수동검수/거절 상태를 반환한다.
+- Hannah API 컨테이너가 실제 파일 OCR을 수행하도록 `paddleocr`, `paddlepaddle`, `opencv-python-headless`와 Paddle/OpenCV OS 런타임 라이브러리를 고정하고, 비루트 사용자가 모델 캐시를 쓸 수 있도록 `HOME=/app/.cache`를 설정했다.
+- Stock-exchange-BE와 Hana-OmniLens-API가 넘기던 `ocrConfidence=0.90`, `fraudSignalScore=0.0` 하드코딩을 제거하고, Hannah가 파일 기반 OCR 결과를 산출하도록 계약을 nullable로 바꿨다.
+
 ## 2026-07-05 한국어 전문 번역 Qwen3 LLM 실제 serving 전환
 - GPT/DeepL 의존 번역 경로와 분리해 `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 번역기를 실제 API serving 경로에 연결했다.
 - 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 호출한다.
