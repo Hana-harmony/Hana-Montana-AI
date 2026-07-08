@@ -1,11 +1,15 @@
 import re
+from base64 import b64encode
 
 from fastapi.testclient import TestClient
+from pytest import MonkeyPatch
 
+from hanah_tax_ocr.schemas import OCRPage, OCRResult, OCRWordBox
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import IntelligenceEventRequest, StockCandidate
 from hannah_montana_ai.main import app
+from hannah_montana_ai.services import feature_contracts
 from hannah_montana_ai.services.feature_contracts import FinancialTranslationModel
 from hannah_montana_ai.services.korean_translation_generator import (
     KOREAN_TRANSLATION_PROMPT_VERSION,
@@ -554,3 +558,56 @@ def test_tax_document_verification_rejects_high_forgery_risk() -> None:
     assert payload["risk_level"] == "HIGH"
     assert payload["manual_review_required"] is True
     assert "HIGH_FORGERY_RISK" in payload["rejection_reasons"]
+
+
+def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+
+    class FakePaddleOCREngine:
+        def run(self, image_path: str) -> OCRResult:
+            calls.append(str(image_path))
+            return OCRResult(
+                pages=[
+                    OCRPage(
+                        page_number=1,
+                        raw_text=(
+                            "United States of America "
+                            "Certification of U.S. Tax Residency "
+                            "US_USER_1234 987-65-4321 Year 2026"
+                        ),
+                        words=[
+                            OCRWordBox(
+                                text="United States of America",
+                                confidence=0.93,
+                            )
+                        ],
+                    )
+                ]
+            )
+
+    monkeypatch.setattr(feature_contracts, "PaddleOCREngine", FakePaddleOCREngine)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/tax/documents/verify",
+        json={
+            "document_type": "RESIDENCE_CERTIFICATE",
+            "file_name": "residence.png",
+            "document_content_base64": b64encode(b"fake-image-bytes").decode(),
+            "content_type": "image/png",
+            "ocr_confidence": 0.0,
+            "fraud_signal_score": 0.03,
+            "expected_investor_id": "US_USER_1234",
+            "expected_residency_country": "US",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert calls
+    assert payload["verification_status"] == "PENDING"
+    assert payload["ocr_confidence"] == 0.93
+    assert payload["document_model_version"] == "hanah-tax-ocr-e2e-review-v1"
+    assert payload["manual_review_required"] is True

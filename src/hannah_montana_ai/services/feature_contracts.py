@@ -4,11 +4,15 @@ import base64
 import binascii
 import html
 import re
+import tempfile
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Literal, Protocol
+from pathlib import Path
+from typing import Literal, Protocol, cast
 
+from hanah_tax_ocr.ocr import PaddleOCREngine
 from hanah_tax_ocr.parsers import build_parser_registry
+from hanah_tax_ocr.quality import average_ocr_confidence
 from hanah_tax_ocr.review import TaxDocumentReviewer
 from hanah_tax_ocr.schemas import (
     DocumentType as OcrDocumentType,
@@ -57,7 +61,30 @@ TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
 TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
 TAX_REFUND_MODEL_VERSION = "us-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
+HANAH_TAX_OCR_MODEL_VERSION = "hanah-tax-ocr-e2e-review-v1"
 LOCAL_TAX_REFUND_SHARE = 0.10
+TEXT_TAX_DOCUMENT_CONTENT_TYPES = {
+    "text/plain",
+    "text/csv",
+    "application/json",
+}
+OCR_TAX_DOCUMENT_CONTENT_TYPES = {
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/tiff",
+    "image/bmp",
+}
+OCR_TAX_DOCUMENT_SUFFIXES = {
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".bmp",
+}
 
 
 class KoreanTranslationService(Protocol):
@@ -262,6 +289,7 @@ class TaxRefundPrediction:
 @dataclass(frozen=True)
 class TaxDocumentVerificationPrediction:
     verification_status: DocumentVerificationStatus
+    ocr_confidence: float
     fraud_risk_score: float
     risk_level: DocumentRiskLevel
     manual_review_required: bool
@@ -535,6 +563,7 @@ class TaxDocumentVerificationModel:
         )
         return TaxDocumentVerificationPrediction(
             verification_status=verification_status,
+            ocr_confidence=request.ocr_confidence,
             fraud_risk_score=round(request.fraud_signal_score, 4),
             risk_level=risk_level,
             manual_review_required=verification_status != "VERIFIED",
@@ -1175,7 +1204,7 @@ class TaxDocumentVerificationService:
             document_type=request.document_type,
             file_name=request.file_name,
             verification_status=prediction.verification_status,
-            ocr_confidence=round(request.ocr_confidence, 4),
+            ocr_confidence=round(prediction.ocr_confidence, 4),
             fraud_risk_score=prediction.fraud_risk_score,
             risk_level=prediction.risk_level,
             manual_review_required=prediction.manual_review_required,
@@ -1301,18 +1330,26 @@ def _predict_with_hanah_tax_ocr(
     if ocr_document_type is None:
         return None
 
-    text = request.extracted_text.strip() or _decode_text_payload(request.document_content_base64)
+    ocr_result, ocr_confidence, unavailable_reason = _ocr_result_from_request(request)
+    if unavailable_reason is not None:
+        return TaxDocumentVerificationPrediction(
+            verification_status="REJECTED",
+            ocr_confidence=0.0,
+            fraud_risk_score=1.0,
+            risk_level="HIGH",
+            manual_review_required=True,
+            extracted_fields={"document_type": str(request.document_type)},
+            missing_required_fields=["ocr_text"],
+            rejection_reasons=[unavailable_reason],
+            document_model_version=HANAH_TAX_OCR_MODEL_VERSION,
+        )
+    if ocr_result is None:
+        return None
+
+    text = ocr_result.combined_text()
     if not text:
         return None
 
-    ocr_result = OCRResult(
-        pages=[
-            OCRPage(
-                page_number=1,
-                raw_text=text,
-            )
-        ]
-    )
     parser = build_parser_registry()[ocr_document_type]
     extracted = parser.parse(ocr_result, request.file_name)
     review_result = TaxDocumentReviewer().review([extracted])
@@ -1328,6 +1365,7 @@ def _predict_with_hanah_tax_ocr(
         request,
         missing_required_fields,
         text,
+        ocr_confidence,
     )
     rejection_reasons = [
         *hard_rejection_reasons,
@@ -1338,17 +1376,19 @@ def _predict_with_hanah_tax_ocr(
         review_result.status,
         missing_required_fields,
         hard_rejection_reasons,
+        ocr_confidence,
     )
     fraud_risk_score = _ocr_fraud_risk_score(request.fraud_signal_score, review_result.status)
     return TaxDocumentVerificationPrediction(
         verification_status=verification_status,
+        ocr_confidence=ocr_confidence,
         fraud_risk_score=fraud_risk_score,
-        risk_level=_document_risk_level(request.ocr_confidence, fraud_risk_score),
+        risk_level=_document_risk_level(ocr_confidence, fraud_risk_score),
         manual_review_required=verification_status != "VERIFIED",
         extracted_fields=extracted_fields,
         missing_required_fields=missing_required_fields,
         rejection_reasons=rejection_reasons,
-        document_model_version="hanah-tax-ocr-e2e-review-v1",
+        document_model_version=HANAH_TAX_OCR_MODEL_VERSION,
     )
 
 
@@ -1362,13 +1402,60 @@ def _ocr_document_type(document_type: str) -> OcrDocumentType | None:
     return mapping.get(document_type)
 
 
-def _decode_text_payload(document_content_base64: str) -> str:
+def _ocr_result_from_request(
+    request: TaxDocumentVerificationRequest,
+) -> tuple[OCRResult | None, float, str | None]:
+    if request.extracted_text.strip():
+        return (
+            OCRResult(pages=[OCRPage(page_number=1, raw_text=request.extracted_text.strip())]),
+            request.ocr_confidence,
+            None,
+        )
+    if not request.document_content_base64:
+        return None, request.ocr_confidence, None
+
+    raw = _decode_bytes_payload(request.document_content_base64)
+    if raw is None:
+        return None, 0.0, "DOCUMENT_BASE64_INVALID"
+
+    content_type = request.content_type.lower().split(";", 1)[0].strip()
+    suffix = Path(request.file_name).suffix.lower()
+    if content_type in TEXT_TAX_DOCUMENT_CONTENT_TYPES or suffix == ".txt":
+        text = _decode_text_bytes(raw)
+        if not text:
+            return None, 0.0, "OCR_TEXT_EMPTY"
+        return (
+            OCRResult(pages=[OCRPage(page_number=1, raw_text=text)]),
+            request.ocr_confidence,
+            None,
+        )
+
+    if (
+        content_type not in OCR_TAX_DOCUMENT_CONTENT_TYPES
+        and suffix not in OCR_TAX_DOCUMENT_SUFFIXES
+    ):
+        return None, 0.0, "OCR_CONTENT_TYPE_UNSUPPORTED"
+
+    return _run_real_tax_ocr(raw, suffix or _suffix_for_content_type(content_type))
+
+
+def _decode_bytes_payload(document_content_base64: str) -> bytes | None:
     if not document_content_base64:
-        return ""
+        return None
     try:
-        raw = base64.b64decode(document_content_base64, validate=True)
+        return base64.b64decode(document_content_base64, validate=True)
     except (binascii.Error, ValueError):
+        return None
+
+
+def _decode_text_payload(document_content_base64: str) -> str:
+    raw = _decode_bytes_payload(document_content_base64)
+    if raw is None:
         return ""
+    return _decode_text_bytes(raw)
+
+
+def _decode_text_bytes(raw: bytes) -> str:
     if b"\x00" in raw[:512]:
         return ""
     try:
@@ -1377,18 +1464,54 @@ def _decode_text_payload(document_content_base64: str) -> str:
         return raw.decode("latin-1", errors="ignore").strip()
 
 
+def _run_real_tax_ocr(raw: bytes, suffix: str) -> tuple[OCRResult | None, float, str | None]:
+    suffix = suffix if suffix in OCR_TAX_DOCUMENT_SUFFIXES else ".bin"
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            prefix="hanah-tax-ocr-",
+            suffix=suffix,
+            delete=False,
+        ) as temp:
+            temp.write(raw)
+            temp_path = Path(temp.name)
+        ocr_result = PaddleOCREngine().run(temp_path)
+        confidence = average_ocr_confidence(cast(list[object], ocr_result.pages))
+        return ocr_result, round(confidence if confidence is not None else 0.0, 4), None
+    except RuntimeError:
+        return None, 0.0, "OCR_ENGINE_UNAVAILABLE"
+    except OSError:
+        return None, 0.0, "OCR_INPUT_UNREADABLE"
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+
+def _suffix_for_content_type(content_type: str) -> str:
+    mapping = {
+        "application/pdf": ".pdf",
+        "image/png": ".png",
+        "image/jpeg": ".jpg",
+        "image/jpg": ".jpg",
+        "image/tiff": ".tiff",
+        "image/bmp": ".bmp",
+    }
+    return mapping.get(content_type, ".bin")
+
+
 def _ocr_review_status(
     request: TaxDocumentVerificationRequest,
     review_status: ReviewStatus,
     missing_required_fields: list[str],
     rejection_reasons: list[str],
+    ocr_confidence: float,
 ) -> DocumentVerificationStatus:
     if rejection_reasons:
         return "REJECTED"
     if (
         review_status == ReviewStatus.PASS
         and not missing_required_fields
-        and request.ocr_confidence >= 0.8
+        and ocr_confidence >= 0.8
     ):
         return "VERIFIED"
     return "PENDING"
@@ -1454,16 +1577,18 @@ def _document_rejection_reasons(
     request: TaxDocumentVerificationRequest,
     missing_required_fields: list[str],
     ocr_text: str | None = None,
+    ocr_confidence: float | None = None,
 ) -> list[str]:
     reasons: list[str] = []
-    if request.ocr_confidence < 0.5:
+    effective_ocr_confidence = request.ocr_confidence if ocr_confidence is None else ocr_confidence
+    if effective_ocr_confidence < 0.5:
         reasons.append("OCR_CONFIDENCE_TOO_LOW")
     if request.fraud_signal_score >= 0.7:
         reasons.append("HIGH_FORGERY_RISK")
     normalized_text = ocr_text if ocr_text is not None else request.extracted_text
     if not normalized_text.strip() and not request.extracted_fields:
         reasons.append("NO_EXTRACTED_CONTENT")
-    if missing_required_fields and request.ocr_confidence < 0.65:
+    if missing_required_fields and effective_ocr_confidence < 0.65:
         reasons.append("REQUIRED_FIELDS_UNREADABLE")
     return reasons
 
