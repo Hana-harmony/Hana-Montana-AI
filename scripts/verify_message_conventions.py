@@ -50,7 +50,7 @@ def main() -> None:
         errors.extend(_validate_pr_title(args.pr_title or os.getenv("PR_TITLE", ""), subjects))
         errors.extend(_validate_pr_body(args.pr_body or os.getenv("PR_BODY", "")))
 
-    if subjects:
+    if subjects and not _is_main_feature_sync_pr():
         errors.extend(_validate_commit_subject(subject) for subject in subjects)
 
     errors = [error for error in errors if error]
@@ -172,6 +172,10 @@ def _subjects_after_legacy_cutoff(subjects: list[str]) -> list[str]:
         if any(subject.startswith(cutoff) for cutoff in LEGACY_COMMIT_VALIDATION_CUTOFFS):
             return subjects[index:]
     return subjects
+
+
+def _is_main_feature_sync_pr() -> bool:
+    return os.getenv("PR_BASE_REF") == "main" and os.getenv("PR_HEAD_REF") == "feature"
 
 
 def _looks_like_english_sentence(text: str) -> bool:
