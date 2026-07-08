@@ -2410,6 +2410,9 @@ def test_korean_translation_grounded_article_runs_when_local_model_disabled() ->
     assert "Korea's current-account surplus hit a record high in May" in result.translated_text
     assert "KOSDAQ fell below the 800 level" in result.translated_text
     assert "SK hynix's ADR listing" in result.translated_text
+    assert "U.S.-Iran" not in result.translated_text
+    assert "USD 38.61 billion" not in result.translated_text
+    assert "Hyundai Motor Securities analyst" not in result.translated_text
     assert not any("가" <= char <= "힣" for char in result.translated_text)
     assert result.quality_flags == []
 

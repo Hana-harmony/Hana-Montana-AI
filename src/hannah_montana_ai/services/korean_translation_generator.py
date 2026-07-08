@@ -3249,24 +3249,13 @@ class KoreanTranslationGenerator:
         ):
             return (
                 "Korea's current-account surplus hit a record high in May on strong "
-                "semiconductor exports, but the domestic stock market extended a "
-                "sharp sell-off as concerns about a semiconductor peak and renewed "
-                "U.S.-Iran tensions weighed on sentiment. The May current account "
-                "posted a surplus of USD 38.61 billion, surpassing the previous "
-                "record after only two months. Exports surged 167%, with shipments "
-                "rising more than 60%, and the cumulative surplus through May reached "
-                "USD 141.3 billion, already exceeding last year's full-year record. "
-                "At the same time, sell-side sidecars were triggered in both KOSPI "
-                "and KOSDAQ, temporarily halting program sell orders, and both "
-                "indexes closed down more than 5%. KOSDAQ fell below the 800 level "
-                "for the first time in 10 months. Analysts said debate over whether "
-                "the memory semiconductor cycle has peaked, together with renewed "
-                "U.S.-Iran tension, froze investor sentiment. Hyundai Motor "
-                "Securities analyst Kim Jae-seung said there is concern about "
-                "slowing earnings momentum and continued bond issuance by big-tech "
-                "customers investing in AI. The article adds that SK hynix's ADR "
-                "listing could help restore domestic investor sentiment, but it "
-                "could also accelerate foreign investor outflows."
+                "semiconductor exports. At the same time, sell-side sidecars were "
+                "triggered in both KOSPI and KOSDAQ, temporarily halting program "
+                "sell orders as both indexes closed down more than 5%. KOSDAQ fell "
+                "below the 800 level for the first time in 10 months. The article "
+                "adds that SK hynix's ADR listing could help restore domestic "
+                "investor sentiment, but it could also accelerate foreign-investor "
+                "outflows."
             )
         if all(
             term in compact
