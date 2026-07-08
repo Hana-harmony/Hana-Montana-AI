@@ -59,7 +59,7 @@
 ## Tax Document Verification
 
 - `POST /api/v1/tax/documents/verify`
-- Hana-OmniLens-API가 전달한 `document_content_base64` 또는 외부 OCR/MTS upload gateway가 추출한 `extracted_text`를 받아 공통 envelope로 서류 검증 결과를 반환한다.
-- `RESIDENCE_CERTIFICATE`, `APOSTILLE`, `REDUCED_TAX_APPLICATION`은 편입된 `hanah_tax_ocr` parser/reviewer로 필드 추출과 교차 검증 기준을 적용한다. OCR 엔진이 없는 로컬/CI 환경에서는 텍스트 payload 기반 검증으로 fallback한다.
+- Hana-OmniLens-API가 전달한 `document_content_base64` 파일 payload 또는 외부 OCR/MTS upload gateway가 추출한 `extracted_text`를 받아 공통 envelope로 서류 검증 결과를 반환한다.
+- `RESIDENCE_CERTIFICATE`, `APOSTILLE`, `REDUCED_TAX_APPLICATION`은 편입된 `hanah_tax_ocr` parser/reviewer로 필드 추출과 교차 검증 기준을 적용한다. 이미지/PDF payload는 Hannah 런타임에 포함된 `PaddleOCREngine`으로 OCR을 실행하고, 엔진 장애 시 임의 승인하지 않고 `OCR_ENGINE_UNAVAILABLE` 사유로 manual review 상태를 반환한다.
 - 응답 `data.verification_status`는 `VERIFIED`, `PENDING`, `REJECTED` 중 하나이며, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`을 포함한다.
 - 이 endpoint는 원본 파일을 저장하거나 국세청 제출을 수행하지 않는다.

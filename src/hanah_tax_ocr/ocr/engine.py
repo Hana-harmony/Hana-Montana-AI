@@ -202,8 +202,7 @@ class PaddleOCREngine:
                     from paddleocr import PaddleOCR
                 except ImportError as exc:
                     raise RuntimeError(
-                        "paddleocr is not installed. Install platform-specific paddlepaddle first, "
-                        "then install this project with the [ocr] extra."
+                        "paddleocr runtime is missing. Rebuild or sync the Hannah runtime image."
                     ) from exc
                 engine = PaddleOCR(**{**self._kwargs, **(overrides or {})})
             self._engines[cache_key] = engine
