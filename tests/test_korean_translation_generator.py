@@ -58,6 +58,71 @@ def test_korean_translation_local_llm_settings_use_direct_qwen3_mlx_client() -> 
     assert generator._model_name == "local-llm:mlx-community/Qwen3-0.6B-4bit"
 
 
+def test_korean_translation_local_glossary_mode_uses_harness_translation() -> None:
+    generator = KoreanTranslationGenerator.from_settings(
+        Settings(korean_translation_generation_mode="local_glossary")
+    )
+
+    result = generator.translate(KoreanTranslationContext(text="삼성전자 실적 개선"))
+
+    assert result.provider == "local-financial-glossary"
+    assert result.model_version == "local-financial-glossary-v2"
+    assert result.status == "TRANSLATED"
+    assert "LOCAL_TRANSLATION_DISABLED" not in result.quality_flags
+    assert result.translated_text == "Samsung Electronics earnings improvement"
+
+
+def test_korean_translation_local_glossary_mode_applies_request_glossary_terms() -> None:
+    generator = KoreanTranslationGenerator.from_settings(
+        Settings(korean_translation_generation_mode="local_glossary")
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="현대차 실적 개선",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="현대차",
+                    normalized_term="현대차",
+                    english_term="Hyundai Motor",
+                    category="stock",
+                )
+            ],
+        )
+    )
+
+    assert result.provider == "local-financial-glossary"
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "Hyundai Motor earnings improvement"
+
+
+def test_korean_translation_local_glossary_mode_keeps_short_financial_headline_usable() -> None:
+    generator = KoreanTranslationGenerator.from_settings(
+        Settings(korean_translation_generation_mode="local_glossary")
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="“크래미는 못 보낸다”…상폐 위기 한성기업, ‘애국기업’ 응원에 주가 급등",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="한성기업",
+                    normalized_term="한성기업",
+                    english_term="Hansung Enterprise",
+                    category="stock",
+                )
+            ],
+        )
+    )
+
+    assert result.provider == "local-financial-glossary"
+    assert result.status == "TRANSLATED"
+    assert result.quality_flags == []
+    assert result.translated_text == (
+        "delisting crisis Hansung Enterprise, support stock price surge"
+    )
+
+
 def test_korean_translation_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
     with pytest.raises(ModelArtifactNotFoundError):
         KoreanTranslationGenerator.from_settings(

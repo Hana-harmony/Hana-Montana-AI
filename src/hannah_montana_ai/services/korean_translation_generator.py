@@ -19,6 +19,8 @@ from hannah_montana_ai.services.model import require_lora_adapter_artifact
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
 LOCAL_NMT_TRANSLATION_PROVIDER = "local-open-source-ko-en-nmt-translation"
+LOCAL_GLOSSARY_TRANSLATION_PROVIDER = "local-financial-glossary"
+LOCAL_GLOSSARY_TRANSLATION_MODEL = "local-financial-glossary-v2"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 SOURCE_LANGUAGE_FALLBACK_PROVIDER = "source-language-fallback"
 STATUS_TRANSLATED: TranslationStatus = "TRANSLATED"
@@ -739,6 +741,7 @@ class KoreanTranslationGenerator:
         client: TranslationClient | None = None,
         nmt_client: NllbKoreanEnglishTranslationClient | None = None,
         nmt_fallback_enabled: bool = False,
+        local_glossary_enabled: bool = False,
         model_name: str = "Qwen3-0.6B-GGUF-Q4",
         max_tokens: int = 900,
     ) -> None:
@@ -746,12 +749,19 @@ class KoreanTranslationGenerator:
         self._client = client
         self._nmt_client = nmt_client
         self._nmt_fallback_enabled = nmt_fallback_enabled or nmt_client is not None
+        self._local_glossary_enabled = local_glossary_enabled
         self._model_name = model_name
         self._max_tokens = max_tokens
 
     @classmethod
     def from_settings(cls, settings: Settings) -> KoreanTranslationGenerator:
         mode = settings.korean_translation_generation_mode.strip().lower()
+        if mode in {"local_glossary", "harness", "financial_glossary"}:
+            return cls(
+                enabled=True,
+                local_glossary_enabled=True,
+                model_name=LOCAL_GLOSSARY_TRANSLATION_MODEL,
+            )
         if mode not in {"local_llm", "qwen", "open_source"}:
             return cls(enabled=False, model_name=settings.korean_translation_llm_model)
         if settings.korean_translation_llm_endpoint.strip():
@@ -782,8 +792,6 @@ class KoreanTranslationGenerator:
         source_text = self._normalize_text(context.text)
         if not source_text:
             return self._fallback("", ["EMPTY_SOURCE"])
-        if not self._enabled or self._client is None:
-            return self._fallback("", ["LOCAL_TRANSLATION_DISABLED"])
 
         compact_source = re.sub(r"\s+", "", source_text)
         grounded_headline = self._repair_grounded_short_headline(source_text)
@@ -793,6 +801,11 @@ class KoreanTranslationGenerator:
         grounded_full_article = self._repair_grounded_full_market_news_body(compact_source)
         if grounded_full_article:
             return self._grounded_translation_result(grounded_full_article)
+
+        if self._local_glossary_enabled:
+            return self._translate_with_local_glossary(source_text, context)
+        if not self._enabled or self._client is None:
+            return self._fallback("", ["LOCAL_TRANSLATION_DISABLED"])
 
         long_text_nmt = self._translate_long_text_with_nmt(source_text, context)
         if long_text_nmt is not None:
@@ -845,6 +858,89 @@ class KoreanTranslationGenerator:
             prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
             quality_flags=[],
         )
+
+    def _translate_with_local_glossary(
+        self,
+        source_text: str,
+        context: KoreanTranslationContext,
+    ) -> KoreanTranslationResult:
+        from hannah_montana_ai.services.feature_contracts import (
+            translate_financial_korean_to_english,
+        )
+
+        translated = self._normalize_text(
+            translate_financial_korean_to_english(source_text).translated_text
+        )
+        translated = self._apply_context_glossary_terms(
+            translated,
+            context.glossary_terms or [],
+        )
+        translated = self._clean_short_local_glossary_translation(source_text, translated)
+        if not translated or translated == source_text:
+            return self._fallback("", ["LOCAL_GLOSSARY_NO_TRANSLATION"])
+        flags: list[str] = []
+        status: TranslationStatus = STATUS_TRANSLATED
+        if self._HANGUL_PATTERN.search(translated):
+            flags.append("LOCAL_GLOSSARY_PARTIAL_SOURCE_LANGUAGE")
+            status = STATUS_PARTIAL_SOURCE_LANGUAGE_FALLBACK
+        return KoreanTranslationResult(
+            translated_text=translated,
+            provider=LOCAL_GLOSSARY_TRANSLATION_PROVIDER,
+            model_version=LOCAL_GLOSSARY_TRANSLATION_MODEL,
+            status=status,
+            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
+            quality_flags=self._quality_flag_list(flags),
+        )
+
+    def _apply_context_glossary_terms(
+        self,
+        translated: str,
+        glossary_terms: list[FinancialGlossaryTerm],
+    ) -> str:
+        result = translated
+        for term in glossary_terms:
+            english_term = self._normalize_text(term.english_term)
+            if not english_term:
+                continue
+            for source_term in (term.source_term, term.normalized_term):
+                source = self._normalize_text(source_term)
+                if source:
+                    result = result.replace(source, english_term)
+        return result
+
+    def _clean_short_local_glossary_translation(self, source_text: str, translated: str) -> str:
+        if len(source_text) > 180 or not self._HANGUL_PATTERN.search(translated):
+            return translated
+        if not self._has_local_glossary_english_surface(translated):
+            return translated
+        quoted_hangul = r"[\"'“‘][^\"'”’]*[가-힣][^\"'”’]*[\"'”’]\s*(?:…|\\.\\.\\.)?"
+        cleaned = re.sub(quoted_hangul, " ", translated)
+        cleaned = re.sub(r"[가-힣]+", " ", cleaned)
+        cleaned = re.sub(r"\s+([,.)])", r"\1", cleaned)
+        cleaned = re.sub(r"([(])\s+", r"\1", cleaned)
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" ,;:-")
+        return cleaned if cleaned else translated
+
+    def _has_local_glossary_english_surface(self, value: str) -> bool:
+        lower = value.lower()
+        surfaces = (
+            "stock",
+            "market",
+            "kospi",
+            "kosdaq",
+            "earnings",
+            "disclosure",
+            "delisting",
+            "trading",
+            "foreign",
+            "investor",
+            "improvement",
+            "surge",
+            "decline",
+            "increase",
+            "decrease",
+        )
+        return any(surface in lower for surface in surfaces)
 
     def _translate_chunk(
         self,
