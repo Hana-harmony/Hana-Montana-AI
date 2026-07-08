@@ -84,6 +84,7 @@ class ForeignOwnershipModelMaintenanceService:
                 minimum_promotable_history_days=request.minimum_promotable_history_days,
                 minimum_promotable_observations=request.minimum_promotable_observations,
                 max_model_training_samples=request.max_model_training_samples,
+                candidate_model_names=request.candidate_model_names,
             )
             _write_report(temp_report_path, report.to_dict())
 
