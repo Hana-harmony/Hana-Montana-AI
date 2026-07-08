@@ -107,6 +107,60 @@ def test_news_summary_qwen_output_replaces_rule_fallback_for_full_text() -> None
     assert "article_text" in client.messages[1]["content"]
 
 
+def test_news_summary_rule_mode_returns_english_fallback() -> None:
+    fallback = SummaryLines(
+        what="삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다.",
+        why="메모리 가격 반등과 HBM 공급 확대가 주요 배경이다.",
+        impact="투자자는 영업이익 회복 속도와 수요 지속성을 확인해야 한다.",
+    )
+    generator = NewsSummaryGenerator(enabled=False)
+
+    summary = generator.generate(_sample_context(fallback=fallback))
+
+    assert summary != fallback
+    assert "Samsung Electronics" in summary.what
+    assert "HBM" in summary.why
+    assert "Investors should track" in summary.impact
+    assert not _has_korean(summary)
+
+
+def test_news_summary_rule_mode_handles_korean_market_plunge_context() -> None:
+    context = NewsSummaryContext(
+        title="KOSPI 5% plunge... KOSDAQ breaks below 800",
+        snippet="반도체 고점 논란과 중동 지정학 리스크로 매도 사이드카가 발동됐다.",
+        content=(
+            "코스피가 8일 5% 넘게 급락하며 7200선까지 밀려났다. "
+            "코스피와 코스닥 모두 프로그램 매도 호가 효력을 정지하는 매도 사이드카가 발동됐다. "
+            "반도체 투자심리 위축과 중동 지정학적 긴장 고조가 겹치면서 국내 증시 변동성이 커졌다. "
+            "코스닥도 46.23포인트(5.56%) 내린 785.00에 마감하며 800선이 붕괴됐다."
+        ),
+        source_type="NEWS",
+        importance="HIGH",
+        sentiment="NEGATIVE",
+        event_tags=["GENERAL_MARKET"],
+        stock_code="000660",
+        stock_name="SK하이닉스",
+        stock_name_en="SK hynix",
+        fallback=SummaryLines(
+            what="코스피와 코스닥이 급락했다.",
+            why="반도체 투자심리와 중동 리스크가 부담이다.",
+            impact="투자자는 수급과 변동성을 확인해야 한다.",
+        ),
+    )
+    generator = NewsSummaryGenerator(enabled=False)
+
+    summary = generator.generate(context)
+    joined = " ".join((summary.what, summary.why, summary.impact))
+
+    assert "KOSPI and KOSDAQ sold off sharply" in summary.what
+    assert "sell-side circuit breakers" in summary.what
+    assert "semiconductor weakness" in summary.why
+    assert "Middle East risk" in summary.why
+    assert "46." not in joined
+    assert "785." not in joined
+    assert not _has_korean(summary)
+
+
 def test_news_summary_qwen_output_falls_back_to_source_lines_on_korean_fragment_or_meta() -> None:
     fallback = SummaryLines(
         what="삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다.",
