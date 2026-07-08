@@ -161,6 +161,41 @@ def test_news_summary_rule_mode_handles_korean_market_plunge_context() -> None:
     assert not _has_korean(summary)
 
 
+def test_news_summary_rule_mode_expands_single_market_plunge_driver() -> None:
+    context = NewsSummaryContext(
+        title="KOSPI and KOSDAQ plunge as sidecars triggered",
+        snippet="코스피와 코스닥이 5%대 급락했고 코스닥은 800선 아래로 내려갔다.",
+        content=(
+            "반도체 수출 호조에 힘입어 5월 우리나라 경상수지가 역대 최대 흑자를 기록했다. "
+            "코스피와 코스닥 모두 프로그램 매도 호가 효력을 정지하는 매도 사이드카가 발동됐다. "
+            "코스피와 코스닥은 5%대 급락하며 마감했고 코스닥은 800선 아래로 떨어졌다. "
+            "SK하이닉스의 ADR 상장이 국내 투자 심리 회복으로 이어질 거란 기대와 "
+            "외국인 투자자의 이탈을 가속화할 수 있단 우려도 나왔다."
+        ),
+        source_type="NEWS",
+        importance="HIGH",
+        sentiment="NEGATIVE",
+        event_tags=["GENERAL_MARKET"],
+        stock_code="000660",
+        stock_name="SK하이닉스",
+        stock_name_en="SK hynix",
+        fallback=SummaryLines(
+            what="코스피와 코스닥이 급락했다.",
+            why="반도체 투자심리가 부담이다.",
+            impact="투자자는 수급을 확인해야 한다.",
+        ),
+    )
+    generator = NewsSummaryGenerator(enabled=False)
+
+    summary = generator.generate(context)
+
+    assert summary.why != "The article cites semiconductor weakness."
+    assert "semiconductor weakness" in summary.why
+    assert "sell-side program selling pressure" in summary.why
+    assert "SK hynix ADR demand" in summary.impact
+    assert not _has_korean(summary)
+
+
 def test_news_summary_qwen_output_falls_back_to_source_lines_on_korean_fragment_or_meta() -> None:
     fallback = SummaryLines(
         what="삼성전자는 반도체 실적 개선 기대가 커졌다고 밝혔다.",

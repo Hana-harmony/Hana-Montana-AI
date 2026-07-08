@@ -1736,6 +1736,15 @@ class NewsSummaryGenerator:
             why_parts.append("single-stock leveraged ETF flows")
         if not why_parts:
             why_parts.append("heavy program selling and weak market breadth")
+        if len(why_parts) == 1:
+            if "사이드카" in evidence or "프로그램" in evidence:
+                why_parts.append("sell-side program selling pressure")
+            elif "경상수지" in evidence:
+                why_parts.append("macro risk despite record current-account data")
+            elif "ADR" in evidence:
+                why_parts.append("SK hynix ADR listing uncertainty")
+            else:
+                why_parts.append("weak market breadth")
         watch_parts = ["foreign flows", "chip bellwether earnings"]
         if "ADR" in evidence:
             watch_parts.append("SK hynix ADR demand")
