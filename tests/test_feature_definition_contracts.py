@@ -564,6 +564,7 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
     monkeypatch: MonkeyPatch,
 ) -> None:
     calls: list[str] = []
+    check_calls: list[str] = []
 
     class FakePaddleOCREngine:
         def run(self, image_path: str) -> OCRResult:
@@ -573,9 +574,12 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
                     OCRPage(
                         page_number=1,
                         raw_text=(
-                            "United States of America "
+                            "Department of the Treasury Internal Revenue Service "
                             "Certification of U.S. Tax Residency "
-                            "US_USER_1234 987-65-4321 Year 2026"
+                            "I certify that US_USER_1234 is a resident of the "
+                            "United States of America for purposes of U.S. taxation. "
+                            "Taxpayer: US USER 1234 TIN: 987-65-4321 "
+                            "Tax Year: 2026 Date: January 15, 2026"
                         ),
                         words=[
                             OCRWordBox(
@@ -587,7 +591,12 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
                 ]
             )
 
+    def fake_document_checks(*args: object, **kwargs: object) -> dict[str, bool]:
+        check_calls.append(str(args[1]))
+        return {"seal_present": True, "signature_present": True}
+
     monkeypatch.setattr(feature_contracts, "PaddleOCREngine", FakePaddleOCREngine)
+    monkeypatch.setattr(feature_contracts, "compute_document_checks", fake_document_checks)
 
     client = TestClient(app)
     response = client.post(
@@ -607,7 +616,10 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
     assert response.status_code == 200
     payload = response.json()["data"]
     assert calls
-    assert payload["verification_status"] == "PENDING"
+    assert check_calls
+    assert payload["verification_status"] == "VERIFIED"
     assert payload["ocr_confidence"] == 0.93
     assert payload["document_model_version"] == "hanah-tax-ocr-e2e-review-v1"
-    assert payload["manual_review_required"] is True
+    assert payload["manual_review_required"] is False
+    assert payload["missing_required_fields"] == []
+    assert payload["rejection_reasons"] == []
