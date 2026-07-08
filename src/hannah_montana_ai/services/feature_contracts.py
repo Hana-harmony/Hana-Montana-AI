@@ -10,6 +10,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Literal, Protocol, cast
 
+from hanah_tax_ocr.document_checks import compute_document_checks
 from hanah_tax_ocr.ocr import PaddleOCREngine
 from hanah_tax_ocr.parsers import build_parser_registry
 from hanah_tax_ocr.quality import average_ocr_confidence
@@ -1330,7 +1331,10 @@ def _predict_with_hanah_tax_ocr(
     if ocr_document_type is None:
         return None
 
-    ocr_result, ocr_confidence, unavailable_reason = _ocr_result_from_request(request)
+    ocr_result, ocr_confidence, unavailable_reason, document_checks = _ocr_result_from_request(
+        request,
+        ocr_document_type,
+    )
     if unavailable_reason is not None:
         return TaxDocumentVerificationPrediction(
             verification_status="REJECTED",
@@ -1352,6 +1356,7 @@ def _predict_with_hanah_tax_ocr(
 
     parser = build_parser_registry()[ocr_document_type]
     extracted = parser.parse(ocr_result, request.file_name)
+    extracted.quality_checks.update(document_checks)
     review_result = TaxDocumentReviewer().review([extracted])
     review_reasons = [finding.code for finding in review_result.findings]
     extracted_fields = {
@@ -1404,39 +1409,46 @@ def _ocr_document_type(document_type: str) -> OcrDocumentType | None:
 
 def _ocr_result_from_request(
     request: TaxDocumentVerificationRequest,
-) -> tuple[OCRResult | None, float, str | None]:
+    ocr_document_type: OcrDocumentType,
+) -> tuple[OCRResult | None, float, str | None, dict[str, object]]:
     if request.extracted_text.strip():
         return (
             OCRResult(pages=[OCRPage(page_number=1, raw_text=request.extracted_text.strip())]),
             request.ocr_confidence,
             None,
+            {},
         )
     if not request.document_content_base64:
-        return None, request.ocr_confidence, None
+        return None, request.ocr_confidence, None, {}
 
     raw = _decode_bytes_payload(request.document_content_base64)
     if raw is None:
-        return None, 0.0, "DOCUMENT_BASE64_INVALID"
+        return None, 0.0, "DOCUMENT_BASE64_INVALID", {}
 
     content_type = request.content_type.lower().split(";", 1)[0].strip()
     suffix = Path(request.file_name).suffix.lower()
     if content_type in TEXT_TAX_DOCUMENT_CONTENT_TYPES or suffix == ".txt":
         text = _decode_text_bytes(raw)
         if not text:
-            return None, 0.0, "OCR_TEXT_EMPTY"
+            return None, 0.0, "OCR_TEXT_EMPTY", {}
         return (
             OCRResult(pages=[OCRPage(page_number=1, raw_text=text)]),
             request.ocr_confidence,
             None,
+            {},
         )
 
     if (
         content_type not in OCR_TAX_DOCUMENT_CONTENT_TYPES
         and suffix not in OCR_TAX_DOCUMENT_SUFFIXES
     ):
-        return None, 0.0, "OCR_CONTENT_TYPE_UNSUPPORTED"
+        return None, 0.0, "OCR_CONTENT_TYPE_UNSUPPORTED", {}
 
-    return _run_real_tax_ocr(raw, suffix or _suffix_for_content_type(content_type))
+    return _run_real_tax_ocr(
+        raw,
+        suffix or _suffix_for_content_type(content_type),
+        ocr_document_type,
+    )
 
 
 def _decode_bytes_payload(document_content_base64: str) -> bytes | None:
@@ -1464,7 +1476,11 @@ def _decode_text_bytes(raw: bytes) -> str:
         return raw.decode("latin-1", errors="ignore").strip()
 
 
-def _run_real_tax_ocr(raw: bytes, suffix: str) -> tuple[OCRResult | None, float, str | None]:
+def _run_real_tax_ocr(
+    raw: bytes,
+    suffix: str,
+    ocr_document_type: OcrDocumentType,
+) -> tuple[OCRResult | None, float, str | None, dict[str, object]]:
     suffix = suffix if suffix in OCR_TAX_DOCUMENT_SUFFIXES else ".bin"
     temp_path: Path | None = None
     try:
@@ -1477,11 +1493,23 @@ def _run_real_tax_ocr(raw: bytes, suffix: str) -> tuple[OCRResult | None, float,
             temp_path = Path(temp.name)
         ocr_result = PaddleOCREngine().run(temp_path)
         confidence = average_ocr_confidence(cast(list[object], ocr_result.pages))
-        return ocr_result, round(confidence if confidence is not None else 0.0, 4), None
+        # 이미지 기반 위변조/서명 체크를 리뷰 규칙에 반영한다.
+        document_checks = compute_document_checks(
+            ocr_document_type,
+            temp_path,
+            template_id=ocr_result.template_id,
+            ocr_text=ocr_result.combined_text(),
+        )
+        return (
+            ocr_result,
+            round(confidence if confidence is not None else 0.0, 4),
+            None,
+            cast(dict[str, object], document_checks),
+        )
     except RuntimeError:
-        return None, 0.0, "OCR_ENGINE_UNAVAILABLE"
+        return None, 0.0, "OCR_ENGINE_UNAVAILABLE", {}
     except OSError:
-        return None, 0.0, "OCR_INPUT_UNREADABLE"
+        return None, 0.0, "OCR_INPUT_UNREADABLE", {}
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
