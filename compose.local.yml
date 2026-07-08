@@ -4,6 +4,8 @@ services:
     build:
       context: .
     container_name: hannah-montana-ai
+    environment:
+      HANNAH_KOREAN_TRANSLATION_GENERATION_MODE: ${HANNAH_KOREAN_TRANSLATION_GENERATION_MODE:-local_glossary}
     ports:
       - "8000:8000"
     healthcheck:
