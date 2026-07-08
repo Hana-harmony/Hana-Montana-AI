@@ -2084,7 +2084,7 @@ class KoreanTranslationGenerator:
             r"(?:에)?\s*(?:거래를 마쳤|마감)",
             source_text,
         )
-        kospi_move = self._first_regex_group(
+        kospi_move = self._first_regex_groups(
             r"코스피(?:는|지수는)?.*?([0-9,]+\.\d{2})포인트\(([0-9.]+)%\)",
             source_text,
         )
@@ -2099,7 +2099,7 @@ class KoreanTranslationGenerator:
                 r"(?:코스닥지수(?:는)?|코스닥(?:은|는)).*?([0-9]{3})(?:으로|에)?\s*마감",
                 source_text,
             )
-        kosdaq_move = self._first_regex_group(
+        kosdaq_move = self._first_regex_groups(
             r"(?:코스닥지수(?:는)?|코스닥(?:은|는)).*?"
             r"([0-9,]+\.\d{2})포인트\(([0-9.]+)%\)",
             source_text,
@@ -2224,12 +2224,18 @@ class KoreanTranslationGenerator:
             return ""
         return " ".join(unique_sentences)
 
-    def _first_regex_group(self, pattern: str, text: str) -> str | tuple[str, ...]:
+    def _first_regex_group(self, pattern: str, text: str) -> str:
         match = re.search(pattern, text)
         if not match:
             return ""
-        groups = tuple(group.replace(",", "") if group else "" for group in match.groups())
-        return groups[0] if len(groups) == 1 else groups
+        group = match.group(1)
+        return group.replace(",", "") if group else ""
+
+    def _first_regex_groups(self, pattern: str, text: str) -> tuple[str, ...]:
+        match = re.search(pattern, text)
+        if not match:
+            return ()
+        return tuple(group.replace(",", "") if group else "" for group in match.groups())
 
     def _join_english_list(self, values: list[str]) -> str:
         if len(values) <= 1:
