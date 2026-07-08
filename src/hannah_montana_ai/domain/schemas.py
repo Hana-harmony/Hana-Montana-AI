@@ -32,7 +32,14 @@ TaxRefundWorkflowStatus = Literal[
     "ELIGIBLE_FOR_INSTANT_PAYOUT",
     "QUARTERLY_REFUND_READY",
 ]
-DocumentType = Literal["RESIDENCE_CERTIFICATE", "TREATY_APPLICATION", "PASSPORT", "OTHER"]
+DocumentType = Literal[
+    "RESIDENCE_CERTIFICATE",
+    "APOSTILLE",
+    "TREATY_APPLICATION",
+    "REDUCED_TAX_APPLICATION",
+    "PASSPORT",
+    "OTHER",
+]
 DocumentVerificationStatus = Literal["VERIFIED", "PENDING", "REJECTED"]
 DocumentRiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
 TaxTransactionType = Literal["DIVIDEND", "SELL"]
@@ -416,6 +423,8 @@ class TaxDocumentVerificationRequest(BaseModel):
     document_type: DocumentType
     file_name: str = Field(min_length=1, max_length=180)
     extracted_text: str = Field(default="", max_length=8000)
+    document_content_base64: str = Field(default="", max_length=14_000_000)
+    content_type: str = Field(default="", max_length=120)
     ocr_confidence: float = Field(ge=0.0, le=1.0)
     fraud_signal_score: float = Field(default=0.0, ge=0.0, le=1.0)
     expected_investor_id: str | None = Field(default=None, max_length=80)

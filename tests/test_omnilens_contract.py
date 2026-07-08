@@ -1,4 +1,5 @@
 import re
+from base64 import b64encode
 from typing import Any
 
 from fastapi.testclient import TestClient
@@ -10,6 +11,8 @@ from hannah_montana_ai.domain.schemas import (
     AlertAnalysisResponse,
     ForeignOwnershipTimeseriesPredictionRequest,
     ForeignOwnershipTimeseriesPredictionResponse,
+    TaxDocumentVerificationRequest,
+    TaxDocumentVerificationResponse,
 )
 from hannah_montana_ai.main import app
 
@@ -130,6 +133,15 @@ def test_omnilens_foreign_ownership_prediction_schema_field_names_are_stable() -
     assert set(response_schema["properties"]) == EXPECTED_FOREIGN_OWNERSHIP_RESPONSE_FIELDS
 
 
+def test_omnilens_tax_document_verification_schema_accepts_ocr_payload() -> None:
+    request_schema = TaxDocumentVerificationRequest.model_json_schema()
+    response_schema = TaxDocumentVerificationResponse.model_json_schema()
+
+    assert "document_content_base64" in request_schema["properties"]
+    assert "content_type" in request_schema["properties"]
+    assert "verification_status" in response_schema["properties"]
+
+
 def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()
@@ -173,3 +185,37 @@ def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> N
     assert data["stock_match_confidence"] == 1.0
     assert re.fullmatch(r"[0-9a-f]{64}", data["duplicate_key"])
     assert data["model_version"]
+
+
+def test_tax_document_verification_runs_embedded_ocr_review_contract() -> None:
+    client = TestClient(app)
+    text = """
+    United States of America
+    Certification of U.S. Tax Residency
+    US_USER_1234 987-65-4321
+    Year 2026
+    January 12, 2026
+    """
+
+    response = client.post(
+        "/api/v1/tax/documents/verify",
+        json={
+            "document_type": "RESIDENCE_CERTIFICATE",
+            "file_name": "residence.txt",
+            "document_content_base64": b64encode(text.encode()).decode(),
+            "content_type": "text/plain",
+            "ocr_confidence": 0.91,
+            "fraud_signal_score": 0.03,
+            "expected_investor_id": "US_USER_1234",
+            "expected_residency_country": "US",
+        },
+    )
+
+    assert response.status_code == 200
+    payload: dict[str, Any] = response.json()
+    assert payload["success"] is True
+    data = payload["data"]
+    assert data["document_type"] == "RESIDENCE_CERTIFICATE"
+    assert data["document_model_version"] == "hanah-tax-ocr-e2e-review-v1"
+    assert data["extracted_fields"]["residency_country_code"] == "US"
+    assert data["fraud_risk_score"] >= 0.03
