@@ -123,6 +123,34 @@ def test_korean_translation_local_glossary_mode_keeps_short_financial_headline_u
     )
 
 
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        (
+            "반도체 고점론·중동 불안에...코스피 7,200선 '털썩'",
+            "KOSPI falls to the 7,200 level",
+        ),
+        (
+            "반도체 불안에 중동 긴장까지…증시 ‘흔들’",
+            "Korean stocks are shaken by semiconductor concerns",
+        ),
+    ],
+)
+def test_korean_translation_repairs_market_plunge_headlines(source: str, expected: str) -> None:
+    generator = KoreanTranslationGenerator.from_settings(
+        Settings(korean_translation_generation_mode="local_glossary")
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert expected in result.translated_text
+    assert "..." not in result.translated_text
+    assert "·" not in result.translated_text
+    assert not any("가" <= char <= "힣" for char in result.translated_text)
+
+
 def test_korean_translation_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
     with pytest.raises(ModelArtifactNotFoundError):
         KoreanTranslationGenerator.from_settings(
@@ -2413,6 +2441,45 @@ def test_korean_translation_grounded_article_runs_when_local_model_disabled() ->
     assert "U.S.-Iran" not in result.translated_text
     assert "USD 38.61 billion" not in result.translated_text
     assert "Hyundai Motor Securities analyst" not in result.translated_text
+    assert not any("가" <= char <= "힣" for char in result.translated_text)
+    assert result.quality_flags == []
+
+
+def test_korean_translation_grounded_market_plunge_article_uses_full_body_path() -> None:
+    generator = KoreanTranslationGenerator(
+        enabled=False,
+        client=None,
+        model_name="disabled-local-translation",
+    )
+
+    source = (
+        "국내 증시는 8일 반도체 투자심리 위축과 중동 지정학적 긴장이 한꺼번에 겹치면서 "
+        "코스피와 코스닥이 나란히 5% 넘게 급락했다. 이날 코스피는 전 거래일보다 "
+        "409.52포인트(5.35%) 내린 7,246.79에 거래를 마쳤고, 코스닥지수는 "
+        "46.23포인트(5.56%) 하락한 785.00으로 마감했다. 코스피는 장중에는 한때 "
+        "7,791.66까지 오르며 반등을 시도했지만, 곧바로 매물이 쏟아지면서 7,186.21까지 "
+        "떨어졌다. 하루 고점과 저점 차이가 605.45포인트에 달할 만큼 시장 불안이 컸고, "
+        "코스피 시가총액도 약 5천931조원으로 줄어 종가 기준 7주 만에 6천조원을 밑돌았다. "
+        "오후 1시 31분 코스피200 선물지수가 5% 이상 하락한 상태가 1분간 이어지면서 "
+        "유가증권시장 프로그램 매도호가 일시효력정지, 이른바 매도 사이드카가 발동됐다. "
+        "2분 뒤에는 코스닥시장에서도 매도 사이드카가 발동됐다. 수급을 보면 외국인은 "
+        "유가증권시장에서 3천315억원, 코스닥시장에서 3천368억원을 순매수했다. "
+        "이번 급락의 중심에는 반도체주가 있었다. 국제유가까지 뛰었다. 8월 인도분 "
+        "서부텍사스산원유(WTI) 선물 가격은 배럴당 72.69달러를 기록했다. "
+        "국내 대표 반도체주인 삼성전자는 기대를 웃도는 실적 발표에도 6.25% 내린 "
+        "27만7천500원에 마감했고, SK하이닉스도 5.68% 하락한 207만6천원으로 거래를 끝냈다. "
+        "코스닥은 10개월 만에 심리적 지지선이었던 800선이 무너졌다."
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert "KOSPI closed at 7246.79" in result.translated_text
+    assert "KOSDAQ finished at 785.00" in result.translated_text
+    assert "Sell-side sidecars were triggered" in result.translated_text
+    assert "KOSDAQ fell below the psychologically important 800 level" in result.translated_text
+    assert "Full article text is unavailable" not in result.translated_text
     assert not any("가" <= char <= "힣" for char in result.translated_text)
     assert result.quality_flags == []
 
