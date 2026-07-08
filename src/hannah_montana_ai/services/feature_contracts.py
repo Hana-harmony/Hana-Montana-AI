@@ -1,11 +1,23 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import html
 import re
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Literal, Protocol
 
+from hanah_tax_ocr.parsers import build_parser_registry
+from hanah_tax_ocr.review import TaxDocumentReviewer
+from hanah_tax_ocr.schemas import (
+    DocumentType as OcrDocumentType,
+)
+from hanah_tax_ocr.schemas import (
+    OCRPage,
+    OCRResult,
+    ReviewStatus,
+)
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     DocumentRiskLevel,
@@ -520,6 +532,10 @@ class TaxDocumentVerificationModel:
     version = DOCUMENT_VERIFICATION_MODEL_VERSION
 
     def predict(self, request: TaxDocumentVerificationRequest) -> TaxDocumentVerificationPrediction:
+        ocr_prediction = _predict_with_hanah_tax_ocr(request)
+        if ocr_prediction is not None:
+            return ocr_prediction
+
         extracted_fields = _normalize_document_fields(request)
         missing_required_fields = _missing_required_document_fields(request, extracted_fields)
         rejection_reasons = _document_rejection_reasons(
@@ -1291,13 +1307,124 @@ def _required_documents_completed(request: TaxRefundStatusRequest) -> bool:
     return required_types.issubset(verified_types)
 
 
-def _normalize_document_fields(request: TaxDocumentVerificationRequest) -> dict[str, str]:
+def _predict_with_hanah_tax_ocr(
+    request: TaxDocumentVerificationRequest,
+) -> TaxDocumentVerificationPrediction | None:
+    if not request.document_content_base64:
+        return None
+    ocr_document_type = _ocr_document_type(request.document_type)
+    if ocr_document_type is None:
+        return None
+
+    text = request.extracted_text.strip() or _decode_text_payload(request.document_content_base64)
+    if not text:
+        return None
+
+    ocr_result = OCRResult(
+        pages=[
+            OCRPage(
+                page_number=1,
+                raw_text=text,
+            )
+        ]
+    )
+    parser = build_parser_registry()[ocr_document_type]
+    extracted = parser.parse(ocr_result, request.file_name)
+    review_result = TaxDocumentReviewer().review([extracted])
+    review_reasons = [finding.code for finding in review_result.findings]
+    extracted_fields = {
+        key: str(value)
+        for key, value in extracted.fields.items()
+        if value is not None and str(value).strip()
+    }
+    extracted_fields.update(_normalize_document_fields(request, text))
+    missing_required_fields = _missing_required_document_fields(request, extracted_fields, text)
+    hard_rejection_reasons = _document_rejection_reasons(
+        request,
+        missing_required_fields,
+        text,
+    )
+    rejection_reasons = [
+        *hard_rejection_reasons,
+        *(reason for reason in review_reasons if reason not in hard_rejection_reasons),
+    ]
+    verification_status = _ocr_review_status(
+        request,
+        review_result.status,
+        missing_required_fields,
+        hard_rejection_reasons,
+    )
+    fraud_risk_score = _ocr_fraud_risk_score(request.fraud_signal_score, review_result.status)
+    return TaxDocumentVerificationPrediction(
+        verification_status=verification_status,
+        fraud_risk_score=fraud_risk_score,
+        risk_level=_document_risk_level(request.ocr_confidence, fraud_risk_score),
+        manual_review_required=verification_status != "VERIFIED",
+        extracted_fields=extracted_fields,
+        missing_required_fields=missing_required_fields,
+        rejection_reasons=rejection_reasons,
+        document_model_version="hanah-tax-ocr-e2e-review-v1",
+    )
+
+
+def _ocr_document_type(document_type: str) -> OcrDocumentType | None:
+    mapping = {
+        "RESIDENCE_CERTIFICATE": OcrDocumentType.RESIDENCY_CERTIFICATE,
+        "APOSTILLE": OcrDocumentType.APOSTILLE,
+        "TREATY_APPLICATION": OcrDocumentType.WITHHOLDING_TAX_FORM,
+        "REDUCED_TAX_APPLICATION": OcrDocumentType.WITHHOLDING_TAX_FORM,
+    }
+    return mapping.get(document_type)
+
+
+def _decode_text_payload(document_content_base64: str) -> str:
+    if not document_content_base64:
+        return ""
+    try:
+        raw = base64.b64decode(document_content_base64, validate=True)
+    except (binascii.Error, ValueError):
+        return ""
+    if b"\x00" in raw[:512]:
+        return ""
+    try:
+        return raw.decode("utf-8").strip()
+    except UnicodeDecodeError:
+        return raw.decode("latin-1", errors="ignore").strip()
+
+
+def _ocr_review_status(
+    request: TaxDocumentVerificationRequest,
+    review_status: ReviewStatus,
+    missing_required_fields: list[str],
+    rejection_reasons: list[str],
+) -> DocumentVerificationStatus:
+    if rejection_reasons:
+        return "REJECTED"
+    if (
+        review_status == ReviewStatus.PASS
+        and not missing_required_fields
+        and request.ocr_confidence >= 0.8
+    ):
+        return "VERIFIED"
+    return "PENDING"
+
+
+def _ocr_fraud_risk_score(fraud_signal_score: float, review_status: ReviewStatus) -> float:
+    if review_status in {ReviewStatus.REJECT, ReviewStatus.NEEDS_REVIEW}:
+        return round(max(fraud_signal_score, 0.35), 4)
+    return round(fraud_signal_score, 4)
+
+
+def _normalize_document_fields(
+    request: TaxDocumentVerificationRequest,
+    ocr_text: str | None = None,
+) -> dict[str, str]:
     fields = {
         key.strip().lower(): value.strip()
         for key, value in request.extracted_fields.items()
         if key.strip() and value.strip()
     }
-    normalized_text = request.extracted_text.lower()
+    normalized_text = (ocr_text if ocr_text is not None else request.extracted_text).lower()
     fields.setdefault("document_type", request.document_type)
     if request.expected_investor_id and request.expected_investor_id.lower() in normalized_text:
         fields.setdefault("investor_id", request.expected_investor_id)
@@ -1305,22 +1432,28 @@ def _normalize_document_fields(request: TaxDocumentVerificationRequest) -> dict[
         normalized_text,
         request.expected_residency_country,
     ):
-        fields.setdefault("residency_country", request.expected_residency_country.upper())
+        country_code = request.expected_residency_country.upper()
+        fields.setdefault("residency_country", country_code)
+        fields.setdefault("residency_country_code", country_code)
     return fields
 
 
 def _missing_required_document_fields(
     request: TaxDocumentVerificationRequest,
     extracted_fields: dict[str, str],
+    ocr_text: str | None = None,
 ) -> list[str]:
     required_fields = ["document_type"]
     if request.document_type == "RESIDENCE_CERTIFICATE":
         required_fields.extend(["investor_id", "residency_country"])
-    elif request.document_type == "TREATY_APPLICATION":
+    elif request.document_type in {"TREATY_APPLICATION", "REDUCED_TAX_APPLICATION"}:
         required_fields.extend(["investor_id", "treaty_application_marker"])
     missing = [field for field in required_fields if field not in extracted_fields]
-    normalized_text = request.extracted_text.lower()
-    if request.document_type == "TREATY_APPLICATION" and "treaty_application_marker" in missing:
+    normalized_text = (ocr_text if ocr_text is not None else request.extracted_text).lower()
+    if (
+        request.document_type in {"TREATY_APPLICATION", "REDUCED_TAX_APPLICATION"}
+        and "treaty_application_marker" in missing
+    ):
         if any(keyword in normalized_text for keyword in ("treaty", "제한세율", "조세조약")):
             missing.remove("treaty_application_marker")
     if request.document_type == "RESIDENCE_CERTIFICATE" and "residency_country" in missing:
@@ -1335,13 +1468,15 @@ def _missing_required_document_fields(
 def _document_rejection_reasons(
     request: TaxDocumentVerificationRequest,
     missing_required_fields: list[str],
+    ocr_text: str | None = None,
 ) -> list[str]:
     reasons: list[str] = []
     if request.ocr_confidence < 0.5:
         reasons.append("OCR_CONFIDENCE_TOO_LOW")
     if request.fraud_signal_score >= 0.7:
         reasons.append("HIGH_FORGERY_RISK")
-    if not request.extracted_text.strip() and not request.extracted_fields:
+    normalized_text = ocr_text if ocr_text is not None else request.extracted_text
+    if not normalized_text.strip() and not request.extracted_fields:
         reasons.append("NO_EXTRACTED_CONTENT")
     if missing_required_fields and request.ocr_confidence < 0.65:
         reasons.append("REQUIRED_FIELDS_UNREADABLE")
