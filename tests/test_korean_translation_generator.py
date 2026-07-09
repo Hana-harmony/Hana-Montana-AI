@@ -2360,6 +2360,169 @@ def test_korean_translation_returns_grounded_lg_supplier_body_before_model_call(
     assert client.calls == []
 
 
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        (
+            "코스피, 반도체주 반등에 7500선 회복···3%↑",
+            "KOSPI recovers the 7,500 level as chip stocks rebound, up 3%.",
+        ),
+        (
+            "미국 반도체주 훈풍에 코스피 장초반 3%↑",
+            "KOSPI rises 3% early as U.S. chip stocks lift sentiment.",
+        ),
+        (
+            "'반도체 투톱' 살아나자 코스피 3%대 반등…코스닥도 800선 눈앞",
+            (
+                "KOSPI rebounds more than 3% as Samsung Electronics and SK hynix "
+                "recover; KOSDAQ nears 800."
+            ),
+        ),
+        (
+            "[속보] 코스피, 239.85p(3.31%) 오른 7486.64 출발",
+            "Breaking: KOSPI opens at 7,486.64, up 239.85 points, or 3.31%.",
+        ),
+        (
+            "장동혁, 韓증시 널뛰기 장세에 \"'블랙 에브리데이' 될까 걱정\"",
+            (
+                "Jang Dong-hyeok worries Korea's volatile stock market could become "
+                "'Black Everyday'."
+            ),
+        ),
+        (
+            "코스피·코스닥, '오름세'로 장출발 [포토]",
+            "KOSPI and KOSDAQ open higher.",
+        ),
+        (
+            "[클로즈업] 외국인 매도세 집중된 시가총액 상위 10개 종목 리스트",
+            "Close-up: Top 10 large-cap stocks hit by concentrated foreign selling.",
+        ),
+        (
+            "[사설] ‘오징어게임’이 된 증시, 레버리지 ETF 놔둘 건가",
+            (
+                "Editorial: Has the stock market become Squid Game, and should "
+                "leveraged ETFs be left alone?"
+            ),
+        ),
+        (
+            "코스피, 外人·기관 매수에 7500선 강세",
+            "KOSPI trades firm above 7,500 on foreign and institutional buying.",
+        ),
+        (
+            "중동 긴장과 반도체 불확실성, 코스피·코스닥 5%대 급락",
+            (
+                "KOSPI and KOSDAQ tumble about 5% amid Middle East tensions and "
+                "semiconductor uncertainty."
+            ),
+        ),
+        (
+            "[증시진단] 한국만 '롤러코스터'...반도체보다 더 큰 문제는 '변동성'",
+            (
+                "Market diagnosis: Korea's stock-market volatility is a bigger "
+                "problem than semiconductors."
+            ),
+        ),
+        (
+            "코스피 7,246.79 코스닥 785.00",
+            "KOSPI closes at 7,246.79 and KOSDAQ at 785.00.",
+        ),
+        (
+            '[8일 매매 동향] 외국인투자자, "삼성전자 팔고 SK하이닉스 샀다"',
+            (
+                "Trading flows on the 8th: foreign investors sold Samsung "
+                "Electronics and bought SK hynix."
+            ),
+        ),
+        (
+            '리벨리온 대표 박성현 "내년 상반기 코스피 IPO 목표", 미국 상장 가능성...',
+            (
+                "Rebellions CEO Park Sung-hyun targets a KOSPI IPO in the first "
+                "half of next year while leaving open a U.S. listing."
+            ),
+        ),
+        (
+            "['클릭' 증시] 이란 공습 충격에 코스피 거품 날아가...환율은 안정세",
+            (
+                "Click market: Iran strike shock wipes out KOSPI froth while the "
+                "exchange rate stabilizes."
+            ),
+        ),
+        (
+            "코스피·코스닥 5%대 급락 마감…이틀 연속 ‘매도 사이드카’[마감시황...",
+            (
+                "KOSPI and KOSDAQ close down about 5% as sell-side sidecars trigger "
+                "for a second day."
+            ),
+        ),
+        (
+            "삼성전기 주가 10%대 털썩…코스피 급락에 약세 면치 못했나?",
+            (
+                "Samsung Electro-Mechanics shares tumble more than 10% as the KOSPI "
+                "selloff weighs."
+            ),
+        ),
+        (
+            "코스피·코스닥 5% 넘게 폭락..반도체 고점 우려에 중동리스크까지",
+            (
+                "KOSPI and KOSDAQ plunge more than 5% as semiconductor peak concerns "
+                "and Middle East risks weigh."
+            ),
+        ),
+        (
+            "삼성전자發 반도체 피크아웃 공포… 뉴욕 증시까지 연쇄 충격",
+            (
+                "Samsung Electronics sparks semiconductor peak-out fears, sending "
+                "shockwaves to New York stocks."
+            ),
+        ),
+    ],
+)
+def test_korean_translation_returns_grounded_market_news_titles_before_glossary(
+    source: str,
+    expected: str,
+) -> None:
+    client = FakeTranslationClient(json_translation("This should not be used."))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        local_glossary_enabled=True,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "article-grounded-ko-en-translation"
+    assert result.translated_text == expected
+    assert not re.search(r"[가-힣\u3400-\u4dbf\u4e00-\u9fff]", result.translated_text)
+    assert "[ ]" not in result.translated_text
+    assert "..." not in result.translated_text
+    assert "↑" not in result.translated_text
+    assert client.calls == []
+
+
+@pytest.mark.parametrize(
+    "translated",
+    [
+        "韓Korean stock market \" \"",
+        "KOSPI 3%↑",
+        "[ ] KOSPI, 239.85p(3.31%) 7486.64",
+        "KOSPI·, [ ]",
+    ],
+)
+def test_korean_translation_rejects_short_local_glossary_title_fragments(
+    translated: str,
+) -> None:
+    generator = KoreanTranslationGenerator(enabled=True, client=FakeTranslationClient("{}"))
+
+    flags = generator._short_local_glossary_quality_flags(
+        "코스피 반도체주 반등에 7500선 회복",
+        translated,
+    )
+
+    assert flags
+
+
 def test_korean_translation_rejects_recent_market_news_word_salad() -> None:
     client = FakeTranslationClient(
         json_translation(
