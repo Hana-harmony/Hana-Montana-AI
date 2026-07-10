@@ -31,11 +31,11 @@ class NewsSummaryGenerator:
         (("삼성전자", "DX", "DS", "ESG"), "Samsung Electronics' two-track ESG strategy"),
         (("현대차", "기아", "모비스", "USMCA"), "USMCA parts-rule risk for Korean automakers"),
         (("반도체 클러스터", "메가프로젝트"), "semiconductor cluster policy support"),
-        (("개미", "상반기", "순매수"), "retail net buying in the first half"),
+        (("개미", "상반기", "순매수"), "Ant net buying in the first half"),
         (("대구", "상장사", "시총"), "Daegu-listed companies' market-cap decline"),
         (("단일종목", "레버리지", "ETF"), "single-stock leveraged ETF volatility"),
         (("삼닉", "레버리지"), "Samjeon Nix leveraged-product losses"),
-        (("빚투", "삼전닉스"), "leveraged retail speculation around Samjeon Nix"),
+        (("빚투", "삼전닉스"), "Bittu speculation around Samjeon Nix"),
         (("금융투자회사", "뉴욕"), "Korean securities firms' overseas expansion"),
         (("미들마켓론",), "mid-market lending by Korean securities firms"),
         (("삼전닉스",), "Samjeon Nix trading"),
@@ -82,8 +82,8 @@ class NewsSummaryGenerator:
         (("중복상장", "규제"), "listing-rule uncertainty"),
         (("단일종목", "레버리지"), "high turnover in single-stock leveraged ETFs"),
         (("리밸런싱", "변동성"), "ETF rebalancing flows increasing late-session volatility"),
-        (("개미", "레버리지"), "retail investors concentrating in leveraged products"),
-        (("빚투",), "debt-funded retail speculation"),
+        (("개미", "레버리지"), "Ant participation in leveraged products"),
+        (("빚투",), "Bittu debt-funded speculation"),
         (("삼전닉스",), "attention on Samjeon Nix as shorthand for Korea's two chip bellwethers"),
         (("미들마켓론",), "new mid-market loan opportunities"),
         (("뉴욕", "금융투자회사"), "Korean securities firms localizing overseas businesses"),
@@ -92,7 +92,7 @@ class NewsSummaryGenerator:
             ("반도체 클러스터", "메가프로젝트"),
             "government follow-up measures for semiconductor megaprojects",
         ),
-        (("개미", "순매수"), "retail investors providing heavy net buying"),
+        (("개미", "순매수"), "Ant participation providing heavy net buying"),
         (("대구", "시총"), "regional listed-company market-cap weakness"),
         (("기업회생",), "rising corporate rehabilitation filings"),
         (("한계기업",), "delayed restructuring of marginal companies"),
@@ -127,7 +127,7 @@ class NewsSummaryGenerator:
         (("공모가", "밑돌"), "post-listing share performance and investor demand"),
         (("중복상장", "규제"), "listing-rule changes and large-company IPO timing"),
         (("단일종목", "레버리지"), "ETF rebalancing flows and late-session volatility"),
-        (("빚투",), "margin exposure, retail flows, and volatility in major chip names"),
+        (("빚투",), "Bittu margin exposure and volatility in major chip names"),
         (("미들마켓론",), "overseas revenue diversification, deal flow, and credit risk controls"),
         (
             ("반도체 클러스터",),
@@ -135,7 +135,7 @@ class NewsSummaryGenerator:
         ),
         (
             ("개미", "순매수"),
-            "whether retail net buying continues and which sectors absorb the flows",
+            "whether Ant net buying continues and which sectors absorb the flows",
         ),
         (
             ("대구", "시총"),
@@ -1232,10 +1232,10 @@ class NewsSummaryGenerator:
         if "리밸런싱" in evidence or "장 막판" in evidence:
             why_parts.append("ETF rebalancing flows increasing late-session volatility")
         if "개미" in evidence:
-            why_parts.append("retail investors concentrating in leveraged products")
+            why_parts.append("Ant participation concentrated in leveraged products")
         return SummaryLines(
             what=(
-                "Single-stock leveraged ETFs in Korea drew scrutiny as retail buying "
+                "Single-stock leveraged ETFs in Korea drew scrutiny as Ant buying "
                 "concentrated in major chip-linked products."
             ),
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
@@ -1247,16 +1247,16 @@ class NewsSummaryGenerator:
 
     @classmethod
     def _retail_speculation_fallback(cls, evidence: str) -> SummaryLines:
-        why_parts = ["debt-funded retail speculation"]
+        why_parts = ["Bittu debt-funded speculation"]
         if "반도체" in evidence:
             why_parts.append("chip-cycle optimism around Samsung Electronics and SK hynix")
         if "우려" in evidence or "경고" in evidence:
             why_parts.append("analyst warnings about speculation rather than investment")
         return SummaryLines(
-            what="Korean retail speculation around Samjeon Nix drew renewed risk warnings.",
+            what="Bittu speculation around Samjeon Nix drew renewed risk warnings.",
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
             impact=(
-                "Investors should track margin exposure, retail flows, and volatility "
+                "Investors should track Bittu margin exposure and volatility "
                 "in major chip names."
             ),
         )
@@ -1301,19 +1301,19 @@ class NewsSummaryGenerator:
 
     @classmethod
     def _retail_net_buying_fallback(cls, evidence: str) -> SummaryLines:
-        why_parts = ["retail investors providing heavy net buying"]
+        why_parts = ["Ant participation providing heavy net buying"]
         if "코스피" in evidence:
             why_parts.append("stronger KOSPI performance drawing investor flows")
         if "161조" in evidence:
             why_parts.append("first-half net purchases reaching KRW 161 trillion")
         return SummaryLines(
             what=(
-                "Retail investors net bought heavily in the first half as Korean "
+                "Ant participants net bought heavily in the first half as Korean "
                 "stocks rallied."
             ),
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
             impact=(
-                "Investors should track whether retail net buying continues and "
+                "Investors should track whether Ant net buying continues and "
                 "which sectors absorb the flows."
             ),
         )

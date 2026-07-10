@@ -80,3 +80,17 @@ def test_rule_summary_does_not_emit_advice() -> None:
     assert "must buy" not in combined
     assert "price target" not in combined
     assert "guaranteed" not in combined
+
+
+def test_rule_summary_preserves_ant_localism() -> None:
+    result = NewsSummaryGenerator().generate(
+        _context(
+            title="개미 순매수 확대",
+            snippet="개미가 상반기 국내 주식을 순매수했다.",
+            content="개미 투자자는 상반기 반도체주를 중심으로 큰 규모의 순매수를 기록했다.",
+        )
+    )
+
+    combined = f"{result.what} {result.why} {result.impact}"
+    assert "Ant" in combined
+    assert "retail investor" not in combined.lower()
