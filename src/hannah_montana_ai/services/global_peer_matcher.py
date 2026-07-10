@@ -8,9 +8,13 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 from hannah_montana_ai.domain.schemas import (
+    GlobalPeerComparison,
+    GlobalPeerComparisonDimension,
+    GlobalPeerKeyStrength,
     GlobalPeerMatch,
     GlobalPeerMatchRequest,
     GlobalPeerMatchResponse,
+    GlobalPeerStrengthIconKey,
 )
 from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationContext,
@@ -38,6 +42,7 @@ from hannah_montana_ai.training.stock_universe import StockUniverseEntry
 
 ConfidenceLevel = Literal["LOW", "MEDIUM", "HIGH"]
 PAIRWISE_CANDIDATE_POOL_SIZE = 512
+COMPARISON_LIMIT = 3
 
 
 class GlobalPeerMatcher:
@@ -64,6 +69,10 @@ class GlobalPeerMatcher:
         self._pairwise_ranker = payload["pairwise_ranker"]
         self._pairwise_feature_names = tuple(payload["pairwise_feature_names"])
         self._eligible_us_profiles = list(payload["eligible_us_profiles"])
+        self._eligible_us_index_by_ticker = {
+            str(profile.get("identifier") or ""): index
+            for index, profile in enumerate(self._eligible_us_profiles)
+        }
         self._us_market_cap_percentiles = self._market_cap_percentiles(self._eligible_us_profiles)
         self._korea_profiles = dict(payload["korea_profiles"])
         self._explainer = explainer or GlobalPeerExplanationGenerator()
@@ -115,6 +124,14 @@ class GlobalPeerMatcher:
             for rank, index in enumerate(selected_indices, start=1)
         ]
         primary_peer = peers[0]
+        comparisons = self._build_comparisons(
+            request=request,
+            stock_profile=stock_profile,
+            ranked_indices=[int(index) for index in ranked_indices],
+            similarities=similarities,
+            financial_similarities=financial_similarities,
+        )
+        key_strengths = self._build_key_strengths(request, stock_profile)
         confidence_score = self._calibrated_confidence_score(
             stock_profile=stock_profile,
             primary_peer=primary_peer,
@@ -136,6 +153,8 @@ class GlobalPeerMatcher:
             summary=explanation.summary,
             primary_peer=primary_peer,
             peers=peers,
+            comparisons=comparisons,
+            key_strengths=key_strengths,
             confidence_score=round(confidence_score, 4),
             confidence_level=confidence_level,
             model_version=self.version,
@@ -143,6 +162,427 @@ class GlobalPeerMatcher:
             explanation_source=explanation.source,
             explanation_model_version=explanation.model_version,
             explanation_prompt_version=explanation.prompt_version,
+        )
+
+    def _build_comparisons(
+        self,
+        *,
+        request: GlobalPeerMatchRequest,
+        stock_profile: dict[str, object],
+        ranked_indices: list[int],
+        similarities: np.ndarray,
+        financial_similarities: np.ndarray,
+    ) -> list[GlobalPeerComparison]:
+        anchor = KOREA_ANCHORS.get(request.stock_code)
+        comparisons: list[GlobalPeerComparison] = []
+        selected_indices: list[int] = []
+
+        if anchor and anchor.comparison_dimensions:
+            for spec in anchor.comparison_dimensions[:COMPARISON_LIMIT]:
+                index = self._eligible_us_index_by_ticker.get(spec.preferred_peer_ticker)
+                if index is None or index in selected_indices:
+                    continue
+                selected_indices.append(index)
+                comparisons.append(
+                    GlobalPeerComparison(
+                        dimension=cast(GlobalPeerComparisonDimension, spec.dimension),
+                        description=spec.description,
+                        peer=self._to_peer_match(
+                            rank=len(comparisons) + 1,
+                            profile=self._eligible_us_profiles[index],
+                            score=float(similarities[index]),
+                            financial_score=float(financial_similarities[index]),
+                            request=request,
+                            stock_profile=stock_profile,
+                        ),
+                    )
+                )
+
+        if len(comparisons) < COMPARISON_LIMIT:
+            dimensions = self._general_comparison_dimensions(stock_profile)
+            used_dimensions = {comparison.dimension for comparison in comparisons}
+            for dimension in dimensions:
+                if dimension in used_dimensions:
+                    continue
+                index = self._select_comparison_index(
+                    dimension=dimension,
+                    stock_profile=stock_profile,
+                    ranked_indices=ranked_indices,
+                    selected_indices=selected_indices,
+                    similarities=similarities,
+                )
+                if index is None:
+                    continue
+                selected_indices.append(index)
+                used_dimensions.add(dimension)
+                peer = self._to_peer_match(
+                    rank=len(comparisons) + 1,
+                    profile=self._eligible_us_profiles[index],
+                    score=float(similarities[index]),
+                    financial_score=float(financial_similarities[index]),
+                    request=request,
+                    stock_profile=stock_profile,
+                )
+                comparisons.append(
+                    GlobalPeerComparison(
+                        dimension=dimension,
+                        description=self._comparison_description(request, dimension, peer),
+                        peer=peer,
+                    )
+                )
+                if len(comparisons) == COMPARISON_LIMIT:
+                    break
+        return comparisons
+
+    def _select_comparison_index(
+        self,
+        *,
+        dimension: GlobalPeerComparisonDimension,
+        stock_profile: dict[str, object],
+        ranked_indices: list[int],
+        selected_indices: list[int],
+        similarities: np.ndarray,
+    ) -> int | None:
+        selected_families = {
+            self._company_family(self._eligible_us_profiles[index])
+            for index in selected_indices
+        }
+        strict_modes = (
+            (True, False)
+            if dimension in {"overall_business", "operational_scale"}
+            else (True,)
+        )
+        for strict in strict_modes:
+            best_index: int | None = None
+            best_score = float("-inf")
+            for index in ranked_indices[:PAIRWISE_CANDIDATE_POOL_SIZE]:
+                if index in selected_indices:
+                    continue
+                profile = self._eligible_us_profiles[index]
+                if self._company_family(profile) in selected_families:
+                    continue
+                dimension_fit = self._dimension_fit(dimension, profile)
+                if strict and not self._comparison_domain_compatible(
+                    stock_profile,
+                    profile,
+                    dimension,
+                    dimension_fit,
+                ):
+                    continue
+                familiarity = self._score(profile.get("familiarity_score"))
+                completeness = self._score(profile.get("profile_completeness_score"))
+                reliability = self._score(profile.get("market_cap_reliability_score"))
+                redundancy = max(
+                    (
+                        self._profile_redundancy(
+                            profile,
+                            self._eligible_us_profiles[selected],
+                        )
+                        for selected in selected_indices
+                    ),
+                    default=0.0,
+                )
+                score = (
+                    float(similarities[index])
+                    + (0.14 * dimension_fit)
+                    + (0.10 * familiarity)
+                    + (0.06 * completeness)
+                    + (0.02 * reliability)
+                    - (0.16 * redundancy)
+                )
+                if score > best_score:
+                    best_index = index
+                    best_score = score
+            if best_index is not None:
+                return best_index
+        return None
+
+    @staticmethod
+    def _comparison_domain_compatible(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+        dimension: GlobalPeerComparisonDimension,
+        dimension_fit: float,
+    ) -> bool:
+        generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+        generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+        stock_sector = str(stock_profile.get("sector") or "Unclassified")
+        peer_sector = str(peer_profile.get("sector") or "Unclassified")
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        if (
+            stock_sector not in generic_sectors
+            and peer_sector not in generic_sectors
+            and stock_sector != peer_sector
+        ):
+            return False
+        if dimension in {"overall_business", "operational_scale"}:
+            return stock_industry in generic_industries or peer_industry == stock_industry
+        return dimension_fit >= 0.5
+
+    @staticmethod
+    def _company_family(profile: dict[str, object]) -> str:
+        normalized = normalize_profile_text(str(profile.get("display_name") or ""))
+        tokens = normalized.split()
+        if "class" in tokens:
+            tokens = tokens[: tokens.index("class")]
+        ignored_tokens = {"class", "a", "b", "c", "common", "stock"}
+        return " ".join(token for token in tokens if token not in ignored_tokens)
+
+    @staticmethod
+    def _general_comparison_dimensions(
+        stock_profile: dict[str, object],
+    ) -> list[GlobalPeerComparisonDimension]:
+        raw_tags = stock_profile.get("business_tags", [])
+        tags = [str(tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
+        dimensions: list[GlobalPeerComparisonDimension] = ["overall_business"]
+        for value in [*tags, str(stock_profile.get("industry") or "")]:
+            dimension = GlobalPeerMatcher._dimension_for(value)
+            if dimension not in dimensions:
+                dimensions.append(dimension)
+        if "operational_scale" not in dimensions:
+            dimensions.append("operational_scale")
+        return dimensions
+
+    @staticmethod
+    def _dimension_for(value: str) -> GlobalPeerComparisonDimension:
+        normalized = value.lower()
+        mappings: tuple[tuple[tuple[str, ...], GlobalPeerComparisonDimension], ...] = (
+            (("memory", "dram", "nand", "hbm"), "memory"),
+            (("foundry", "fab"), "foundry"),
+            (("semiconductor", "chip"), "semiconductor"),
+            (("consumer electronics", "appliance"), "consumer_electronics"),
+            (("payment",), "payments"),
+            (("bank", "financial", "insurance", "holding"), "financial_services"),
+            (("drug delivery",), "drug_delivery"),
+            (("bio", "pharma", "health"), "biotechnology"),
+            (("software", "platform", "internet", "cloud"), "software_platform"),
+            (("battery",), "battery"),
+            (("auto", "vehicle", "mobility"), "automotive"),
+            (("telecom", "communication"), "telecommunications"),
+            (("energy", "power", "oil", "gas"), "energy"),
+            (("material", "chemical", "steel", "metal"), "materials"),
+            (("industrial", "machinery", "construction", "engineering"), "industrial"),
+            (("retail", "commerce", "food", "consumer brand"), "commerce"),
+            (("media", "gaming", "entertainment", "content", "advertising"), "media"),
+        )
+        return next(
+            (
+                dimension
+                for keywords, dimension in mappings
+                if any(keyword in normalized for keyword in keywords)
+            ),
+            "operational_scale",
+        )
+
+    @staticmethod
+    def _dimension_fit(
+        dimension: GlobalPeerComparisonDimension,
+        profile: dict[str, object],
+    ) -> float:
+        if dimension == "overall_business":
+            return GlobalPeerMatcher._score(profile.get("profile_completeness_score"))
+        raw_tags = profile.get("business_tags", [])
+        tags = raw_tags if isinstance(raw_tags, list) else []
+        searchable = " ".join(
+            [
+                str(profile.get("profile_text") or ""),
+                " ".join(str(tag) for tag in tags),
+                str(profile.get("industry") or ""),
+                str(profile.get("business_model") or ""),
+            ]
+        ).lower()
+        dimension_terms = {
+            "semiconductor": ("semiconductor", "chip"),
+            "semiconductor_ds": ("semiconductor", "logic", "data center"),
+            "memory": ("memory", "dram", "nand", "hbm"),
+            "foundry": ("foundry", "contract chip", "fab"),
+            "consumer_electronics": ("consumer electronics", "device", "appliance"),
+            "software_platform": ("software", "platform", "cloud", "internet"),
+            "financial_services": ("bank", "financial", "insurance", "holding"),
+            "payments": ("payment", "wallet", "checkout"),
+            "biotechnology": ("biotech", "biologics", "pharma"),
+            "drug_delivery": ("drug delivery", "hyaluronidase", "subcutaneous"),
+            "battery": ("battery", "energy storage"),
+            "automotive": ("automotive", "vehicle", "mobility"),
+            "telecommunications": ("telecom", "wireless", "network"),
+            "energy": ("energy", "power", "oil", "gas"),
+            "materials": ("material", "chemical", "steel", "metal"),
+            "industrial": ("industrial", "machinery", "construction", "engineering"),
+            "commerce": ("retail", "commerce", "merchant", "consumer"),
+            "media": ("media", "content", "gaming", "entertainment"),
+            "operational_scale": ("mega cap", "large cap", "mid cap", "scale"),
+            "overall_business": (),
+        }[dimension]
+        matches = sum(term in searchable for term in dimension_terms)
+        return min(1.0, matches / max(1, min(2, len(dimension_terms))))
+
+    @staticmethod
+    def _profile_redundancy(
+        left: dict[str, object],
+        right: dict[str, object],
+    ) -> float:
+        left_raw_tags = left.get("business_tags", [])
+        right_raw_tags = right.get("business_tags", [])
+        left_values = left_raw_tags if isinstance(left_raw_tags, list) else []
+        right_values = right_raw_tags if isinstance(right_raw_tags, list) else []
+        left_tags = {str(tag).lower() for tag in left_values}
+        right_tags = {str(tag).lower() for tag in right_values}
+        union = left_tags | right_tags
+        tag_overlap = len(left_tags & right_tags) / len(union) if union else 0.0
+        same_industry = str(left.get("industry")) == str(right.get("industry"))
+        return min(1.0, (0.6 * tag_overlap) + (0.4 if same_industry else 0.0))
+
+    @staticmethod
+    def _comparison_description(
+        request: GlobalPeerMatchRequest,
+        dimension: GlobalPeerComparisonDimension,
+        peer: GlobalPeerMatch,
+    ) -> str:
+        subject = GlobalPeerExplanationGenerator._stock_display_name(request)
+        label = dimension.replace("_", " ")
+        industry = (
+            peer.industry
+            if peer.industry not in {"", "Unclassified", GENERIC_LISTED_INDUSTRY}
+            else peer.business_model
+        )
+        return (
+            f"{peer.company_name} provides the {label} reference for {subject}; "
+            f"its {industry.lower()} profile is the strongest quality-adjusted fit "
+            "for this comparison dimension."
+        )
+
+    @staticmethod
+    def _build_key_strengths(
+        request: GlobalPeerMatchRequest,
+        stock_profile: dict[str, object],
+    ) -> list[GlobalPeerKeyStrength]:
+        anchor = KOREA_ANCHORS.get(request.stock_code)
+        if anchor and len(anchor.key_strengths) == 4:
+            return [
+                GlobalPeerKeyStrength(
+                    title=item.title,
+                    description=item.description,
+                    icon_key=cast(GlobalPeerStrengthIconKey, item.icon_key),
+                )
+                for item in anchor.key_strengths
+            ]
+
+        subject = GlobalPeerExplanationGenerator._stock_display_name(request)
+        business_summary = str(stock_profile.get("business_summary") or "").strip()
+        evidence_label = (
+            "company business summary and industry profile"
+            if business_summary
+            else "industry and market profile"
+        )
+        raw_tags = stock_profile.get("business_tags", [])
+        tags = [str(tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
+        strengths: list[GlobalPeerKeyStrength] = []
+        seen_titles: set[str] = set()
+        seen_descriptions: set[str] = set()
+
+        def add(title: str, description: str, source_value: str) -> None:
+            if len(strengths) == 4:
+                return
+            title_key = title.strip().lower()
+            description_key = " ".join(description.lower().split())
+            if not title_key or not description_key:
+                return
+            if title_key in seen_titles or description_key in seen_descriptions:
+                return
+            seen_titles.add(title_key)
+            seen_descriptions.add(description_key)
+            strengths.append(
+                GlobalPeerKeyStrength(
+                    title=title.strip(),
+                    description=" ".join(description.split()),
+                    icon_key=GlobalPeerMatcher._strength_icon_key(source_value),
+                )
+            )
+
+        for tag in tags:
+            if tag == "general listed company":
+                continue
+            title = GlobalPeerMatcher._title_label(tag)
+            add(
+                title,
+                f"{subject}'s {evidence_label} identifies {tag} as a core operating area.",
+                tag,
+            )
+
+        industry = str(stock_profile.get("industry") or "")
+        if industry not in {"", "Unclassified", GENERIC_LISTED_INDUSTRY}:
+            add(
+                "Industry Position",
+                f"{subject} is classified in {industry}, grounding its cross-market peer set.",
+                industry,
+            )
+        business_model = str(stock_profile.get("business_model") or "Operating company")
+        add(
+            "Business Model",
+            f"{subject} operates through {business_model.lower()}.",
+            business_model,
+        )
+        scale_bucket = str(stock_profile.get("scale_bucket") or "UNKNOWN")
+        scale_label = scale_bucket.replace("_", " ").lower()
+        add(
+            "Operational Scale",
+            f"{subject} is evaluated as a {scale_label} company in the global peer universe.",
+            "operational scale",
+        )
+        sector = str(stock_profile.get("sector") or GENERIC_LISTED_SECTOR)
+        add(
+            "Sector Footprint",
+            f"{subject}'s source profile places its primary operations in {sector}.",
+            sector,
+        )
+        add(
+            "Global Business",
+            f"{subject} has a complete listed-company profile for global reference analysis.",
+            "global business",
+        )
+        if len(strengths) != 4:
+            raise ModelArtifactInvalidError(
+                "Global peer strength generation must produce four items"
+            )
+        return strengths
+
+    @staticmethod
+    def _title_label(value: str) -> str:
+        return " ".join(part.capitalize() for part in value.replace("_", " ").split())
+
+    @staticmethod
+    def _strength_icon_key(value: str) -> GlobalPeerStrengthIconKey:
+        normalized = value.lower()
+        mappings: tuple[tuple[tuple[str, ...], GlobalPeerStrengthIconKey], ...] = (
+            (("memory", "dram", "nand", "hbm"), "memory"),
+            (("foundry", "fab"), "foundry"),
+            (("artificial intelligence", " ai ", "data center"), "ai"),
+            (("ecosystem",), "ecosystem"),
+            (("semiconductor", "chip"), "semiconductor"),
+            (("consumer electronics", "appliance", "device"), "consumer_electronics"),
+            (("payment", "wallet", "checkout"), "payments"),
+            (("bank", "financial", "insurance", "holding"), "financial_services"),
+            (("drug delivery", "subcutaneous"), "drug_delivery"),
+            (("bio", "pharma", "health"), "biotechnology"),
+            (("software", "platform", "cloud", "internet"), "software_platform"),
+            (("battery", "energy storage"), "battery"),
+            (("auto", "vehicle", "mobility"), "automotive"),
+            (("telecom", "wireless", "network"), "telecommunications"),
+            (("energy", "power", "oil", "gas"), "energy"),
+            (("material", "chemical", "steel", "metal"), "materials"),
+            (("industrial", "machinery", "construction", "engineering"), "industrial"),
+            (("retail", "commerce", "consumer", "food"), "commerce"),
+            (("media", "content", "gaming", "entertainment", "advertising"), "media"),
+            (("scale", "mega cap", "large cap", "mid cap"), "operational_scale"),
+        )
+        return next(
+            (
+                icon
+                for keywords, icon in mappings
+                if any(keyword in normalized for keyword in keywords)
+            ),
+            "global_business",
         )
 
     @classmethod
@@ -267,10 +707,6 @@ class GlobalPeerMatcher:
             + (0.20 * financial_similarities)
         )
         for index in range(len(self._eligible_us_profiles)):
-            base_scores[index] *= self._domain_priority_multiplier(
-                stock_profile,
-                self._eligible_us_profiles[index],
-            )
             base_scores[index] *= self._same_company_penalty(
                 stock_profile,
                 self._eligible_us_profiles[index],
@@ -305,7 +741,16 @@ class GlobalPeerMatcher:
         ranker_scores = self._pairwise_ranker.predict_proba(feature_rows)[:, 1]
         for position, index in enumerate(candidate_indices):
             financial_score = financial_similarities[index]
-            combined[index] = (0.60 * ranker_scores[position]) + (0.40 * base_scores[index])
+            peer_profile = self._eligible_us_profiles[index]
+            familiarity = float(peer_profile.get("familiarity_score") or 0.0)
+            completeness = float(peer_profile.get("profile_completeness_score") or 0.0)
+            combined[index] = (
+                (0.55 * ranker_scores[position])
+                + (0.35 * base_scores[index])
+                + (0.06 * familiarity)
+                + (0.04 * completeness)
+            )
+            combined[index] *= self._domain_priority_multiplier(stock_profile, peer_profile)
             candidate_vector = self._eligible_us_profiles[index].get("financial_feature_vector", [])
             if (
                 financial_similarities.any()
@@ -482,6 +927,9 @@ class GlobalPeerMatcher:
                     peer_profile.get("revenue_usd"),
                 )
             ),
+            self._score(peer_profile.get("familiarity_score")),
+            self._score(peer_profile.get("profile_completeness_score")),
+            self._score(peer_profile.get("market_cap_reliability_score")),
         ]
         if len(values) != len(self._pairwise_feature_names):
             raise ModelArtifactInvalidError("Global peer pairwise feature count mismatch")
@@ -550,14 +998,16 @@ class GlobalPeerMatcher:
             score=score,
             financial_score=financial_score,
         )
+        subject_name = GlobalPeerExplanationGenerator._stock_display_name(request)
         rationale = (
-            f"Both companies map to the global {primary_tag} peer group based on "
-            "sector, industry, business model, scale, and trained cross-market profile similarity."
+            f"{profile['display_name']} is selected as the global {primary_tag} reference for "
+            f"{subject_name} based on sector, industry, business model, scale, and "
+            "trained cross-market profile similarity."
         )
         if request.stock_code == "196170" and profile.get("identifier") == "HALO":
             rationale = (
-                "Both companies are biotech platform providers centered on drug-delivery "
-                "technology, subcutaneous formulation conversion, and royalty-style licensing."
+                "Halozyme Therapeutics is the drug-delivery platform reference for Alteogen "
+                "because its hyaluronidase-enabled formulation and licensing model is comparable."
             )
         return GlobalPeerMatch(
             rank=rank,
@@ -590,21 +1040,25 @@ class GlobalPeerMatcher:
         score: float,
         financial_score: float,
     ) -> list[str]:
+        subject_name = GlobalPeerExplanationGenerator._stock_display_name(request)
+        peer_name = str(
+            peer_profile.get("display_name") or peer_profile.get("identifier") or "peer"
+        )
         if request.stock_code == "196170" and peer_profile.get("identifier") == "HALO":
             return [
-                "Sector: both are Health Care companies.",
-                "Industry: both operate in Biotechnology.",
+                "Sector: Alteogen and Halozyme Therapeutics are Health Care companies.",
+                "Industry: Alteogen and Halozyme Therapeutics operate in Biotechnology.",
                 (
-                    "Business model: both monetize platform drug-delivery technology "
-                    "through licensing, milestones, and royalties."
+                    "Business model: Alteogen and Halozyme Therapeutics monetize platform "
+                    "drug-delivery technology through licensing, milestones, and royalties."
                 ),
                 (
-                    "Technology: both are associated with hyaluronidase-enabled "
-                    "IV-to-SC formulation conversion."
+                    "Technology: Alteogen and Halozyme Therapeutics are associated with "
+                    "hyaluronidase-enabled IV-to-SC formulation conversion."
                 ),
                 (
-                    "Scale: both are treated as mid-cap biotech platform peers in the "
-                    "curated anchor set."
+                    "Scale: Alteogen and Halozyme Therapeutics are treated as mid-cap "
+                    "biotech platform references in the curated anchor set."
                 ),
                 (
                     "Financial similarity: market cap, revenue, and profitability "
@@ -616,28 +1070,28 @@ class GlobalPeerMatcher:
         stock_sector = str(stock_profile.get("sector") or "Unclassified")
         peer_sector = str(peer_profile.get("sector") or "Unclassified")
         if stock_sector == peer_sector and stock_sector != "Unclassified":
-            factors.append(f"Sector: both are mapped to {stock_sector}.")
+            factors.append(f"Sector: {subject_name} and {peer_name} map to {stock_sector}.")
         else:
             factors.append(f"Sector: source={stock_sector}, peer={peer_sector}.")
 
         stock_industry = str(stock_profile.get("industry") or "Unclassified")
         peer_industry = str(peer_profile.get("industry") or "Unclassified")
         if stock_industry == peer_industry and stock_industry != "Unclassified":
-            factors.append(f"Industry: both are mapped to {stock_industry}.")
+            factors.append(f"Industry: {subject_name} and {peer_name} map to {stock_industry}.")
         else:
             factors.append(f"Industry: source={stock_industry}, peer={peer_industry}.")
 
         stock_model = str(stock_profile.get("business_model") or "Operating company")
         peer_model = str(peer_profile.get("business_model") or "Operating company")
         if stock_model == peer_model:
-            factors.append(f"Business model: both are mapped to {stock_model}.")
+            factors.append(f"Business model: {subject_name} and {peer_name} map to {stock_model}.")
         else:
             factors.append(f"Business model: source={stock_model}, peer={peer_model}.")
 
         stock_scale = str(stock_profile.get("scale_bucket") or "UNKNOWN")
         peer_scale = str(peer_profile.get("scale_bucket") or "UNKNOWN")
         if stock_scale != "UNKNOWN" and stock_scale == peer_scale:
-            factors.append(f"Scale: both are mapped to {stock_scale}.")
+            factors.append(f"Scale: {subject_name} and {peer_name} map to {stock_scale}.")
         else:
             factors.append(f"Scale: source={stock_scale}, peer={peer_scale}.")
 
@@ -739,7 +1193,15 @@ class GlobalPeerMatcher:
         for profile in profiles:
             identifier = str(profile.get("identifier") or "")
             market_cap = profile.get("market_cap_usd")
-            if not identifier or not isinstance(market_cap, int | float) or market_cap <= 0:
+            reliability = GlobalPeerMatcher._score(
+                profile.get("market_cap_reliability_score")
+            )
+            if (
+                not identifier
+                or not isinstance(market_cap, int | float)
+                or market_cap <= 0
+                or reliability < 0.5
+            ):
                 continue
             values.append((identifier, float(market_cap)))
         values.sort(key=lambda item: item[1])
@@ -755,6 +1217,12 @@ class GlobalPeerMatcher:
         if isinstance(value, int | float | str):
             return float(value)
         raise TypeError("optional float field must be numeric")
+
+    @staticmethod
+    def _score(value: object) -> float:
+        if isinstance(value, int | float | str):
+            return float(value)
+        return 0.0
 
     @staticmethod
     def _optional_int(value: object) -> int | None:

@@ -27,5 +27,31 @@ def test_global_peer_match_api_returns_alteogen_halozyme_popup_copy() -> None:
     assert data["source"] == "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     assert data["explanation_source"] == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
     assert data["explanation_prompt_version"] == "global-peer-structured-rag-explainer-v8"
+    assert len(data["comparisons"]) == 3
+    assert len(data["key_strengths"]) == 4
+    assert data["comparisons"][0]["dimension"] == "overall_business"
+    assert data["key_strengths"][0]["icon_key"] in {
+        "memory",
+        "foundry",
+        "ai",
+        "ecosystem",
+        "semiconductor",
+        "consumer_electronics",
+        "software_platform",
+        "financial_services",
+        "payments",
+        "biotechnology",
+        "drug_delivery",
+        "battery",
+        "automotive",
+        "telecommunications",
+        "energy",
+        "materials",
+        "industrial",
+        "commerce",
+        "media",
+        "global_business",
+        "operational_scale",
+    }
     assert "similarity score" not in data["summary"].lower()
     assert "confidence" not in data["summary"].lower()

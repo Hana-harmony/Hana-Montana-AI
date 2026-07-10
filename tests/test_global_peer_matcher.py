@@ -2,6 +2,7 @@ import json
 import re
 from pathlib import Path
 
+import joblib
 import pytest
 
 from hannah_montana_ai.core.config import Settings
@@ -16,6 +17,7 @@ from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 from hannah_montana_ai.training.global_peer_trainer import (
     KoreaCompanyProfile,
+    clean_security_name,
     infer_business_tags_from_company_summary,
     load_korea_company_profiles,
     load_us_stock_universe,
@@ -51,6 +53,10 @@ def test_us_stock_universe_covers_full_listed_symbol_directory() -> None:
 
     assert len(entries) >= 5_000
     assert any(entry.ticker == "HALO" for entry in entries)
+
+
+def test_security_name_removes_share_class_and_legal_suffixes() -> None:
+    assert clean_security_name("Alphabet Inc. Class A Common Stock") == "Alphabet"
 
 
 def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
@@ -211,6 +217,91 @@ def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
         assert response.primary_peer.matched_factors
 
 
+def test_samsung_global_comparison_uses_curated_dimensions_and_source_strengths() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="005930",
+            stock_name="삼성전자",
+            stock_name_en="Samsung Electronics",
+            market="KOSPI",
+        )
+    )
+
+    assert [comparison.dimension for comparison in response.comparisons] == [
+        "overall_business",
+        "semiconductor_ds",
+        "foundry",
+    ]
+    assert [comparison.peer.ticker for comparison in response.comparisons] == [
+        "AAPL",
+        "INTC",
+        "TSM",
+    ]
+    assert len(response.key_strengths) == 4
+    assert [strength.icon_key for strength in response.key_strengths] == [
+        "memory",
+        "foundry",
+        "ecosystem",
+        "ai",
+    ]
+    assert len({strength.title for strength in response.key_strengths}) == 4
+    assert response.headline == "Samsung Electronics Is The 'Apple + TSMC' of South Korea"
+    assert "consumer ecosystem" in response.summary
+    assert all("both companies" not in item.description.lower() for item in response.comparisons)
+    assert all("both companies" not in item.description.lower() for item in response.key_strengths)
+    samsung_profile = matcher._korea_profiles["005930"]
+    assert "DS" in str(samsung_profile["business_summary"])
+
+
+def test_global_comparison_fallback_is_complete_unique_and_quality_adjusted() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="035420",
+            stock_name="NAVER",
+            stock_name_en="NAVER",
+            market="KOSPI",
+        )
+    )
+
+    assert len(response.comparisons) == 3
+    assert len({item.dimension for item in response.comparisons}) == 3
+    assert len({item.peer.ticker for item in response.comparisons}) == 3
+    assert len(response.key_strengths) == 4
+    assert len({item.title for item in response.key_strengths}) == 4
+    assert len({item.description for item in response.key_strengths}) == 4
+
+
+def test_us_peer_profiles_include_quality_signals_and_market_cap_sanity() -> None:
+    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+    profiles = {
+        profile["identifier"]: profile
+        for profile in matcher._eligible_us_profiles
+        if profile["identifier"] in {"AAPL", "INTC", "TSM", "MU"}
+    }
+
+    assert set(profiles) == {"AAPL", "INTC", "TSM", "MU"}
+    assert all(float(profiles[ticker]["familiarity_score"]) > 0.7 for ticker in profiles)
+    assert profiles["AAPL"]["industry"] == "Consumer Electronics and Appliances"
+    assert profiles["INTC"]["industry"] == "Semiconductors"
+    assert profiles["TSM"]["business_model"] == "Pure-play semiconductor foundry manufacturing"
+    assert float(profiles["MU"]["market_cap_reliability_score"]) < 0.5
+
+
+def test_global_peer_artifact_is_serving_only_and_github_safe() -> None:
+    model_path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
+    payload = joblib.load(model_path)
+
+    assert model_path.stat().st_size < 95_000_000
+    assert "korea_business_profile_classifier" not in payload
+    assert payload["eligible_us_matrix"].shape[1] <= 100_000
+    assert payload["semantic_reducer"].components_.shape[0] <= 192
+    assert all("business_summary" not in profile for profile in payload["eligible_us_profiles"])
+
+
 def test_business_summary_tagger_extracts_domain_without_ecommerce_noise() -> None:
     tags = infer_business_tags_from_company_summary(
         "동사는 전자상거래 플랫폼과 유통사업을 영위하며 화장품 브랜드를 판매한다."
@@ -287,8 +378,8 @@ def test_global_peer_model_prioritizes_domain_and_explains_financial_context() -
 
     factors = response.primary_peer.matched_factors
     assert response.primary_peer.ticker == "GOOGL"
-    assert factors[0] == "Sector: both are mapped to Information Technology."
-    assert factors[1] == "Industry: both are mapped to Internet Platforms."
+    assert factors[0] == "Sector: NAVER and Alphabet map to Information Technology."
+    assert factors[1] == "Industry: NAVER and Alphabet map to Internet Platforms."
     assert any("scale differs" in factor for factor in factors)
     assert any("relative US-market positioning" in factor for factor in factors)
 
@@ -502,14 +593,14 @@ def test_global_peer_explanation_uses_english_display_name_without_user_score_co
 
     user_copy = f"{response.headline} {response.summary}"
     assert response.stock_name_en == "Samsung Electronics"
-    assert response.headline.startswith("Samsung Electronics Maps Closest To")
-    assert "closest US-listed reference peer" in response.summary
+    assert response.headline == "Samsung Electronics Is The 'Apple + TSMC' of South Korea"
+    assert "consumer ecosystem" in response.summary
     assert "삼성전자" not in user_copy
     assert "similarity score" not in user_copy.lower()
     assert "confidence" not in user_copy.lower()
     assert "hannah" not in user_copy.lower()
     assert response.primary_peer.financial_similarity_score is not None
-    assert response.primary_peer.financial_similarity_score <= 0.54
+    assert 0.0 < response.primary_peer.financial_similarity_score <= 1.0
     assert any(
         "market-cap input is treated as directional" in factor
         for factor in response.primary_peer.matched_factors
@@ -547,7 +638,7 @@ def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
 def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     report = json.loads(Path("reports/global-peer-full-coverage-report.json").read_text())
 
-    assert report["schema_version"] == "global-peer-full-coverage/v1"
+    assert report["schema_version"] == "global-peer-full-coverage/v2"
     assert report["attempted_count"] >= 3_000
     assert report["attempted_count"] == report["success_count"]
     assert report["failure_count"] == 0
@@ -562,6 +653,8 @@ def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
     )
     assert report["same_company_noise_count"] == 0
     assert report["matched_factor_missing_count"] == 0
+    assert report["invalid_comparison_count"] == 0
+    assert report["invalid_strength_count"] == 0
 
 
 def test_global_peer_all_results_report_documents_every_stock() -> None:

@@ -50,6 +50,8 @@ def build_global_peer_all_results_report(
         source_sector = str(stock_profile.get("sector") or "")
         source_industry = str(stock_profile.get("industry") or "")
         source_business_model = str(stock_profile.get("business_model") or "")
+        comparisons = [comparison.model_dump(mode="json") for comparison in response.comparisons]
+        key_strengths = [strength.model_dump(mode="json") for strength in response.key_strengths]
         row = {
             "stock_code": stock.stock_code,
             "stock_name": stock.stock_name,
@@ -87,6 +89,12 @@ def build_global_peer_all_results_report(
             "financial_context": _financial_context(primary.matched_factors),
             "same_company_noise": _is_same_company_noise(stock, primary.company_name),
             "matched_factors": primary.matched_factors,
+            "comparison_tickers": [comparison.peer.ticker for comparison in response.comparisons],
+            "comparison_dimensions": [comparison.dimension for comparison in response.comparisons],
+            "comparisons": comparisons,
+            "key_strength_titles": [strength.title for strength in response.key_strengths],
+            "key_strength_icon_keys": [strength.icon_key for strength in response.key_strengths],
+            "key_strengths": key_strengths,
             "headline": response.headline,
             "summary": response.summary,
             "model_version": response.model_version,
@@ -206,6 +214,12 @@ def _report(
         specific_profile_low_count / specific_profile_count if specific_profile_count else 1.0
     )
     same_company_noise_count = sum(1 for row in rows if bool(row["same_company_noise"]))
+    presentation_contract_failure_count = sum(
+        1
+        for row in rows
+        if len(cast(list[object], row["comparisons"])) != 3
+        or len(cast(list[object], row["key_strengths"])) != 4
+    )
     performance = {
         "attempted_count": attempted_count,
         "success_count": success_count,
@@ -233,16 +247,18 @@ def _report(
             ),
         },
         "same_company_noise_count": same_company_noise_count,
+        "presentation_contract_failure_count": presentation_contract_failure_count,
         "quality_status": (
             "pass"
             if success_count == attempted_count
             and low_count / success_count < 0.35
             and same_company_noise_count == 0
+            and presentation_contract_failure_count == 0
             else "fail"
         ),
     }
     return {
-        "schema_version": "global-peer-all-results/v1",
+        "schema_version": "global-peer-all-results/v2",
         "generated_at": datetime.now(UTC).isoformat(),
         "model_version": model_version,
         "stock_universe_path": str(stock_universe_path),
@@ -278,7 +294,14 @@ def _write_csv(csv_path: Path, rows: list[dict[str, object]]) -> None:
         "financial_context",
         "same_company_noise",
         "matched_factors",
+        "comparison_tickers",
+        "comparison_dimensions",
+        "comparisons",
+        "key_strength_titles",
+        "key_strength_icon_keys",
+        "key_strengths",
         "headline",
+        "summary",
         "model_version",
         "source",
     ]
@@ -288,14 +311,18 @@ def _write_csv(csv_path: Path, rows: list[dict[str, object]]) -> None:
         for row in rows:
             writer.writerow(
                 {
-                    key: (
-                        " | ".join(cast(list[str], row[key]))
-                        if key == "matched_factors"
-                        else row.get(key, "")
-                    )
+                    key: _csv_value(row.get(key, ""))
                     for key in fieldnames
                 }
             )
+
+
+def _csv_value(value: object) -> object:
+    if not isinstance(value, list):
+        return value
+    if all(isinstance(item, str) for item in value):
+        return " | ".join(cast(list[str], value))
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
 def _write_markdown(doc_path: Path, report: dict[str, object]) -> None:
@@ -317,6 +344,7 @@ def _write_markdown(doc_path: Path, report: dict[str, object]) -> None:
         f"- financial context 분포: {performance['financial_context_distribution']}",
         f"- specific profile 품질: {performance['specific_profile_quality']}",
         f"- 동일회사 중복 노이즈: {performance['same_company_noise_count']}",
+        f"- 구조화 표시 계약 실패: {performance['presentation_contract_failure_count']}",
         f"- quality status: `{performance['quality_status']}`",
         "",
         "## 전체 종목 결과",
