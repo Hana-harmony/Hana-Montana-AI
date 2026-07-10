@@ -1,7 +1,7 @@
 {
-  "schema_version": "global-peer-hybrid-ranker/v3",
-  "version": "global-peer-hybrid-ranker-20260701011926",
-  "trained_at": "2026-07-01T01:19:26.023897+00:00",
+  "schema_version": "global-peer-hybrid-ranker/v4",
+  "version": "global-peer-hybrid-ranker-20260710173638",
+  "trained_at": "2026-07-10T17:36:38.307999+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
@@ -36,15 +36,16 @@
     "chemicals": 160,
     "construction": 425,
     "consumer brands": 171,
-    "consumer electronics": 14,
+    "consumer electronics": 15,
     "drug delivery": 3,
     "education": 49,
     "electrical equipment": 179,
     "energy": 743,
     "financials": 769,
     "food and beverage": 153,
+    "foundry": 2,
     "gaming": 52,
-    "general listed company": 9759,
+    "general listed company": 9757,
     "holding company": 1477,
     "home appliances": 1,
     "industrial machinery": 436,
@@ -53,15 +54,15 @@
     "leisure": 61,
     "logistics": 76,
     "materials": 375,
-    "media entertainment": 261,
+    "media entertainment": 262,
     "memory chips": 3,
-    "online advertising": 3,
+    "online advertising": 4,
     "real estate": 231,
     "retail": 77,
     "royalty licensing": 2,
-    "semiconductors": 552,
+    "semiconductors": 553,
     "shipbuilding": 96,
-    "software platform": 1483,
+    "software platform": 1484,
     "telecommunications": 128
   },
   "anchor_evaluation": {
@@ -72,98 +73,98 @@
         "stock_code": "000660",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
-        "score": 0.560774,
+        "score": 0.700566,
         "hit": true
       },
       {
         "stock_code": "005930",
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
-        "score": 0.201546,
+        "score": 0.289893,
         "hit": true
       },
       {
         "stock_code": "006400",
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "QS",
-        "score": 0.308071,
+        "score": 0.46087,
         "hit": true
       },
       {
         "stock_code": "017670",
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
-        "score": 0.630829,
+        "score": 0.690592,
         "hit": true
       },
       {
         "stock_code": "035420",
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
-        "score": 0.389641,
+        "score": 0.532768,
         "hit": true
       },
       {
         "stock_code": "051910",
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
-        "score": 0.503406,
+        "score": 0.667453,
         "hit": true
       },
       {
         "stock_code": "055550",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.207781,
+        "score": 0.276974,
         "hit": true
       },
       {
         "stock_code": "066570",
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "SONY",
-        "score": 0.358212,
+        "score": 0.505262,
         "hit": false
       },
       {
         "stock_code": "068270",
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
-        "score": 0.161859,
+        "score": 0.379034,
         "hit": true
       },
       {
         "stock_code": "086790",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.337959,
+        "score": 0.422401,
         "hit": true
       },
       {
         "stock_code": "105560",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.26526,
+        "score": 0.342938,
         "hit": true
       },
       {
         "stock_code": "196170",
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
-        "score": 0.479419,
+        "score": 0.697154,
         "hit": true
       },
       {
         "stock_code": "207940",
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
-        "score": 0.25525,
+        "score": 0.392296,
         "hit": true
       },
       {
         "stock_code": "373220",
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
-        "score": 0.39393,
+        "score": 0.546773,
         "hit": true
       }
     ]
@@ -179,7 +180,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.887123,
+        "score": 0.826577,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -188,7 +189,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.759984,
+        "score": 0.724479,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -197,7 +198,7 @@
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 2,
-        "score": 0.69253,
+        "score": 0.767446,
         "top1_hit": false,
         "top3_hit": true
       },
@@ -206,7 +207,7 @@
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
         "expected_peer_rank": 1,
-        "score": 0.839394,
+        "score": 0.847564,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -215,7 +216,7 @@
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
         "expected_peer_rank": 1,
-        "score": 0.78361,
+        "score": 0.81811,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -224,7 +225,7 @@
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
         "expected_peer_rank": 1,
-        "score": 0.85807,
+        "score": 0.832434,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -233,7 +234,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.744902,
+        "score": 0.78033,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -242,7 +243,7 @@
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "WHR",
         "expected_peer_rank": 1,
-        "score": 0.865307,
+        "score": 0.77154,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -251,7 +252,7 @@
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
         "expected_peer_rank": 1,
-        "score": 0.701534,
+        "score": 0.763312,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -260,7 +261,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.739157,
+        "score": 0.752427,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -269,7 +270,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.762633,
+        "score": 0.784827,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -278,7 +279,7 @@
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
         "expected_peer_rank": 1,
-        "score": 0.810522,
+        "score": 0.809498,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -287,7 +288,7 @@
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
         "expected_peer_rank": 1,
-        "score": 0.649026,
+        "score": 0.753609,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -296,7 +297,7 @@
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 1,
-        "score": 0.843416,
+        "score": 0.864299,
         "top1_hit": true,
         "top3_hit": true
       }
@@ -319,7 +320,10 @@
       "peer_revenue_log",
       "market_cap_log_gap",
       "revenue_log_gap",
-      "operating_margin_gap"
+      "operating_margin_gap",
+      "peer_familiarity",
+      "peer_profile_completeness",
+      "peer_market_cap_reliability"
     ],
     "candidate_count_by_stock": {
       "000660": 41,

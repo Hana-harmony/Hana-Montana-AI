@@ -33,5 +33,5 @@
 - 주문 상태 계약은 외부 KIS/PredictEngine 입력값을 받아 외국인 보유율, 한도소진율, 예측 지분율 구간, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
 - 인텔리전스 이벤트 계약은 기존 분석 결과에 번역 제목·요약, 금융 용어집 정규화 결과, 번역 품질 플래그를 붙여 현지 MTS WebSocket 패킷 형태로 패킹한다.
 - full-content v2 계약은 제목/snippet 모델을 baseline으로 유지하면서 전문이 있는 경우 전문 기반 요약, content hash, duplicate key, image URL metadata를 추가한다. 전문이 없으면 v1 출력과 `content_availability=SUMMARY_ONLY`로 응답한다.
-- 세무 서류 검증 계약은 외부 OCR 결과와 위변조 signal을 표준 `VERIFIED/PENDING/REJECTED` 결과로 판정한다.
+- 세무 서류 검증 계약은 하네스와 API가 공유하는 템플릿·영역 OCR 파이프라인과 위변조 signal을 표준 `VERIFIED/PENDING/REJECTED` 결과로 판정한다. 내부 계정 ID는 문서 진위의 필수 증거로 사용하지 않는다.
 - 세무 환급 계약은 OCR/위변조 검증 결과와 거래 원장을 입력받아 CASE_01 여부, 환급 가능액, 선지급 수수료, 사후 환수 플래그를 계산한다.

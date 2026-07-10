@@ -86,6 +86,66 @@ class GlobalPeerMatch(BaseModel):
     rationale: str = Field(min_length=1, max_length=800)
 
 
+GlobalPeerStrengthIconKey = Literal[
+    "memory",
+    "foundry",
+    "ai",
+    "ecosystem",
+    "semiconductor",
+    "consumer_electronics",
+    "software_platform",
+    "financial_services",
+    "payments",
+    "biotechnology",
+    "drug_delivery",
+    "battery",
+    "automotive",
+    "telecommunications",
+    "energy",
+    "materials",
+    "industrial",
+    "commerce",
+    "media",
+    "global_business",
+    "operational_scale",
+]
+
+GlobalPeerComparisonDimension = Literal[
+    "overall_business",
+    "semiconductor",
+    "semiconductor_ds",
+    "memory",
+    "foundry",
+    "consumer_electronics",
+    "software_platform",
+    "financial_services",
+    "payments",
+    "biotechnology",
+    "drug_delivery",
+    "battery",
+    "automotive",
+    "telecommunications",
+    "energy",
+    "materials",
+    "industrial",
+    "commerce",
+    "media",
+    "operational_scale",
+]
+
+
+class GlobalPeerComparison(BaseModel):
+    dimension: GlobalPeerComparisonDimension
+    description: str = Field(min_length=1, max_length=500)
+    peer: GlobalPeerMatch
+
+
+class GlobalPeerKeyStrength(BaseModel):
+    title: str = Field(min_length=1, max_length=80)
+    description: str = Field(min_length=1, max_length=320)
+    icon_key: GlobalPeerStrengthIconKey
+
+
 class GlobalPeerMatchResponse(BaseModel):
     stock_code: str
     stock_name: str
@@ -94,6 +154,8 @@ class GlobalPeerMatchResponse(BaseModel):
     summary: str = Field(min_length=1, max_length=1200)
     primary_peer: GlobalPeerMatch
     peers: list[GlobalPeerMatch] = Field(min_length=1, max_length=10)
+    comparisons: list[GlobalPeerComparison] = Field(min_length=1, max_length=3)
+    key_strengths: list[GlobalPeerKeyStrength] = Field(min_length=4, max_length=4)
     confidence_score: float = Field(ge=0.0, le=1.0)
     confidence_level: Literal["LOW", "MEDIUM", "HIGH"]
     model_version: str
@@ -435,7 +497,6 @@ class TaxDocumentVerificationRequest(BaseModel):
     content_type: str = Field(default="", max_length=120)
     ocr_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     fraud_signal_score: float = Field(default=0.0, ge=0.0, le=1.0)
-    expected_investor_id: str | None = Field(default=None, max_length=80)
     expected_residency_country: str | None = Field(default=None, min_length=2, max_length=2)
     extracted_fields: dict[str, str] = Field(default_factory=dict, max_length=30)
 

@@ -1,9 +1,9 @@
 [
   {
     "normalized_term": "개미",
-    "english_term": "retail investor",
+    "english_term": "Ant",
     "category": "market_slang",
-    "aliases": ["개인투자자", "동학개미", "서학개미", "retail investors", "individual investors", "ant", "ants", "gaemee", "gaemi"],
+    "aliases": ["개인투자자", "ant", "ants", "gaemee", "gaemi"],
     "definition": "Korean market slang for individual retail investors, often contrasted with institutions and foreign investors.",
     "plain_explanation": "\"개미\" means retail investors in Korea. In stock news, it usually refers to individual investors buying or selling a stock, often as a group separate from institutions and foreign investors.",
     "example": "개미가 순매수했다 means retail investors were net buyers.",
@@ -11,9 +11,9 @@
   },
   {
     "normalized_term": "대장주",
-    "english_term": "sector leader stock",
+    "english_term": "Daejangju",
     "category": "market_slang",
-    "aliases": ["대표주", "주도주", "bellwether stock", "leading stock", "market leader stock"],
+    "aliases": ["대표주", "주도주", "daejangju"],
     "definition": "A stock treated by local investors as the leading or most influential name in a market theme or sector.",
     "plain_explanation": "\"대장주\" means the leading stock in a theme or sector. Korean investors use it for the name that tends to move first or attract the most attention within a market narrative.",
     "example": "AI 대장주 means the leading AI-themed stock.",
@@ -21,7 +21,7 @@
   },
   {
     "normalized_term": "따상",
-    "english_term": "IPO double-and-limit-up",
+    "english_term": "Ttasang",
     "category": "ipo_slang",
     "aliases": ["따상상"],
     "definition": "Korean IPO slang originally used when a newly listed stock opened at twice its IPO price and then hit the daily upper price limit.",
@@ -31,7 +31,7 @@
   },
   {
     "normalized_term": "따따블",
-    "english_term": "IPO quadruple jump",
+    "english_term": "Ttattable",
     "category": "ipo_slang",
     "aliases": ["따블따블", "공모가 4배"],
     "definition": "Korean IPO slang for a newly listed stock rising to around four times its IPO price on its first trading day.",
@@ -41,7 +41,7 @@
   },
   {
     "normalized_term": "품절주",
-    "english_term": "low-float stock",
+    "english_term": "Pumjeolju",
     "category": "market_slang",
     "aliases": ["유통주식 부족", "저유동성주"],
     "definition": "A stock with a small freely tradable float, making price moves more sensitive to supply and demand.",
@@ -51,7 +51,7 @@
   },
   {
     "normalized_term": "쩜상",
-    "english_term": "gap-up limit-up",
+    "english_term": "Jjeomsang",
     "category": "market_slang",
     "aliases": ["점상", "시초가 상한가"],
     "definition": "Korean slang for a stock opening at or near the daily upper price limit with little or no trading beforehand.",
@@ -61,7 +61,7 @@
   },
   {
     "normalized_term": "작전주",
-    "english_term": "manipulation-suspected stock",
+    "english_term": "Jakjeonju",
     "category": "risk_slang",
     "aliases": ["주가조작 의심주"],
     "definition": "A stock suspected by market participants of being influenced by coordinated price manipulation or promotional trading.",
@@ -147,6 +147,166 @@
     "definition": "Korean market slang combining Samsung Electronics and SK hynix, usually used when local articles discuss the two major memory-chip stocks together.",
     "plain_explanation": "\"삼전닉스\" is a coined Korean market nickname for Samsung Electronics and SK hynix as a pair. Shorter forms such as \"삼닉\" are used in headlines. It helps foreign investors understand that the article is talking about Korea's two flagship memory-chip names together, not a separate listed company.",
     "example": "삼전닉스 강세 means Samsung Electronics and SK hynix rose together.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "동학개미",
+    "english_term": "Donghak Ant",
+    "category": "market_slang",
+    "aliases": ["동학 개미", "donghak ant", "donghak ants"],
+    "definition": "A Korean-market nickname for domestic individual investors whose buying became prominent during the 2020 market selloff.",
+    "plain_explanation": "\"동학개미\" is a Korean localism for domestic Ant investors. The name compares their collective participation in Korean stocks with the historic Donghak movement.",
+    "example": "동학개미 순매수 means Donghak Ant investors were net buyers.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "서학개미",
+    "english_term": "Seohak Ant",
+    "category": "market_slang",
+    "aliases": ["서학 개미", "seohak ant", "seohak ants"],
+    "definition": "A Korean-market nickname for Korean individual investors who invest in overseas securities.",
+    "plain_explanation": "\"서학개미\" means Korean Ant investors buying overseas stocks. It is commonly used in articles about US-stock trading and foreign-currency securities accounts.",
+    "example": "서학개미가 미국 기술주를 샀다 means Seohak Ant investors bought US technology stocks.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "빚투",
+    "english_term": "Bittu",
+    "category": "risk_slang",
+    "aliases": ["빚 투자", "bittu"],
+    "definition": "Korean slang for investing with borrowed money.",
+    "plain_explanation": "\"빚투\" is a Korean contraction meaning debt-funded investing. It highlights leverage and the risk that losses can exceed the investor's own cash contribution.",
+    "example": "빚투 증가 means Bittu debt-funded investing increased.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "영끌",
+    "english_term": "Yeongkkeul",
+    "category": "risk_slang",
+    "aliases": ["영혼까지 끌어모으다", "yeongkkeul"],
+    "definition": "Korean slang for mobilizing virtually every available source of money, often including loans, for an investment or purchase.",
+    "plain_explanation": "\"영끌\" means pulling together every available financial resource. In market coverage it signals concentrated exposure and possible borrowing risk.",
+    "example": "영끌 투자 means a Yeongkkeul all-in financing approach to investment.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "존버",
+    "english_term": "Jonbeo",
+    "category": "risk_slang",
+    "aliases": ["존버하다", "jonbeo"],
+    "definition": "Korean slang for continuing to hold an investment through severe volatility or losses.",
+    "plain_explanation": "\"존버\" means enduring and holding despite a difficult market move. The term describes investor behavior and is not investment advice.",
+    "example": "하락장에서 존버했다 means the investor used a Jonbeo hold-through-the-drop approach.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "물타기",
+    "english_term": "averaging down",
+    "category": "market_slang",
+    "aliases": ["추가매수", "평단 낮추기"],
+    "definition": "Buying more after a price decline to reduce the average purchase price.",
+    "plain_explanation": "\"물타기\" means averaging down after a stock falls. It lowers the average entry price but increases total exposure to the same position.",
+    "example": "주가 하락에 물타기했다 means the investor averaged down after the decline.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "불타기",
+    "english_term": "averaging up",
+    "category": "market_slang",
+    "aliases": ["상승 추가매수", "피라미딩"],
+    "definition": "Buying more after a price rise and thereby increasing a winning position.",
+    "plain_explanation": "\"불타기\" means averaging up as a stock rises. It expands exposure while momentum is positive and can raise the average purchase price.",
+    "example": "상승 추세에서 불타기했다 means the investor averaged up during the rally.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "손절",
+    "english_term": "cutting losses",
+    "category": "market_slang",
+    "aliases": ["손절매", "로스컷"],
+    "definition": "Selling a position at a loss to prevent further downside exposure.",
+    "plain_explanation": "\"손절\" means closing a losing position to limit further loss. Korean market articles often use it when volatility forces investors to reduce exposure.",
+    "example": "급락 후 손절 물량 means loss-cutting sales after a sharp drop.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "익절",
+    "english_term": "taking profits",
+    "category": "market_slang",
+    "aliases": ["차익실현", "이익실현"],
+    "definition": "Selling a position to realize an existing gain.",
+    "plain_explanation": "\"익절\" means selling to lock in a profit. It commonly appears in reports explaining selling pressure after a rally.",
+    "example": "익절 매물이 나왔다 means profit-taking supply appeared.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "상따",
+    "english_term": "Sangtta",
+    "category": "risk_slang",
+    "aliases": ["상한가 따라잡기", "sangtta"],
+    "definition": "Korean slang for chasing a stock at or near its daily upper price limit.",
+    "plain_explanation": "\"상따\" means buying while chasing an upper-limit move. It describes a high-volatility trading pattern with execution and reversal risk.",
+    "example": "상따 매수세 means Sangtta limit-up chasing demand.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "하따",
+    "english_term": "Hatta",
+    "category": "risk_slang",
+    "aliases": ["하한가 따라잡기", "hatta"],
+    "definition": "Korean slang for attempting to buy a stock at or near its daily lower price limit.",
+    "plain_explanation": "\"하따\" means attempting a rebound trade around the lower limit. It carries exceptional continuation and liquidity risk.",
+    "example": "하따 수요가 유입됐다 means Hatta lower-limit buying demand entered.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "불장",
+    "english_term": "bull market",
+    "category": "market_slang",
+    "aliases": ["불마켓", "강세장"],
+    "definition": "Korean slang for a broadly strong and enthusiastic rising market.",
+    "plain_explanation": "\"불장\" means a hot bull market. The expression emphasizes widespread gains and aggressive investor sentiment.",
+    "example": "코스닥 불장 means a strong KOSDAQ bull market.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "깡통계좌",
+    "english_term": "wiped-out account",
+    "category": "risk_slang",
+    "aliases": ["깡통 계좌", "반대매매 계좌"],
+    "definition": "An account whose equity has been almost entirely erased by investment losses, often after leverage or forced liquidation.",
+    "plain_explanation": "\"깡통계좌\" means an investment account left with little equity after severe losses. It is often associated with margin debt and forced selling.",
+    "example": "반대매매로 깡통계좌가 됐다 means forced liquidation nearly wiped out the account.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "검은머리 외국인",
+    "english_term": "Geomeunmeori foreign investor",
+    "category": "market_slang",
+    "aliases": ["검은머리외국인", "검머외"],
+    "definition": "Korean market slang alleging that apparently foreign capital is effectively controlled by Korean persons.",
+    "plain_explanation": "\"검은머리 외국인\" is a local label for funds recorded as foreign but suspected of Korean control. Unless authorities confirm the ownership, the phrase should be treated as an allegation.",
+    "example": "검은머리 외국인 의혹 means an allegation involving a Geomeunmeori foreign investor.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "세력",
+    "english_term": "Seryeok",
+    "category": "risk_slang",
+    "aliases": ["주포", "seryeok"],
+    "definition": "Korean slang for an influential trading group believed to move a stock's price, sometimes with an implication of coordination.",
+    "plain_explanation": "\"세력\" means a presumed powerful trading group in Korean market talk. It does not establish manipulation without regulatory or court findings.",
+    "example": "세력 개입 의혹 means suspected Seryeok involvement.",
+    "source": "HANNAH_SEED_GLOSSARY"
+  },
+  {
+    "normalized_term": "쩐의 전쟁",
+    "english_term": "Jjeon-ui Jeonjaeng",
+    "category": "market_slang",
+    "aliases": ["쩐의전쟁"],
+    "definition": "A Korean expression meaning a battle of money, used for intense financing, takeover, or trading contests.",
+    "plain_explanation": "\"쩐의 전쟁\" is a Korean localism for a contest driven by financial firepower. Articles may use it for takeover bids, capital raising, or concentrated trading battles.",
+    "example": "인수전이 쩐의 전쟁이 됐다 means the takeover contest became a Jjeon-ui Jeonjaeng.",
     "source": "HANNAH_SEED_GLOSSARY"
   }
 ]

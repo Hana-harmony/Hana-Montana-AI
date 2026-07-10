@@ -268,15 +268,16 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert request.source_license_policy == "PROVIDER_LICENSED_FULL_TEXT"
     assert response.stock_code == "005930"
     assert response.duplicate_key
-    assert "Samsung Electronics" in response.translated_title
+    assert response.translated_title == ""
     assert response.original_body == record.content
     assert response.translated_body == response.translated_content
-    assert "Samsung Electronics" in response.translated_body
+    assert response.translated_body == ""
     assert response.body_source_type == "FULL_TEXT"
     assert response.content_availability == "FULL_TEXT"
     assert response.glossary_terms == []
     assert "FINANCIAL_GLOSSARY_APPLIED" not in response.translation_quality_flags
     assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in response.translation_quality_flags
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" in response.translation_quality_flags
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
     assert websocket_event["partner_id"] == "US_BROKER"

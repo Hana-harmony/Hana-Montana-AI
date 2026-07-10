@@ -120,10 +120,10 @@ def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
         term["normalized_term"]: term["description"]
         for term in payload["glossary_terms"]
     }
-    assert terms["개미"] == "retail investors"
-    assert terms["대장주"] == "bellwether stock"
+    assert terms["개미"] == "Ant"
+    assert terms["대장주"] == "Daejangju"
     assert "individual retail investors" in descriptions["개미"]
-    assert "leading stock" in descriptions["대장주"]
+    assert "leading or most influential" in descriptions["대장주"]
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
 
 
@@ -150,8 +150,8 @@ def test_analyze_alert_explains_samjeon_nix_market_slang() -> None:
         term for term in payload["glossary_terms"] if term["normalized_term"] == "삼전닉스"
     )
     assert samjeon_nix["source_term"] == "삼전닉스"
-    assert samjeon_nix["english_term"] == "Samjeon Nix"
-    assert "Samsung Electronics and SK Hynix" in samjeon_nix["description"]
+    assert samjeon_nix["english_term"] == "Samsung Electronics and SK hynix basket"
+    assert "Samsung Electronics and SK hynix" in samjeon_nix["description"]
     assert "FINANCIAL_GLOSSARY_APPLIED" in payload["translation_quality_flags"]
 
 
@@ -349,7 +349,6 @@ def test_readiness_detects_unavailable_translation_provider(
     assert (
         _translation_provider_ready(
             Settings(
-                korean_translation_generation_mode="local_llm",
                 korean_translation_llm_endpoint="http://127.0.0.1:18081",
             )
         )

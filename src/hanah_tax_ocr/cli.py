@@ -11,7 +11,7 @@ from hanah_tax_ocr.evaluation import (
     load_harness_run_result,
 )
 from hanah_tax_ocr.harness import CaseDocument, HarnessRunner
-from hanah_tax_ocr.ocr import PaddleOCREngine
+from hanah_tax_ocr.ocr import TesseractOCREngine
 from hanah_tax_ocr.schemas import DocumentType
 from hanah_tax_ocr.template_profiles import classify_template
 
@@ -34,12 +34,14 @@ def build_parser() -> argparse.ArgumentParser:
     run_review.add_argument(
         "--output",
         type=Path,
-        default=Path("evals/fixtures/last_run_result.json"),
+        required=True,
+        help="PII가 저장될 저장소 외부 결과 경로",
     )
     run_review.add_argument(
         "--review-queue-dir",
         type=Path,
-        default=Path("data/review_queue/index"),
+        required=True,
+        help="PII 접근 통제가 적용된 저장소 외부 검수 큐 경로",
     )
     run_review.add_argument("--lang", default="en")
 
@@ -101,14 +103,16 @@ def parse_document_specs(specs: list[str]) -> list[CaseDocument]:
 
 
 def run_review_command(args: argparse.Namespace) -> int:
+    _require_external_pii_path(args.output)
+    _require_external_pii_path(args.review_queue_dir)
     documents = parse_document_specs(args.document)
-    engines: dict[str, PaddleOCREngine] = {}
+    engines: dict[str, TesseractOCREngine] = {}
     hydrated_documents: list[CaseDocument] = []
     for document in documents:
         lang = document.ocr_lang or args.lang
         engine = engines.get(lang)
         if engine is None:
-            engine = PaddleOCREngine(lang=lang)
+            engine = TesseractOCREngine(lang=lang)
             engines[lang] = engine
         ocr_result = engine.run(document.source_path)
         profile = classify_template(
@@ -143,6 +147,13 @@ def run_review_command(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _require_external_pii_path(path: Path) -> None:
+    repository_root = Path(__file__).resolve().parents[3]
+    resolved_path = path.expanduser().resolve()
+    if resolved_path == repository_root or repository_root in resolved_path.parents:
+        raise ValueError("OCR PII output path must be outside the repository")
 
 
 def eval_case_command(args: argparse.Namespace) -> int:

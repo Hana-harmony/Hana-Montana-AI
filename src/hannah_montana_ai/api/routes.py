@@ -49,7 +49,6 @@ from hannah_montana_ai.services.global_peer_explainer import GlobalPeerExplanati
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.korean_financial_terms import (
     KoreanFinancialTermExplanationService,
-    build_term_provider_from_settings,
 )
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
@@ -91,7 +90,7 @@ def get_global_peer_matcher() -> GlobalPeerMatcher:
     settings = get_settings()
     return GlobalPeerMatcher(
         settings.global_peer_model_path,
-        explainer=GlobalPeerExplanationGenerator.from_settings(settings),
+        explainer=GlobalPeerExplanationGenerator(),
     )
 
 
@@ -101,7 +100,6 @@ def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService
     return KoreanFinancialTermExplanationService(
         seed_path=settings.korean_financial_terms_seed_path,
         model_version=settings.korean_financial_term_model_version,
-        provider=build_term_provider_from_settings(settings),
     )
 
 

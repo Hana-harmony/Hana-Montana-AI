@@ -57,8 +57,8 @@
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
   - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
-  - 실제 GPT 번역 호출은 Hana-OmniLens-API 어댑터가 담당하며, AI 서비스는 로컬 금융 용어집 번역 보조와 품질 플래그만 생성한다.
-  - `build_translation_sample_report.py`는 실제 뉴스·공시 gold 표본의 원문, 로컬 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 같은 row에 기록해 OmniLens GPT smoke 출력과 `external_translation_join_key`로 비교할 수 있게 한다.
+  - 한국어 전문 번역은 Hannah가 로컬 Qwen 4B GGUF endpoint를 호출하며 외부 GPT/DeepL provider를 사용하지 않는다.
+  - 한국 금융 용어는 단일 dictionary 표면형을 번역 품질 gate에 전달한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
   - `original_title`, `translated_title`
@@ -73,7 +73,7 @@
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/documents/verify`
-  - 입력: 서류 유형, 파일명, OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 투자자 ID/거주지 국가.
+  - 입력: 서류 유형, 파일명, 원본 파일 또는 OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 거주지 국가.
   - 처리: OCR confidence와 fraud signal score, 필수 field 누락 여부로 `VERIFIED`, `PENDING`, `REJECTED`를 산출한다.
   - 출력: `verification_status`, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`.
 - endpoint: `POST /api/v1/tax/refund-status`
@@ -85,7 +85,7 @@
   - 거주지 국가가 `US`
   - 모든 거래가 상장주식 장내거래
   - 직전 5년 및 당해 지분율 입력값이 25% 미만
-  - 거주자증명서와 제한세율신청서가 모두 `VERIFIED`, OCR 신뢰도 0.8 이상, 위변조 위험 0.2 이하
+  - 거주자증명서와 제한세율신청서가 모두 `VERIFIED`, OCR 신뢰도 0.75 이상, 위변조 위험 0.2 이하
 - 환급 계산:
   - 배당 환급 = 총 배당금 × 7%
   - 양도세 환급 = `min(총 매도지급액 × 11%, 양도차익 × 22%)`
