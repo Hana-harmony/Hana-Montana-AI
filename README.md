@@ -5,7 +5,7 @@ Hana OmniLens의 AI 모델 API 서버다. 뉴스·공시 분석만 담당하는 
 ## 핵심 기능
 - 뉴스·공시 분석: 종목 매핑, 이벤트 태그, 감성, 중요도, What/Why/Impact 요약, 중복 키
 - 외국인 보유 예측: 제한 종목의 다음 거래일 외국인 보유수량과 한도소진율 boundary 예측
-- 글로벌 피어: 한국 상장사와 유사한 미국 상장 peer, headline, summary, matched factors 생성
+- 글로벌 피어: 한국 상장사와 유사한 미국 상장 peer, 비교 근거 1~3개, 한국 기업의 핵심 강점 4개 생성
 - 한국 금융 용어: 사전/RAG 기반 영어 해설, evidence, confidence, cache 정책
 - 주문/세무 보조: order status, tax refund status, Hana Tax OCR 기반 tax document verification 응답
 
@@ -14,7 +14,7 @@ Hana OmniLens의 AI 모델 API 서버다. 뉴스·공시 분석만 담당하는 
 | --- | --- | --- |
 | 뉴스·공시 분석 | TF-IDF char/word n-gram, 한국 금융 token, One-vs-Rest/다중분류 Logistic Regression, TF-IDF stock linker | `financial_nlp_ml.joblib`, `stock_linker_ml.joblib` |
 | 외국인 보유 예측 | `stock_routed_ml_ensemble`, Ridge/HistGradientBoosting/ExtraTrees/residual/hurdle 후보, walk-forward validation, N-HiTS/PatchTST SOTA 진단 | `foreign_ownership_quantity_ml.joblib` |
-| 글로벌 피어 매칭 | TF-IDF retrieval, SVD semantic embedding, business profile Logistic Regression, pairwise LogisticRegression reranker, optional Qwen3-0.6B MLX/sidecar LoRA 설명기 | `global_peer_ml.joblib`, `global_peer_qwen3_explainer_lora/` |
+| 글로벌 피어 매칭 | TF-IDF retrieval(최대 100,000 feature), SVD semantic embedding(최대 192차원), pairwise LogisticRegression, profile 완성도·인지도·시가총액 신뢰도, 다양성 MMR, optional Qwen3 LoRA 설명기 | `global_peer_ml.joblib`, `global_peer_qwen3_explainer_lora/` |
 | 한국 금융 용어 | seed dictionary, 내부 문맥 RAG, OpenAI web search fallback, Qwen 로컬/배치 후보 생성 | `k-finance-term-rag-v2` |
 | 세무 문서 OCR | `hanah_tax_ocr` parser/reviewer, 문서별 필드 추출, 위변조/필수필드 gate, 텍스트 payload fallback | `src/hanah_tax_ocr/` |
 

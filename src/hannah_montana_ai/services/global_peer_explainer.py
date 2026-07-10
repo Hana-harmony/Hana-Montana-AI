@@ -17,7 +17,7 @@ from hannah_montana_ai.services.model import require_lora_adapter_artifact
 from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
 EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v8"
-TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v2"
+TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v3"
 KOREA_ENGLISH_DISPLAY_NAMES = {
     "000270": "Kia",
     "000660": "SK hynix",
@@ -715,18 +715,19 @@ class GlobalPeerExplanationGenerator:
 
     @staticmethod
     def _domain_sentence(peer: GlobalPeerMatch) -> str:
+        peer_name = GlobalPeerExplanationGenerator._display_peer_name(peer.company_name)
         sector = peer.sector if peer.sector != "Unclassified" else "its sector"
         industry = peer.industry if peer.industry != "Unclassified" else "its industry"
         business_model = GlobalPeerExplanationGenerator._short_business_model(peer.business_model)
         if peer.industry not in {"Unclassified", "Listed Operating Company"}:
             return (
-                f"The match is driven first by sector and industry fit: both companies sit "
-                f"in {sector} and operate around {industry.lower()}."
+                f"{peer_name} provides a {industry.lower()} reference within {sector}, "
+                "which is the primary domain signal used for this match."
             )
         if peer.business_model != "Operating company":
             return (
-                f"The match is driven first by business-model fit: both companies are "
-                f"mapped to {business_model.lower()}."
+                f"{peer_name} provides the closest mapped business-model reference in "
+                f"{business_model.lower()}."
             )
         return (
             "The match is mainly a broad listed-company reference because detailed "
@@ -759,8 +760,8 @@ class GlobalPeerExplanationGenerator:
             )
         if peer.business_model != "Operating company":
             return (
-                f"{peer_display_name} is the closest fit because both companies map to "
-                f"{business_model.lower()}."
+                f"{peer_display_name} is the closest fit because its operating model is "
+                f"comparable to the reference company's {business_model.lower()}."
             )
         return (
             f"{peer_display_name} is used as a broad listed-company reference because "

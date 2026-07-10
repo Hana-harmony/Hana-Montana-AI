@@ -15,7 +15,7 @@ from hannah_montana_ai.training.global_peer_trainer import (
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, load_stock_universe
 
-GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION = "global-peer-full-coverage/v1"
+GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION = "global-peer-full-coverage/v2"
 _VALID_MARKETS: set[str] = {"KOSPI", "KOSDAQ", "KONEX", "OTHER"}
 
 
@@ -51,6 +51,16 @@ def build_global_peer_full_coverage_report(
         source_sector = str(stock_profile.get("sector") or "Unclassified")
         source_industry = str(stock_profile.get("industry") or "Unclassified")
         source_business_model = str(stock_profile.get("business_model") or "Operating company")
+        comparison_tickers = [comparison.peer.ticker for comparison in response.comparisons]
+        comparison_dimensions = [comparison.dimension for comparison in response.comparisons]
+        comparison_descriptions = [comparison.description for comparison in response.comparisons]
+        strength_titles = [strength.title for strength in response.key_strengths]
+        strength_descriptions = [strength.description for strength in response.key_strengths]
+        comparison_profiles = [
+            matcher._eligible_us_profiles[matcher._eligible_us_index_by_ticker[ticker]]
+            for ticker in comparison_tickers
+            if ticker in matcher._eligible_us_index_by_ticker
+        ]
         rows.append(
             {
                 "stock_code": stock.stock_code,
@@ -78,6 +88,34 @@ def build_global_peer_full_coverage_report(
                 "financial_similarity_score": primary_peer.financial_similarity_score,
                 "matched_factor_count": len(primary_peer.matched_factors),
                 "same_company_noise": _is_same_company_noise(stock, primary_peer.company_name),
+                "comparison_count": len(response.comparisons),
+                "comparison_tickers": comparison_tickers,
+                "comparison_dimensions": comparison_dimensions,
+                "comparison_unique": len(comparison_tickers) == len(set(comparison_tickers)),
+                "comparison_dimension_unique": (
+                    len(comparison_dimensions) == len(set(comparison_dimensions))
+                ),
+                "comparison_copy_clean": all(
+                    "both companies" not in description.lower()
+                    for description in comparison_descriptions
+                ),
+                "comparison_average_familiarity": _average_profile_score(
+                    comparison_profiles,
+                    "familiarity_score",
+                ),
+                "comparison_average_profile_completeness": _average_profile_score(
+                    comparison_profiles,
+                    "profile_completeness_score",
+                ),
+                "strength_count": len(response.key_strengths),
+                "strength_titles_unique": len(strength_titles) == len(set(strength_titles)),
+                "strength_descriptions_unique": (
+                    len(strength_descriptions) == len(set(strength_descriptions))
+                ),
+                "strength_copy_clean": all(
+                    "both companies" not in description.lower()
+                    for description in strength_descriptions
+                ),
             }
         )
 
@@ -146,6 +184,18 @@ def _is_same_company_noise(stock: StockUniverseEntry, peer_name: str) -> bool:
     )
 
 
+def _average_profile_score(
+    profiles: list[dict[str, object]],
+    field: str,
+) -> float:
+    values = [
+        float(value)
+        for profile in profiles
+        if isinstance((value := profile.get(field)), int | float | str)
+    ]
+    return round(sum(values) / len(values), 4) if values else 0.0
+
+
 def _report(
     *,
     matcher: GlobalPeerMatcher,
@@ -166,6 +216,22 @@ def _report(
     )
     matched_factor_missing_count = sum(1 for row in rows if int(row["matched_factor_count"]) == 0)
     same_company_noise_count = sum(1 for row in rows if bool(row["same_company_noise"]))
+    invalid_comparison_count = sum(
+        1
+        for row in rows
+        if int(row["comparison_count"]) not in {1, 2, 3}
+        or not bool(row["comparison_unique"])
+        or not bool(row["comparison_dimension_unique"])
+        or not bool(row["comparison_copy_clean"])
+    )
+    invalid_strength_count = sum(
+        1
+        for row in rows
+        if int(row["strength_count"]) != 4
+        or not bool(row["strength_titles_unique"])
+        or not bool(row["strength_descriptions_unique"])
+        or not bool(row["strength_copy_clean"])
+    )
     low_confidence_count = confidence_counts["LOW"]
     success_count = len(rows)
     specific_profile_rows = [
@@ -197,6 +263,10 @@ def _report(
         "actual_same_company_noise_ratio": round(same_company_noise_ratio, 6),
         "maximum_matched_factor_missing_ratio": 0.0,
         "actual_matched_factor_missing_ratio": round(matched_factor_missing_ratio, 6),
+        "maximum_invalid_comparison_count": 0,
+        "actual_invalid_comparison_count": invalid_comparison_count,
+        "maximum_invalid_strength_count": 0,
+        "actual_invalid_strength_count": invalid_strength_count,
     }
     quality_gate["status"] = (
         "pass"
@@ -205,6 +275,8 @@ def _report(
         and same_company_noise_ratio <= float(quality_gate["maximum_same_company_noise_ratio"])
         and matched_factor_missing_ratio
         <= float(quality_gate["maximum_matched_factor_missing_ratio"])
+        and invalid_comparison_count == 0
+        and invalid_strength_count == 0
         else "fail"
     )
     confidence_monitoring = {
@@ -253,6 +325,8 @@ def _report(
         "low_confidence_count": low_confidence_count,
         "same_company_noise_count": same_company_noise_count,
         "matched_factor_missing_count": matched_factor_missing_count,
+        "invalid_comparison_count": invalid_comparison_count,
+        "invalid_strength_count": invalid_strength_count,
         "quality_gate": quality_gate,
         "confidence_monitoring": confidence_monitoring,
         "specific_profile_quality": specific_profile_quality,
