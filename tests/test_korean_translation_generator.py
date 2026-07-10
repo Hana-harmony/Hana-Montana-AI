@@ -122,6 +122,15 @@ def test_ant_surface_is_not_rewritten_to_retail_investor() -> None:
     assert generator._glossary_quality_flags(translated, glossary) == []
 
 
+def test_plural_ant_surface_is_normalized_to_canonical_ant() -> None:
+    generator = KoreanTranslationGenerator()
+    glossary = [_term("개미", "개미", "Ant")]
+
+    assert generator._apply_glossary_surfaces("Ants were net buyers.", glossary) == (
+        "Ant were net buyers."
+    )
+
+
 def test_daejangju_surface_preserves_romanization() -> None:
     generator = KoreanTranslationGenerator()
     glossary = [_term("대장주", "대장주", "Daejangju")]

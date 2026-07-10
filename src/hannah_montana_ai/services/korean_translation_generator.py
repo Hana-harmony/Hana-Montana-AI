@@ -332,6 +332,7 @@ class KoreanTranslationGenerator:
         "개미": (
             "Ant",
             (
+                "Ants",
                 "retail investor",
                 "retail investors",
                 "individual investor",
