@@ -213,7 +213,6 @@ def test_tax_document_verification_runs_embedded_ocr_review_contract() -> None:
             "content_type": "text/plain",
             "ocr_confidence": 0.91,
             "fraud_signal_score": 0.03,
-            "expected_investor_id": "US_USER_1234",
             "expected_residency_country": "US",
         },
     )
@@ -223,6 +222,6 @@ def test_tax_document_verification_runs_embedded_ocr_review_contract() -> None:
     assert payload["success"] is True
     data = payload["data"]
     assert data["document_type"] == "RESIDENCE_CERTIFICATE"
-    assert data["document_model_version"] == "hanah-tax-ocr-e2e-review-v1"
+    assert data["document_model_version"] == "hanah-tax-ocr-e2e-review-v2"
     assert data["extracted_fields"]["residency_country_code"] == "US"
     assert data["fraud_risk_score"] >= 0.03

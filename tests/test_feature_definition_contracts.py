@@ -4,6 +4,7 @@ from base64 import b64encode
 from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
+from hanah_tax_ocr import pipeline as tax_ocr_pipeline
 from hanah_tax_ocr.schemas import OCRPage, OCRResult, OCRWordBox
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
@@ -510,11 +511,18 @@ def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None
         json={
             "document_type": "RESIDENCE_CERTIFICATE",
             "file_name": "cert_res_2024.pdf",
-            "extracted_text": "Certificate of Resident Status United States US_USER_1234",
+            "extracted_text": "Certificate of Resident Status United States",
             "ocr_confidence": 0.94,
             "fraud_signal_score": 0.03,
-            "expected_investor_id": "US_USER_1234",
             "expected_residency_country": "US",
+            "extracted_fields": {
+                "taxpayer_name": "Maria L Chen",
+                "tin": "987-65-4321",
+                "tax_year": "2026",
+                "issue_date": "January 12, 2026",
+                "residency_country": "United States of America",
+                "residency_country_code": "US",
+            },
         },
     )
 
@@ -530,8 +538,8 @@ def test_tax_document_verification_contract_gates_ocr_and_forgery_risk() -> None
     assert payload["fraud_risk_score"] == 0.03
     assert payload["risk_level"] == "LOW"
     assert payload["manual_review_required"] is False
-    assert payload["extracted_fields"]["investor_id"] == "US_USER_1234"
-    assert payload["extracted_fields"]["residency_country"] == "US"
+    assert payload["extracted_fields"]["taxpayer_name"] == "Maria L Chen"
+    assert payload["extracted_fields"]["residency_country_code"] == "US"
     assert payload["missing_required_fields"] == []
     assert payload["rejection_reasons"] == []
     assert payload["document_model_version"] == "ocr-fraud-risk-gate-v1"
@@ -544,11 +552,20 @@ def test_tax_document_verification_rejects_high_forgery_risk() -> None:
         json={
             "document_type": "TREATY_APPLICATION",
             "file_name": "treaty_application.jpg",
-            "extracted_text": "Treaty application US_USER_1234",
+            "extracted_text": "Treaty application",
             "ocr_confidence": 0.91,
             "fraud_signal_score": 0.81,
-            "expected_investor_id": "US_USER_1234",
             "expected_residency_country": "US",
+            "extracted_fields": {
+                "first_name": "Maria",
+                "last_name": "Chen",
+                "address": "Los Angeles, CA",
+                "tin": "987-65-4321",
+                "residency_country": "United States of America",
+                "residency_country_code": "US",
+                "dividend_tax_rate": "15%",
+                "signature_date": "2026-01-12",
+            },
         },
     )
 
@@ -566,7 +583,10 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
     calls: list[str] = []
     check_calls: list[str] = []
 
-    class FakePaddleOCREngine:
+    class FakeTesseractOCREngine:
+        def __init__(self, **kwargs: object) -> None:
+            pass
+
         def run(self, image_path: str) -> OCRResult:
             calls.append(str(image_path))
             return OCRResult(
@@ -591,12 +611,15 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
                 ]
             )
 
+        def run_regions(self, image_path: str, region_specs: object) -> dict[str, OCRPage]:
+            return {}
+
     def fake_document_checks(*args: object, **kwargs: object) -> dict[str, bool]:
         check_calls.append(str(args[1]))
         return {"seal_present": True, "signature_present": True}
 
-    monkeypatch.setattr(feature_contracts, "PaddleOCREngine", FakePaddleOCREngine)
-    monkeypatch.setattr(feature_contracts, "compute_document_checks", fake_document_checks)
+    monkeypatch.setattr(feature_contracts, "TesseractOCREngine", FakeTesseractOCREngine)
+    monkeypatch.setattr(tax_ocr_pipeline, "compute_document_checks", fake_document_checks)
 
     client = TestClient(app)
     response = client.post(
@@ -608,7 +631,6 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
             "content_type": "image/png",
             "ocr_confidence": 0.0,
             "fraud_signal_score": 0.03,
-            "expected_investor_id": "US_USER_1234",
             "expected_residency_country": "US",
         },
     )
@@ -619,7 +641,7 @@ def test_tax_document_verification_runs_real_ocr_engine_for_image_payload(
     assert check_calls
     assert payload["verification_status"] == "VERIFIED"
     assert payload["ocr_confidence"] == 0.93
-    assert payload["document_model_version"] == "hanah-tax-ocr-e2e-review-v1"
+    assert payload["document_model_version"] == "hanah-tax-ocr-e2e-review-v2"
     assert payload["manual_review_required"] is False
     assert payload["missing_required_fields"] == []
     assert payload["rejection_reasons"] == []

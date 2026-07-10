@@ -10,15 +10,15 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Literal, Protocol, cast
 
-from hanah_tax_ocr.document_checks import compute_document_checks
-from hanah_tax_ocr.ocr import PaddleOCREngine
+from hanah_tax_ocr.ocr import TesseractOCREngine
 from hanah_tax_ocr.parsers import build_parser_registry
-from hanah_tax_ocr.quality import average_ocr_confidence
+from hanah_tax_ocr.pipeline import TaxDocumentPipeline
 from hanah_tax_ocr.review import TaxDocumentReviewer
 from hanah_tax_ocr.schemas import (
     DocumentType as OcrDocumentType,
 )
 from hanah_tax_ocr.schemas import (
+    ExtractedDocument,
     OCRPage,
     OCRResult,
     ReviewStatus,
@@ -62,7 +62,7 @@ TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
 TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
 TAX_REFUND_MODEL_VERSION = "us-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
-HANAH_TAX_OCR_MODEL_VERSION = "hanah-tax-ocr-e2e-review-v1"
+HANAH_TAX_OCR_MODEL_VERSION = "hanah-tax-ocr-e2e-review-v2"
 LOCAL_TAX_REFUND_SHARE = 0.10
 TEXT_TAX_DOCUMENT_CONTENT_TYPES = {
     "text/plain",
@@ -1315,15 +1315,17 @@ def _alert_id(request: IntelligenceEventRequest) -> str:
 
 
 def _required_documents_completed(request: TaxRefundStatusRequest) -> bool:
-    required_types = {"RESIDENCE_CERTIFICATE", "TREATY_APPLICATION"}
     verified_types = {
         document.document_type
         for document in request.documents
         if document.verification_status == "VERIFIED"
-        and document.ocr_confidence >= 0.8
+        and document.ocr_confidence >= 0.75
         and document.fraud_risk_score <= 0.2
     }
-    return required_types.issubset(verified_types)
+    has_application = bool(
+        {"TREATY_APPLICATION", "REDUCED_TAX_APPLICATION"} & verified_types
+    )
+    return "RESIDENCE_CERTIFICATE" in verified_types and has_application
 
 
 def _predict_with_hanah_tax_ocr(
@@ -1335,10 +1337,13 @@ def _predict_with_hanah_tax_ocr(
     if ocr_document_type is None:
         return None
 
-    ocr_result, ocr_confidence, unavailable_reason, document_checks = _ocr_result_from_request(
-        request,
-        ocr_document_type,
-    )
+    (
+        ocr_result,
+        pipeline_extracted,
+        ocr_confidence,
+        unavailable_reason,
+        document_checks,
+    ) = _ocr_result_from_request(request, ocr_document_type)
     if unavailable_reason is not None:
         return TaxDocumentVerificationPrediction(
             verification_status="REJECTED",
@@ -1359,7 +1364,7 @@ def _predict_with_hanah_tax_ocr(
         return None
 
     parser = build_parser_registry()[ocr_document_type]
-    extracted = parser.parse(ocr_result, request.file_name)
+    extracted = pipeline_extracted or parser.parse(ocr_result, request.file_name)
     extracted.quality_checks.update(document_checks)
     review_result = TaxDocumentReviewer().review([extracted])
     review_reasons = [finding.code for finding in review_result.findings]
@@ -1381,7 +1386,6 @@ def _predict_with_hanah_tax_ocr(
         *(reason for reason in review_reasons if reason not in hard_rejection_reasons),
     ]
     verification_status = _ocr_review_status(
-        request,
         review_result.status,
         missing_required_fields,
         hard_rejection_reasons,
@@ -1414,29 +1418,37 @@ def _ocr_document_type(document_type: str) -> OcrDocumentType | None:
 def _ocr_result_from_request(
     request: TaxDocumentVerificationRequest,
     ocr_document_type: OcrDocumentType,
-) -> tuple[OCRResult | None, float, str | None, dict[str, object]]:
+) -> tuple[
+    OCRResult | None,
+    ExtractedDocument | None,
+    float,
+    str | None,
+    dict[str, object],
+]:
     if request.extracted_text.strip():
         return (
             OCRResult(pages=[OCRPage(page_number=1, raw_text=request.extracted_text.strip())]),
+            None,
             request.ocr_confidence,
             None,
             {},
         )
     if not request.document_content_base64:
-        return None, request.ocr_confidence, None, {}
+        return None, None, request.ocr_confidence, None, {}
 
     raw = _decode_bytes_payload(request.document_content_base64)
     if raw is None:
-        return None, 0.0, "DOCUMENT_BASE64_INVALID", {}
+        return None, None, 0.0, "DOCUMENT_BASE64_INVALID", {}
 
     content_type = request.content_type.lower().split(";", 1)[0].strip()
     suffix = Path(request.file_name).suffix.lower()
     if content_type in TEXT_TAX_DOCUMENT_CONTENT_TYPES or suffix == ".txt":
         text = _decode_text_bytes(raw)
         if not text:
-            return None, 0.0, "OCR_TEXT_EMPTY", {}
+            return None, None, 0.0, "OCR_TEXT_EMPTY", {}
         return (
             OCRResult(pages=[OCRPage(page_number=1, raw_text=text)]),
+            None,
             request.ocr_confidence,
             None,
             {},
@@ -1446,12 +1458,13 @@ def _ocr_result_from_request(
         content_type not in OCR_TAX_DOCUMENT_CONTENT_TYPES
         and suffix not in OCR_TAX_DOCUMENT_SUFFIXES
     ):
-        return None, 0.0, "OCR_CONTENT_TYPE_UNSUPPORTED", {}
+        return None, None, 0.0, "OCR_CONTENT_TYPE_UNSUPPORTED", {}
 
     return _run_real_tax_ocr(
         raw,
         suffix or _suffix_for_content_type(content_type),
         ocr_document_type,
+        request.file_name,
     )
 
 
@@ -1484,7 +1497,14 @@ def _run_real_tax_ocr(
     raw: bytes,
     suffix: str,
     ocr_document_type: OcrDocumentType,
-) -> tuple[OCRResult | None, float, str | None, dict[str, object]]:
+    source_name: str,
+) -> tuple[
+    OCRResult | None,
+    ExtractedDocument | None,
+    float,
+    str | None,
+    dict[str, object],
+]:
     suffix = suffix if suffix in OCR_TAX_DOCUMENT_SUFFIXES else ".bin"
     temp_path: Path | None = None
     try:
@@ -1495,28 +1515,36 @@ def _run_real_tax_ocr(
         ) as temp:
             temp.write(raw)
             temp_path = Path(temp.name)
-        ocr_result = PaddleOCREngine().run(temp_path)
-        confidence = average_ocr_confidence(cast(list[object], ocr_result.pages))
-        # 이미지 기반 위변조/서명 체크를 리뷰 규칙에 반영한다.
-        document_checks = compute_document_checks(
+        pipeline_result = TaxDocumentPipeline(
+            ocr_engine=TesseractOCREngine(lang=_ocr_language(ocr_document_type)),
+        ).process(
             ocr_document_type,
             temp_path,
-            template_id=ocr_result.template_id,
-            ocr_text=ocr_result.combined_text(),
+            source_name=source_name,
         )
         return (
-            ocr_result,
-            round(confidence if confidence is not None else 0.0, 4),
+            pipeline_result.ocr_result,
+            pipeline_result.extracted_document,
+            pipeline_result.ocr_confidence,
             None,
-            cast(dict[str, object], document_checks),
+            cast(
+                dict[str, object],
+                pipeline_result.extracted_document.quality_checks,
+            ),
         )
     except RuntimeError:
-        return None, 0.0, "OCR_ENGINE_UNAVAILABLE", {}
+        return None, None, 0.0, "OCR_ENGINE_UNAVAILABLE", {}
     except OSError:
-        return None, 0.0, "OCR_INPUT_UNREADABLE", {}
+        return None, None, 0.0, "OCR_INPUT_UNREADABLE", {}
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
+
+
+def _ocr_language(document_type: OcrDocumentType) -> str:
+    if document_type == OcrDocumentType.WITHHOLDING_TAX_FORM:
+        return "kor+eng"
+    return "eng"
 
 
 def _suffix_for_content_type(content_type: str) -> str:
@@ -1532,18 +1560,17 @@ def _suffix_for_content_type(content_type: str) -> str:
 
 
 def _ocr_review_status(
-    request: TaxDocumentVerificationRequest,
     review_status: ReviewStatus,
     missing_required_fields: list[str],
     rejection_reasons: list[str],
     ocr_confidence: float,
 ) -> DocumentVerificationStatus:
-    if rejection_reasons:
+    if rejection_reasons or review_status == ReviewStatus.REJECT:
         return "REJECTED"
     if (
         review_status == ReviewStatus.PASS
         and not missing_required_fields
-        and ocr_confidence >= 0.8
+        and ocr_confidence >= 0.75
     ):
         return "VERIFIED"
     return "PENDING"
@@ -1566,8 +1593,6 @@ def _normalize_document_fields(
     }
     normalized_text = (ocr_text if ocr_text is not None else request.extracted_text).lower()
     fields.setdefault("document_type", request.document_type)
-    if request.expected_investor_id and request.expected_investor_id.lower() in normalized_text:
-        fields.setdefault("investor_id", request.expected_investor_id)
     if request.expected_residency_country and _country_present(
         normalized_text,
         request.expected_residency_country,
@@ -1585,17 +1610,44 @@ def _missing_required_document_fields(
 ) -> list[str]:
     required_fields = ["document_type"]
     if request.document_type == "RESIDENCE_CERTIFICATE":
-        required_fields.extend(["investor_id", "residency_country"])
+        required_fields.extend(
+            [
+                "taxpayer_name",
+                "tin",
+                "tax_year",
+                "issue_date",
+                "residency_country",
+                "residency_country_code",
+            ]
+        )
+    elif request.document_type == "APOSTILLE":
+        required_fields.extend(
+            [
+                "issuing_country",
+                "signed_by",
+                "signer_capacity",
+                "seal_owner",
+                "issued_at",
+                "issued_on",
+                "issuing_authority",
+                "certificate_number",
+            ]
+        )
     elif request.document_type in {"TREATY_APPLICATION", "REDUCED_TAX_APPLICATION"}:
-        required_fields.extend(["investor_id", "treaty_application_marker"])
+        required_fields.extend(
+            [
+                "first_name",
+                "last_name",
+                "address",
+                "tin",
+                "residency_country",
+                "residency_country_code",
+                "dividend_tax_rate",
+                "signature_date",
+            ]
+        )
     missing = [field for field in required_fields if field not in extracted_fields]
     normalized_text = (ocr_text if ocr_text is not None else request.extracted_text).lower()
-    if (
-        request.document_type in {"TREATY_APPLICATION", "REDUCED_TAX_APPLICATION"}
-        and "treaty_application_marker" in missing
-    ):
-        if any(keyword in normalized_text for keyword in ("treaty", "제한세율", "조세조약")):
-            missing.remove("treaty_application_marker")
     if request.document_type == "RESIDENCE_CERTIFICATE" and "residency_country" in missing:
         if request.expected_residency_country and _country_present(
             normalized_text,
@@ -1628,7 +1680,7 @@ def _document_rejection_reasons(
 def _document_risk_level(ocr_confidence: float, fraud_signal_score: float) -> DocumentRiskLevel:
     if ocr_confidence < 0.65 or fraud_signal_score >= 0.5:
         return "HIGH"
-    if ocr_confidence < 0.8 or fraud_signal_score > 0.2:
+    if ocr_confidence < 0.75 or fraud_signal_score > 0.2:
         return "MEDIUM"
     return "LOW"
 
@@ -1640,7 +1692,7 @@ def _document_verification_status(
 ) -> DocumentVerificationStatus:
     if rejection_reasons:
         return "REJECTED"
-    if missing_required_fields or request.ocr_confidence < 0.8 or request.fraud_signal_score > 0.2:
+    if missing_required_fields or request.ocr_confidence < 0.75 or request.fraud_signal_score > 0.2:
         return "PENDING"
     return "VERIFIED"
 

@@ -1,3 +1,3 @@
-from .engine import PaddleOCREngine
+from .engine import TesseractOCREngine
 
-__all__ = ["PaddleOCREngine"]
+__all__ = ["TesseractOCREngine"]
