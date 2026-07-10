@@ -1,21 +1,9 @@
 from __future__ import annotations
 
-import importlib
-import json
 import re
-import urllib.error
-import urllib.parse
-import urllib.request
-from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Protocol, cast
 
-from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType, SummaryLines
-from hannah_montana_ai.services.model import require_lora_adapter_artifact
-
-NEWS_SUMMARY_PROMPT_VERSION = "news-summary-qwen3-wwi-v1"
 
 
 @dataclass(frozen=True)
@@ -33,364 +21,7 @@ class NewsSummaryContext:
     fallback: SummaryLines
 
 
-class NewsSummaryClient(Protocol):
-    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
-        pass
-
-
-type MlxModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
-type MlxTextGenerator = Callable[[Any, Any, str, int, float], str]
-
-
-class QwenHttpNewsSummaryClient:
-    def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
-        self._endpoint = endpoint.rstrip("/")
-        self._model = model
-        self._timeout_seconds = timeout_seconds
-
-    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
-        parsed_url = urllib.parse.urlparse(self._endpoint)
-        if parsed_url.scheme not in {"http", "https"}:
-            raise ValueError("LLM endpoint must use http or https")
-        payload = {
-            "model": self._model,
-            "messages": messages,
-            "temperature": 0.1,
-            "top_p": 0.8,
-            "max_tokens": max_tokens,
-            "response_format": {"type": "json_object"},
-        }
-        request = urllib.request.Request(  # noqa: S310
-            f"{self._endpoint}/v1/chat/completions",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(  # noqa: S310  # nosec B310
-            request,
-            timeout=self._timeout_seconds,
-        ) as response:
-            body = json.loads(response.read().decode("utf-8"))
-        choices = body.get("choices")
-        if not isinstance(choices, list) or not choices:
-            raise ValueError("LLM response has no choices")
-        message = choices[0].get("message")
-        if not isinstance(message, dict):
-            raise ValueError("LLM response has no message")
-        content = message.get("content")
-        if not isinstance(content, str) or not content.strip():
-            raise ValueError("LLM response content is empty")
-        return content
-
-
-class MlxQwenNewsSummaryClient:
-    def __init__(
-        self,
-        *,
-        model: str,
-        adapter_path: Path | None,
-        temperature: float = 0.0,
-        model_loader: MlxModelLoader | None = None,
-        text_generator: MlxTextGenerator | None = None,
-    ) -> None:
-        self._model_name = model
-        self._adapter_path = adapter_path
-        self._temperature = temperature
-        self._model_loader = model_loader or self._load_mlx_model
-        self._text_generator = text_generator or self._generate_mlx_text
-        self._pipeline: tuple[Any, Any] | None = None
-
-    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
-        model, tokenizer = self._load_pipeline()
-        prompt = self._format_chat_prompt(messages, tokenizer)
-        return self._text_generator(
-            model,
-            tokenizer,
-            prompt,
-            max_tokens,
-            self._temperature,
-        )
-
-    def _load_pipeline(self) -> tuple[Any, Any]:
-        if self._pipeline is None:
-            self._pipeline = self._model_loader(self._model_name, self._adapter_path)
-        return self._pipeline
-
-    @staticmethod
-    def _load_mlx_model(model_name: str, adapter_path: Path | None) -> tuple[Any, Any]:
-        try:
-            mlx_lm = importlib.import_module("mlx_lm")
-        except ImportError as exception:
-            raise ValueError(
-                "mlx_lm is required for direct news summary Qwen3 local generation"
-            ) from exception
-        load = cast(Callable[..., tuple[Any, Any]], mlx_lm.load)
-        return load(
-            model_name,
-            adapter_path=str(adapter_path) if adapter_path is not None else None,
-        )
-
-    @staticmethod
-    def _generate_mlx_text(
-        model: Any,
-        tokenizer: Any,
-        prompt: str,
-        max_tokens: int,
-        temperature: float,
-    ) -> str:
-        try:
-            mlx_lm = importlib.import_module("mlx_lm")
-        except ImportError as exception:
-            raise ValueError(
-                "mlx_lm is required for direct news summary Qwen3 local generation"
-            ) from exception
-        sample_utils = importlib.import_module("mlx_lm.sample_utils")
-        make_sampler = cast(Callable[..., Callable[[Any], Any]], sample_utils.make_sampler)
-        sampler = make_sampler(temp=temperature)
-        generate = cast(Callable[..., str], mlx_lm.generate)
-        return generate(
-            model,
-            tokenizer,
-            prompt=prompt,
-            max_tokens=max_tokens,
-            sampler=sampler,
-            verbose=False,
-        )
-
-    @staticmethod
-    def _format_chat_prompt(messages: list[dict[str, str]], tokenizer: Any) -> str:
-        apply_chat_template = getattr(tokenizer, "apply_chat_template", None)
-        if callable(apply_chat_template):
-            try:
-                return cast(
-                    str,
-                    apply_chat_template(
-                        messages,
-                        tokenize=False,
-                        add_generation_prompt=True,
-                        enable_thinking=False,
-                    ),
-                )
-            except TypeError:
-                return cast(
-                    str,
-                    apply_chat_template(
-                        messages,
-                        tokenize=False,
-                        add_generation_prompt=True,
-                    ),
-                )
-
-        rendered_messages = []
-        for message in messages:
-            role = message.get("role", "user")
-            content = message.get("content", "")
-            rendered_messages.append(f"<|im_start|>{role}\n{content}<|im_end|>")
-        rendered_messages.append("<|im_start|>assistant\n")
-        return "\n".join(rendered_messages)
-
-
 class NewsSummaryGenerator:
-    _META_TERMS = (
-        "importance",
-        "sentiment",
-        "classified",
-        "classification",
-        "priority",
-        "중요도",
-        "감성",
-        "분류",
-    )
-    _ADVICE_TERMS = (
-        "guaranteed",
-        "outperform",
-        "price target",
-        "must buy",
-        "should buy",
-        "must sell",
-        "should sell",
-    )
-    _HALLUCINATION_TERMS = (
-        "memory-hazard",
-        "hazard shielding",
-        "shielding technology",
-        "three-sentence",
-        "drew attention in the article",
-        "article-backed market context",
-        "the story links the shift to supply",
-        "next disclosure and watch the market reaction",
-        "trading by samjeon nix",
-        "by samjeon nix as key",
-        "core themes of ai and human death",
-        "latest market and company interventions",
-        "market and business events confirmed",
-        "countermeasures inspection",
-        "approval of the megaproject",
-        "latest public news confirmed in the original",
-        "impact of this president",
-        "holding and surveillance",
-        "samjeon nix trading",
-        "latest market and corporate events confirmed",
-        "krw-3777b",
-        "sheriff's rifle",
-        "iseutasi",
-        "investor's net buying flow",
-        "entrepreneurhan",
-        "hallinkyos",
-        "sk hallinkyos",
-        "skhinky",
-        "sinerlwyk",
-        "investor impact is to watch",
-        "investor impact is to track",
-        "investor impact is greater",
-        "investor impact is higher",
-        "golden electric group",
-        "electronicstronics",
-        "investor impact is better than expected",
-        "korean basis on a korean scale",
-        "more orders placed on the market",
-        "reported event",
-        "market sentiment and investor positioning",
-        "the next disclosure and market reaction",
-        "as the story develops",
-        "foreign exchanges as the market becomes more active",
-        "key market issue",
-        "1b company stocks",
-        "market synchronizer",
-        "1st consolidated farm",
-        "pbr 1-kilogram",
-        "large-capacity",
-        "cellia",
-        "beilwane",
-        "kimmidl markettron",
-        "middlemarketron",
-        "stock-bearer",
-        "zhishi is why",
-        "north korean market",
-        "north financial market",
-        "market-sense",
-        "samsung exosphate",
-    )
-    _ALLOWED_HYPHENATED_TERMS = {
-        "ai-server",
-        "article-backed",
-        "back-end",
-        "balance-sheet",
-        "buy-side",
-        "data-center",
-        "foreign-investor",
-        "high-bandwidth",
-        "high-performance",
-        "high-value",
-        "high-value-added",
-        "investor-facing",
-        "market-wide",
-        "operating-profit",
-        "price-to-book",
-        "sell-side",
-        "semiconductor-led",
-        "stock-market",
-        "treasury-share",
-        "year-on-year",
-    }
-    _KOREAN_TO_ENGLISH_TERMS = {
-        "반도체": ("semiconductor", "chip", "memory"),
-        "메모리": ("memory",),
-        "HBM": ("hbm",),
-        "데이터센터": ("data center", "data-center"),
-        "AI": ("ai", "artificial intelligence"),
-        "서버": ("server",),
-        "영업이익": ("operating profit", "earnings"),
-        "실적": ("earnings", "results", "profit"),
-        "수익성": ("profitability", "margin"),
-        "주가": ("stock price", "shares"),
-        "시가총액": ("market cap", "market capitalization"),
-        "시총": ("market cap", "market capitalization"),
-        "외국인": ("foreign investor", "foreign investors"),
-        "기관": ("institutional investors", "institutions"),
-        "순매수": ("net buying", "net purchase"),
-        "순매도": ("net selling"),
-        "코스피": ("kospi",),
-        "코스닥": ("kosdaq",),
-        "환율": ("exchange rate", "currency"),
-        "금리": ("interest rate", "rates"),
-        "수주": ("order", "orders", "contract"),
-        "계약": ("contract", "deal"),
-        "공급": ("supply",),
-        "자사주": ("treasury share", "treasury-share", "buyback"),
-        "소각": ("cancellation", "retirement"),
-        "배당": ("dividend",),
-        "유상증자": ("capital increase", "share issuance"),
-        "전환사채": ("convertible bond",),
-        "상장폐지": ("delisting",),
-        "거래정지": ("trading halt",),
-        "감사의견": ("audit opinion",),
-        "소송": ("lawsuit", "litigation"),
-        "리스크": ("risk",),
-        "변동성": ("volatility",),
-        "방산": ("defense",),
-        "조선": ("shipbuilding",),
-        "배터리": ("battery",),
-        "바이오": ("biotech", "bio"),
-        "인수": ("acquisition",),
-        "합병": ("merger",),
-        "분할": ("spin-off", "split"),
-        "기업회생": ("corporate rehabilitation", "restructuring"),
-        "한계기업": ("marginal companies", "distressed companies"),
-        "좀비기업": ("zombie companies", "distressed companies"),
-        "구조조정": ("restructuring",),
-        "자본 배분": ("capital allocation",),
-        "재무구조": ("financial structure", "balance sheet"),
-        "ETF": ("etf", "exchange-traded fund"),
-        "단일종목": ("single-stock", "single stock"),
-        "레버리지": ("leverage", "leveraged"),
-        "빚투": ("leveraged retail", "debt-funded", "margin"),
-        "삼닉": ("samjeon nix", "samsung electronics and sk hynix"),
-        "삼전닉스": ("samjeon nix", "samsung electronics and sk hynix"),
-        "금융투자회사": ("securities firm", "securities firms", "brokerage"),
-        "미들마켓론": ("mid-market loan", "middle-market loan"),
-        "로드쇼": ("roadshow", "roadshows"),
-        "반도체 클러스터": ("semiconductor cluster",),
-        "메가프로젝트": ("megaproject", "megaprojects"),
-        "개미": ("retail investor", "retail investors"),
-        "상반기": ("first half",),
-        "상장사": ("listed companies", "listed-company"),
-        "대구": ("daegu",),
-        "트럼프": ("trump",),
-        "쿠팡": ("coupang",),
-        "한미": ("korea-u.s.", "korea-us", "u.s.-korea"),
-        "통상 갈등": ("trade tension", "trade tensions", "trade dispute"),
-        "무역 보복": ("trade retaliation", "retaliatory tariffs"),
-        "연기금": ("pension fund", "pension funds"),
-        "대체투자": ("alternative investment", "alternative investments"),
-        "하반기": ("second half",),
-        "삼성전자": ("samsung electronics",),
-        "DX": ("dx",),
-        "DS": ("ds",),
-        "투트랙": ("two-track", "two track"),
-        "ESG": ("esg",),
-        "현대차": ("hyundai motor",),
-        "기아": ("kia",),
-        "모비스": ("mobis", "hyundai mobis"),
-        "USMCA": ("usmca",),
-        "원산지": ("rules of origin", "origin rules"),
-        "멕시코": ("mexico", "mexican"),
-        "수신": ("deposit", "deposits"),
-        "은행": ("bank", "banks"),
-        "요구불예금": ("demand deposit", "demand deposits"),
-        "하이닉스": ("sk hynix",),
-        "ADR": ("adr",),
-        "RV": ("rv",),
-        "HEV": ("hev", "hybrid"),
-        "인센티브": ("incentive", "incentives"),
-        "제약바이오": ("pharma", "biotech", "healthcare"),
-        "PBR": ("pbr", "price-to-book"),
-        "외환시장": ("fx market", "foreign-exchange market"),
-        "셀 코리아": ("sell korea", "foreign selling"),
-        "자산배분": ("asset allocation",),
-        "금통위": ("monetary policy board", "bok"),
-        "부동산": ("real estate", "housing"),
-    }
     _ENGLISH_FALLBACK_TOPICS = (
         (("증시", "은행", "수신"), "bank deposit inflows after stock-market volatility"),
         (("삼전", "하이닉스", "ADR"), "semiconductor sentiment around earnings and ADR listing"),
@@ -400,11 +31,11 @@ class NewsSummaryGenerator:
         (("삼성전자", "DX", "DS", "ESG"), "Samsung Electronics' two-track ESG strategy"),
         (("현대차", "기아", "모비스", "USMCA"), "USMCA parts-rule risk for Korean automakers"),
         (("반도체 클러스터", "메가프로젝트"), "semiconductor cluster policy support"),
-        (("개미", "상반기", "순매수"), "retail net buying in the first half"),
+        (("개미", "상반기", "순매수"), "Ant net buying in the first half"),
         (("대구", "상장사", "시총"), "Daegu-listed companies' market-cap decline"),
         (("단일종목", "레버리지", "ETF"), "single-stock leveraged ETF volatility"),
         (("삼닉", "레버리지"), "Samjeon Nix leveraged-product losses"),
-        (("빚투", "삼전닉스"), "leveraged retail speculation around Samjeon Nix"),
+        (("빚투", "삼전닉스"), "Bittu speculation around Samjeon Nix"),
         (("금융투자회사", "뉴욕"), "Korean securities firms' overseas expansion"),
         (("미들마켓론",), "mid-market lending by Korean securities firms"),
         (("삼전닉스",), "Samjeon Nix trading"),
@@ -451,8 +82,8 @@ class NewsSummaryGenerator:
         (("중복상장", "규제"), "listing-rule uncertainty"),
         (("단일종목", "레버리지"), "high turnover in single-stock leveraged ETFs"),
         (("리밸런싱", "변동성"), "ETF rebalancing flows increasing late-session volatility"),
-        (("개미", "레버리지"), "retail investors concentrating in leveraged products"),
-        (("빚투",), "debt-funded retail speculation"),
+        (("개미", "레버리지"), "Ant participation in leveraged products"),
+        (("빚투",), "Bittu debt-funded speculation"),
         (("삼전닉스",), "attention on Samjeon Nix as shorthand for Korea's two chip bellwethers"),
         (("미들마켓론",), "new mid-market loan opportunities"),
         (("뉴욕", "금융투자회사"), "Korean securities firms localizing overseas businesses"),
@@ -461,7 +92,7 @@ class NewsSummaryGenerator:
             ("반도체 클러스터", "메가프로젝트"),
             "government follow-up measures for semiconductor megaprojects",
         ),
-        (("개미", "순매수"), "retail investors providing heavy net buying"),
+        (("개미", "순매수"), "Ant participation providing heavy net buying"),
         (("대구", "시총"), "regional listed-company market-cap weakness"),
         (("기업회생",), "rising corporate rehabilitation filings"),
         (("한계기업",), "delayed restructuring of marginal companies"),
@@ -496,7 +127,7 @@ class NewsSummaryGenerator:
         (("공모가", "밑돌"), "post-listing share performance and investor demand"),
         (("중복상장", "규제"), "listing-rule changes and large-company IPO timing"),
         (("단일종목", "레버리지"), "ETF rebalancing flows and late-session volatility"),
-        (("빚투",), "margin exposure, retail flows, and volatility in major chip names"),
+        (("빚투",), "Bittu margin exposure and volatility in major chip names"),
         (("미들마켓론",), "overseas revenue diversification, deal flow, and credit risk controls"),
         (
             ("반도체 클러스터",),
@@ -504,7 +135,7 @@ class NewsSummaryGenerator:
         ),
         (
             ("개미", "순매수"),
-            "whether retail net buying continues and which sectors absorb the flows",
+            "whether Ant net buying continues and which sectors absorb the flows",
         ),
         (
             ("대구", "시총"),
@@ -525,353 +156,8 @@ class NewsSummaryGenerator:
         (("상장폐지", "거래정지"), "trading restrictions and disclosure follow-up"),
     )
 
-    def __init__(
-        self,
-        *,
-        enabled: bool = False,
-        model_name: str = "Qwen3-4B-GGUF-Q4",
-        max_tokens: int = 260,
-        client: NewsSummaryClient | None = None,
-    ) -> None:
-        self._enabled = enabled
-        self._model_name = model_name
-        self._max_tokens = max_tokens
-        self._client = client
-
-    @classmethod
-    def from_settings(cls, settings: Settings) -> NewsSummaryGenerator:
-        enabled = settings.news_summary_generation_mode == "local_llm"
-        client: NewsSummaryClient | None = None
-        if enabled:
-            if settings.news_summary_llm_endpoint:
-                client = QwenHttpNewsSummaryClient(
-                    endpoint=settings.news_summary_llm_endpoint,
-                    model=settings.news_summary_llm_model,
-                    timeout_seconds=settings.news_summary_llm_timeout_seconds,
-                )
-            else:
-                client = MlxQwenNewsSummaryClient(
-                    model=settings.news_summary_mlx_model,
-                    adapter_path=require_lora_adapter_artifact(
-                        settings.news_summary_mlx_adapter_path,
-                        "News summary Qwen3 LoRA adapter",
-                    ),
-                )
-        return cls(
-            enabled=enabled,
-            model_name=(
-                settings.news_summary_llm_model
-                if settings.news_summary_llm_endpoint
-                else settings.news_summary_mlx_model
-            ),
-            max_tokens=settings.news_summary_llm_max_tokens,
-            client=client,
-        )
-
     def generate(self, context: NewsSummaryContext) -> SummaryLines:
-        if not self._enabled or self._client is None:
-            return self._english_fallback(context)
-        if not self._has_usable_full_text(context.content):
-            return self._english_fallback(context)
-
-        try:
-            raw_content = self._client.generate(
-                self.messages(context),
-                max_tokens=self._max_tokens,
-            )
-            candidate = self._parse_llm_output(raw_content)
-            summary = SummaryLines(
-                what=self._sanitize(candidate.get("what", "")),
-                why=self._sanitize(candidate.get("why", "")),
-                impact=self._sanitize(candidate.get("impact", "")),
-            )
-            if not self._is_quality_output(summary, context):
-                return self._english_fallback(context)
-            return summary
-        except (OSError, ValueError, json.JSONDecodeError, urllib.error.URLError):
-            return self._english_fallback(context)
-
-    @classmethod
-    def messages(cls, context: NewsSummaryContext) -> list[dict[str, str]]:
-        payload = {
-            "task": "Write three investor-facing analysis lines from the article body.",
-            "schema": {
-                "what": "one complete English sentence describing what happened",
-                "why": "one complete English sentence explaining the article-backed reason",
-                "impact": "one complete English sentence explaining the investor impact",
-            },
-            "rules": [
-                "Return only compact JSON with keys what, why, impact.",
-                "Use only evidence from article_text, title, snippet, event_tags, and labels.",
-                "Write every value in English.",
-                "Each value must be exactly one complete sentence.",
-                "Do not use ellipses, bullet points, Korean sentences, or truncated fragments.",
-                "Do not mention importance, sentiment, priority, or classification labels.",
-                "Do not give buy, sell, price-target, or guaranteed-return advice.",
-            ],
-            "labels": {
-                "source_type": context.source_type,
-                "importance": context.importance,
-                "sentiment": context.sentiment,
-                "event_tags": context.event_tags,
-            },
-            "entity": {
-                "stock_code": context.stock_code or "",
-                "stock_name": context.stock_name or "",
-                "stock_name_en": context.stock_name_en,
-            },
-            "title": context.title,
-            "snippet": context.snippet,
-            "article_text": cls._truncate_context(context.content),
-        }
-        return [
-            {
-                "role": "system",
-                "content": (
-                    "You are a Korean financial-news analyst for foreign retail investors. "
-                    "You ground every sentence in the provided Korean article and output "
-                    "strict JSON."
-                ),
-            },
-            {
-                "role": "user",
-                "content": json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
-            },
-        ]
-
-    @classmethod
-    def training_example(
-        cls,
-        context: NewsSummaryContext,
-        target: SummaryLines,
-    ) -> dict[str, object]:
-        return {
-            "schema_version": "news-summary-wwi-sft/v1",
-            "prompt_version": NEWS_SUMMARY_PROMPT_VERSION,
-            "messages": [
-                *cls.messages(context),
-                {
-                    "role": "assistant",
-                    "content": json.dumps(
-                        {
-                            "what": target.what,
-                            "why": target.why,
-                            "impact": target.impact,
-                        },
-                        ensure_ascii=False,
-                        separators=(",", ":"),
-                    ),
-                },
-            ],
-            "target": {
-                "what": target.what,
-                "why": target.why,
-                "impact": target.impact,
-            },
-        }
-
-    @staticmethod
-    def _parse_llm_output(raw_content: str) -> dict[str, str]:
-        cleaned = re.sub(r"<think>.*?</think>", "", raw_content, flags=re.DOTALL).strip()
-        match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
-        if not match:
-            raise ValueError("LLM response does not contain a JSON object")
-        parsed = json.loads(match.group(0))
-        if not isinstance(parsed, dict):
-            raise ValueError("LLM JSON response must be an object")
-        return {
-            key: value
-            for key, value in parsed.items()
-            if key in {"what", "why", "impact"} and isinstance(value, str)
-        }
-
-    @classmethod
-    def _sanitize(cls, text: str) -> str:
-        normalized = re.sub(r"\s+", " ", text).strip()
-        normalized = normalized.strip("`'\" ")
-        return normalized
-
-    @classmethod
-    def _is_quality_output(cls, summary: SummaryLines, context: NewsSummaryContext) -> bool:
-        lines = [summary.what, summary.why, summary.impact]
-        if any(not cls._is_valid_sentence(line) for line in lines):
-            return False
-        normalized_lines = {line.lower() for line in lines}
-        if len(normalized_lines) != 3:
-            return False
-        combined = " ".join(lines)
-        lower_combined = combined.lower()
-        if any(term in lower_combined for term in cls._META_TERMS):
-            return False
-        if any(term in lower_combined for term in cls._ADVICE_TERMS):
-            return False
-        if any(term in lower_combined for term in cls._HALLUCINATION_TERMS):
-            return False
-        if cls._has_unsupported_hyphenated_term(combined):
-            return False
-        if not cls._passes_source_specific_quality(combined, context):
-            return False
-        if re.search(r"[가-힣]", combined):
-            return False
-        if not cls._mentions_relevant_subject(combined, context):
-            return False
-        return cls._has_grounded_financial_terms(combined, context)
-
-    @classmethod
-    def _passes_source_specific_quality(cls, combined: str, context: NewsSummaryContext) -> bool:
-        evidence = f"{context.title} {context.snippet} {context.content}"
-        lower = combined.lower()
-        if any(term in evidence for term in ("미들마켓론", "유럽 로드쇼")):
-            return any(
-                term in lower
-                for term in (
-                    "securities firm",
-                    "securities firms",
-                    "mid-market loan",
-                    "middle-market loan",
-                    "roadshow",
-                    "overseas",
-                )
-            )
-        if "개미" in evidence and "순매수" in evidence and "상반기" in evidence:
-            return "retail" in lower and "net buying" in lower
-        if cls._is_kospi_rollercoaster_context(evidence):
-            return "kospi" in lower and any(
-                term in lower
-                for term in (
-                    "volatility",
-                    "swung",
-                    "reversed",
-                    "foreign",
-                    "8,000",
-                    "8000",
-                )
-            )
-        if "삼전닉스" in evidence and "레버리지" in evidence:
-            return "samjeon nix" in lower or (
-                "leveraged" in lower and ("retail" in lower or "single-stock" in lower)
-            )
-        if "대구" in evidence and "시총" in evidence and any(
-            term in evidence for term in ("상장사", "상장법인")
-        ):
-            return "daegu" in lower and (
-                "market cap" in lower or "market capitalization" in lower
-            )
-        if "반도체 클러스터" in evidence and "메가프로젝트" in evidence:
-            return "semiconductor cluster" in lower or "megaproject" in lower
-        if "수신" in evidence and "은행" in evidence and "증시" in evidence:
-            return "bank" in lower and ("deposit" in lower or "liquidity" in lower)
-        if cls._is_bank_earnings_context(evidence):
-            return "bank" in lower and ("earnings" in lower or "financial" in lower)
-        if "하이닉스" in evidence and "ADR" in evidence and "삼성전자" in evidence:
-            return "adr" in lower and ("earnings" in lower or "foreign" in lower)
-        if "RV" in evidence and "HEV" in evidence and "현대차" in evidence:
-            return "rv" in lower and "hev" in lower and (
-                "new-car price" in lower
-                or "incentive" in lower
-                or "profitability" in lower
-            )
-        return True
-
-    @classmethod
-    def _is_valid_sentence(cls, line: str) -> bool:
-        if not line or "\n" in line:
-            return False
-        if len(line) > 320:
-            return False
-        if "..." in line or "…" in line:
-            return False
-        if line.startswith(("-", "*", "•")):
-            return False
-        if not re.search(r"[.!?]$", line):
-            return False
-        if re.search(r"^\d{6}\b", line):
-            return False
-        if cls._is_fragmentary_sentence(line):
-            return False
-        chunks = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", line)
-        if len([chunk for chunk in chunks if chunk.strip()]) != 1:
-            return False
-        return len(re.findall(r"[A-Za-z0-9%$]+", line)) >= 7
-
-    @classmethod
-    def _is_fragmentary_sentence(cls, line: str) -> bool:
-        normalized = re.sub(r"\s+", " ", line).strip()
-        lower = normalized.lower()
-        if normalized.startswith("()") or lower in {".", "korean stock market."}:
-            return True
-        letter_count = len(re.findall(r"[A-Za-z]", normalized))
-        punctuation_count = len(re.findall(r"[()%,;:·]", normalized))
-        if letter_count == 0 or punctuation_count / letter_count > 0.34:
-            return True
-        word_count = len(re.findall(r"[A-Za-z]{2,}", normalized))
-        return lower.startswith("the article cites ") and word_count < 6
-
-    @classmethod
-    def _has_unsupported_hyphenated_term(cls, combined: str) -> bool:
-        for token in re.findall(r"\b[a-z][a-z]+(?:-[a-z][a-z]+)+(?:'s)?\b", combined.lower()):
-            normalized = token.removesuffix("'s")
-            if normalized not in cls._ALLOWED_HYPHENATED_TERMS:
-                return True
-        return False
-
-    @classmethod
-    def _mentions_relevant_subject(cls, combined: str, context: NewsSummaryContext) -> bool:
-        lower = combined.lower()
-        if context.stock_name_en and context.stock_name_en.lower() in lower:
-            return True
-        if context.stock_code and context.stock_code in combined:
-            return True
-        title_context = f"{context.title} {context.snippet} {context.content}"
-        market_terms = ("코스피", "코스닥", "증시", "시장", "환율", "금리")
-        if any(term in title_context for term in market_terms):
-            return any(
-                term in lower
-                for term in (
-                    "kospi",
-                    "kosdaq",
-                    "korean market",
-                    "stock market",
-                    "market",
-                    "exchange rate",
-                    "interest rate",
-                )
-            )
-        return "the company" in lower or "the issuer" in lower
-
-    @classmethod
-    def _has_grounded_financial_terms(cls, combined: str, context: NewsSummaryContext) -> bool:
-        evidence = f"{context.title} {context.snippet} {context.content}"
-        lower = combined.lower()
-        matched = 0
-        for korean_term, english_terms in cls._KOREAN_TO_ENGLISH_TERMS.items():
-            if korean_term not in evidence:
-                continue
-            if any(english_term in lower for english_term in english_terms):
-                matched += 1
-        if matched >= 2:
-            return True
-        if matched == 1 and any(
-            tag.lower().replace("_", " ") in lower for tag in context.event_tags
-        ):
-            return True
-        if matched == 1 and len(context.content) >= 200:
-            return True
-        return False
-
-    @staticmethod
-    def _has_usable_full_text(content: str) -> bool:
-        normalized = re.sub(r"\s+", " ", content).strip()
-        if len(normalized) < 120:
-            return False
-        return "..." not in normalized and "…" not in normalized
-
-    @staticmethod
-    def _truncate_context(content: str) -> str:
-        normalized = re.sub(r"\s+", " ", content).strip()
-        if len(normalized) <= 6500:
-            return normalized
-        return normalized[:6500].rsplit(" ", 1)[0].strip()
+        return self._english_fallback(context)
 
     @classmethod
     def _english_fallback(cls, context: NewsSummaryContext) -> SummaryLines:
@@ -1946,10 +1232,10 @@ class NewsSummaryGenerator:
         if "리밸런싱" in evidence or "장 막판" in evidence:
             why_parts.append("ETF rebalancing flows increasing late-session volatility")
         if "개미" in evidence:
-            why_parts.append("retail investors concentrating in leveraged products")
+            why_parts.append("Ant participation concentrated in leveraged products")
         return SummaryLines(
             what=(
-                "Single-stock leveraged ETFs in Korea drew scrutiny as retail buying "
+                "Single-stock leveraged ETFs in Korea drew scrutiny as Ant buying "
                 "concentrated in major chip-linked products."
             ),
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
@@ -1961,16 +1247,16 @@ class NewsSummaryGenerator:
 
     @classmethod
     def _retail_speculation_fallback(cls, evidence: str) -> SummaryLines:
-        why_parts = ["debt-funded retail speculation"]
+        why_parts = ["Bittu debt-funded speculation"]
         if "반도체" in evidence:
             why_parts.append("chip-cycle optimism around Samsung Electronics and SK hynix")
         if "우려" in evidence or "경고" in evidence:
             why_parts.append("analyst warnings about speculation rather than investment")
         return SummaryLines(
-            what="Korean retail speculation around Samjeon Nix drew renewed risk warnings.",
+            what="Bittu speculation around Samjeon Nix drew renewed risk warnings.",
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
             impact=(
-                "Investors should track margin exposure, retail flows, and volatility "
+                "Investors should track Bittu margin exposure and volatility "
                 "in major chip names."
             ),
         )
@@ -2015,19 +1301,19 @@ class NewsSummaryGenerator:
 
     @classmethod
     def _retail_net_buying_fallback(cls, evidence: str) -> SummaryLines:
-        why_parts = ["retail investors providing heavy net buying"]
+        why_parts = ["Ant participation providing heavy net buying"]
         if "코스피" in evidence:
             why_parts.append("stronger KOSPI performance drawing investor flows")
         if "161조" in evidence:
             why_parts.append("first-half net purchases reaching KRW 161 trillion")
         return SummaryLines(
             what=(
-                "Retail investors net bought heavily in the first half as Korean "
+                "Ant participants net bought heavily in the first half as Korean "
                 "stocks rallied."
             ),
             why="The article cites " + ", ".join(dict.fromkeys(why_parts[:3])) + ".",
             impact=(
-                "Investors should track whether retail net buying continues and "
+                "Investors should track whether Ant net buying continues and "
                 "which sectors absorb the flows."
             ),
         )
@@ -2283,7 +1569,10 @@ class NewsSummaryGenerator:
     def _is_kospi_rollercoaster_context(evidence: str) -> bool:
         return (
             "코스피" in evidence
-            and any(term in evidence for term in ("롤러코스피", "8000선", "8천선"))
+            and any(
+                term in evidence
+                for term in ("롤러코스피", "롤러코스터", "변동성", "8000선", "8천선")
+            )
             and any(
                 term in evidence
                 for term in ("등락", "출렁", "하락 반전", "급락", "순매도")

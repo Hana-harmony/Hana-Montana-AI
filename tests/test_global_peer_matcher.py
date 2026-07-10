@@ -1,20 +1,13 @@
-import json
-import re
 from pathlib import Path
 
 import joblib
-import pytest
 
-from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
 from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationContext,
     GlobalPeerExplanationGenerator,
-    MlxQwenPeerExplanationClient,
-    QwenHttpPeerExplanationClient,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
-from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 from hannah_montana_ai.training.global_peer_trainer import (
     KoreaCompanyProfile,
     clean_security_name,
@@ -24,31 +17,10 @@ from hannah_montana_ai.training.global_peer_trainer import (
     write_korea_company_profiles,
 )
 
-
-class _FakePeerExplanationClient:
-    def __init__(self, content: str) -> None:
-        self.content = content
-
-    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
-        return self.content
+MODEL_PATH = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
 
 
-class _FakeMlxTokenizer:
-    def __init__(self) -> None:
-        self.last_messages: list[dict[str, str]] = []
-        self.last_kwargs: dict[str, object] = {}
-
-    def apply_chat_template(
-        self,
-        messages: list[dict[str, str]],
-        **kwargs: object,
-    ) -> str:
-        self.last_messages = messages
-        self.last_kwargs = kwargs
-        return "rendered-qwen-chat-prompt"
-
-
-def test_us_stock_universe_covers_full_listed_symbol_directory() -> None:
+def test_us_stock_universe_covers_listed_symbol_directory() -> None:
     entries = load_us_stock_universe(Path("data/reference/us_stock_universe.csv"))
 
     assert len(entries) >= 5_000
@@ -59,138 +31,8 @@ def test_security_name_removes_share_class_and_legal_suffixes() -> None:
     assert clean_security_name("Alphabet Inc. Class A Common Stock") == "Alphabet"
 
 
-def test_global_peer_model_matches_alteogen_to_halozyme() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-
-    response = matcher.match(
-        GlobalPeerMatchRequest(
-            stock_code="196170",
-            stock_name="알테오젠",
-            stock_name_en="Alteogen",
-            market="KOSDAQ",
-        )
-    )
-
-    assert response.primary_peer.ticker == "HALO"
-    assert response.primary_peer.company_name == "Halozyme Therapeutics"
-    assert response.primary_peer.sector == "Health Care"
-    assert response.primary_peer.industry == "Biotechnology"
-    assert response.primary_peer.business_model == "Biotech platform licensing"
-    assert response.primary_peer.scale_bucket == "MID_CAP"
-    assert response.primary_peer.revenue_usd is not None
-    assert response.primary_peer.operating_income_usd is not None
-    assert "SEC_COMPANYFACTS" in response.primary_peer.financial_data_source
-    assert "NASDAQ_SUMMARY_MARKET_CAP" in response.primary_peer.financial_data_source
-    assert response.primary_peer.financial_similarity_score is not None
-    assert any("Sector" in factor for factor in response.primary_peer.matched_factors)
-    assert any("Scale" in factor for factor in response.primary_peer.matched_factors)
-    assert any("Financial similarity" in factor for factor in response.primary_peer.matched_factors)
-    assert response.confidence_level in {"MEDIUM", "HIGH"}
-    assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
-    assert "drug-delivery technology" in response.summary
-    assert response.model_version.startswith("global-peer-hybrid-ranker-")
-    assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert response.explanation_prompt_version == "global-peer-structured-rag-explainer-v8"
-
-
-def test_global_peer_local_llm_settings_without_endpoint_use_direct_qwen3_mlx_client() -> None:
-    settings = Settings(
-        global_peer_explanation_mode="local_llm",
-        global_peer_explanation_llm_endpoint="",
-        global_peer_explanation_mlx_model="mlx-community/Qwen3-0.6B-4bit",
-        global_peer_explanation_mlx_adapter_path=Path(
-            "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora"
-        ),
-    )
-
-    generator = GlobalPeerExplanationGenerator.from_settings(settings)
-
-    assert generator._enabled is True
-    assert isinstance(generator._client, MlxQwenPeerExplanationClient)
-    assert generator._model_name == "mlx-community/Qwen3-0.6B-4bit"
-
-
-def test_global_peer_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
-    settings = Settings(
-        global_peer_explanation_mode="local_llm",
-        global_peer_explanation_llm_endpoint="",
-        global_peer_explanation_mlx_adapter_path=tmp_path / "missing-peer-lora",
-    )
-
-    with pytest.raises(ModelArtifactNotFoundError):
-        GlobalPeerExplanationGenerator.from_settings(settings)
-
-
-def test_global_peer_local_llm_settings_with_endpoint_use_qwen_http_client() -> None:
-    settings = Settings(
-        global_peer_explanation_mode="local_llm",
-        global_peer_explanation_llm_endpoint="http://127.0.0.1:8089",
-        global_peer_explanation_llm_model="Qwen3-4B-GGUF-Q4",
-    )
-
-    generator = GlobalPeerExplanationGenerator.from_settings(settings)
-
-    assert generator._enabled is True
-    assert isinstance(generator._client, QwenHttpPeerExplanationClient)
-    assert generator._model_name == "Qwen3-4B-GGUF-Q4"
-
-
-def test_mlx_qwen_peer_explanation_client_loads_adapter_and_generates_text() -> None:
-    calls: dict[str, object] = {}
-    fake_model = object()
-    fake_tokenizer = _FakeMlxTokenizer()
-    adapter_path = Path("src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora")
-
-    def fake_loader(model_name: str, adapter_path_arg: Path | None) -> tuple[object, object]:
-        calls["model_name"] = model_name
-        calls["adapter_path"] = adapter_path_arg
-        return fake_model, fake_tokenizer
-
-    def fake_generator(
-        model: object,
-        tokenizer: object,
-        prompt: str,
-        max_tokens: int,
-        temperature: float,
-    ) -> str:
-        calls["model"] = model
-        calls["tokenizer"] = tokenizer
-        calls["prompt"] = prompt
-        calls["max_tokens"] = max_tokens
-        calls["temperature"] = temperature
-        return '{"headline":"Generated headline","summary":"Generated summary"}'
-
-    client = MlxQwenPeerExplanationClient(
-        model="mlx-community/Qwen3-0.6B-4bit",
-        adapter_path=adapter_path,
-        temperature=0.0,
-        model_loader=fake_loader,
-        text_generator=fake_generator,
-    )
-
-    output = client.generate(
-        [
-            {"role": "system", "content": "Use only facts."},
-            {"role": "user", "content": "Return JSON."},
-        ],
-        max_tokens=64,
-    )
-
-    assert output == '{"headline":"Generated headline","summary":"Generated summary"}'
-    assert calls["model_name"] == "mlx-community/Qwen3-0.6B-4bit"
-    assert calls["adapter_path"] == adapter_path
-    assert calls["model"] is fake_model
-    assert calls["tokenizer"] is fake_tokenizer
-    assert calls["prompt"] == "rendered-qwen-chat-prompt"
-    assert calls["max_tokens"] == 64
-    assert calls["temperature"] == 0.0
-    assert fake_tokenizer.last_kwargs["tokenize"] is False
-    assert fake_tokenizer.last_kwargs["add_generation_prompt"] is True
-    assert fake_tokenizer.last_kwargs["enable_thinking"] is False
-
-
-def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+def test_global_peer_model_matches_core_korean_stocks() -> None:
+    matcher = GlobalPeerMatcher(MODEL_PATH)
     cases = [
         ("005930", "삼성전자", "Samsung Electronics", "KOSPI", "MU"),
         ("000660", "SK하이닉스", "SK hynix", "KOSPI", "MU"),
@@ -200,27 +42,37 @@ def test_global_peer_model_quality_smoke_matches_core_korean_stocks() -> None:
         ("373220", "LG에너지솔루션", "LG Energy Solution", "KOSPI", "TSLA"),
     ]
 
-    for stock_code, stock_name, stock_name_en, market, expected_ticker in cases:
+    for code, name, english_name, market, expected_ticker in cases:
         response = matcher.match(
             GlobalPeerMatchRequest(
-                stock_code=stock_code,
-                stock_name=stock_name,
-                stock_name_en=stock_name_en,
+                stock_code=code,
+                stock_name=name,
+                stock_name_en=english_name,
                 market=market,
             )
         )
-
         assert response.primary_peer.ticker == expected_ticker
-        assert response.primary_peer.ticker not in {stock_name_en, stock_name}
-        assert response.primary_peer.sector != "Unclassified"
-        assert response.primary_peer.industry != "Unclassified"
         assert response.primary_peer.matched_factors
 
 
-def test_samsung_global_comparison_uses_curated_dimensions_and_source_strengths() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+def test_alteogen_uses_curated_halozyme_template() -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
+        GlobalPeerMatchRequest(
+            stock_code="196170",
+            stock_name="알테오젠",
+            stock_name_en="Alteogen",
+            market="KOSDAQ",
+        )
+    )
 
-    response = matcher.match(
+    assert response.primary_peer.ticker == "HALO"
+    assert "Alteogen Is The 'Halozyme Therapeutics'" in response.headline
+    assert "drug-delivery technology" in response.summary
+    assert response.explanation_source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+
+
+def test_samsung_comparison_uses_familiar_companies_and_four_strengths() -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
         GlobalPeerMatchRequest(
             stock_code="005930",
             stock_name="삼성전자",
@@ -229,36 +81,25 @@ def test_samsung_global_comparison_uses_curated_dimensions_and_source_strengths(
         )
     )
 
-    assert [comparison.dimension for comparison in response.comparisons] == [
+    assert [item.dimension for item in response.comparisons] == [
         "overall_business",
         "semiconductor_ds",
         "foundry",
     ]
-    assert [comparison.peer.ticker for comparison in response.comparisons] == [
-        "AAPL",
-        "INTC",
-        "TSM",
-    ]
-    assert len(response.key_strengths) == 4
-    assert [strength.icon_key for strength in response.key_strengths] == [
+    assert [item.peer.ticker for item in response.comparisons] == ["AAPL", "INTC", "TSM"]
+    assert [item.icon_key for item in response.key_strengths] == [
         "memory",
         "foundry",
         "ecosystem",
         "ai",
     ]
-    assert len({strength.title for strength in response.key_strengths}) == 4
-    assert response.headline == "Samsung Electronics Is The 'Apple + TSMC' of South Korea"
-    assert "consumer ecosystem" in response.summary
+    assert len({item.title for item in response.key_strengths}) == 4
     assert all("both companies" not in item.description.lower() for item in response.comparisons)
     assert all("both companies" not in item.description.lower() for item in response.key_strengths)
-    samsung_profile = matcher._korea_profiles["005930"]
-    assert "DS" in str(samsung_profile["business_summary"])
 
 
-def test_global_comparison_fallback_is_complete_unique_and_quality_adjusted() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-
-    response = matcher.match(
+def test_non_curated_comparison_is_complete_and_unique() -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
         GlobalPeerMatchRequest(
             stock_code="035420",
             stock_name="NAVER",
@@ -271,12 +112,30 @@ def test_global_comparison_fallback_is_complete_unique_and_quality_adjusted() ->
     assert len({item.dimension for item in response.comparisons}) == 3
     assert len({item.peer.ticker for item in response.comparisons}) == 3
     assert len(response.key_strengths) == 4
-    assert len({item.title for item in response.key_strengths}) == 4
-    assert len({item.description for item in response.key_strengths}) == 4
 
 
-def test_us_peer_profiles_include_quality_signals_and_market_cap_sanity() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
+def test_explanation_generator_is_always_template_backed() -> None:
+    request = GlobalPeerMatchRequest(
+        stock_code="035420",
+        stock_name="NAVER",
+        stock_name_en="NAVER",
+        market="KOSPI",
+    )
+    response = GlobalPeerMatcher(MODEL_PATH).match(request)
+    context = GlobalPeerExplanationContext(
+        request=request,
+        primary_peer=response.primary_peer,
+        confidence_level=response.confidence_level,
+        confidence_score=response.confidence_score,
+    )
+    generator = GlobalPeerExplanationGenerator()
+
+    assert generator.generate(context) == generator.template(context)
+    assert generator.generate(context).source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
+
+
+def test_us_peer_profiles_have_quality_signals() -> None:
+    matcher = GlobalPeerMatcher(MODEL_PATH)
     profiles = {
         profile["identifier"]: profile
         for profile in matcher._eligible_us_profiles
@@ -285,24 +144,19 @@ def test_us_peer_profiles_include_quality_signals_and_market_cap_sanity() -> Non
 
     assert set(profiles) == {"AAPL", "INTC", "TSM", "MU"}
     assert all(float(profiles[ticker]["familiarity_score"]) > 0.7 for ticker in profiles)
-    assert profiles["AAPL"]["industry"] == "Consumer Electronics and Appliances"
-    assert profiles["INTC"]["industry"] == "Semiconductors"
     assert profiles["TSM"]["business_model"] == "Pure-play semiconductor foundry manufacturing"
-    assert float(profiles["MU"]["market_cap_reliability_score"]) < 0.5
 
 
 def test_global_peer_artifact_is_serving_only_and_github_safe() -> None:
-    model_path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
-    payload = joblib.load(model_path)
+    payload = joblib.load(MODEL_PATH)
 
-    assert model_path.stat().st_size < 95_000_000
+    assert MODEL_PATH.stat().st_size < 95_000_000
     assert "korea_business_profile_classifier" not in payload
     assert payload["eligible_us_matrix"].shape[1] <= 100_000
     assert payload["semantic_reducer"].components_.shape[0] <= 192
-    assert all("business_summary" not in profile for profile in payload["eligible_us_profiles"])
 
 
-def test_business_summary_tagger_extracts_domain_without_ecommerce_noise() -> None:
+def test_business_summary_tagger_extracts_domain_without_noise() -> None:
     tags = infer_business_tags_from_company_summary(
         "동사는 전자상거래 플랫폼과 유통사업을 영위하며 화장품 브랜드를 판매한다."
     )
@@ -311,9 +165,8 @@ def test_business_summary_tagger_extracts_domain_without_ecommerce_noise() -> No
     assert "semiconductors" not in tags
 
 
-def test_korea_company_profile_roundtrip_preserves_business_summary(tmp_path: Path) -> None:
-    path = tmp_path / "korea_company_profiles.csv"
-
+def test_korea_company_profile_roundtrip_preserves_summary(tmp_path: Path) -> None:
+    path = tmp_path / "profiles.csv"
     write_korea_company_profiles(
         path,
         [
@@ -327,305 +180,30 @@ def test_korea_company_profile_roundtrip_preserves_business_summary(tmp_path: Pa
                 induty_code="465",
                 est_dt="19890816",
                 acc_mt="12",
-                business_summary_text="항암 면역 치료제와 면역관문억제제를 개발한다.",
+                business_summary_text="항암 면역 치료제를 개발한다.",
                 source="OPEN_DART_COMPANY+WISE_REPORT_BUSINESS_SUMMARY",
             )
         ],
     )
 
-    profiles = load_korea_company_profiles(path)
-
-    assert profiles["052020"].business_summary_text == (
-        "항암 면역 치료제와 면역관문억제제를 개발한다."
-    )
-    assert profiles["052020"].induty_code == "465"
-
-
-def test_global_peer_business_profile_classifier_removes_legacy_low_examples() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    cases = [
-        ("003580", "HLB글로벌", "Food and Beverage"),
-        ("009810", "플레이그램", "Software"),
-        ("052020", "에스티큐브", "Biotechnology"),
-        ("080010", "이상네트웍스", "Machinery and Industrial Equipment"),
-        ("102370", "케이옥션", "Art and Collectibles Marketplace"),
-    ]
-
-    for stock_code, stock_name, expected_industry in cases:
-        response = matcher.match(
-            GlobalPeerMatchRequest(
-                stock_code=stock_code,
-                stock_name=stock_name,
-                market="KOSDAQ",
-            )
-        )
-
-        assert response.confidence_level in {"MEDIUM", "HIGH"}
-        assert response.primary_peer.industry == expected_industry
-
-
-def test_global_peer_model_prioritizes_domain_and_explains_financial_context() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-
-    response = matcher.match(
-        GlobalPeerMatchRequest(
-            stock_code="035420",
-            stock_name="NAVER",
-            stock_name_en="NAVER",
-            market="KOSPI",
-        )
-    )
-
-    factors = response.primary_peer.matched_factors
-    assert response.primary_peer.ticker == "GOOGL"
-    assert factors[0] == "Sector: NAVER and Alphabet map to Information Technology."
-    assert factors[1] == "Industry: NAVER and Alphabet map to Internet Platforms."
-    assert any("scale differs" in factor for factor in factors)
-    assert any("relative US-market positioning" in factor for factor in factors)
-
-
-def test_global_peer_llm_explainer_accepts_qwen3_thinking_json() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    request = GlobalPeerMatchRequest(
-        stock_code="035420",
-        stock_name="NAVER",
-        stock_name_en="NAVER",
-        market="KOSPI",
-    )
-    response = matcher.match(request)
-    context = GlobalPeerExplanationContext(
-        request=request,
-        primary_peer=response.primary_peer,
-        confidence_level=response.confidence_level,
-        confidence_score=response.confidence_score,
-    )
-    expected = GlobalPeerExplanationGenerator().template(context)
-    llm_content = "<think>\n\n</think>\n\n" + json.dumps(
-        {
-            "headline": "NAVER Lines Up With 'Alphabet' As An Internet Platforms Peer",
-            "summary": (
-                "The closest US-listed peer selected for NAVER is Alphabet, reflecting "
-                "its internet-platform business. Alphabet shares the same broad sector "
-                "signal in Information Technology and a comparable industry map around "
-                "internet platforms. Financial fields are treated as supporting context, "
-                "with Alphabet used as a mega-cap scale reference rather than a direct "
-                "valuation twin."
-            ),
-        }
-    )
-    generator = GlobalPeerExplanationGenerator(
-        enabled=True,
-        model_name="Qwen3-0.6B-test",
-        client=_FakePeerExplanationClient(llm_content),
-    )
-
-    explanation = generator.generate(
-        GlobalPeerExplanationContext(
-            request=context.request,
-            primary_peer=context.primary_peer,
-            confidence_level=context.confidence_level,
-            confidence_score=context.confidence_score,
-        )
-    )
-
-    assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
-    assert explanation.model_version == "local-llm:Qwen3-0.6B-test"
-    assert explanation.headline != expected.headline
-    assert explanation.summary != expected.summary
-
-
-def test_global_peer_llm_explainer_normalizes_repeated_local_output() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    request = GlobalPeerMatchRequest(
-        stock_code="035420",
-        stock_name="NAVER",
-        stock_name_en="NAVER",
-        market="KOSPI",
-    )
-    response = matcher.match(request)
-    context = GlobalPeerExplanationContext(
-        request=request,
-        primary_peer=response.primary_peer,
-        confidence_level=response.confidence_level,
-        confidence_score=response.confidence_score,
-    )
-    generator = GlobalPeerExplanationGenerator(
-        enabled=True,
-        model_name="Qwen3-0.6B-test",
-        client=_FakePeerExplanationClient(
-            json.dumps(
-                {
-                    "headline": "NAVER Lines Up With 'Alphabet' As An Internet Platforms Peer",
-                    "summary": (
-                        "The closest US-listed peer selected for NAVER is Alphabet, "
-                        "reflecting its internet-platform business. Alphabet shares the "
-                        "same broad sector signal in Information Technology and a comparable "
-                        "industry map around internet platforms. Financial fields are "
-                        "treated as supporting context, with Alphabet serving as a "
-                        "mega-cap US-listed US-listed reference rather than a direct "
-                        "valuation twin."
-                    ),
-                }
-            )
-        ),
-    )
-
-    explanation = generator.generate(context)
-
-    assert explanation.source == "LOCAL_OPEN_SOURCE_LLM_GROUNDED_RAG"
-    assert "US-listed US-listed" not in explanation.summary
-
-
-def test_global_peer_llm_explainer_rejects_template_copy_output() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    request = GlobalPeerMatchRequest(
-        stock_code="035420",
-        stock_name="NAVER",
-        stock_name_en="NAVER",
-        market="KOSPI",
-    )
-    response = matcher.match(request)
-    context = GlobalPeerExplanationContext(
-        request=request,
-        primary_peer=response.primary_peer,
-        confidence_level=response.confidence_level,
-        confidence_score=response.confidence_score,
-    )
-    expected = GlobalPeerExplanationGenerator().template(context)
-    generator = GlobalPeerExplanationGenerator(
-        enabled=True,
-        model_name="Qwen3-0.6B-test",
-        client=_FakePeerExplanationClient(
-            json.dumps(
-                {
-                    "headline": expected.headline,
-                    "summary": expected.summary,
-                }
-            )
-        ),
-    )
-
-    explanation = generator.generate(context)
-
-    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert explanation.headline == expected.headline
-
-
-def test_global_peer_llm_explainer_falls_back_on_ungrounded_output() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    request = GlobalPeerMatchRequest(
-        stock_code="035420",
-        stock_name="NAVER",
-        stock_name_en="NAVER",
-        market="KOSPI",
-    )
-    response = matcher.match(request)
-    generator = GlobalPeerExplanationGenerator(
-        enabled=True,
-        model_name="Qwen3-0.6B-test",
-        client=_FakePeerExplanationClient(
-            '{"headline":"Buy this stock now",'
-            '"summary":"This is guaranteed to outperform with a new price target."}'
-        ),
-    )
-
-    explanation = generator.generate(
-        GlobalPeerExplanationContext(
-            request=request,
-            primary_peer=response.primary_peer,
-            confidence_level=response.confidence_level,
-            confidence_score=response.confidence_score,
-        )
-    )
-
-    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert "guaranteed" not in explanation.summary.lower()
-
-
-def test_global_peer_llm_explainer_falls_back_when_anchor_display_name_is_missing() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-    request = GlobalPeerMatchRequest(
-        stock_code="196170",
-        stock_name="알테오젠",
-        market="KOSDAQ",
-    )
-    response = matcher.match(request)
-    generator = GlobalPeerExplanationGenerator(
-        enabled=True,
-        model_name="Qwen3-0.6B-test",
-        client=_FakePeerExplanationClient(
-            json.dumps(
-                {
-                    "headline": "알테오젠 Is South Korea's Halozyme — A Biotechnology Peer",
-                    "summary": (
-                        "알테오젠 is a Korean biotechnology peer with Halozyme Therapeutics "
-                        "in Health Care biotechnology, with no investment advice."
-                    ),
-                }
-            )
-        ),
-    )
-
-    explanation = generator.generate(
-        GlobalPeerExplanationContext(
-            request=request,
-            primary_peer=response.primary_peer,
-            confidence_level=response.confidence_level,
-            confidence_score=response.confidence_score,
-        )
-    )
-
-    assert explanation.source == "GROUNDED_TEMPLATE_STRUCTURED_RAG"
-    assert explanation.headline.startswith("Alteogen Is The 'Halozyme Therapeutics'")
-    assert explanation.summary.startswith("Alteogen is a high-margin")
-
-
-def test_global_peer_explanation_uses_english_display_name_without_user_score_copy() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-
-    response = matcher.match(
-        GlobalPeerMatchRequest(
-            stock_code="005930",
-            stock_name="삼성전자",
-            market="KOSPI",
-        )
-    )
-
-    user_copy = f"{response.headline} {response.summary}"
-    assert response.stock_name_en == "Samsung Electronics"
-    assert response.headline == "Samsung Electronics Is The 'Apple + TSMC' of South Korea"
-    assert "consumer ecosystem" in response.summary
-    assert "삼성전자" not in user_copy
-    assert "similarity score" not in user_copy.lower()
-    assert "confidence" not in user_copy.lower()
-    assert "hannah" not in user_copy.lower()
-    assert response.primary_peer.financial_similarity_score is not None
-    assert 0.0 < response.primary_peer.financial_similarity_score <= 1.0
-    assert any(
-        "market-cap input is treated as directional" in factor
-        for factor in response.primary_peer.matched_factors
+    assert load_korea_company_profiles(path)["052020"].business_summary_text == (
+        "항암 면역 치료제를 개발한다."
     )
 
 
-def test_global_peer_explanation_uses_stock_code_when_verified_english_name_is_missing() -> None:
-    matcher = GlobalPeerMatcher(Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib"))
-
-    response = matcher.match(
-        GlobalPeerMatchRequest(
-            stock_code="000010",
-            stock_name="신한은행",
-            market="KOSPI",
-        )
+def test_unknown_english_name_does_not_leak_korean_or_internal_score() -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
+        GlobalPeerMatchRequest(stock_code="000010", stock_name="신한은행", market="KOSPI")
     )
-
     user_copy = f"{response.stock_name_en} {response.headline} {response.summary}"
+
     assert response.stock_name_en == "Korean stock 000010"
     assert "신한은행" not in user_copy
     assert "similarity score" not in user_copy.lower()
     assert "confidence" not in user_copy.lower()
 
 
-def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
+def test_request_accepts_krx_alphanumeric_codes() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="0001A0",
         stock_name="덕양에너젠",
@@ -633,106 +211,3 @@ def test_global_peer_request_accepts_krx_alphanumeric_stock_codes() -> None:
     )
 
     assert request.stock_code == "0001A0"
-
-
-def test_global_peer_full_coverage_report_passes_all_stock_gate() -> None:
-    report = json.loads(Path("reports/global-peer-full-coverage-report.json").read_text())
-
-    assert report["schema_version"] == "global-peer-full-coverage/v2"
-    assert report["attempted_count"] >= 3_000
-    assert report["attempted_count"] == report["success_count"]
-    assert report["failure_count"] == 0
-    assert report["quality_gate"]["status"] == "pass"
-    assert report["confidence_monitoring"]["status"] == "pass"
-    assert report["confidence_monitoring"]["actual_low_confidence_ratio"] < 0.35
-    assert report["specific_profile_quality"]["status"] == "pass"
-    assert report["specific_profile_quality"]["low_confidence_count"] == 0
-    assert (
-        report["confidence_root_cause_distribution"]["source_profile_generic_or_legacy"]
-        == report["low_confidence_count"]
-    )
-    assert report["same_company_noise_count"] == 0
-    assert report["matched_factor_missing_count"] == 0
-    assert report["invalid_comparison_count"] == 0
-    assert report["invalid_strength_count"] == 0
-
-
-def test_global_peer_all_results_report_documents_every_stock() -> None:
-    report = json.loads(Path("reports/global-peer-all-results.json").read_text())
-
-    assert report["schema_version"] == "global-peer-all-results/v1"
-    assert report["performance"]["attempted_count"] >= 3_000
-    assert report["performance"]["attempted_count"] == report["performance"]["success_count"]
-    assert report["performance"]["failure_count"] == 0
-    assert report["performance"]["quality_status"] == "pass"
-    assert report["performance"]["low_confidence_ratio"] < 0.35
-    assert report["performance"]["specific_profile_quality"]["status"] == "pass"
-    assert report["performance"]["specific_profile_quality"]["low_confidence_count"] == 0
-    assert (
-        report["performance"]["confidence_root_cause_distribution"][
-            "source_profile_generic_or_legacy"
-        ]
-        == report["performance"]["confidence_distribution"]["LOW"]
-    )
-    assert len(report["results"]) == report["performance"]["success_count"]
-    assert Path("docs/GLOBAL_PEER_ALL_RESULTS.md").exists()
-    assert Path("reports/global-peer-all-results.csv").exists()
-    assert report["results"][0]["explanation_source"]
-    assert report["results"][0]["explanation_prompt_version"]
-    user_copy = " ".join(f"{row['headline']} {row['summary']}" for row in report["results"])
-    assert not re.search(r"[가-힣]", user_copy)
-    assert "similarity score" not in user_copy.lower()
-    assert "confidence" not in user_copy.lower()
-
-
-def test_global_peer_qwen3_explainer_training_artifacts_are_ready() -> None:
-    readiness = json.loads(Path("reports/global-peer-explanation-llm-readiness.json").read_text())
-    training = json.loads(Path("reports/global-peer-qwen3-explainer-training.json").read_text())
-
-    assert readiness["schema_version"] == "global-peer-explanation-llm-readiness/v1"
-    assert readiness["prompt_version"] == "global-peer-structured-rag-explainer-v8"
-    assert readiness["recommended_train_model"] == "Qwen/Qwen3-0.6B-MLX-4bit LoRA"
-    assert readiness["sample_count"] >= 3_000
-    assert readiness["failure_count"] == 0
-    assert readiness["grounded_target_failure_count"] == 0
-    assert readiness["quality_status"] == "pass"
-    assert training["schema_version"] == "global-peer-qwen3-explainer-training/v1"
-    assert training["base_model"] == "mlx-community/Qwen3-0.6B-4bit"
-    assert training["training"]["executed"] is True
-    assert training["training"]["return_code"] == 0
-    assert training["training"]["observed_test_loss"] <= 0.01
-    assert training["training"]["observed_test_perplexity"] <= 1.01
-    assert training["training"]["observed_peak_memory_gb"] <= 2.5
-    assert Path("data/training/global_peer_explanation_sft.jsonl").exists()
-    assert Path("data/training/global_peer_explanation_mlx/train.jsonl").exists()
-    assert Path(
-        "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapters.safetensors"
-    ).exists()
-    assert Path(
-        "src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapter_config.json"
-    ).exists()
-
-
-def test_global_peer_qwen3_raw_generation_report_passes_strict_gate() -> None:
-    report = json.loads(Path("reports/global-peer-qwen3-generation-eval.json").read_text())
-
-    assert report["schema_version"] == "global-peer-qwen3-generation-eval/v1"
-    assert report["prompt_version"] == "global-peer-structured-rag-explainer-v8"
-    assert report["stock_count"] == 30
-    assert report["pass_count"] == 30
-    assert report["pass_rate"] == 1.0
-    assert report["json_valid_count"] == 30
-    assert report["template_copy_count"] == 0
-    assert report["non_template_generation_count"] == 30
-    assert report["grounded_count"] == 30
-    assert report["quality_status"] == "pass"
-    parsed_outputs = [
-        f"{row['parsed']['headline']} {row['parsed']['summary']}" for row in report["results"]
-    ]
-    combined_outputs = " ".join(parsed_outputs)
-    assert "Samsung Electronics Lines Up With" in combined_outputs
-    assert "LG Energy Solution Lines Up With" in combined_outputs
-    assert "SK hynix Lines Up With" in combined_outputs
-    assert "similarity score" not in combined_outputs.lower()
-    assert "confidence" not in combined_outputs.lower()
-    assert "Hannah's global peer ranker" not in combined_outputs

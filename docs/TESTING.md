@@ -80,7 +80,7 @@ uv run python scripts/build_translation_sample_report.py --sample-limit-per-sour
 - 중복 제거 키가 뉴스 라벨·언론사·기자 꼬리표를 제거하면서 종목·출처 경계를 유지하는지 검증
 - 실시간 Naver 뉴스 표본 배치가 라벨 없는 smoke/drift row와 provider status, confidence 분포를 기록하는지 검증
 - 실시간 Naver 뉴스 전문 품질 감사가 full content, What/Why/Impact 요약, query-relevant pass rate, 종목 매칭 실패 원인을 기록하는지 검증
-- 실제 Naver 뉴스 gold와 OpenDART 공시 gold 샘플의 원문, Hannah 로컬 금융용어 번역 보조 결과, AI 분석 결과, glossary, fallback/review finding을 `reports/translation-sample-report.json`에 기록하는지 검증
+- 실제 뉴스·공시 표본을 로컬 Qwen 4B endpoint로 번역하고 dictionary 표면형과 품질 gate를 통과하는지 검증
 - Hana-OmniLens-API Spring client가 사용하는 request·response JSON 필드명과 무토큰 내부 호출 계약 검증
 - 기능정의서 기반 국내주식 주문 상태, 뉴스·공시 인텔리전스 이벤트, 세무 환급 선지급 JSON 계약 검증
 - 주문 상태 API가 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 주문 제한 사유를 산출하는지 검증
