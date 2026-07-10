@@ -51,6 +51,37 @@ def test_settings_factory_always_uses_qwen_4b_http() -> None:
     assert isinstance(generator._client, QwenHttpKoreanTranslationClient)
     assert generator._model_name == "local-llm:Qwen3-4B-GGUF-Q4"
     assert generator._rule_based_repairs_enabled is False
+    dictionary_terms = {
+        (term.normalized_term, term.english_term)
+        for term in generator._dictionary_glossary_terms
+    }
+    assert ("개미", "Ant") in dictionary_terms
+    assert ("대장주", "Daejangju") in dictionary_terms
+
+
+def test_dictionary_contract_repairs_qwen_localism_paraphrases() -> None:
+    generator = KoreanTranslationGenerator.from_settings(
+        Settings(korean_translation_llm_endpoint="http://127.0.0.1:18081")
+    )
+    client = FakeTranslationClient(
+        json.dumps({"translation": "Insects are buying semiconductor blue chips."})
+    )
+    generator._client = client
+
+    result = generator.translate(
+        KoreanTranslationContext(text="개미가 반도체 대장주를 사고 있다.")
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "Ant are buying semiconductor Daejangju."
+    assert result.quality_flags == []
+    prompt = json.loads(client.calls[0][1]["content"])
+    glossary = {
+        (term["normalized_term"], term["english_term"])
+        for term in prompt["glossary"]
+    }
+    assert ("개미", "Ant") in glossary
+    assert ("대장주", "Daejangju") in glossary
 
 
 def test_settings_factory_requires_endpoint() -> None:

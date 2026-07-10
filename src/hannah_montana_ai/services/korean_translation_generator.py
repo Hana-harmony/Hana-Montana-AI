@@ -15,6 +15,7 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, TranslationStatus
+from hannah_montana_ai.services.korean_financial_terms import load_financial_term_entries
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
@@ -353,6 +354,8 @@ class KoreanTranslationGenerator:
                 "country-investors",
                 "country investor",
                 "country investors",
+                "insect",
+                "insects",
             ),
         ),
         "대장주": (
@@ -384,6 +387,8 @@ class KoreanTranslationGenerator:
                 "blue-chip stocks",
                 "blue chip stock",
                 "blue chip stocks",
+                "blue chip",
+                "blue chips",
             ),
         ),
         "따따블": (
@@ -660,11 +665,13 @@ class KoreanTranslationGenerator:
         max_tokens: int = 2048,
         max_concurrency: int = 1,
         rule_based_repairs_enabled: bool = True,
+        dictionary_glossary_terms: tuple[FinancialGlossaryTerm, ...] = (),
     ) -> None:
         self._client = client
         self._model_name = model_name
         self._max_tokens = max_tokens
         self._rule_based_repairs_enabled = rule_based_repairs_enabled
+        self._dictionary_glossary_terms = dictionary_glossary_terms
         self._client_slots = BoundedSemaphore(max(1, max_concurrency))
 
     @classmethod
@@ -683,6 +690,19 @@ class KoreanTranslationGenerator:
             max_tokens=settings.korean_translation_llm_max_tokens,
             max_concurrency=settings.korean_translation_max_concurrency,
             rule_based_repairs_enabled=False,
+            dictionary_glossary_terms=tuple(
+                FinancialGlossaryTerm(
+                    source_term=surface,
+                    normalized_term=entry.normalized_term,
+                    english_term=entry.english_term,
+                    category=entry.category,
+                    description=entry.plain_explanation,
+                )
+                for entry in load_financial_term_entries(
+                    settings.korean_financial_terms_seed_path
+                )
+                for surface in dict.fromkeys((entry.normalized_term, *entry.aliases))
+            ),
         )
 
     def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
@@ -1330,6 +1350,10 @@ class KoreanTranslationGenerator:
             or self._contains_source_term(source_text, term.normalized_term)
         ]
         terms_by_normalized = {term.normalized_term: term for term in active_terms}
+        for term in self._dictionary_glossary_terms:
+            if self._contains_source_term(source_text, term.source_term):
+                # 번역 표기는 단일 dictionary seed를 최종 계약으로 사용한다.
+                terms_by_normalized[term.normalized_term] = term
         for term in self._required_market_glossary_terms(source_text):
             terms_by_normalized.setdefault(term.normalized_term, term)
         for term in self._required_company_glossary_terms(source_text):
@@ -1507,17 +1531,21 @@ class KoreanTranslationGenerator:
     ) -> str:
         result = translated_text
         terms_by_normalized = {term.normalized_term: term for term in glossary_terms}
-        for normalized_term, (preferred, alternatives) in self._LOCALISM_REPLACEMENTS.items():
+        for normalized_term, (
+            legacy_preferred,
+            alternatives,
+        ) in self._LOCALISM_REPLACEMENTS.items():
             if normalized_term not in terms_by_normalized:
                 continue
+            term = terms_by_normalized[normalized_term]
+            preferred = term.english_term
             result = self._replace_localism_surface(result, preferred, (preferred,))
             if self._contains_phrase(result, preferred):
                 continue
-            term = terms_by_normalized[normalized_term]
             result = self._replace_localism_surface(
                 result,
                 preferred,
-                (*alternatives, term.english_term),
+                (legacy_preferred, *alternatives, term.english_term),
             )
         return result
 
@@ -1547,9 +1575,11 @@ class KoreanTranslationGenerator:
     ) -> list[str]:
         flags: list[str] = []
         normalized_terms = {term.normalized_term for term in glossary_terms}
-        for normalized_term, (preferred, _) in self._LOCALISM_REPLACEMENTS.items():
+        terms_by_normalized = {term.normalized_term: term for term in glossary_terms}
+        for normalized_term in self._LOCALISM_REPLACEMENTS:
             if normalized_term not in normalized_terms:
                 continue
+            preferred = terms_by_normalized[normalized_term].english_term
             if self._has_acceptable_localism_surface(
                 translated_text,
                 normalized_term,
@@ -1580,8 +1610,6 @@ class KoreanTranslationGenerator:
         for term in glossary_terms:
             if term.normalized_term in self._LOCALISM_REPLACEMENTS:
                 continue
-            if term.category != "stock":
-                continue
             alternatives = self._GENERAL_GLOSSARY_SURFACE_ALIASES.get(term.english_term, ())
             result = self._replace_localism_surface(
                 result,
@@ -1598,8 +1626,7 @@ class KoreanTranslationGenerator:
         return [
             f"GLOSSARY_TERM_MISSING:{term.normalized_term}"
             for term in glossary_terms
-            if term.category == "stock"
-            and term.normalized_term not in self._LOCALISM_REPLACEMENTS
+            if term.normalized_term not in self._LOCALISM_REPLACEMENTS
             and not self._contains_phrase(translated_text, term.english_term)
         ]
 
