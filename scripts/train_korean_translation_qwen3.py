@@ -80,7 +80,7 @@ def main() -> None:
         "training": result,
         "serving_note": (
             "로컬 Mac은 MLX로 adapter를 직접 로드하고, AWS t4g.medium은 Qwen3-0.6B "
-            "GGUF Q4 sidecar를 OpenAI-compatible endpoint로 띄운다."
+            "Qwen3 GGUF Q4 런타임을 띄운다."
         ),
     }
     args.report_path.parent.mkdir(parents=True, exist_ok=True)

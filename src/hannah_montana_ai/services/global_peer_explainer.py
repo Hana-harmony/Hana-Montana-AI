@@ -79,7 +79,7 @@ type MlxModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
 type MlxTextGenerator = Callable[[Any, Any, str, int, float], str]
 
 
-class OpenAiCompatiblePeerExplanationClient:
+class QwenHttpPeerExplanationClient:
     def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
         self._endpoint = endpoint.rstrip("/")
         self._model = model
@@ -232,7 +232,7 @@ class GlobalPeerExplanationGenerator:
         self,
         *,
         enabled: bool = False,
-        model_name: str = "Qwen3-0.6B-GGUF-Q4",
+        model_name: str = "Qwen3-4B-GGUF-Q4",
         max_tokens: int = 220,
         client: PeerExplanationClient | None = None,
     ) -> None:
@@ -247,7 +247,7 @@ class GlobalPeerExplanationGenerator:
         client: PeerExplanationClient | None = None
         if enabled:
             if settings.global_peer_explanation_llm_endpoint:
-                client = OpenAiCompatiblePeerExplanationClient(
+                client = QwenHttpPeerExplanationClient(
                     endpoint=settings.global_peer_explanation_llm_endpoint,
                     model=settings.global_peer_explanation_llm_model,
                     timeout_seconds=settings.global_peer_explanation_llm_timeout_seconds,

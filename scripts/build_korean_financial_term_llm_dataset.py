@@ -177,7 +177,6 @@ def build_dataset(seed_path: Path) -> list[dict[str, object]]:
                     term=term,
                     title=f"{term} 관련 한국 증시 용어 설명",
                     context=template.format(term=term),
-                    allow_web_search=True,
                 )
                 evidence = _context_evidence(request)
                 target = GeneratedTermExplanation(
@@ -212,7 +211,6 @@ def build_dataset(seed_path: Path) -> list[dict[str, object]]:
                 term=term.normalized_term,
                 title=f"{term.normalized_term} 관련 한국 증시 신조어 설명",
                 context=context,
-                allow_web_search=True,
             )
             evidence = _context_evidence(request)
             target = GeneratedTermExplanation(

@@ -1,5 +1,7 @@
 import logging
 import threading
+import urllib.parse
+import urllib.request
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -10,6 +12,7 @@ from fastapi.responses import JSONResponse
 from hannah_montana_ai.api.common import FieldErrorDetail, error_response
 from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
 from hannah_montana_ai.api.routes import router, warm_runtime_dependencies
+from hannah_montana_ai.core.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +32,25 @@ def _warm_runtime_dependencies() -> None:
         warm_runtime_dependencies()
     except Exception:
         logger.exception("Runtime dependency warmup failed")
+
+
+def _translation_provider_ready(settings: Settings) -> bool:
+    if settings.korean_translation_generation_mode != "local_llm":
+        return True
+    endpoint = settings.korean_translation_llm_endpoint.rstrip("/")
+    if not endpoint:
+        return True
+    parsed = urllib.parse.urlparse(endpoint)
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    try:
+        with urllib.request.urlopen(  # noqa: S310  # nosec B310
+            f"{endpoint}/health",
+            timeout=2.0,
+        ) as response:
+            return bool(response.status == 200)
+    except (OSError, ValueError):
+        return False
 
 
 def create_app() -> FastAPI:
@@ -90,6 +112,15 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["system"])
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/ready", tags=["system"])
+    def readiness() -> JSONResponse:
+        if _translation_provider_ready(get_settings()):
+            return JSONResponse(status_code=200, content={"status": "ready"})
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "dependency": "korean_translation_llm"},
+        )
 
     app.include_router(
         router,

@@ -42,7 +42,7 @@ type MlxModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
 type MlxTextGenerator = Callable[[Any, Any, str, int, float], str]
 
 
-class OpenAiCompatibleNewsSummaryClient:
+class QwenHttpNewsSummaryClient:
     def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
         self._endpoint = endpoint.rstrip("/")
         self._model = model
@@ -529,7 +529,7 @@ class NewsSummaryGenerator:
         self,
         *,
         enabled: bool = False,
-        model_name: str = "Qwen3-0.6B-GGUF-Q4",
+        model_name: str = "Qwen3-4B-GGUF-Q4",
         max_tokens: int = 260,
         client: NewsSummaryClient | None = None,
     ) -> None:
@@ -544,7 +544,7 @@ class NewsSummaryGenerator:
         client: NewsSummaryClient | None = None
         if enabled:
             if settings.news_summary_llm_endpoint:
-                client = OpenAiCompatibleNewsSummaryClient(
+                client = QwenHttpNewsSummaryClient(
                     endpoint=settings.news_summary_llm_endpoint,
                     model=settings.news_summary_llm_model,
                     timeout_seconds=settings.news_summary_llm_timeout_seconds,

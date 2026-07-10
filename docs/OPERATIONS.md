@@ -19,7 +19,9 @@ docker run --rm --network hana-internal hannah-montana-ai
 - Spring 컨테이너와 AI 컨테이너만 같은 내부 네트워크에 둔다.
 
 ## 헬스체크
-- `GET /health`
+- `GET /health`는 API 프로세스 liveness를 확인한다.
+- `GET /ready`는 `local_llm` 번역 모드에서 Qwen 서버 `/health`까지 확인하며, 의존성 장애 시 503을 반환한다.
+- 로컬 compose healthcheck는 `/ready`를 사용해 번역 서버 없이 수집 작업이 시작되는 상태를 방지한다.
 
 ## 외국인 보유 시계열 예측
 - `POST /api/v1/market/foreign-ownership/predict`는 OmniLens가 저장한 외국인 보유수량, 보유율, 한도소진율 snapshot과 일별 시계열을 입력으로 받는다. 요청 수량과 장중 누적 거래량 필드는 호환용으로만 수신하며 예측식에는 반영하지 않는다.
@@ -57,21 +59,21 @@ uv run python scripts/build_hannah_ai_model_audit_report.py
 uv run pytest tests/test_global_peer_matcher.py tests/test_global_peer_api.py -q
 ```
 - 실제 AI 품질 smoke 결과는 `reports/global-peer-ai-smoke-report.json`과 `docs/GLOBAL_PEER_AI_SMOKE.md`에 저장한다. 전종목 coverage 결과는 `reports/global-peer-full-coverage-report.json`에 저장하며, API 계약 테스트와 별도로 전체 한국 master 3,967개가 추론 가능한지 확인한다. 전종목별 현재 primary peer 결과와 성능은 `docs/GLOBAL_PEER_ALL_RESULTS.md`, `reports/global-peer-all-results.json`, `reports/global-peer-all-results.csv`에 저장한다. Qwen3 설명 LLM 학습 데이터와 결과는 `data/training/global_peer_explanation_sft.jsonl`, `data/training/global_peer_explanation_mlx`, `reports/global-peer-explanation-llm-readiness.json`, `reports/global-peer-qwen3-explainer-training.json`, `reports/global-peer-qwen3-generation-eval.json`에 저장한다. 전체 AI 기능 감사는 `reports/hannah-ai-model-audit-report.json`과 `docs/HANNAH_AI_MODEL_AUDIT.md`에 저장한다.
-- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`에서 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`가 비어 있으면 `HANNAH_GLOBAL_PEER_MLX_MODEL`과 `HANNAH_GLOBAL_PEER_MLX_ADAPTER_PATH`를 사용해 MLX가 Qwen3-0.6B LoRA를 직접 로드한다. Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=<served-model-name>`을 설정해 llama.cpp 같은 OpenAI-compatible local server를 호출한다. t4g.medium에서는 Qwen3-0.6B GGUF Q4를 별도 프로세스로 띄우고 API는 짧은 structured prompt만 전달한다. endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, template copy, peer명 반복/축약, 점수 노출, 투자조언 문구는 모두 template fallback으로 처리한다.
+- 설명 LLM 운영은 기본 off다. `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`에서 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`가 비어 있으면 `HANNAH_GLOBAL_PEER_MLX_MODEL`과 `HANNAH_GLOBAL_PEER_MLX_ADAPTER_PATH`를 사용해 MLX가 Qwen3-0.6B LoRA를 직접 로드한다. Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_GLOBAL_PEER_LLM_MODEL=Qwen3-4B-GGUF-Q4`를 설정해 Qwen3 4B GGUF 런타임을 호출한다. endpoint 장애, 비정상 JSON, display name 누락, peer 근거 불일치, template copy, peer명 반복/축약, 점수 노출, 투자조언 문구는 채택하지 않는다.
 
 ## 한국 금융 용어 설명
-- `POST /api/v1/korean-financial-terms/explain`은 seed dictionary를 먼저 보고, 미등록 한글 용어는 `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 설명기로 넘긴다.
+- `POST /api/v1/korean-financial-terms/explain`은 seed dictionary를 먼저 보고, 미등록 한글 용어는 `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3 설명기로 넘긴다.
 - 로컬 개발은 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`를 비워 두면 `HANNAH_KOREAN_FINANCIAL_TERM_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit`와 `HANNAH_KOREAN_FINANCIAL_TERM_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 직접 로드한다.
-- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL=<served-model-name>`을 설정한다.
+- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-4B GGUF Q4를 띄우고 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL=Qwen3-4B-GGUF-Q4`를 설정한다.
 - `earnings`, `Foreign investors` 같은 일반 영어 금융 단어와 투자자 유형은 glossary 생성 대상이 아니므로 local LLM 호출 전에 review 경로로 둔다. Qwen 응답은 strict JSON, 클릭 한글 용어 포함, 2문장 설명, 투자 조언 금지 gate를 통과해야 `LOCAL_OPEN_SOURCE_LLM_RAG`로 노출한다.
 - 학습과 검증은 `data/training/korean_financial_term_explanation_sft.jsonl`, `reports/korean-financial-term-llm-readiness.json`, `reports/korean-term-qwen3-explainer-training.json`, `reports/korean-term-qwen3-generation-eval.json`에 저장한다.
 
 ## 뉴스·공시 What/Why/Impact Qwen 요약
 - `POST /api/v1/alerts/analyze`와 `POST /api/v1/intelligence/events`는 기본값으로 rule summary를 사용한다.
-- `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`을 켜면 full content 요청에서 Qwen3-0.6B LoRA가 영어 `what`, `why`, `impact` JSON을 생성한다.
+- `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`을 켜면 full content 요청에서 Qwen3가 영어 `what`, `why`, `impact` JSON을 생성한다.
 - 로컬 개발은 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`를 비워 두면 `HANNAH_NEWS_SUMMARY_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit`와 `HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 MLX로 직접 로드한다.
-- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_NEWS_SUMMARY_LLM_MODEL=<served-model-name>`을 설정한다.
-- Qwen 출력은 strict JSON, 영어 한 문장 3개, 생략부호 금지, 중요도·감성 메타 금지, 투자 조언 금지, 기사 근거 매칭 gate를 통과해야 채택된다. 실패하면 rule summary로 fallback한다.
+- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-4B GGUF Q4를 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_NEWS_SUMMARY_LLM_MODEL=Qwen3-4B-GGUF-Q4`를 설정한다.
+- Qwen 출력은 strict JSON, 영어 한 문장 3개, 생략부호 금지, 중요도·감성 메타 금지, 투자 조언 금지, 기사 근거 매칭 gate를 통과해야 채택된다.
 - 학습과 검증은 `data/training/news_summary_wwi_sft.jsonl`, `data/training/news_summary_wwi_mlx`, `reports/news-summary-qwen3-readiness.json`, `reports/news-summary-qwen3-training.json`, `reports/news-summary-qwen3-generation-eval.json`에 저장한다.
 ```bash
 uv run python scripts/build_news_summary_llm_dataset.py
@@ -80,11 +82,11 @@ uv run --extra llm-training python scripts/evaluate_news_summary_qwen3_generatio
 ```
 
 ## 한국어 전문 번역 Qwen
-- `POST /api/v1/translation/ko-en`은 기본값으로 명시적 source fallback을 반환한다.
-- `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`을 켜면 한국 뉴스·공시 원문과 glossary terms를 Qwen3-0.6B LoRA 번역기로 넘긴다.
-- 로컬 개발은 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`를 비워 두면 `HANNAH_KOREAN_TRANSLATION_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit`와 `HANNAH_KOREAN_TRANSLATION_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 MLX로 직접 로드한다.
-- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_KOREAN_TRANSLATION_LLM_MODEL=<served-model-name>`을 설정한다.
-- Qwen 출력은 strict JSON, 한글 잔존 금지, 요약 축약 금지, 말줄임표 금지, glossary localism 보존 gate를 통과해야 `TRANSLATED`로 채택된다. 실패하면 원문 fallback과 quality flag를 반환한다.
+- `POST /api/v1/translation/ko-en`은 Qwen3가 꺼져 있거나 품질 gate를 통과하지 못하면 번역문을 비워 실패 상태를 반환한다.
+- `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`을 켜면 한국 뉴스·공시 원문과 glossary terms를 Qwen3 번역기로 넘긴다.
+- 전문 번역 운영 기본값은 Qwen3-4B GGUF Q4다. Qwen3-0.6B LoRA는 실제 뉴스 전문에서 오역과 축약이 발생하므로 회귀 테스트와 소형 샘플 재현용으로만 사용한다.
+- Docker/운영처럼 MLX를 직접 쓸 수 없는 환경에서는 `scripts/run_qwen3_4b_gguf.sh`로 Qwen3-4B GGUF Q4를 띄우고 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT=http://127.0.0.1:<port>`, `HANNAH_KOREAN_TRANSLATION_LLM_MODEL=Qwen3-4B-GGUF-Q4`를 설정한다.
+- Qwen 출력은 strict JSON, 한글 잔존 금지, 요약 축약 금지, 말줄임표 금지, glossary localism 보존 gate를 통과해야 `TRANSLATED`로 채택된다.
 - 학습과 검증은 `data/training/korean_translation_sft.jsonl`, `data/training/korean_translation_mlx`, `reports/korean-translation-qwen3-readiness.json`, `reports/korean-translation-qwen3-training.json`, `reports/korean-translation-qwen3-generation-eval.json`에 저장한다.
 ```bash
 uv run python scripts/build_korean_translation_qwen3_dataset.py
@@ -197,7 +199,7 @@ uv run python scripts/build_live_news_quality_audit.py \
 - live quality audit은 서비스 승격 전 최소 1,000건 이상 최신 미학습 표본으로 실행하고, query-relevant pass rate, full-content rate, sampled stock model match rate를 함께 본다.
 - 기사 원문은 요약 품질 개선과 검수 후보 생성에 사용하고, 이벤트·감성·중요도 정답 라벨은 `human_review_approved`, `codex_review_approved`, teacher confidence gate를 통과한 pseudo label만 학습에 반영한다.
 - live audit은 전체 pass rate와 query-relevant pass rate를 분리해 기록한다. 운영 판단은 검색 provider 노이즈가 제거된 query-relevant pass rate를 우선 보되, 전체 pass rate는 수집기 검색 품질 개선 지표로 추적한다.
-- What/Why/Impact 요약은 기본값으로 rule engine과 금융 ML 결과를 사용하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 생성기를 사용한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
+- What/Why/Impact 요약은 기본값으로 rule engine과 금융 ML 결과를 사용하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3 생성기를 사용한다. 요약 3줄이 중복, boilerplate 포함, fallback 문구, 18자 미만, 종목 불일치, 낮은 confidence를 보이면 quality finding으로 기록한다.
 - 최신 라이브 표본에서는 짧은 종목명 과매칭, 본문 boilerplate 유입, `SUMMARY_ONLY` 과신을 우선 확인한다. 대표 종목이 긴 고유 종목명보다 짧은 요청 후보명으로 치우치거나, 요약에 광고·푸터·관련기사 문구가 들어가면 release 후보에서 제외한다.
 - 새 모델 artifact는 `reports/model-release-report.json`, `reports/service-readiness-report.json`, `reports/live-news-quality-audit-report.json`이 모두 pass 기준을 만족할 때만 승격한다.
 

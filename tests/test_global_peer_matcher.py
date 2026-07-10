@@ -10,7 +10,7 @@ from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationContext,
     GlobalPeerExplanationGenerator,
     MlxQwenPeerExplanationClient,
-    OpenAiCompatiblePeerExplanationClient,
+    QwenHttpPeerExplanationClient,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
@@ -115,18 +115,18 @@ def test_global_peer_local_llm_requires_trained_adapter(tmp_path: Path) -> None:
         GlobalPeerExplanationGenerator.from_settings(settings)
 
 
-def test_global_peer_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
+def test_global_peer_local_llm_settings_with_endpoint_use_qwen_http_client() -> None:
     settings = Settings(
         global_peer_explanation_mode="local_llm",
         global_peer_explanation_llm_endpoint="http://127.0.0.1:8089",
-        global_peer_explanation_llm_model="Qwen3-0.6B-GGUF-Q4",
+        global_peer_explanation_llm_model="Qwen3-4B-GGUF-Q4",
     )
 
     generator = GlobalPeerExplanationGenerator.from_settings(settings)
 
     assert generator._enabled is True
-    assert isinstance(generator._client, OpenAiCompatiblePeerExplanationClient)
-    assert generator._model_name == "Qwen3-0.6B-GGUF-Q4"
+    assert isinstance(generator._client, QwenHttpPeerExplanationClient)
+    assert generator._model_name == "Qwen3-4B-GGUF-Q4"
 
 
 def test_mlx_qwen_peer_explanation_client_loads_adapter_and_generates_text() -> None:

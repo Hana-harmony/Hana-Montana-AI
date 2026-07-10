@@ -20,6 +20,7 @@ Hana OmniLens의 AI 모델 API 서버다. 뉴스·공시 분석만 담당하는 
 
 ## API
 - `GET /health`
+- `GET /ready`
 - `POST /api/v1/alerts/analyze`
 - `POST /api/v1/market/foreign-ownership/predict`
 - `POST /api/v1/market/foreign-ownership/model/retrain`
@@ -43,6 +44,7 @@ Docker:
 ```bash
 docker compose -f compose.local.yml up --build
 curl http://localhost:8000/health
+curl http://localhost:8000/ready
 ```
 
 ## 검증
