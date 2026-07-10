@@ -2,13 +2,13 @@
 
 ## 결론
 뉴스·공시 What/Why/Impact 요약은 기본값으로 rule engine을 유지하고,
-`HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 실제 Qwen3-0.6B LoRA 생성기를 사용한다.
+`HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 실제 Qwen3 생성기를 사용한다.
 이 모드에서는 전문 기반 article text를 넣고 Qwen이 영어 JSON `{what, why, impact}`를 생성한다.
 
 ## 구현 경로
 - 로컬 개발: `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 MLX로 직접 로드한다.
-- 운영 CPU 환경: Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible sidecar로 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 연결한다.
-- `AlertAnalyzer`는 먼저 rule engine fallback 요약을 만든 뒤, full content가 있을 때만 `NewsSummaryGenerator`를 호출한다.
+- 운영 CPU 환경: Qwen3-4B GGUF Q4를 띄우고 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 연결한다.
+- full content가 있을 때 `NewsSummaryGenerator`가 Qwen3 결과를 만들고 strict gate를 통과한 결과만 채택한다.
 - Qwen 출력이 실패하면 기존 rule summary를 그대로 반환한다.
 
 ## 품질 gate
@@ -34,7 +34,7 @@ HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm
 HANNAH_NEWS_SUMMARY_LLM_ENDPOINT=
 HANNAH_NEWS_SUMMARY_MLX_MODEL=mlx-community/Qwen3-0.6B-4bit
 HANNAH_NEWS_SUMMARY_MLX_ADAPTER_PATH=src/hannah_montana_ai/model_store/news_summary_qwen3_lora
-HANNAH_NEWS_SUMMARY_LLM_MODEL=Qwen3-0.6B-GGUF-Q4
+HANNAH_NEWS_SUMMARY_LLM_MODEL=Qwen3-4B-GGUF-Q4
 HANNAH_NEWS_SUMMARY_LLM_TIMEOUT_SECONDS=4.0
 HANNAH_NEWS_SUMMARY_LLM_MAX_TOKENS=260
 ```

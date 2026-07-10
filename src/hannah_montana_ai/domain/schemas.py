@@ -13,7 +13,6 @@ FinancialTermSourceType = Literal[
     "DICTIONARY",
     "INTERNAL_CONTEXT_RAG",
     "LOCAL_OPEN_SOURCE_LLM_RAG",
-    "OPENAI_WEB_SEARCH_RAG",
     "UNVERIFIED_CONTEXT",
 ]
 FinancialTermDisplayMode = Literal["EXPLANATION", "REVIEW_REQUIRED", "TEXT_ONLY"]
@@ -43,6 +42,8 @@ DocumentType = Literal[
 DocumentVerificationStatus = Literal["VERIFIED", "PENDING", "REJECTED"]
 DocumentRiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
 TaxTransactionType = Literal["DIVIDEND", "SELL"]
+ALERT_CONTENT_MAX_LENGTH = 1_000_000
+TAX_EXTRACTED_TEXT_MAX_LENGTH = 60000
 
 
 class StockCandidate(BaseModel):
@@ -119,7 +120,6 @@ class KoreanFinancialTermExplainRequest(BaseModel):
     stock_name: str = Field(default="", max_length=80)
     article_id: str = Field(default="", max_length=120)
     article_url: str = Field(default="", max_length=1000)
-    allow_web_search: bool = True
 
 
 class KoreanFinancialTermExplainResponse(BaseModel):
@@ -146,7 +146,7 @@ class AlertAnalysisRequest(BaseModel):
     source_type: SourceType
     title: str = Field(min_length=1, max_length=300)
     snippet: str = Field(default="", max_length=1000)
-    content: str = Field(default="", max_length=20000)
+    content: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
     image_urls: list[str] = Field(default_factory=list, max_length=20)
     canonical_url: str = Field(default="", max_length=1000)
     content_hash: str = Field(default="", max_length=128)
@@ -177,7 +177,7 @@ TranslationStatus = Literal[
 
 
 class KoreanTranslationRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=20000)
+    text: str = Field(min_length=1, max_length=ALERT_CONTENT_MAX_LENGTH)
     source_language: Literal["ko"] = "ko"
     target_language: Literal["en"] = "en"
     source_type: SourceType = "NEWS"
@@ -186,7 +186,7 @@ class KoreanTranslationRequest(BaseModel):
 
 
 class KoreanTranslationResponse(BaseModel):
-    translated_text: str = Field(default="", max_length=24000)
+    translated_text: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
     provider: str = Field(min_length=1, max_length=80)
     model_version: str = Field(min_length=1, max_length=120)
     status: TranslationStatus
@@ -199,11 +199,15 @@ class AlertAnalysisResponse(BaseModel):
     stock_name: str | None
     source_type: SourceType
     original_title: str
+    translated_title: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
     summary: str
     summary_lines: SummaryLines = Field(default_factory=SummaryLines)
+    translated_summary: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
     content_availability: ContentAvailability = "SUMMARY_ONLY"
-    original_content: str = Field(default="", max_length=20000)
-    original_body: str = Field(default="", max_length=20000)
+    original_content: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
+    translated_content: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
+    original_body: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
+    translated_body: str = Field(default="", max_length=ALERT_CONTENT_MAX_LENGTH)
     body_source_type: BodySourceType = "PROVIDER_SNIPPET"
     image_urls: list[str] = Field(default_factory=list)
     event_tags: list[str]
@@ -214,6 +218,9 @@ class AlertAnalysisResponse(BaseModel):
     watchlist_target: bool
     glossary_terms: list[FinancialGlossaryTerm] = Field(default_factory=list)
     translation_quality_flags: list[str] = Field(default_factory=list)
+    translation_provider: str = Field(default="", max_length=80)
+    translation_model_version: str = Field(default="", max_length=120)
+    translation_status: TranslationStatus = "SOURCE_LANGUAGE_FALLBACK"
     duplicate_key: str
     cluster_key: str = ""
     model_version: str
@@ -423,7 +430,7 @@ class TaxDocumentInput(BaseModel):
 class TaxDocumentVerificationRequest(BaseModel):
     document_type: DocumentType
     file_name: str = Field(min_length=1, max_length=180)
-    extracted_text: str = Field(default="", max_length=8000)
+    extracted_text: str = Field(default="", max_length=TAX_EXTRACTED_TEXT_MAX_LENGTH)
     document_content_base64: str = Field(default="", max_length=14_000_000)
     content_type: str = Field(default="", max_length=120)
     ocr_confidence: float = Field(default=0.0, ge=0.0, le=1.0)

@@ -10,7 +10,7 @@ from hannah_montana_ai.services.news_summary_generator import (
     MlxQwenNewsSummaryClient,
     NewsSummaryContext,
     NewsSummaryGenerator,
-    OpenAiCompatibleNewsSummaryClient,
+    QwenHttpNewsSummaryClient,
 )
 
 
@@ -63,18 +63,18 @@ def test_news_summary_local_llm_requires_trained_adapter(tmp_path: Path) -> None
         )
 
 
-def test_news_summary_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
+def test_news_summary_local_llm_settings_with_endpoint_use_qwen_http_client() -> None:
     settings = Settings(
         news_summary_generation_mode="local_llm",
         news_summary_llm_endpoint="http://127.0.0.1:8089",
-        news_summary_llm_model="Qwen3-0.6B-GGUF-Q4",
+        news_summary_llm_model="Qwen3-4B-GGUF-Q4",
     )
 
     generator = NewsSummaryGenerator.from_settings(settings)
 
     assert generator._enabled is True
-    assert isinstance(generator._client, OpenAiCompatibleNewsSummaryClient)
-    assert generator._model_name == "Qwen3-0.6B-GGUF-Q4"
+    assert isinstance(generator._client, QwenHttpNewsSummaryClient)
+    assert generator._model_name == "Qwen3-4B-GGUF-Q4"
 
 
 def test_news_summary_qwen_output_replaces_rule_fallback_for_full_text() -> None:

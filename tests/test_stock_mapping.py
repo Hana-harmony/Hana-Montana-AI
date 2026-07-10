@@ -1,8 +1,23 @@
 from pathlib import Path
 
-from hannah_montana_ai.domain.schemas import AlertAnalysisRequest
+from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.training.stock_universe import load_stock_universe
+
+
+def test_stock_mapping_adds_verified_company_name_to_translation_glossary() -> None:
+    analyzer = AlertAnalyzer()
+    stock = StockCandidate(
+        stock_code="003490",
+        stock_name="대한항공",
+        stock_name_en="Korean Air",
+    )
+
+    terms = analyzer._with_primary_stock_glossary([], stock, "대한항공 주가가 하락했다.")
+
+    assert terms[0].source_term == "대한항공"
+    assert terms[0].english_term == "Korean Air"
+    assert terms[0].category == "company"
 
 
 def test_stock_mapping_uses_aliases_and_preserves_text_order() -> None:
@@ -76,7 +91,35 @@ def test_request_stock_candidates_take_primary_mapping_priority() -> None:
     assert "123456" in response.related_stocks
 
 
+def test_preferred_share_request_keeps_issuer_alias_mapping() -> None:
+    request = AlertAnalysisRequest.model_validate(
+        {
+            "source_type": "NEWS",
+            "title": "대한항공, 여객 수요 회복에 주가 강세",
+            "snippet": "항공 수요 회복과 실적 개선 전망을 다룬다.",
+            "content": "대한항공은 여객 수요 회복으로 영업이익이 개선될 것으로 전망됐다.",
+            "original_url": "https://example.com/news/korean-air-preferred",
+            "stock_universe": [
+                {
+                    "stock_code": "003495",
+                    "stock_name": "대한항공우",
+                    "stock_name_en": "Korean Air Preferred",
+                    "aliases": ["대한항공"],
+                }
+            ],
+        }
+    )
+
+    response = AlertAnalyzer().analyze(request)
+
+    assert response.stock_code == "003495"
+
+
 def test_longer_stock_name_wins_over_short_request_candidate_collision() -> None:
+    class FailingSummaryGenerator:
+        def generate(self, _context: object) -> object:
+            raise AssertionError("mismatched stock must not invoke generative summary")
+
     request = AlertAnalysisRequest.model_validate(
         {
             "source_type": "NEWS",
@@ -93,11 +136,12 @@ def test_longer_stock_name_wins_over_short_request_candidate_collision() -> None
         }
     )
 
-    response = AlertAnalyzer().analyze(request)
+    response = AlertAnalyzer(summary_generator=FailingSummaryGenerator()).analyze(request)  # type: ignore[arg-type]
 
     assert response.stock_code == "000660"
     assert response.stock_name == "SK하이닉스"
     assert response.related_stocks[0] == "000660"
+    assert response.translation_provider == "request-stock-mismatch-gate"
 
 
 def test_longer_internal_stock_wins_when_short_request_candidate_is_ambiguous() -> None:

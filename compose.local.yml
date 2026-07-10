@@ -1,18 +1,36 @@
 services:
   api:
-    platform: linux/amd64
+    platform: linux/arm64
     build:
       context: .
     container_name: hannah-montana-ai
+    cpus: "1.50"
+    mem_limit: 6g
     environment:
-      HANNAH_KOREAN_TRANSLATION_GENERATION_MODE: ${HANNAH_KOREAN_TRANSLATION_GENERATION_MODE:-local_glossary}
+      HANNAH_GLOBAL_PEER_LLM_ENDPOINT: ${HANNAH_GLOBAL_PEER_LLM_ENDPOINT:-http://host.docker.internal:18081}
+      HANNAH_GLOBAL_PEER_LLM_MODEL: ${HANNAH_GLOBAL_PEER_LLM_MODEL:-Qwen3-4B-GGUF-Q4}
+      HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT: ${HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT:-http://host.docker.internal:18081}
+      HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL: ${HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL:-Qwen3-4B-GGUF-Q4}
+      HANNAH_KOREAN_TRANSLATION_GENERATION_MODE: ${HANNAH_KOREAN_TRANSLATION_GENERATION_MODE:-local_llm}
+      HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT: ${HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT:-http://host.docker.internal:18081}
+      HANNAH_KOREAN_TRANSLATION_LLM_MODEL: ${HANNAH_KOREAN_TRANSLATION_LLM_MODEL:-Qwen3-4B-GGUF-Q4}
+      HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS: ${HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS:-300}
+      HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS: ${HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS:-2048}
+      HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY: ${HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY:-4}
+      HANNAH_NEWS_SUMMARY_LLM_ENDPOINT: ${HANNAH_NEWS_SUMMARY_LLM_ENDPOINT:-http://host.docker.internal:18081}
+      HANNAH_NEWS_SUMMARY_LLM_MODEL: ${HANNAH_NEWS_SUMMARY_LLM_MODEL:-Qwen3-4B-GGUF-Q4}
+      HF_HOME: /app/.cache/huggingface
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${HOME}/.cache/huggingface:/app/.cache/huggingface:ro
     ports:
       - "8000:8000"
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)\""
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)\""
         ]
       interval: 10s
       timeout: 3s

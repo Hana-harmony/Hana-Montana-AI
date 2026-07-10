@@ -58,5 +58,5 @@
     "total_parameters_m": 596.05,
     "observed_peak_memory_gb": 1.422
   },
-  "serving_note": "운영 t4g.medium에서는 병합/양자화된 GGUF를 llama.cpp OpenAI-compatible server로 띄우고 HANNAH_NEWS_SUMMARY_LLM_ENDPOINT로 연결한다."
+  "serving_note": "운영 t4g.medium에서는 병합/양자화된 Qwen3 GGUF를 llama.cpp OpenAI-compatible server로 띄우고 HANNAH_NEWS_SUMMARY_LLM_ENDPOINT로 연결한다."
 }

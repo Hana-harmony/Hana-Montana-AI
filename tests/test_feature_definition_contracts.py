@@ -143,7 +143,7 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert 0.0 <= payload["sentiment_confidence"] <= 1.0
     assert 0.0 <= payload["importance_confidence"] <= 1.0
     assert payload["stock_match_confidence"] == 1.0
-    assert payload["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
+    assert payload["data_source"] == "Naver/OpenDART/NLP/QwenTranslationAdapter"
 
 
 def test_intelligence_event_translation_uses_qwen_generator_for_article_body() -> None:
@@ -215,7 +215,7 @@ def test_intelligence_event_translation_rejects_flagged_qwen_article_body() -> N
     assert "UNTRANSLATED_CONTENT_REVIEW_REQUIRED" not in prediction.quality_flags
 
 
-def test_intelligence_event_translation_keeps_english_nmt_with_tolerable_flags() -> None:
+def test_intelligence_event_translation_keeps_english_qwen_with_tolerable_flags() -> None:
     model = FinancialTranslationModel(
         translation_generator=_TolerableFlaggedContentTranslationGenerator()
     )
@@ -488,7 +488,7 @@ class _TolerableFlaggedContentTranslationGenerator:
                     "while the U.S. market will use Qualcomm Snapdragon."
                 ),
                 provider=LOCAL_TRANSLATION_PROVIDER,
-                model_version="fake-nmt",
+                model_version="fake-qwen3",
                 status="PARTIAL_SOURCE_LANGUAGE_FALLBACK",
                 prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
                 quality_flags=["SOURCE_TERM_MISSING:QUALCOMM"],
@@ -496,7 +496,7 @@ class _TolerableFlaggedContentTranslationGenerator:
         return KoreanTranslationResult(
             translated_text="Samsung Electronics expanded Exynos.",
             provider=LOCAL_TRANSLATION_PROVIDER,
-            model_version="fake-nmt",
+            model_version="fake-qwen3",
             status="TRANSLATED",
             prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
             quality_flags=[],

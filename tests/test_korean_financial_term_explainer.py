@@ -11,7 +11,6 @@ from hannah_montana_ai.domain.schemas import (
 )
 from hannah_montana_ai.main import app
 from hannah_montana_ai.services.korean_financial_terms import (
-    GeneratedTermExplanation,
     KoreanFinancialTermExplanationService,
     LocalQwenTermExplanationProvider,
     MlxQwenTermExplanationClient,
@@ -147,7 +146,6 @@ def test_common_theme_stock_terms_are_dictionary_backed_without_web_provider() -
             term="초전도체주",
             title="초전도체주 테마성 급등",
             context="초전도체주가 테마성 수급으로 급등했다는 보도가 나왔다.",
-            allow_web_search=False,
         )
     )
 
@@ -327,11 +325,10 @@ def test_korean_financial_term_local_llm_requires_trained_adapter(tmp_path: Path
         )
 
 
-def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation() -> None:
+def test_unknown_term_without_qwen_provider_requires_review() -> None:
     service = KoreanFinancialTermExplanationService(
         seed_path=Path("data/reference/korean_financial_terms_seed.json"),
         model_version="test-term-rag",
-        provider=_FakeTermProvider(),
     )
 
     response = service.explain(
@@ -339,16 +336,14 @@ def test_web_search_provider_can_promote_unknown_term_to_cacheable_explanation()
             term="우주항공주",
             title="우주항공주 강세",
             context="우주항공주가 정부 정책 기대감과 위성 투자 확대로 강세를 보였다.",
-            allow_web_search=True,
         )
     )
 
-    assert response.source == "OPENAI_WEB_SEARCH_RAG"
-    assert response.display_mode == "EXPLANATION"
-    assert response.cacheable is True
-    assert response.english_term == "aerospace-themed stock"
+    assert response.source == "UNVERIFIED_CONTEXT"
+    assert response.display_mode == "REVIEW_REQUIRED"
+    assert response.cacheable is False
+    assert response.english_term == ""
     assert response.evidence[0].source_type == "article_context"
-    assert response.evidence[1].source_type == "web_search"
 
 
 def test_openapi_docs_expose_korean_financial_term_contract() -> None:
@@ -357,36 +352,6 @@ def test_openapi_docs_expose_korean_financial_term_contract() -> None:
 
     assert response.status_code == 200
     assert "/api/v1/korean-financial-terms/explain" in response.json()["paths"]
-
-
-class _FakeTermProvider:
-    def generate(
-        self,
-        request: KoreanFinancialTermExplainRequest,
-        context_evidence: tuple[FinancialTermEvidence, ...],
-    ) -> GeneratedTermExplanation:
-        return GeneratedTermExplanation(
-            english_term="aerospace-themed stock",
-            category="theme_stock",
-            definition="A Korean stock grouped by investors under the aerospace investment theme.",
-            explanation=(
-                '"우주항공주" means an aerospace-themed stock in Korean market news. '
-                "It is usually used for companies expected to benefit from satellites, launch "
-                "systems, defense aerospace, or related policy themes."
-            ),
-            example="우주항공주 강세 means aerospace-themed stocks rallied.",
-            confidence_score=0.86,
-            evidence=(
-                *context_evidence,
-                FinancialTermEvidence(
-                    title="Aerospace theme explanation",
-                    snippet="Market reports use 우주항공주 for aerospace-themed stocks.",
-                    url="https://example.com/aerospace-theme",
-                    source_type="web_search",
-                ),
-            ),
-            source="OPENAI_WEB_SEARCH_RAG",
-        )
 
 
 class _FakeTermGenerationClient:

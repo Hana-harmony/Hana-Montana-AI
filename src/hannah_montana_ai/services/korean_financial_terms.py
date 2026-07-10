@@ -1,9 +1,7 @@
 import hashlib
-import http.client
 import importlib
 import json
 import re
-import ssl
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -12,7 +10,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal, Protocol, cast
-from urllib.parse import urlparse
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import (
@@ -29,8 +26,7 @@ MODEL_PROMPT_VERSION = "k-finance-term-qwen3-rag-prompt-v1"
 RESPONSE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
 REVIEW_CACHE_TTL_SECONDS = 24 * 60 * 60
 LOCAL_QWEN_TERM_SOURCE = "LOCAL_OPEN_SOURCE_LLM_RAG"
-OPENAI_TERM_SOURCE = "OPENAI_WEB_SEARCH_RAG"
-ALLOWED_GENERATED_SOURCES = {LOCAL_QWEN_TERM_SOURCE, OPENAI_TERM_SOURCE}
+ALLOWED_GENERATED_SOURCES = {LOCAL_QWEN_TERM_SOURCE}
 ENGLISH_LOCALISM_LOOKUP_TERMS = frozenset(
     {
         "ant",
@@ -105,7 +101,7 @@ type MlxTermModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
 type MlxTermTextGenerator = Callable[[Any, Any, str, int, float], str]
 
 
-class OpenAiCompatibleTermExplanationClient:
+class QwenHttpTermExplanationClient:
     def __init__(self, endpoint: str, model: str, timeout_seconds: float) -> None:
         self._endpoint = endpoint.rstrip("/")
         self._model = model
@@ -250,123 +246,6 @@ class MlxQwenTermExplanationClient:
             rendered_messages.append(f"<|im_start|>{role}\n{content}<|im_end|>")
         rendered_messages.append("<|im_start|>assistant\n")
         return "\n".join(rendered_messages)
-
-
-class OpenAIWebSearchTermExplanationProvider:
-    def __init__(
-        self,
-        *,
-        api_key: str,
-        model: str,
-        web_search_tool: str,
-        timeout_seconds: float,
-    ) -> None:
-        self._api_key = api_key
-        self._model = model
-        self._web_search_tool = web_search_tool
-        self._timeout_seconds = timeout_seconds
-
-    def generate(
-        self,
-        request: KoreanFinancialTermExplainRequest,
-        context_evidence: tuple[FinancialTermEvidence, ...],
-    ) -> GeneratedTermExplanation | None:
-        if not self._api_key or not request.allow_web_search:
-            return None
-        payload = {
-            "model": self._model,
-            "tools": [{"type": self._web_search_tool}],
-            "max_output_tokens": 700,
-            "input": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You explain Korean stock-market terms for foreign investors. "
-                        "Use only retrieved web evidence and provided article context. "
-                        "Do not provide investment advice. Return strict JSON only."
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": json.dumps(
-                        {
-                            "term": request.term,
-                            "locale": request.locale,
-                            "article_title": request.title,
-                            "article_context": request.context,
-                            "stock_code": request.stock_code,
-                            "stock_name": request.stock_name,
-                            "context_evidence": [
-                                evidence.model_dump(mode="json") for evidence in context_evidence
-                            ],
-                            "required_json_schema": {
-                                "english_term": "short English term",
-                                "category": (
-                                    "market_slang|ipo_slang|policy_theme|capital_market|"
-                                    "risk_slang|metric|unknown"
-                                ),
-                                "definition": "grounded definition under 80 words",
-                                "explanation": "2-3 sentences for foreign investors",
-                                "example": "short example if supported",
-                                "confidence_score": "0.0-1.0",
-                            },
-                        },
-                        ensure_ascii=False,
-                    ),
-                },
-            ],
-        }
-        response = self._post_json("/v1/responses", payload)
-        output_text, evidence = _extract_openai_output_and_evidence(response)
-        parsed = _parse_json_object(output_text)
-        if not parsed:
-            return None
-        explanation = str(parsed.get("explanation", "")).strip()
-        definition = str(parsed.get("definition", "")).strip()
-        if not explanation or _INVESTMENT_ADVICE_PATTERN.search(explanation):
-            return None
-        score = _bounded_float(parsed.get("confidence_score"), default=0.62)
-        combined_evidence = (*context_evidence, *evidence)
-        return GeneratedTermExplanation(
-            english_term=str(parsed.get("english_term", "")).strip()[:120],
-            category=str(parsed.get("category", "unknown")).strip()[:60] or "unknown",
-            definition=definition[:1000],
-            explanation=explanation[:1200],
-            example=str(parsed.get("example", "")).strip()[:500],
-            confidence_score=score,
-            evidence=combined_evidence[:8],
-            source="OPENAI_WEB_SEARCH_RAG",
-        )
-
-    def _post_json(self, path: str, payload: dict[str, object]) -> dict[str, object]:
-        encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        context = ssl.create_default_context()
-        connection = http.client.HTTPSConnection(
-            "api.openai.com",
-            timeout=self._timeout_seconds,
-            context=context,
-        )
-        try:
-            connection.request(
-                "POST",
-                path,
-                body=encoded,
-                headers={
-                    "Authorization": f"Bearer {self._api_key}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-            )
-            response = connection.getresponse()
-            body = response.read().decode("utf-8")
-            if response.status >= 400:
-                return {}
-            parsed = json.loads(body)
-            if isinstance(parsed, dict):
-                return parsed
-            return {}
-        finally:
-            connection.close()
 
 
 class LocalQwenTermExplanationProvider:
@@ -570,7 +449,7 @@ class KoreanFinancialTermExplanationService:
             return self._from_dictionary(request, matched_entry, context_evidence)
 
         provider_result = None
-        if self._provider and request.allow_web_search:
+        if self._provider:
             provider_result = self._provider.generate(request, context_evidence)
         if provider_result:
             return self._from_generated(request, provider_result)
@@ -731,7 +610,7 @@ def build_term_provider_from_settings(settings: Settings) -> TermExplanationProv
             return LocalQwenTermExplanationProvider(
                 model_name=settings.korean_financial_term_llm_model,
                 max_tokens=settings.korean_financial_term_llm_max_tokens,
-                client=OpenAiCompatibleTermExplanationClient(
+                client=QwenHttpTermExplanationClient(
                     endpoint=settings.korean_financial_term_llm_endpoint,
                     model=settings.korean_financial_term_llm_model,
                     timeout_seconds=settings.korean_financial_term_llm_timeout_seconds,
@@ -748,18 +627,7 @@ def build_term_provider_from_settings(settings: Settings) -> TermExplanationProv
                 ),
             ),
         )
-    return build_openai_term_provider_from_settings(settings)
-
-
-def build_openai_term_provider_from_settings(settings: Settings) -> TermExplanationProvider | None:
-    if not settings.openai_term_explanation_enabled or not settings.openai_api_key:
-        return None
-    return OpenAIWebSearchTermExplanationProvider(
-        api_key=settings.openai_api_key,
-        model=settings.openai_term_explanation_model,
-        web_search_tool=settings.openai_term_web_search_tool,
-        timeout_seconds=settings.openai_term_explanation_timeout_seconds,
-    )
+    return None
 
 
 def _load_entries(path: Path) -> tuple[FinancialTermEntry, ...]:
@@ -914,59 +782,6 @@ def _split_sentences(text: str) -> list[str]:
         return []
     candidates = _SENTENCE_SPLIT_PATTERN.split(cleaned)
     return [candidate.strip() for candidate in candidates if candidate.strip()]
-
-
-def _extract_openai_output_and_evidence(
-    response: dict[str, object],
-) -> tuple[str, tuple[FinancialTermEvidence, ...]]:
-    output_text = str(response.get("output_text", "")).strip()
-    evidence: list[FinancialTermEvidence] = []
-    output = response.get("output", [])
-    if isinstance(output, list):
-        text_parts: list[str] = []
-        for item in output:
-            if not isinstance(item, dict):
-                continue
-            content = item.get("content", [])
-            if not isinstance(content, list):
-                continue
-            for content_item in content:
-                if not isinstance(content_item, dict):
-                    continue
-                text = content_item.get("text")
-                if isinstance(text, str):
-                    text_parts.append(text)
-                annotations = content_item.get("annotations", [])
-                if isinstance(annotations, list):
-                    evidence.extend(_annotation_evidence(annotations))
-        if not output_text and text_parts:
-            output_text = "\n".join(text_parts).strip()
-    return output_text, tuple(evidence[:5])
-
-
-def _annotation_evidence(annotations: list[object]) -> list[FinancialTermEvidence]:
-    evidence: list[FinancialTermEvidence] = []
-    for annotation in annotations:
-        if not isinstance(annotation, dict):
-            continue
-        url = str(annotation.get("url", "")).strip()
-        title = str(annotation.get("title", "")).strip()
-        if not url:
-            continue
-        evidence.append(
-            FinancialTermEvidence(
-                title=title or _domain_from_url(url),
-                snippet="OpenAI web search citation",
-                url=url[:1000],
-                source_type="web_search",
-            )
-        )
-    return evidence
-
-
-def _domain_from_url(url: str) -> str:
-    parsed = urlparse(url)
-    return parsed.netloc or "web citation"
 
 
 def _parse_json_object(text: str) -> dict[str, object]:

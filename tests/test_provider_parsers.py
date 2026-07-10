@@ -289,7 +289,7 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert websocket_event["glossary_terms"] == []
     assert "FINANCIAL_GLOSSARY_APPLIED" not in websocket_event["translation_quality_flags"]
     assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in websocket_event["translation_quality_flags"]
-    assert websocket_event["data_source"] == "Naver/OpenDART/NLP/OpenAITranslationAdapter"
+    assert websocket_event["data_source"] == "Naver/OpenDART/NLP/QwenTranslationAdapter"
 
 
 def test_opendart_provider_parser_builds_disclosure_event_request() -> None:

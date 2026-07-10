@@ -93,7 +93,6 @@ def evaluate_generation(
             term=str(sample["term"]),
             title=str(sample["title"]),
             context=str(sample["context"]),
-            allow_web_search=True,
         )
         evidence = _context_evidence(request)
         raw_output = _generate_raw_output(

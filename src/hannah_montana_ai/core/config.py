@@ -53,7 +53,7 @@ class Settings(BaseModel):
     korean_financial_term_llm_model: str = Field(
         default_factory=lambda: os.getenv(
             "HANNAH_KOREAN_FINANCIAL_TERM_LLM_MODEL",
-            "Qwen3-0.6B-GGUF-Q4",
+            "Qwen3-4B-GGUF-Q4",
         )
     )
     korean_financial_term_mlx_model: str = Field(
@@ -78,23 +78,6 @@ class Settings(BaseModel):
     korean_financial_term_llm_max_tokens: int = Field(
         default_factory=lambda: int(os.getenv("HANNAH_KOREAN_FINANCIAL_TERM_LLM_MAX_TOKENS", "320"))
     )
-    openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
-    openai_term_explanation_enabled: bool = Field(
-        default_factory=lambda: os.getenv("HANNAH_OPENAI_TERM_EXPLANATION_ENABLED", "false").lower()
-        == "true"
-    )
-    openai_term_explanation_model: str = Field(
-        default_factory=lambda: os.getenv("HANNAH_OPENAI_TERM_EXPLANATION_MODEL", "gpt-4.1-mini")
-    )
-    openai_term_web_search_tool: str = Field(
-        default_factory=lambda: os.getenv(
-            "HANNAH_OPENAI_TERM_WEB_SEARCH_TOOL",
-            "web_search_preview",
-        )
-    )
-    openai_term_explanation_timeout_seconds: float = Field(
-        default_factory=lambda: float(os.getenv("HANNAH_OPENAI_TERM_TIMEOUT_SECONDS", "12.0"))
-    )
     global_peer_explanation_training_path: Path = Path(
         "data/training/global_peer_explanation_sft.jsonl"
     )
@@ -108,7 +91,7 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_ENDPOINT", "")
     )
     global_peer_explanation_llm_model: str = Field(
-        default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
+        default_factory=lambda: os.getenv("HANNAH_GLOBAL_PEER_LLM_MODEL", "Qwen3-4B-GGUF-Q4")
     )
     global_peer_explanation_mlx_model: str = Field(
         default_factory=lambda: os.getenv(
@@ -137,7 +120,7 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_ENDPOINT", "")
     )
     news_summary_llm_model: str = Field(
-        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_MODEL", "Qwen3-0.6B-GGUF-Q4")
+        default_factory=lambda: os.getenv("HANNAH_NEWS_SUMMARY_LLM_MODEL", "Qwen3-4B-GGUF-Q4")
     )
     news_summary_mlx_model: str = Field(
         default_factory=lambda: os.getenv(
@@ -168,7 +151,7 @@ class Settings(BaseModel):
     korean_translation_llm_model: str = Field(
         default_factory=lambda: os.getenv(
             "HANNAH_KOREAN_TRANSLATION_LLM_MODEL",
-            "Qwen3-0.6B-GGUF-Q4",
+            "Qwen3-4B-GGUF-Q4",
         )
     )
     korean_translation_mlx_model: str = Field(
@@ -187,11 +170,16 @@ class Settings(BaseModel):
     )
     korean_translation_llm_timeout_seconds: float = Field(
         default_factory=lambda: float(
-            os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS", "8.0")
+            os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS", "300.0")
         )
     )
     korean_translation_llm_max_tokens: int = Field(
-        default_factory=lambda: int(os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS", "900"))
+        default_factory=lambda: int(os.getenv("HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS", "2048"))
+    )
+    korean_translation_max_concurrency: int = Field(
+        default_factory=lambda: int(os.getenv("HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY", "1")),
+        ge=1,
+        le=8,
     )
     global_peer_korea_industry_sync_report_path: Path = Path(
         "reports/global-peer-korea-industry-sync-report.json"

@@ -78,8 +78,10 @@ def build_translation_sample_report(
         "sample_count": len(rows),
         "summary": _summary(rows),
         "external_translation_boundary": {
-            "openai_gpt": "Hana-OmniLens-API live adapter using OPENAI_API_KEY",
-            "legacy_providers": "DeepL/Papago are disabled and not called by Hannah-Montana-AI",
+            "legacy_providers": (
+                "External translation providers are disabled and not called by "
+                "Hannah-Montana-AI"
+            ),
             "join_key": "external_translation_join_key",
         },
         "rows": rows,

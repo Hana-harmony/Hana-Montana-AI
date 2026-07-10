@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import re
+import shutil
 import sys
 from collections.abc import Iterable
 from io import BytesIO
@@ -166,8 +168,119 @@ class _CheckpointRecognizer:
         return [[[box, (text, confidence)]]]
 
 
+class _TesseractOCR:
+    def __init__(self, kwargs: dict[str, Any], overrides: dict[str, Any] | None = None) -> None:
+        merged = {**kwargs, **(overrides or {})}
+        self._lang = self._tesseract_lang(str(merged.get("lang") or "en"))
+        self._config = str(
+            merged.get("config")
+            or os.getenv("HANAH_TAX_OCR_TESSERACT_CONFIG")
+            or "--oem 1 --psm 6"
+        )
+        self._pdf_dpi = int(merged.get("pdf_dpi") or os.getenv("HANAH_TAX_OCR_PDF_DPI") or "250")
+        if shutil.which("tesseract") is None:
+            raise RuntimeError("tesseract runtime is missing. Rebuild the ARM64 Hannah image.")
+
+    def ocr(self, image: str | Path | np.ndarray, cls: bool = True) -> list[list[object]]:
+        del cls
+        pages = self._load_pages(image)
+        raw_pages: list[list[object]] = []
+        for page in pages:
+            raw_pages.append(self._ocr_page(page))
+        return raw_pages
+
+    def _load_pages(self, image: str | Path | np.ndarray) -> list[Image.Image]:
+        if isinstance(image, str | Path):
+            path = Path(image)
+            if path.suffix.lower() == ".pdf":
+                try:
+                    from pdf2image import convert_from_path
+                except ImportError as exc:
+                    raise RuntimeError("pdf2image runtime is missing.") from exc
+                return [page.convert("RGB") for page in convert_from_path(path, dpi=self._pdf_dpi)]
+            return [Image.open(path).convert("RGB")]
+        return [Image.fromarray(np.asarray(image).astype("uint8")).convert("RGB")]
+
+    def _ocr_page(self, page: Image.Image) -> list[object]:
+        try:
+            import pytesseract
+            from pytesseract import Output
+        except ImportError as exc:
+            raise RuntimeError("pytesseract runtime is missing.") from exc
+
+        processed = self._preprocess(page)
+        data = pytesseract.image_to_data(
+            processed,
+            lang=self._lang,
+            config=self._config,
+            output_type=Output.DICT,
+        )
+        lines: list[object] = []
+        for index, text in enumerate(data.get("text", [])):
+            normalized_text = str(text).strip()
+            if not normalized_text:
+                continue
+            confidence = self._confidence(data.get("conf", [])[index])
+            left = float(data["left"][index])
+            top = float(data["top"][index])
+            width = float(data["width"][index])
+            height = float(data["height"][index])
+            box = [
+                [left, top],
+                [left + width, top],
+                [left + width, top + height],
+                [left, top + height],
+            ]
+            lines.append([box, (normalized_text, confidence)])
+
+        if not lines:
+            text = pytesseract.image_to_string(
+                processed,
+                lang=self._lang,
+                config=self._config,
+            ).strip()
+            if text:
+                width, height = processed.size
+                box = [
+                    [0.0, 0.0],
+                    [float(width), 0.0],
+                    [float(width), float(height)],
+                    [0.0, float(height)],
+                ]
+                lines.append([box, (text, None)])
+        return lines
+
+    def _preprocess(self, page: Image.Image) -> Image.Image:
+        grayscale = ImageOps.grayscale(page)
+        max_side = max(grayscale.size)
+        if max_side < 1800:
+            scale = max(2, int(1800 / max_side))
+            grayscale = grayscale.resize(
+                (grayscale.width * scale, grayscale.height * scale),
+                resample=Image.Resampling.LANCZOS,
+            )
+        return grayscale.filter(ImageFilter.SHARPEN)
+
+    def _confidence(self, raw_value: object) -> float | None:
+        try:
+            value = float(raw_value)
+        except (TypeError, ValueError):
+            return None
+        if value < 0:
+            return None
+        return round(value / 100.0, 4)
+
+    def _tesseract_lang(self, lang: str) -> str:
+        normalized = lang.lower().replace("-", "_")
+        if normalized in {"ko", "kor", "korean", "korean+english", "kor_eng"}:
+            return "kor+eng"
+        if normalized in {"eng", "en", "english"}:
+            return "eng"
+        return os.getenv("HANAH_TAX_OCR_TESSERACT_LANG", "eng")
+
+
 class PaddleOCREngine:
-    """Thin wrapper around PaddleOCR with lazy import for testability."""
+    """ARM64-compatible OCR wrapper kept under the legacy contract name."""
 
     def __init__(
         self,
@@ -198,13 +311,7 @@ class PaddleOCREngine:
             if overrides and overrides.get("checkpoint_path"):
                 engine = _CheckpointRecognizer(overrides)
             else:
-                try:
-                    from paddleocr import PaddleOCR
-                except ImportError as exc:
-                    raise RuntimeError(
-                        "paddleocr runtime is missing. Rebuild or sync the Hannah runtime image."
-                    ) from exc
-                engine = PaddleOCR(**{**self._kwargs, **(overrides or {})})
+                engine = _TesseractOCR(self._kwargs, overrides)
             self._engines[cache_key] = engine
         return engine
 
