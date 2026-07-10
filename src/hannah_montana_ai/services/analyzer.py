@@ -17,6 +17,9 @@ from hannah_montana_ai.domain.schemas import (
     StockCandidate,
     TranslationStatus,
 )
+from hannah_montana_ai.services.korean_financial_terms import (
+    load_financial_term_entries,
+)
 from hannah_montana_ai.services.korean_translation_generator import (
     STATUS_SOURCE_LANGUAGE_FALLBACK,
     STATUS_TRANSLATED,
@@ -45,51 +48,6 @@ class StockMatchResult:
 
 
 class AlertAnalyzer:
-    _FINANCIAL_GLOSSARY = (
-        (
-            "개미",
-            "retail investors",
-            "market_slang",
-            ("개미투자자", "개미 투자자", "동학개미", "서학개미"),
-        ),
-        ("대장주", "bellwether stock", "market_slang", ("대표주", "주도주")),
-        ("따따블", "IPO quadruple jump", "ipo_slang", ("공모가 4배",)),
-        ("품절주", "low-float stock", "market_slang", ()),
-        (
-            "삼전닉스",
-            "Samjeon Nix",
-            "market_slang",
-            (
-                "삼닉",
-                "삼닉스",
-                "삼전 닉스",
-                "삼전·닉스",
-                "삼전-닉스",
-                "Samjeon Nix",
-                "Samjeon-Nix",
-                "Samnick",
-            ),
-        ),
-        ("빚투", "leveraged retail investing", "risk_slang", ()),
-        ("어닝쇼크", "earnings shock", "event", ()),
-        ("어닝서프라이즈", "earnings surprise", "event", ()),
-    )
-    _FINANCIAL_GLOSSARY_DESCRIPTIONS = {
-        "개미": "Korean stock-market slang for individual retail investors.",
-        "대장주": (
-            "Refers to the leading stock in a particular sector or the entire market that "
-            "dictates the overall trend."
-        ),
-        "따따블": "Korean IPO slang for a stock jumping to four times its offering price on debut.",
-        "품절주": "A stock with very limited tradable float, often prone to sharp price moves.",
-        "삼전닉스": (
-            "Korean market slang combining Samsung Electronics and SK Hynix, usually referring "
-            "to the two dominant semiconductor bellwethers; '삼닉' is a shorter variant."
-        ),
-        "빚투": "Korean market slang for leveraged retail investing funded with borrowed money.",
-        "어닝쇼크": "An earnings result materially below market expectations.",
-        "어닝서프라이즈": "An earnings result materially above market expectations.",
-    }
     _SUMMARY_ONLY_CONFIDENCE_CAP = 0.34
     _DUPLICATE_BRACKET_NOISE_TERMS = frozenset(
         {
@@ -328,7 +286,7 @@ class AlertAnalyzer:
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
-        self.summary_generator = summary_generator or NewsSummaryGenerator.from_settings(settings)
+        self.summary_generator = summary_generator or NewsSummaryGenerator()
         self.translation_generator = (
             translation_generator or KoreanTranslationGenerator.from_settings(settings)
         )
@@ -336,6 +294,9 @@ class AlertAnalyzer:
         self._internal_stock_by_code = {
             stock.stock_code: stock for stock in self._internal_stock_universe
         }
+        self._financial_glossary_entries = load_financial_term_entries(
+            settings.korean_financial_terms_seed_path
+        )
 
     def analyze(self, request: AlertAnalysisRequest) -> AlertAnalysisResponse:
         has_full_content = bool(request.content.strip())
@@ -628,13 +589,18 @@ class AlertAnalyzer:
     def _extract_financial_glossary_terms(self, text: str) -> list[FinancialGlossaryTerm]:
         matched_terms: list[FinancialGlossaryTerm] = []
         seen_terms: set[str] = set()
-        for normalized_term, english_term, category, aliases in sorted(
-            self._FINANCIAL_GLOSSARY,
-            key=lambda entry: max(len(term) for term in (entry[0], *entry[3])),
+        for entry in sorted(
+            self._financial_glossary_entries,
+            key=lambda item: max(len(term) for term in (item.normalized_term, *item.aliases)),
             reverse=True,
         ):
+            normalized_term = entry.normalized_term
             source_term = next(
-                (term for term in (normalized_term, *aliases) if term and term in text),
+                (
+                    term
+                    for term in (normalized_term, *entry.aliases)
+                    if term and term in text
+                ),
                 "",
             )
             if not source_term or normalized_term in seen_terms:
@@ -643,12 +609,9 @@ class AlertAnalyzer:
                 FinancialGlossaryTerm(
                     source_term=source_term,
                     normalized_term=normalized_term,
-                    english_term=english_term,
-                    category=category,
-                    description=self._FINANCIAL_GLOSSARY_DESCRIPTIONS.get(
-                        normalized_term,
-                        "",
-                    ),
+                    english_term=entry.english_term,
+                    category=entry.category,
+                    description=entry.definition,
                 )
             )
             seen_terms.add(normalized_term)

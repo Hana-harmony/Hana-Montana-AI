@@ -13,7 +13,6 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import Importance, Sentiment, SourceType, SummaryLines
-from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 NEWS_SUMMARY_PROMPT_VERSION = "news-summary-qwen3-wwi-v1"
 
@@ -540,33 +539,7 @@ class NewsSummaryGenerator:
 
     @classmethod
     def from_settings(cls, settings: Settings) -> NewsSummaryGenerator:
-        enabled = settings.news_summary_generation_mode == "local_llm"
-        client: NewsSummaryClient | None = None
-        if enabled:
-            if settings.news_summary_llm_endpoint:
-                client = QwenHttpNewsSummaryClient(
-                    endpoint=settings.news_summary_llm_endpoint,
-                    model=settings.news_summary_llm_model,
-                    timeout_seconds=settings.news_summary_llm_timeout_seconds,
-                )
-            else:
-                client = MlxQwenNewsSummaryClient(
-                    model=settings.news_summary_mlx_model,
-                    adapter_path=require_lora_adapter_artifact(
-                        settings.news_summary_mlx_adapter_path,
-                        "News summary Qwen3 LoRA adapter",
-                    ),
-                )
-        return cls(
-            enabled=enabled,
-            model_name=(
-                settings.news_summary_llm_model
-                if settings.news_summary_llm_endpoint
-                else settings.news_summary_mlx_model
-            ),
-            max_tokens=settings.news_summary_llm_max_tokens,
-            client=client,
-        )
+        return cls(enabled=False)
 
     def generate(self, context: NewsSummaryContext) -> SummaryLines:
         if not self._enabled or self._client is None:

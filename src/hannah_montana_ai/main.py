@@ -35,11 +35,9 @@ def _warm_runtime_dependencies() -> None:
 
 
 def _translation_provider_ready(settings: Settings) -> bool:
-    if settings.korean_translation_generation_mode != "local_llm":
-        return True
     endpoint = settings.korean_translation_llm_endpoint.rstrip("/")
     if not endpoint:
-        return True
+        return False
     parsed = urllib.parse.urlparse(endpoint)
     if parsed.scheme not in {"http", "https"}:
         return False
