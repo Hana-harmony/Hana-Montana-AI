@@ -17,12 +17,12 @@ from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, TranslationStatus
-from hannah_montana_ai.services.model import require_lora_adapter_artifact
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
 LOCAL_GLOSSARY_TRANSLATION_PROVIDER = "local-financial-glossary"
 LOCAL_GLOSSARY_TRANSLATION_MODEL = "local-financial-glossary-v2"
+QWEN_4B_TRANSLATION_MODEL = "Qwen3-4B-GGUF-Q4"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 STRUCTURED_DISCLOSURE_TRANSLATION_PROVIDER = "structured-dart-disclosure-ko-en-translation"
 SOURCE_LANGUAGE_FALLBACK_PROVIDER = "source-language-fallback"
@@ -438,7 +438,7 @@ class KoreanTranslationGenerator:
     }
     _LOCALISM_REPLACEMENTS = {
         "개미": (
-            "Ants",
+            "Ant",
             (
                 "retail investor",
                 "retail investors",
@@ -463,7 +463,7 @@ class KoreanTranslationGenerator:
             ),
         ),
         "대장주": (
-            "bellwether stock",
+            "Daejangju",
             (
                 "sector leader stock",
                 "sector leader stocks",
@@ -780,41 +780,20 @@ class KoreanTranslationGenerator:
 
     @classmethod
     def from_settings(cls, settings: Settings) -> KoreanTranslationGenerator:
-        mode = settings.korean_translation_generation_mode.strip().lower()
-        if mode in {"local_glossary", "harness", "financial_glossary"}:
-            return cls(
-                enabled=True,
-                local_glossary_enabled=True,
-                model_name=LOCAL_GLOSSARY_TRANSLATION_MODEL,
-            )
-        if mode not in {"local_llm", "qwen", "open_source"}:
-            return cls(enabled=False, model_name=settings.korean_translation_llm_model)
-        if settings.korean_translation_llm_endpoint.strip():
-            client: TranslationClient = QwenHttpKoreanTranslationClient(
-                endpoint=settings.korean_translation_llm_endpoint,
-                model=settings.korean_translation_llm_model,
-                timeout_seconds=settings.korean_translation_llm_timeout_seconds,
-            )
-            model_name = f"local-llm:{settings.korean_translation_llm_model}"
-        else:
-            client = MlxQwenKoreanTranslationClient(
-                model=settings.korean_translation_mlx_model,
-                adapter_path=require_lora_adapter_artifact(
-                    settings.korean_translation_mlx_adapter_path,
-                    "Korean translation Qwen3 LoRA adapter",
-                ),
-            )
-            model_name = f"local-llm:{settings.korean_translation_mlx_model}"
+        endpoint = settings.korean_translation_llm_endpoint.strip()
+        if not endpoint:
+            raise ValueError("HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT is required")
+        client: TranslationClient = QwenHttpKoreanTranslationClient(
+            endpoint=endpoint,
+            model=QWEN_4B_TRANSLATION_MODEL,
+            timeout_seconds=settings.korean_translation_llm_timeout_seconds,
+        )
         return cls(
             enabled=True,
             client=client,
-            model_name=model_name,
+            model_name=f"local-llm:{QWEN_4B_TRANSLATION_MODEL}",
             max_tokens=settings.korean_translation_llm_max_tokens,
-            max_concurrency=(
-                settings.korean_translation_max_concurrency
-                if settings.korean_translation_llm_endpoint.strip()
-                else 1
-            ),
+            max_concurrency=settings.korean_translation_max_concurrency,
             rule_based_repairs_enabled=False,
         )
 
@@ -1825,22 +1804,7 @@ class KoreanTranslationGenerator:
     ) -> bool:
         if self._contains_phrase(translated_text, preferred):
             return True
-        if normalized_term != "개미":
-            return False
-        acceptable_surfaces = {
-            "retail investor",
-            "retail investors",
-            "individual investor",
-            "individual investors",
-        }
-        acceptable_surfaces.update(
-            term.english_term
-            for term in glossary_terms
-            if term.normalized_term == normalized_term and term.english_term
-        )
-        return any(
-            self._contains_phrase(translated_text, surface) for surface in acceptable_surfaces
-        )
+        return False
 
     def _apply_general_glossary_surfaces(
         self,
