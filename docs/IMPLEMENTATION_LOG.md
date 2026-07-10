@@ -7,7 +7,7 @@
 - `scripts/run_qwen3_4b_gguf.sh`를 추가해 로컬 Mac과 OCI A1 Flex ARM CPU 환경 모두 Qwen3-4B GGUF Q4 방식으로 같은 경로를 검증하게 했다.
 
 ## 2026-07-08 세무 서류 실제 OCR API 연결
-- `/api/v1/tax/documents/verify`가 `document_content_base64` 이미지/PDF payload를 받으면 임시 파일로 격리한 뒤 `PaddleOCREngine`과 `hanah_tax_ocr` parser/reviewer를 실행하도록 연결했다.
+- `/api/v1/tax/documents/verify`가 `document_content_base64` 이미지/PDF payload를 받으면 임시 파일로 격리한 뒤 하네스와 동일한 `TaxDocumentPipeline`으로 템플릿 분류, Tesseract 영역 OCR, parser/reviewer를 실행한다.
 - `extracted_text`만 받은 기존 협력사 계약은 rule gate로 유지하되, 파일 payload는 실제 OCR confidence를 응답 `ocr_confidence`로 반환한다.
 - OCR 엔진이 없거나 파일을 읽을 수 없는 경우에는 임의 통과시키지 않고 `OCR_ENGINE_UNAVAILABLE` 또는 `OCR_INPUT_UNREADABLE` 사유로 수동검수/거절 상태를 반환한다.
 - Hannah API 컨테이너가 실제 파일 OCR을 수행하도록 `paddleocr`, `paddlepaddle`, `opencv-python-headless`와 Paddle/OpenCV OS 런타임 라이브러리를 고정하고, 비루트 사용자가 모델 캐시를 쓸 수 있도록 `HOME=/app/.cache`를 설정했다.

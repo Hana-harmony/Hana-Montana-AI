@@ -11,7 +11,7 @@ Accepted
 ## 결정
 Hannah-Montana-AI가 세무 서류 OCR 검증 API의 모델 경계를 가진다.
 
-- `document_content_base64` 이미지/PDF payload는 Hannah가 임시 파일로 격리하고 `PaddleOCREngine`으로 OCR을 실행한다.
+- `document_content_base64` 이미지/PDF payload는 Hannah가 임시 파일로 격리하고 하네스와 공유하는 `TaxDocumentPipeline`에서 Tesseract 전체·영역 OCR을 실행한다.
 - OCR 결과는 `hanah_tax_ocr` parser/reviewer로 필드 추출, 문서별 규칙, 수동검수 필요 여부를 판단한다.
 - `extracted_text`만 전달되는 기존 협력사 경로는 호환용 rule gate로 유지한다.
 - `paddleocr`, `paddlepaddle`, `opencv-python-headless`는 API 컨테이너 런타임 의존성에 포함한다.

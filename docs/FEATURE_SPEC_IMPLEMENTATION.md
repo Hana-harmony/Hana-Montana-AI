@@ -73,7 +73,7 @@
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/documents/verify`
-  - 입력: 서류 유형, 파일명, OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 투자자 ID/거주지 국가.
+  - 입력: 서류 유형, 파일명, 원본 파일 또는 OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 거주지 국가.
   - 처리: OCR confidence와 fraud signal score, 필수 field 누락 여부로 `VERIFIED`, `PENDING`, `REJECTED`를 산출한다.
   - 출력: `verification_status`, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`.
 - endpoint: `POST /api/v1/tax/refund-status`
@@ -85,7 +85,7 @@
   - 거주지 국가가 `US`
   - 모든 거래가 상장주식 장내거래
   - 직전 5년 및 당해 지분율 입력값이 25% 미만
-  - 거주자증명서와 제한세율신청서가 모두 `VERIFIED`, OCR 신뢰도 0.8 이상, 위변조 위험 0.2 이하
+  - 거주자증명서와 제한세율신청서가 모두 `VERIFIED`, OCR 신뢰도 0.75 이상, 위변조 위험 0.2 이하
 - 환급 계산:
   - 배당 환급 = 총 배당금 × 7%
   - 양도세 환급 = `min(총 매도지급액 × 11%, 양도차익 × 22%)`
