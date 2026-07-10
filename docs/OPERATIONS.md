@@ -50,6 +50,7 @@ docker run --rm --network hana-internal hannah-montana-ai
 - Qwen 서버는 `scripts/run_qwen3_4b_gguf.sh`로 실행한다.
 - `/ready`는 번역 endpoint의 `/health`가 응답하지 않으면 fail-closed 한다.
 - 번역은 한글 잔존, 원문 반환, 과도한 축약, glossary 표면형 누락을 품질 실패로 처리한다.
+- 번역기는 `data/reference/korean_financial_terms_seed.json`을 자동 로드하므로 API 호출자가 glossary를 직접 전달할 필요가 없다.
 
 ## 추론 audit log
 - 분석 API는 요청마다 `hannah_montana_ai.audit.analysis` logger에 JSON audit log를 남긴다.
