@@ -11,7 +11,7 @@ from hanah_tax_ocr.evaluation import (
     load_harness_run_result,
 )
 from hanah_tax_ocr.harness import CaseDocument, HarnessRunner
-from hanah_tax_ocr.ocr import PaddleOCREngine
+from hanah_tax_ocr.ocr import TesseractOCREngine
 from hanah_tax_ocr.schemas import DocumentType
 from hanah_tax_ocr.template_profiles import classify_template
 
@@ -102,13 +102,13 @@ def parse_document_specs(specs: list[str]) -> list[CaseDocument]:
 
 def run_review_command(args: argparse.Namespace) -> int:
     documents = parse_document_specs(args.document)
-    engines: dict[str, PaddleOCREngine] = {}
+    engines: dict[str, TesseractOCREngine] = {}
     hydrated_documents: list[CaseDocument] = []
     for document in documents:
         lang = document.ocr_lang or args.lang
         engine = engines.get(lang)
         if engine is None:
-            engine = PaddleOCREngine(lang=lang)
+            engine = TesseractOCREngine(lang=lang)
             engines[lang] = engine
         ocr_result = engine.run(document.source_path)
         profile = classify_template(

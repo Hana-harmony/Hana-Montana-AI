@@ -6,10 +6,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from hanah_tax_ocr.document_checks import compute_document_checks
-from hanah_tax_ocr.ocr import PaddleOCREngine
-from hanah_tax_ocr.parsers import build_parser_registry
-from hanah_tax_ocr.quality import average_ocr_confidence, compute_quality_metrics
+from hanah_tax_ocr.ocr import TesseractOCREngine
+from hanah_tax_ocr.pipeline import TaxDocumentPipeline
 from hanah_tax_ocr.review import TaxDocumentReviewer
 from hanah_tax_ocr.schemas import (
     DocumentType,
@@ -18,7 +16,6 @@ from hanah_tax_ocr.schemas import (
     ReviewResult,
     ReviewStatus,
 )
-from hanah_tax_ocr.template_profiles import classify_template
 
 
 class CaseDocument(BaseModel):
@@ -40,7 +37,7 @@ class HarnessRunner:
         self,
         *,
         reviewer: TaxDocumentReviewer | None = None,
-        ocr_engine: PaddleOCREngine | None = None,
+        ocr_engine: TesseractOCREngine | None = None,
         review_queue_dir: str | Path = "data/review_queue/index",
         blur_threshold: float = 100.0,
         min_ocr_confidence: float = 0.75,
@@ -50,7 +47,6 @@ class HarnessRunner:
         self._review_queue_dir = Path(review_queue_dir)
         self._blur_threshold = blur_threshold
         self._min_ocr_confidence = min_ocr_confidence
-        self._parsers = build_parser_registry()
 
     def run_case(
         self,
@@ -60,45 +56,16 @@ class HarnessRunner:
         extracted_documents: list[ExtractedDocument] = []
 
         for document in documents:
-            ocr_result = document.ocr_result or self._run_ocr(document.source_path)
-            profile = classify_template(
+            pipeline_result = TaxDocumentPipeline(
+                ocr_engine=self._ocr_engine,
+                blur_threshold=self._blur_threshold,
+                min_ocr_confidence=self._min_ocr_confidence,
+            ).process(
                 document.document_type,
                 document.source_path,
-                ocr_result.combined_text(),
+                ocr_result=document.ocr_result,
             )
-            if profile and not ocr_result.template_id:
-                ocr_result.template_id = profile.template_id
-            if self._ocr_engine is not None and profile and not ocr_result.regions:
-                ocr_result.regions = self._ocr_engine.run_regions(
-                    document.source_path,
-                    profile.ocr_regions,
-                )
-            extracted = self._parsers[document.document_type].parse(
-                ocr_result,
-                document.source_path,
-            )
-            extracted.template_id = ocr_result.template_id
-
-            extracted.quality_checks.update(
-                compute_document_checks(
-                    document.document_type,
-                    document.source_path,
-                    template_id=ocr_result.template_id,
-                    ocr_text=ocr_result.combined_text(),
-                )
-            )
-            extracted.quality_checks["detected_template_id"] = ocr_result.template_id
-            quality_metrics = compute_quality_metrics(
-                document.source_path,
-                blur_threshold=self._blur_threshold,
-            )
-            avg_confidence = average_ocr_confidence(ocr_result.pages)
-            if avg_confidence is not None:
-                quality_metrics["average_ocr_confidence"] = avg_confidence
-                quality_metrics["low_ocr_confidence"] = avg_confidence < self._min_ocr_confidence
-
-            extracted.quality_checks.update(quality_metrics)
-            extracted_documents.append(extracted)
+            extracted_documents.append(pipeline_result.extracted_document)
 
         review_result = self._reviewer.review(extracted_documents)
         queued_review_path = None
@@ -123,13 +90,6 @@ class HarnessRunner:
             json.dumps(run_result.model_dump(mode="json"), ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-
-    def _run_ocr(self, source_path: str) -> OCRResult:
-        if self._ocr_engine is None:
-            raise RuntimeError(
-                "No OCR result was provided and no PaddleOCR engine is configured."
-            )
-        return self._ocr_engine.run(source_path)
 
     def _should_queue_review(
         self,

@@ -497,7 +497,6 @@ class TaxDocumentVerificationRequest(BaseModel):
     content_type: str = Field(default="", max_length=120)
     ocr_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     fraud_signal_score: float = Field(default=0.0, ge=0.0, le=1.0)
-    expected_investor_id: str | None = Field(default=None, max_length=80)
     expected_residency_country: str | None = Field(default=None, min_length=2, max_length=2)
     extracted_fields: dict[str, str] = Field(default_factory=dict, max_length=30)
 

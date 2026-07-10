@@ -272,15 +272,15 @@ class _TesseractOCR:
 
     def _tesseract_lang(self, lang: str) -> str:
         normalized = lang.lower().replace("-", "_")
-        if normalized in {"ko", "kor", "korean", "korean+english", "kor_eng"}:
+        if normalized in {"ko", "kor", "korean", "korean+english", "kor+eng", "kor_eng"}:
             return "kor+eng"
         if normalized in {"eng", "en", "english"}:
             return "eng"
         return os.getenv("HANAH_TAX_OCR_TESSERACT_LANG", "eng")
 
 
-class PaddleOCREngine:
-    """ARM64-compatible OCR wrapper kept under the legacy contract name."""
+class TesseractOCREngine:
+    """로컬 Tesseract 실행과 템플릿 영역 OCR을 제공한다."""
 
     def __init__(
         self,
