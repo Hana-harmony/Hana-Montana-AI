@@ -38,7 +38,7 @@ class HarnessRunner:
         *,
         reviewer: TaxDocumentReviewer | None = None,
         ocr_engine: TesseractOCREngine | None = None,
-        review_queue_dir: str | Path = "data/review_queue/index",
+        review_queue_dir: str | Path,
         blur_threshold: float = 100.0,
         min_ocr_confidence: float = 0.75,
     ) -> None:
