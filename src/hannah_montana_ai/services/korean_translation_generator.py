@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import json
 import logging
 import re
@@ -8,10 +7,9 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from pathlib import Path
 from threading import BoundedSemaphore
 from typing import Any, Protocol, cast
 
@@ -20,8 +18,6 @@ from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, 
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
-LOCAL_GLOSSARY_TRANSLATION_PROVIDER = "local-financial-glossary"
-LOCAL_GLOSSARY_TRANSLATION_MODEL = "local-financial-glossary-v2"
 QWEN_4B_TRANSLATION_MODEL = "Qwen3-4B-GGUF-Q4"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 STRUCTURED_DISCLOSURE_TRANSLATION_PROVIDER = "structured-dart-disclosure-ko-en-translation"
@@ -58,10 +54,6 @@ class KoreanTranslationResult:
 class TranslationClient(Protocol):
     def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
         pass
-
-
-type MlxModelLoader = Callable[[str, Path | None], tuple[Any, Any]]
-type MlxTextGenerator = Callable[[Any, Any, str, int, float], str]
 
 
 class QwenHttpKoreanTranslationClient:
@@ -126,106 +118,6 @@ class QwenHttpKoreanTranslationClient:
         if last_exception is None:
             raise RuntimeError("LLM request retry loop completed without a result")
         raise last_exception
-
-
-class MlxQwenKoreanTranslationClient:
-    def __init__(
-        self,
-        *,
-        model: str,
-        adapter_path: Path | None,
-        temperature: float = 0.0,
-        model_loader: MlxModelLoader | None = None,
-        text_generator: MlxTextGenerator | None = None,
-    ) -> None:
-        self._model_name = model
-        self._adapter_path = adapter_path
-        self._temperature = temperature
-        self._model_loader = model_loader or self._load_mlx_model
-        self._text_generator = text_generator or self._generate_mlx_text
-        self._pipeline: tuple[Any, Any] | None = None
-
-    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
-        model, tokenizer = self._load_pipeline()
-        prompt = self._format_chat_prompt(messages, tokenizer)
-        return self._text_generator(model, tokenizer, prompt, max_tokens, self._temperature)
-
-    def _load_pipeline(self) -> tuple[Any, Any]:
-        if self._pipeline is None:
-            self._pipeline = self._model_loader(self._model_name, self._adapter_path)
-        return self._pipeline
-
-    @staticmethod
-    def _load_mlx_model(model_name: str, adapter_path: Path | None) -> tuple[Any, Any]:
-        try:
-            mlx_lm = importlib.import_module("mlx_lm")
-        except ImportError as exception:
-            raise ValueError(
-                "mlx_lm is required for direct Korean translation generation"
-            ) from exception
-        load = cast(Callable[..., tuple[Any, Any]], mlx_lm.load)
-        return load(
-            model_name,
-            adapter_path=str(adapter_path) if adapter_path is not None else None,
-        )
-
-    @staticmethod
-    def _generate_mlx_text(
-        model: Any,
-        tokenizer: Any,
-        prompt: str,
-        max_tokens: int,
-        temperature: float,
-    ) -> str:
-        try:
-            mlx_lm = importlib.import_module("mlx_lm")
-        except ImportError as exception:
-            raise ValueError(
-                "mlx_lm is required for direct Korean translation generation"
-            ) from exception
-        sample_utils = importlib.import_module("mlx_lm.sample_utils")
-        make_sampler = cast(Callable[..., Callable[[Any], Any]], sample_utils.make_sampler)
-        sampler = make_sampler(temp=temperature)
-        generate = cast(Callable[..., str], mlx_lm.generate)
-        return generate(
-            model,
-            tokenizer,
-            prompt=prompt,
-            max_tokens=max_tokens,
-            sampler=sampler,
-            verbose=False,
-        )
-
-    @staticmethod
-    def _format_chat_prompt(messages: list[dict[str, str]], tokenizer: Any) -> str:
-        apply_chat_template = getattr(tokenizer, "apply_chat_template", None)
-        if callable(apply_chat_template):
-            try:
-                return cast(
-                    str,
-                    apply_chat_template(
-                        messages,
-                        tokenize=False,
-                        add_generation_prompt=True,
-                        enable_thinking=False,
-                    ),
-                )
-            except TypeError:
-                return cast(
-                    str,
-                    apply_chat_template(
-                        messages,
-                        tokenize=False,
-                        add_generation_prompt=True,
-                    ),
-                )
-        rendered_messages = []
-        for message in messages:
-            role = message.get("role", "user")
-            content = message.get("content", "")
-            rendered_messages.append(f"<|im_start|>{role}\n{content}<|im_end|>")
-        rendered_messages.append("<|im_start|>assistant\n")
-        return "\n".join(rendered_messages)
 
 
 class KoreanTranslationGenerator:
@@ -762,17 +654,13 @@ class KoreanTranslationGenerator:
     def __init__(
         self,
         *,
-        enabled: bool = False,
         client: TranslationClient | None = None,
-        local_glossary_enabled: bool = False,
         model_name: str = "Qwen3-4B-GGUF-Q4",
         max_tokens: int = 2048,
         max_concurrency: int = 1,
         rule_based_repairs_enabled: bool = True,
     ) -> None:
-        self._enabled = enabled
         self._client = client
-        self._local_glossary_enabled = local_glossary_enabled
         self._model_name = model_name
         self._max_tokens = max_tokens
         self._rule_based_repairs_enabled = rule_based_repairs_enabled
@@ -789,7 +677,6 @@ class KoreanTranslationGenerator:
             timeout_seconds=settings.korean_translation_llm_timeout_seconds,
         )
         return cls(
-            enabled=True,
             client=client,
             model_name=f"local-llm:{QWEN_4B_TRANSLATION_MODEL}",
             max_tokens=settings.korean_translation_llm_max_tokens,
@@ -803,17 +690,14 @@ class KoreanTranslationGenerator:
             return self._fallback("", ["EMPTY_SOURCE"])
 
         compact_source = re.sub(r"\s+", "", source_text)
-        requires_body_translation = (
-            self._local_glossary_enabled and self._requires_complete_body_translation(source_text)
-        )
-        structured_disclosure = self._repair_structured_disclosure_translation(
-            source_text,
-            context,
-        )
-        if structured_disclosure:
-            return self._structured_disclosure_translation_result(structured_disclosure)
-
         if self._rule_based_repairs_enabled:
+            structured_disclosure = self._repair_structured_disclosure_translation(
+                source_text,
+                context,
+            )
+            if structured_disclosure:
+                return self._structured_disclosure_translation_result(structured_disclosure)
+
             grounded_market_title = self._repair_grounded_market_news_title(source_text)
             if grounded_market_title:
                 return self._grounded_translation_result(grounded_market_title)
@@ -822,7 +706,7 @@ class KoreanTranslationGenerator:
             if grounded_headline:
                 return self._grounded_translation_result(grounded_headline)
 
-        if self._rule_based_repairs_enabled and not requires_body_translation:
+        if self._rule_based_repairs_enabled:
             grounded_full_article = self._repair_grounded_full_market_news_body(compact_source)
             if grounded_full_article:
                 return self._grounded_translation_result(grounded_full_article)
@@ -834,17 +718,7 @@ class KoreanTranslationGenerator:
             if grounded_market_plunge_article:
                 return self._grounded_translation_result(grounded_market_plunge_article)
 
-        if self._local_glossary_enabled:
-            if requires_body_translation:
-                client_result = self._translate_body_with_generation_client_best_effort(
-                    source_text,
-                    context,
-                )
-                if client_result is not None:
-                    return client_result
-                return self._fallback("", ["QWEN_COMPLETE_BODY_TRANSLATION_FAILED"])
-            return self._translate_with_local_glossary(source_text, context)
-        if not self._enabled or self._client is None:
+        if self._client is None:
             return self._fallback("", ["LOCAL_TRANSLATION_DISABLED"])
 
         if self._requires_complete_body_translation(source_text):
@@ -1011,116 +885,6 @@ class KoreanTranslationGenerator:
         normalized = self._normalize_text(source_text)
         return len(normalized) >= 260 or self._sentence_count(normalized) >= 3
 
-    def _translate_with_local_glossary(
-        self,
-        source_text: str,
-        context: KoreanTranslationContext,
-    ) -> KoreanTranslationResult:
-        from hannah_montana_ai.services.feature_contracts import (
-            translate_financial_korean_to_english,
-        )
-
-        translated = self._normalize_text(
-            translate_financial_korean_to_english(source_text).translated_text
-        )
-        translated = self._apply_context_glossary_terms(
-            translated,
-            context.glossary_terms or [],
-        )
-        translated = self._clean_short_local_glossary_translation(source_text, translated)
-        if not translated or translated == source_text:
-            return self._fallback("", ["LOCAL_GLOSSARY_NO_TRANSLATION"])
-        flags: list[str] = []
-        status: TranslationStatus = STATUS_TRANSLATED
-        if self._HANGUL_PATTERN.search(translated):
-            flags.append("LOCAL_GLOSSARY_PARTIAL_SOURCE_LANGUAGE")
-            status = STATUS_PARTIAL_SOURCE_LANGUAGE_FALLBACK
-        flags.extend(self._short_local_glossary_quality_flags(source_text, translated))
-        if flags and not self._HANGUL_PATTERN.search(translated):
-            return self._fallback("", flags)
-        return KoreanTranslationResult(
-            translated_text=translated,
-            provider=LOCAL_GLOSSARY_TRANSLATION_PROVIDER,
-            model_version=LOCAL_GLOSSARY_TRANSLATION_MODEL,
-            status=status,
-            prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
-            quality_flags=self._quality_flag_list(flags),
-        )
-
-    def _apply_context_glossary_terms(
-        self,
-        translated: str,
-        glossary_terms: list[FinancialGlossaryTerm],
-    ) -> str:
-        result = translated
-        for term in glossary_terms:
-            english_term = self._normalize_text(term.english_term)
-            if not english_term:
-                continue
-            for source_term in (term.source_term, term.normalized_term):
-                source = self._normalize_text(source_term)
-                if source:
-                    result = result.replace(source, english_term)
-        return result
-
-    def _clean_short_local_glossary_translation(self, source_text: str, translated: str) -> str:
-        if len(source_text) > 180:
-            return translated
-        if not self._has_local_glossary_english_surface(translated):
-            return translated
-        quoted_hangul = r"[\"'“‘][^\"'”’]*[가-힣][^\"'”’]*[\"'”’]\s*(?:…|\\.\\.\\.)?"
-        cleaned = re.sub(quoted_hangul, " ", translated)
-        cleaned = re.sub(r"[가-힣]+", " ", cleaned)
-        cleaned = re.sub(r"[\u3400-\u4dbf\u4e00-\u9fff]+", " ", cleaned)
-        cleaned = re.sub(r"\s+([,.)])", r"\1", cleaned)
-        cleaned = re.sub(r"([(])\s+", r"\1", cleaned)
-        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" ,;:-")
-        return cleaned if cleaned else translated
-
-    def _short_local_glossary_quality_flags(
-        self,
-        source_text: str,
-        translated: str,
-    ) -> list[str]:
-        if len(source_text) > 180 or self._HANGUL_PATTERN.search(source_text) is None:
-            return []
-        flags: list[str] = []
-        if self._CJK_PATTERN.search(translated):
-            flags.append("LOCAL_GLOSSARY_CJK_FRAGMENT")
-        if any(token in translated for token in ("[ ]", "[]", '""', '" "', "…", "...")):
-            flags.append("LOCAL_GLOSSARY_PLACEHOLDER_FRAGMENT")
-        if any(token in translated for token in ("↑", "↓", "·")):
-            flags.append("LOCAL_GLOSSARY_SYMBOL_FRAGMENT")
-        english_words = re.findall(r"[A-Za-z]{2,}", translated)
-        letters = re.findall(r"[A-Za-z]", translated)
-        digits = re.findall(r"\d", translated)
-        if len(english_words) < 4 and (len(source_text) >= 12 or digits):
-            flags.append("LOCAL_GLOSSARY_TOO_SHORT_HEADLINE")
-        if letters and len(digits) > len(letters) and len(english_words) < 7:
-            flags.append("LOCAL_GLOSSARY_NUMERIC_FRAGMENT")
-        return self._quality_flag_list(flags)
-
-    def _has_local_glossary_english_surface(self, value: str) -> bool:
-        lower = value.lower()
-        surfaces = (
-            "stock",
-            "market",
-            "kospi",
-            "kosdaq",
-            "earnings",
-            "disclosure",
-            "delisting",
-            "trading",
-            "foreign",
-            "investor",
-            "improvement",
-            "surge",
-            "decline",
-            "increase",
-            "decrease",
-        )
-        return any(surface in lower for surface in surfaces)
-
     def _translate_chunk(
         self,
         chunk: str,
@@ -1204,7 +968,7 @@ class KoreanTranslationGenerator:
                     type(exception).__name__,
                     str(exception)[:240],
                 )
-        if self._should_accept_best_effort_qwen_body_chunk(
+        if not provider_error_flags and self._should_accept_best_effort_qwen_body_chunk(
             chunk,
             translated,
             quality_flags,

@@ -77,7 +77,7 @@ def test_korean_stock_order_status_contract_packs_foreign_limit_vi_and_price_lim
     assert payload["data_source"] == "KIS/PredictEngine"
 
 
-def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targets() -> None:
+def test_intelligence_event_fails_closed_when_local_qwen_is_unavailable() -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()
     client = TestClient(app)
@@ -114,19 +114,14 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert payload["stock_code"] == "005930"
     assert payload["news_disclosure_type"] == "NEWS"
     assert payload["original_title"] == "삼성전자 2분기 영업이익 증가"
-    assert "Samsung Electronics" in payload["translated_title"]
-    assert "operating profit" in payload["translated_title"]
+    assert payload["translated_title"] == ""
     assert payload["summary"]
-    assert payload["translated_summary"]
+    assert payload["translated_summary"] == ""
     assert payload["original_content"] == payload["original_body"]
     assert "삼성전자는 반도체 수요 회복" in payload["original_body"]
     assert payload["translated_content"] == payload["translated_body"]
-    assert (
-        payload["translated_body"]
-        == "Samsung Electronics expects operating profit to improve on "
-        "supply-contract expansion and recovering semiconductor demand."
-    )
-    assert payload["translation_status"] == "TRANSLATED"
+    assert payload["translated_body"] == ""
+    assert payload["translation_status"] == "SOURCE_LANGUAGE_FALLBACK"
     assert payload["content_availability"] == "FULL_TEXT"
     assert payload["body_source_type"] == "FULL_TEXT"
     assert payload["sentiment"] == "POSITIVE"
@@ -136,10 +131,8 @@ def test_korean_stock_intelligence_event_contract_translates_summarizes_and_targ
     assert payload["is_watchlist_target"] is True
     assert payload["glossary_terms"] == []
     assert "FINANCIAL_GLOSSARY_APPLIED" not in payload["translation_quality_flags"]
-    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in payload["translation_quality_flags"]
-    assert "CONTENT_TRANSLATION_UNAVAILABLE" not in payload["translation_quality_flags"]
-    assert payload["translation_provider"] == "local-financial-glossary"
-    assert payload["translation_model_version"] == "local-financial-glossary-v2"
+    assert "CONTENT_TRANSLATION_UNAVAILABLE" in payload["translation_quality_flags"]
+    assert payload["translation_provider"] == "source-language-fallback"
     assert 0.0 <= payload["event_confidence"] <= 1.0
     assert 0.0 <= payload["sentiment_confidence"] <= 1.0
     assert 0.0 <= payload["importance_confidence"] <= 1.0

@@ -2,10 +2,12 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Settings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
     stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
     stock_linker_model_path: Path = Path("src/hannah_montana_ai/model_store/stock_linker_ml.joblib")
@@ -36,12 +38,6 @@ class Settings(BaseModel):
         "data/reference/korean_financial_terms_seed.json"
     )
     korean_financial_term_model_version: str = "k-finance-term-dictionary-v3"
-    global_peer_explanation_training_path: Path = Path(
-        "data/training/global_peer_explanation_sft.jsonl"
-    )
-    global_peer_explanation_readiness_report_path: Path = Path(
-        "reports/global-peer-explanation-llm-readiness.json"
-    )
     korean_translation_llm_endpoint: str = Field(
         default_factory=lambda: os.getenv(
             "HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT",

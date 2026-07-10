@@ -6,6 +6,7 @@ import html
 import re
 import tempfile
 from dataclasses import dataclass
+from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
 from typing import Literal, Protocol, cast
@@ -23,6 +24,7 @@ from hanah_tax_ocr.schemas import (
     OCRResult,
     ReviewStatus,
 )
+from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     DocumentRiskLevel,
@@ -45,6 +47,7 @@ from hannah_montana_ai.domain.schemas import (
     TaxRefundWorkflowStatus,
 )
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.korean_financial_terms import load_financial_term_entries
 from hannah_montana_ai.services.korean_translation_generator import (
     SOURCE_LANGUAGE_FALLBACK_PROVIDER,
     KoreanTranslationContext,
@@ -59,7 +62,7 @@ CAPITAL_GAINS_PROFIT_RATE = 0.22
 CASE_01_MAX_OWNERSHIP_RATE = 25.0
 FOREIGN_OWNERSHIP_MODEL_VERSION = "foreign-ownership-boundary-v1"
 TRADING_STATE_MODEL_VERSION = "krx-vi-price-limit-state-v1"
-TRANSLATION_MODEL_VERSION = "local-financial-glossary-v2"
+TRANSLATION_MODEL_VERSION = "local-llm:Qwen3-4B-GGUF-Q4"
 TAX_REFUND_MODEL_VERSION = "us-treaty-refund-case-engine-v1"
 DOCUMENT_VERIFICATION_MODEL_VERSION = "ocr-fraud-risk-gate-v1"
 HANAH_TAX_OCR_MODEL_VERSION = "hanah-tax-ocr-e2e-review-v2"
@@ -93,13 +96,7 @@ class KoreanTranslationService(Protocol):
         pass
 
 
-FINANCIAL_TRANSLATION_GLOSSARY = (
-    (
-        "삼전닉스",
-        "Samjeon Nix",
-        "market_slang",
-        ("삼닉", "삼닉스", "삼전 닉스", "삼전·닉스", "삼전-닉스", "Samjeon-Nix"),
-    ),
+TRANSLATION_SUPPORT_GLOSSARY = (
     ("삼성전자", "Samsung Electronics", "stock", ("삼전", "Samsung Elec")),
     ("SK하이닉스", "SK hynix", "stock", ("하이닉스",)),
     ("한화시스템", "Hanwha Systems", "stock", ()),
@@ -115,7 +112,6 @@ FINANCIAL_TRANSLATION_GLOSSARY = (
     ("환율", "exchange rate", "fx", ()),
     ("외환 지표", "foreign exchange indicator", "fx", ()),
     ("과세 개편", "tax reform", "tax", ()),
-    ("빚투", "leveraged retail investing", "risk", ()),
     ("목표치", "target estimate", "market_state", ()),
     ("상향", "upward revision", "sentiment", ()),
     (
@@ -174,7 +170,6 @@ FINANCIAL_TRANSLATION_GLOSSARY = (
         "capital_action",
         ("자기주식 취득", "자사주 취득"),
     ),
-    ("자사주 소각", "treasury share cancellation", "capital_action", ("자기주식 소각",)),
     ("전환사채", "convertible bond", "capital_action", ("CB",)),
     ("신주인수권부사채", "bond with warrants", "capital_action", ("BW",)),
     ("영업이익", "operating profit", "metric", ()),
@@ -373,7 +368,7 @@ class TradingStateModel:
 
 class FinancialTranslationModel:
     version = TRANSLATION_MODEL_VERSION
-    provider = "local-financial-glossary"
+    provider = SOURCE_LANGUAGE_FALLBACK_PROVIDER
 
     def __init__(self, translation_generator: KoreanTranslationService | None = None) -> None:
         self._translation_generator = translation_generator
@@ -413,24 +408,15 @@ class FinancialTranslationModel:
             title=request.title,
             glossary_terms=qwen_glossary_terms,
         )
-        translated_title = _preferred_translation(
-            qwen_title_translation,
-            title_translation.translated_text,
-        )
-        translated_summary = _preferred_translation(
-            qwen_summary_translation,
-            summary_translation.translated_text,
-        )
+        translated_title = _preferred_translation(qwen_title_translation)
+        translated_summary = _preferred_translation(qwen_summary_translation)
         translated_summary_lines, summary_line_qwen_results = self._translate_summary_lines(
             source_summary_lines,
             request=request,
             glossary_terms=qwen_glossary_terms,
         )
         translated_summary = _join_summary_lines(translated_summary_lines) or translated_summary
-        translated_content = _preferred_content_translation(
-            qwen_content_translation,
-            content_translation.translated_text,
-        )
+        translated_content = _preferred_content_translation(qwen_content_translation)
         quality_flags = _translation_quality_flags(
             request.title,
             translated_title,
@@ -523,7 +509,6 @@ class FinancialTranslationModel:
         translated_lines: list[str] = []
         qwen_results: list[KoreanTranslationResult | None] = []
         for line in (summary_lines.what, summary_lines.why, summary_lines.impact):
-            fallback_translation = translate_financial_korean_to_english(line)
             qwen_result = self._translate_with_qwen(
                 text=line,
                 source_type=request.source_type,
@@ -533,7 +518,7 @@ class FinancialTranslationModel:
             qwen_results.append(qwen_result)
             translated_lines.append(
                 _normalize_summary_line(
-                    _preferred_translation(qwen_result, fallback_translation.translated_text)
+                    _preferred_translation(qwen_result)
                 )
             )
         return (
@@ -861,19 +846,33 @@ def translate_financial_korean_to_english(text: str) -> FinancialTranslationResu
     )
 
 
+@lru_cache
 def _ordered_glossary_entries() -> tuple[_GlossaryEntry, ...]:
-    entries = tuple(
+    support_entries = tuple(
         _GlossaryEntry(
             normalized_term=normalized_term,
             english_term=english_term,
             category=category,
             aliases=aliases,
         )
-        for normalized_term, english_term, category, aliases in FINANCIAL_TRANSLATION_GLOSSARY
+        for normalized_term, english_term, category, aliases in TRANSLATION_SUPPORT_GLOSSARY
     )
+    dictionary_entries = tuple(
+        _GlossaryEntry(
+            normalized_term=entry.normalized_term,
+            english_term=entry.english_term,
+            category=entry.category,
+            aliases=entry.aliases,
+        )
+        for entry in load_financial_term_entries(
+            get_settings().korean_financial_terms_seed_path
+        )
+    )
+    entries_by_term = {entry.normalized_term: entry for entry in support_entries}
+    entries_by_term.update({entry.normalized_term: entry for entry in dictionary_entries})
     return tuple(
         sorted(
-            entries,
+            entries_by_term.values(),
             key=lambda entry: max(len(term) for term in (entry.normalized_term, *entry.aliases)),
             reverse=True,
         )
@@ -1040,7 +1039,6 @@ def _fit_summary_line(value: str, max_length: int = 500) -> str:
 
 def _preferred_translation(
     qwen_result: KoreanTranslationResult | None,
-    fallback_text: str,
     *,
     allow_flagged_english: bool = False,
 ) -> str:
@@ -1060,23 +1058,18 @@ def _preferred_translation(
         and _has_only_tolerable_translation_flags(qwen_result.quality_flags)
     ):
         return qwen_result.translated_text.strip()
-    return fallback_text
+    return ""
 
 
 def _preferred_content_translation(
     qwen_result: KoreanTranslationResult | None,
-    fallback_text: str,
 ) -> str:
     candidate = _preferred_translation(
         qwen_result,
-        fallback_text,
         allow_flagged_english=True,
     ).strip()
     if candidate and not _contains_hangul(candidate):
         return candidate
-    fallback = fallback_text.strip()
-    if fallback and not _contains_hangul(fallback):
-        return fallback
     return ""
 
 
@@ -1186,8 +1179,8 @@ def _contains_korean_financial_term(source_text: str, translated_text: str) -> b
         return False
     return any(
         term in translated_text
-        for normalized_term, _, _, aliases in FINANCIAL_TRANSLATION_GLOSSARY
-        for term in (normalized_term, *aliases)
+        for entry in _ordered_glossary_entries()
+        for term in (entry.normalized_term, *entry.aliases)
         if _contains_hangul(term)
     )
 
