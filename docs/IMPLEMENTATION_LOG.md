@@ -8,6 +8,7 @@
 - 한국어 번역의 직접 MLX와 local glossary 분기를 삭제해 로컬 Docker와 배포 서버가 같은 Qwen endpoint 계약을 사용한다.
 - 금융 용어 seed를 분석 glossary의 단일 원천으로 연결하고 30개 이상으로 확장했다.
 - 표면형을 `개미 → Ant`, `대장주 → Daejangju`로 정정하고 동학개미·서학개미·빚투·영끌·존버·물타기·불타기·상따·하따 등을 분리했다.
+- Qwen 번역과 rule 요약 모두 `Ant`, `Daejangju`, `Bittu` 표면형을 유지한다.
 
 ## 2026-07-08 세무 서류 OCR
 
@@ -20,4 +21,3 @@
 - 글로벌 비교는 3개 고유 비교 차원과 인지도 높은 peer를 반환한다.
 - 삼성전자는 Apple/Intel/TSMC 비교와 memory/foundry/ecosystem/AI 네 강점을 제공한다.
 - 핵심 강점은 비교 문구가 아니라 한국 기업 자체의 강점으로 구성한다.
-
