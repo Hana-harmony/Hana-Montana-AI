@@ -69,7 +69,7 @@
   - `is_holder_target`, `is_watchlist_target`
   - `glossary_terms`, `translation_quality_flags`
   - `translation_provider`, `translation_model_version`, `translation_status`
-  - `data_source="Naver/OpenDART/NLP/OpenAITranslationAdapter"`
+  - `data_source="Naver/OpenDART/NLP/QwenTranslationAdapter"`
 
 ## 3. 최종 투자자별 세무 전산화 및 환급금 선지급
 - endpoint: `POST /api/v1/tax/documents/verify`

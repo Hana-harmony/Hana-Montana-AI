@@ -26,7 +26,6 @@ def main() -> None:
             term=str(row["term"]),
             title=str(row.get("title", "")),
             context=str(row.get("context", "")),
-            allow_web_search=False,
         )
         response = service.explain(request)
         passed = (

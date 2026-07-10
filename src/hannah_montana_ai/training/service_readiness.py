@@ -266,7 +266,7 @@ def _qwen_feature_check(
         failure_reasons.append("generation_eval_sample_count_below_gate")
     if quality_status != "pass":
         failure_reasons.append("generation_eval_quality_status_failed")
-    for required_term in ("t4g.medium", "gguf", "openai-compatible"):
+    for required_term in ("gguf", "qwen3"):
         if required_term not in serving_note:
             failure_reasons.append(f"serving_note_missing:{required_term}")
     return {
@@ -284,7 +284,7 @@ def _qwen_feature_check(
         "sample_count": sample_count,
         "pass_rate": pass_rate,
         "quality_status": quality_status,
-        "serving_runtime_gate": "t4g.medium GGUF OpenAI-compatible sidecar",
+        "serving_runtime_gate": "Qwen3 GGUF runtime",
         "failure_reasons": failure_reasons,
         "status": "pass" if not failure_reasons else "fail",
     }

@@ -88,7 +88,7 @@ def build_global_peer_explanation_llm_dataset(
         "prompt_version": EXPLANATION_PROMPT_VERSION,
         "recommended_train_model": "Qwen/Qwen3-0.6B-MLX-4bit LoRA",
         "recommended_serving_model": "Qwen3-0.6B GGUF Q4",
-        "serving_runtime": "llama.cpp OpenAI-compatible server",
+        "serving_runtime": "Qwen3 GGUF runtime",
         "serving_constraint": "AWS t4g.medium CPU-only, 2 vCPU, 4 GiB RAM",
         "dataset_path": str(dataset_path),
         "stock_universe_path": str(stock_universe_path),

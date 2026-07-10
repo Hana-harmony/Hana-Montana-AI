@@ -1,12 +1,15 @@
 import json
 import logging
+import urllib.error
+import urllib.request
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api import routes
 from hannah_montana_ai.api.routes import get_analyzer, get_audit_logger
-from hannah_montana_ai.core.config import get_settings
-from hannah_montana_ai.main import app
+from hannah_montana_ai.core.config import Settings, get_settings
+from hannah_montana_ai.main import _translation_provider_ready, app
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
@@ -47,6 +50,44 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert payload["data"]["stock_match_confidence"] == 1.0
     assert payload["data"]["content_availability"] == "SUMMARY_ONLY"
     assert payload["data"]["original_content"] == "반도체 수요 회복으로 실적 개선 기대가 커졌다."
+
+
+def test_analyze_alert_accepts_full_disclosure_above_legacy_60000_chars() -> None:
+    get_settings.cache_clear()
+    get_analyzer.cache_clear()
+    get_audit_logger.cache_clear()
+
+    long_content = " ".join(
+        f"삼성전자는 제{i}항 자기주식 처분과 실적 전망을 공시했다. "
+        f"투자자는 제{i}항 공시 원문과 수급 영향을 확인해야 한다."
+        for i in range(1_250)
+    )
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/alerts/analyze",
+        json={
+            "source_type": "DISCLOSURE",
+            "title": "삼성전자 주요사항보고서",
+            "snippet": "자기주식 처분 결정",
+            "content": long_content,
+            "original_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260706000444",
+            "stock_universe": [
+                {
+                    "stock_code": "005930",
+                    "stock_name": "삼성전자",
+                    "stock_name_en": "Samsung Electronics",
+                }
+            ],
+        },
+    )
+
+    assert len(long_content) > 60000
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["content_availability"] == "FULL_TEXT"
+    assert len(payload["original_content"]) > 60000
+    assert payload["stock_code"] == "005930"
 
 
 def test_analyze_alert_extracts_korean_market_glossary_terms() -> None:
@@ -295,6 +336,25 @@ def test_health_endpoint_is_available() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_readiness_detects_unavailable_translation_provider(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unavailable(*_args: object, **_kwargs: object) -> object:
+        raise urllib.error.URLError("unavailable")
+
+    monkeypatch.setattr(urllib.request, "urlopen", unavailable)
+
+    assert (
+        _translation_provider_ready(
+            Settings(
+                korean_translation_generation_mode="local_llm",
+                korean_translation_llm_endpoint="http://127.0.0.1:18081",
+            )
+        )
+        is False
+    )
 
 
 def test_openapi_docs_expose_analysis_contract() -> None:

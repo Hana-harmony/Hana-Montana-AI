@@ -22,19 +22,17 @@
 
 ## 모델
 - 버전: `k-finance-term-qwen3-rag-v1`
-- 우선순위: seed dictionary -> local Qwen3 RAG -> web search fallback -> review required
+- 우선순위: seed dictionary -> local Qwen3 RAG -> review required
 - 고빈도 테마/정책 표현은 dictionary-backed explanation으로 승격한다.
-- `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`이면 Qwen3-0.6B LoRA 설명기를 실제 serving 경로에 연결한다.
+- `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`이면 Qwen3 설명기를 실제 serving 경로에 연결한다.
 - 로컬 개발은 endpoint 없이 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 직접 로드한다.
-- 운영 t4g.medium은 Qwen3-0.6B GGUF Q4 sidecar를 OpenAI-compatible endpoint로 띄우고 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 연결한다.
-- OpenAI web search fallback은 local LLM 모드가 아니고 `HANNAH_OPENAI_TERM_EXPLANATION_ENABLED=true`와 `OPENAI_API_KEY`가 있을 때만 사용한다.
+- 운영은 Qwen3-4B GGUF Q4를 띄우고 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 연결한다.
 - confidence 0.70 미만 또는 근거 부족 용어는 `REVIEW_REQUIRED`로 반환하고 cache하지 않는다.
 - 일반 영어 금융 단어와 투자자 유형은 Qwen 후보로 보내지 않고 review 경로로 둔다.
 
-## Retrieval/Fallback 정책
+## Retrieval/Review 정책
 - `DICTIONARY`: 검증된 seed 용어를 즉시 반환하고 30일 cache 대상으로 둔다.
 - `LOCAL_OPEN_SOURCE_LLM_RAG`: 기사 제목과 전문 evidence만으로 strict JSON 설명 후보를 생성한다.
-- `OPENAI_WEB_SEARCH_RAG`: local LLM 미사용 환경에서 신규 신조어 설명 후보를 만들되 confidence gate를 통과한 경우만 노출한다.
 - `UNVERIFIED_CONTEXT`: 근거 부족 용어는 텍스트만 보여주거나 검수 대상으로 보낸다.
 
 ## 평가

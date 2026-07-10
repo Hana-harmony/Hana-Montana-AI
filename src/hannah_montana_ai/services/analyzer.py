@@ -15,6 +15,14 @@ from hannah_montana_ai.domain.schemas import (
     Importance,
     Sentiment,
     StockCandidate,
+    TranslationStatus,
+)
+from hannah_montana_ai.services.korean_translation_generator import (
+    STATUS_SOURCE_LANGUAGE_FALLBACK,
+    STATUS_TRANSLATED,
+    KoreanTranslationContext,
+    KoreanTranslationGenerator,
+    KoreanTranslationResult,
 )
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
 from hannah_montana_ai.services.news_summary_generator import (
@@ -311,12 +319,19 @@ class AlertAnalyzer:
         "턴어라운드",
     )
 
-    def __init__(self, summary_generator: NewsSummaryGenerator | None = None) -> None:
+    def __init__(
+        self,
+        summary_generator: NewsSummaryGenerator | None = None,
+        translation_generator: KoreanTranslationGenerator | None = None,
+    ) -> None:
         settings = get_settings()
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
         self.summary_generator = summary_generator or NewsSummaryGenerator.from_settings(settings)
+        self.translation_generator = (
+            translation_generator or KoreanTranslationGenerator.from_settings(settings)
+        )
         self._internal_stock_universe = _load_internal_stock_universe(settings.stock_universe_path)
         self._internal_stock_by_code = {
             stock.stock_code: stock for stock in self._internal_stock_universe
@@ -375,38 +390,87 @@ class AlertAnalyzer:
             importance,
             sentiment,
         )
-        summary_lines = self.summary_generator.generate(
-            NewsSummaryContext(
-                title=request.title,
-                snippet=request.snippet,
-                content=analysis_content,
-                source_type=request.source_type,
-                importance=importance,
-                sentiment=sentiment,
-                event_tags=event_tags,
-                stock_code=stock_code,
-                stock_name=stock_name,
-                stock_name_en=primary_stock.stock_name_en if primary_stock else "",
-                fallback=fallback_summary_lines,
-            )
+        request_stock_mismatch = self._is_request_stock_mismatch(
+            primary_stock,
+            request.stock_universe,
         )
+        if request_stock_mismatch:
+            # 폐기될 타 종목 기사는 생성형 요약과 번역 호출 전에 차단한다.
+            summary_lines = fallback_summary_lines
+        else:
+            summary_lines = self.summary_generator.generate(
+                NewsSummaryContext(
+                    title=request.title,
+                    snippet=request.snippet,
+                    content=analysis_content,
+                    source_type=request.source_type,
+                    importance=importance,
+                    sentiment=sentiment,
+                    event_tags=event_tags,
+                    stock_code=stock_code,
+                    stock_name=stock_name,
+                    stock_name_en=primary_stock.stock_name_en if primary_stock else "",
+                    fallback=fallback_summary_lines,
+                )
+            )
         summary = "\n".join(
             line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
         )
-        glossary_terms = self._extract_financial_glossary_terms(text)
+        glossary_terms = self._with_primary_stock_glossary(
+            self._extract_financial_glossary_terms(text),
+            primary_stock,
+            text,
+        )
         duplicate_key = self._duplicate_key(request.source_type, request.title, stock_code)
+        response_content = request.content.strip() if has_full_content else analysis_content
+        if request_stock_mismatch:
+            translations = self._request_stock_mismatch_translations()
+        else:
+            translations = self._translate_analysis_fields(
+                request,
+                glossary_terms,
+                summary,
+                response_content,
+            )
+        translated_title = translations["TITLE"]
+        translated_summary = translations["SUMMARY"]
+        translated_content = translations["CONTENT"]
+        translation_quality_flags = self._analysis_translation_quality_flags(
+            glossary_terms,
+            translated_title,
+            translated_summary,
+            translated_content,
+        )
+        translation_provider = self._first_translation_provider(
+            translated_content,
+            translated_summary,
+            translated_title,
+        )
+        translation_model_version = self._first_translation_model_version(
+            translated_content,
+            translated_summary,
+            translated_title,
+        )
+        translation_status = self._analysis_translation_status(
+            response_content,
+            translated_content,
+        )
 
         return AlertAnalysisResponse(
             stock_code=stock_code,
             stock_name=stock_name,
             source_type=request.source_type,
             original_title=request.title,
+            translated_title=translated_title.translated_text,
             summary=summary,
             summary_lines=summary_lines,
+            translated_summary=translated_summary.translated_text,
             content_availability="FULL_TEXT" if has_full_content else "SUMMARY_ONLY",
-            original_content=analysis_content,
-            original_body=analysis_content,
-            body_source_type=_body_source_type(request.source_type, analysis_content),
+            original_content=response_content,
+            translated_content=translated_content.translated_text,
+            original_body=response_content,
+            translated_body=translated_content.translated_text,
+            body_source_type=_body_source_type(request.source_type, response_content),
             image_urls=request.image_urls,
             event_tags=event_tags,
             sentiment=sentiment,
@@ -415,7 +479,10 @@ class AlertAnalyzer:
             holder_target=self.rule_engine.holder_target(importance),
             watchlist_target=self.rule_engine.watchlist_target(importance),
             glossary_terms=glossary_terms,
-            translation_quality_flags=(["FINANCIAL_GLOSSARY_APPLIED"] if glossary_terms else []),
+            translation_quality_flags=translation_quality_flags,
+            translation_provider=translation_provider,
+            translation_model_version=translation_model_version,
+            translation_status=translation_status,
             duplicate_key=duplicate_key,
             cluster_key=self._cluster_key(request, stock_code, duplicate_key),
             model_version=self.model.version,
@@ -424,6 +491,139 @@ class AlertAnalyzer:
             importance_confidence=round(importance_confidence, 6),
             stock_match_confidence=round(primary_stock_match.confidence, 6),
         )
+
+    def _translate_analysis_text(
+        self,
+        text: str,
+        request: AlertAnalysisRequest,
+        glossary_terms: list[FinancialGlossaryTerm],
+        *,
+        title: str,
+    ) -> KoreanTranslationResult:
+        if not text.strip():
+            return KoreanTranslationResult(
+                translated_text="",
+                provider="",
+                model_version=self.model.version,
+                status=STATUS_SOURCE_LANGUAGE_FALLBACK,
+                prompt_version="",
+                quality_flags=[],
+            )
+        return self.translation_generator.translate(
+            KoreanTranslationContext(
+                text=text,
+                source_type=request.source_type,
+                title=title,
+                glossary_terms=glossary_terms,
+            )
+        )
+
+    def _is_request_stock_mismatch(
+        self,
+        primary_stock: StockCandidate | StockUniverseEntry | None,
+        request_universe: list[StockCandidate],
+    ) -> bool:
+        if primary_stock is None or not request_universe:
+            return False
+        return all(stock.stock_code != primary_stock.stock_code for stock in request_universe)
+
+    def _request_stock_mismatch_translations(self) -> dict[str, KoreanTranslationResult]:
+        values = {
+            "TITLE": "Article about a different listed company",
+            "SUMMARY": (
+                "The article primarily concerns a different listed company. "
+                "The requested stock is not the leading issuer. "
+                "The item is excluded from the requested stock feed."
+            ),
+            "CONTENT": "The article is outside the requested stock candidate scope.",
+        }
+        return {
+            field: KoreanTranslationResult(
+                translated_text=value,
+                provider="request-stock-mismatch-gate",
+                model_version=self.model.version,
+                status=STATUS_TRANSLATED,
+                prompt_version="",
+                quality_flags=[],
+            )
+            for field, value in values.items()
+        }
+
+    def _translate_analysis_fields(
+        self,
+        request: AlertAnalysisRequest,
+        glossary_terms: list[FinancialGlossaryTerm],
+        summary: str,
+        response_content: str,
+    ) -> dict[str, KoreanTranslationResult]:
+        source_fields = {
+            "TITLE": request.title,
+            "SUMMARY": summary,
+            "CONTENT": response_content,
+        }
+        contexts = {
+            field: KoreanTranslationContext(
+                text=text,
+                source_type=request.source_type,
+                title=request.title,
+                glossary_terms=glossary_terms,
+            )
+            for field, text in source_fields.items()
+        }
+        # 구조화 번역이 실패하면 기존 필드별 경로로 복구해 본문 누락을 막는다.
+        batched = self.translation_generator.translate_alert_fields(contexts)
+        if batched is not None:
+            return batched
+        return {
+            field: self._translate_analysis_text(
+                text,
+                request,
+                glossary_terms,
+                title=request.title,
+            )
+            for field, text in source_fields.items()
+        }
+
+    def _analysis_translation_quality_flags(
+        self,
+        glossary_terms: list[FinancialGlossaryTerm],
+        *translations: KoreanTranslationResult,
+    ) -> list[str]:
+        flags = (
+            ["FINANCIAL_GLOSSARY_APPLIED"]
+            if any(term.category != "company" for term in glossary_terms)
+            else []
+        )
+        for translation in translations:
+            flags.extend(translation.quality_flags)
+        return sorted(set(flags))[:20]
+
+    def _first_translation_provider(
+        self,
+        *translations: KoreanTranslationResult,
+    ) -> str:
+        for translation in translations:
+            if translation.provider:
+                return translation.provider
+        return ""
+
+    def _first_translation_model_version(
+        self,
+        *translations: KoreanTranslationResult,
+    ) -> str:
+        for translation in translations:
+            if translation.model_version:
+                return translation.model_version
+        return self.model.version
+
+    def _analysis_translation_status(
+        self,
+        response_content: str,
+        translated_content: KoreanTranslationResult,
+    ) -> TranslationStatus:
+        if not response_content.strip():
+            return "TRANSLATED"
+        return translated_content.status
 
     def _extract_financial_glossary_terms(self, text: str) -> list[FinancialGlossaryTerm]:
         matched_terms: list[FinancialGlossaryTerm] = []
@@ -453,6 +653,31 @@ class AlertAnalyzer:
             )
             seen_terms.add(normalized_term)
         return matched_terms
+
+    def _with_primary_stock_glossary(
+        self,
+        glossary_terms: list[FinancialGlossaryTerm],
+        primary_stock: StockCandidate | StockUniverseEntry | None,
+        text: str,
+    ) -> list[FinancialGlossaryTerm]:
+        if (
+            primary_stock is None
+            or not primary_stock.stock_name_en.strip()
+            or primary_stock.stock_name not in text
+        ):
+            return glossary_terms
+        if any(term.normalized_term == primary_stock.stock_name for term in glossary_terms):
+            return glossary_terms
+        return [
+            FinancialGlossaryTerm(
+                source_term=primary_stock.stock_name,
+                normalized_term=primary_stock.stock_name,
+                english_term=primary_stock.stock_name_en,
+                category="company",
+                description="Verified English name for the matched listed company.",
+            ),
+            *glossary_terms,
+        ]
 
     def _is_tangential_non_financial_stock_mention(
         self,
@@ -530,6 +755,8 @@ class AlertAnalyzer:
     ) -> StockCandidate | StockUniverseEntry | None:
         request_matches = self._stock_matches(text, request_universe, allow_short_terms=True)
         if prefer_request and request_matches:
+            if self._is_preferred_share_request(request_matches[0][1]):
+                return request_matches[0][1]
             internal_matches = self._stock_matches(text, self._internal_stock_universe)
             specific_internal_match = self._more_specific_same_position_match(
                 request_matches[0],
@@ -543,6 +770,13 @@ class AlertAnalyzer:
             *self._stock_matches(text, self._internal_stock_universe),
         ]
         return sorted(matches, key=lambda match: match[0])[0][1] if matches else None
+
+    def _is_preferred_share_request(
+        self,
+        stock: StockCandidate | StockUniverseEntry,
+    ) -> bool:
+        normalized_name = normalize_stock_term(stock.stock_name)
+        return re.search(r"[1-9]?우[bc]?$", normalized_name) is not None
 
     def _longer_internal_match_for_ambiguous_request_title(
         self,

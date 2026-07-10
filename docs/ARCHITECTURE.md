@@ -13,7 +13,7 @@
 - `model_store`: 배포 가능한 모델 artifact
 
 ## API 경계
-- 공개 endpoint: `GET /health`
+- 공개 endpoint: `GET /health`, `GET /ready`
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`

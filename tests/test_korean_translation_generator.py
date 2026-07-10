@@ -1,5 +1,7 @@
 import json
 import re
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -13,8 +15,7 @@ from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
     MlxQwenKoreanTranslationClient,
-    NllbKoreanEnglishTranslationClient,
-    OpenAiCompatibleKoreanTranslationClient,
+    QwenHttpKoreanTranslationClient,
 )
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
@@ -23,25 +24,37 @@ class FakeTranslationClient:
     def __init__(self, output: str) -> None:
         self.output = output
         self.calls: list[list[dict[str, str]]] = []
+        self.max_tokens_calls: list[int] = []
 
     def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
         self.calls.append(messages)
+        self.max_tokens_calls.append(max_tokens)
         return self.output
 
 
-class FakeNmtClient:
-    model_name = "test-nllb"
+class SequenceTranslationClient:
+    def __init__(self, outputs: list[str]) -> None:
+        self.outputs = outputs
+        self.calls: list[list[dict[str, str]]] = []
+        self.max_tokens_calls: list[int] = []
 
-    def __init__(self, output: str | list[str]) -> None:
-        self.output = output
-        self.calls: list[str] = []
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        self.calls.append(messages)
+        self.max_tokens_calls.append(max_tokens)
+        if len(self.calls) <= len(self.outputs):
+            return self.outputs[len(self.calls) - 1]
+        return self.outputs[-1]
 
-    def translate(self, text: str, max_tokens: int) -> str:
-        self.calls.append(text)
-        if isinstance(self.output, list):
-            index = min(len(self.calls) - 1, len(self.output) - 1)
-            return self.output[index]
-        return self.output
+
+class FakeHttpResponse:
+    def __enter__(self) -> "FakeHttpResponse":
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return b'{"choices":[{"message":{"content":"{\\"translation\\":\\"translated\\"}"}}]}'
 
 
 def json_translation(value: str) -> str:
@@ -70,6 +83,71 @@ def test_korean_translation_local_glossary_mode_uses_harness_translation() -> No
     assert result.status == "TRANSLATED"
     assert "LOCAL_TRANSLATION_DISABLED" not in result.quality_flags
     assert result.translated_text == "Samsung Electronics earnings improvement"
+
+
+def test_korean_translation_batches_alert_fields_in_one_generation_call() -> None:
+    translated = """
+        <<<1>>>
+        Samsung Electronics reports stronger earnings.
+        <<<2>>>
+        Earnings improved as semiconductor demand recovered.
+        <<<3>>>
+        Samsung Electronics said operating profit increased as semiconductor demand recovered.
+        """.strip()
+    client = FakeTranslationClient(json.dumps({"translation": translated}))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    results = generator.translate_alert_fields(
+        {
+            "TITLE": KoreanTranslationContext(
+                text="삼성전자 실적 개선",
+                title="삼성전자 실적 개선",
+            ),
+            "SUMMARY": KoreanTranslationContext(
+                text="반도체 수요 회복으로 실적이 개선됐다.",
+                title="삼성전자 실적 개선",
+            ),
+            "CONTENT": KoreanTranslationContext(
+                text="삼성전자는 반도체 수요 회복으로 영업이익이 증가했다고 밝혔다.",
+                title="삼성전자 실적 개선",
+            ),
+        }
+    )
+
+    assert results is not None
+    assert len(client.calls) == 1
+    assert results["TITLE"].translated_text.startswith("Samsung Electronics")
+    assert results["SUMMARY"].translated_text.startswith("Earnings improved")
+    assert results["CONTENT"].translated_text.endswith("recovered.")
+
+
+def test_korean_translation_rejects_incomplete_field_inside_valid_composite() -> None:
+    long_english = "The filing contains verified transaction details. " * 18
+    translated = f"<<<1>>>\n{long_english}\n<<<2>>>\n{long_english}\n<<<3>>>\nShareholding changed."
+    client = FakeTranslationClient(json.dumps({"translation": translated}))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    results = generator.translate_alert_fields(
+        {
+            "TITLE": KoreanTranslationContext(text="주식 보유 변동 공시"),
+            "SUMMARY": KoreanTranslationContext(text="임원의 주식 보유 수량이 변경됐다."),
+            "CONTENT": KoreanTranslationContext(
+                text="임원의 주식 보유 수량과 거래 내역이 변경됐다. " * 60,
+            ),
+        }
+    )
+
+    assert results is None
 
 
 def test_korean_translation_local_glossary_mode_applies_request_glossary_terms() -> None:
@@ -123,6 +201,162 @@ def test_korean_translation_local_glossary_mode_keeps_short_financial_headline_u
     )
 
 
+def test_korean_translation_does_not_invent_a_month_for_a_bare_korean_day() -> None:
+    client = FakeTranslationClient(
+        json_translation("SK hynix said on October 10 that it would expand AI memory investment.")
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="SK하이닉스는 10일 AI 메모리 투자를 확대한다고 밝혔다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "October" not in result.translated_text
+    assert "on the 10th" in result.translated_text
+
+
+def test_korean_translation_local_glossary_mode_uses_local_llm_client_for_article_body() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "According to the Korea Exchange, KOSPI fell by 409.52 points from the previous "
+            "session. KOSDAQ closed at 785.00 after losing 46.23 points. Investors should "
+            "monitor foreign flows and semiconductor earnings."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        local_glossary_enabled=True,
+        model_name="local-llm:Qwen3-4B-GGUF-Q4",
+    )
+    source = (
+        "한국거래소에 따르면 코스피는 전 거래일보다 409.52포인트 하락했다. "
+        "코스닥은 전일 대비 46.23포인트 하락한 785.00으로 마감했다. "
+        "투자자들은 외국인 수급과 반도체 업종 실적을 확인해야 한다."
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.provider == "local-open-source-qwen3-translation"
+    assert result.model_version == "local-llm:Qwen3-4B-GGUF-Q4"
+    assert result.status == "TRANSLATED"
+    assert "KOSPI fell by 409.52 points" in result.translated_text
+    assert "foreign flows and semiconductor earnings" in result.translated_text
+
+
+def test_korean_translation_accepts_long_body_with_missing_glossary_surface() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Samsung Electronics and SK hynix saw increased short selling as foreign "
+            "investors weighed semiconductor profit-taking risk. The report said investors "
+            "were watching memory-cycle momentum and market liquidity. The article also "
+            "noted that institutional flows could affect large-cap chip shares over the "
+            "next session."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+    source = (
+        "삼성전자와 SK하이닉스 등 반도체 대장주에 공매도가 늘었다. "
+        "외국인 투자자들은 메모리 업황 개선 기대와 차익 실현 부담을 함께 보고 있다. "
+        "증권가에서는 기관 수급과 시장 유동성이 다음 거래일 대형 반도체주의 흐름에 "
+        "영향을 줄 수 있다고 분석했다. "
+    ) * 4
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=source,
+            source_type="NEWS",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="대장주",
+                    normalized_term="대장주",
+                    english_term="bellwether stock",
+                    category="market_slang",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "local-open-source-qwen3-translation"
+    assert "samsung electronics and sk hynix" in result.translated_text.lower()
+    assert result.quality_flags == []
+    assert client.max_tokens_calls
+    assert max(client.max_tokens_calls) <= 640
+
+
+def test_korean_translation_long_body_bounds_full_article_retry_when_chunks_fail() -> None:
+    source = (
+        "삼성전자는 AI 서버 투자 확대로 반도체 실적 개선 기대가 커졌다. "
+        "증권가는 HBM 공급 확대와 메모리 가격 반등을 주가 변수로 제시했다. "
+        "투자자는 외국인 수급과 다음 분기 영업이익 전망을 확인해야 한다. "
+    ) * 8
+    client = FakeTranslationClient(json_translation("삼성전자는 반도체 실적을 개선했다."))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+        max_tokens=2048,
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert "HANGUL_REMAINS" in result.quality_flags
+    assert "MISSING_TRANSLATED_CHUNK" in result.quality_flags
+    assert len(client.calls) <= len(generator._chunks(source)) * 3 + 3
+    assert max(client.max_tokens_calls) <= 2048
+
+
+def test_korean_translation_rejects_body_when_qwen_quality_gate_fails() -> None:
+    client = FakeTranslationClient(json_translation("LG화학은 반도체 소재 사업을 확대했다."))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "LG화학은 AI 투자 확대와 고대역폭 메모리 수요 증가로 "
+                "반도체 소재 사업 확대를 본격화하며 글로벌 고객사 공급을 늘려 "
+                "전자소재 매출 기반을 강화할 계획이라고 밝혔다."
+            ),
+            source_type="NEWS",
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="LG화학",
+                    normalized_term="LG화학",
+                    english_term="LG Chem",
+                    category="stock",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.provider == "source-language-fallback"
+    assert result.translated_text == ""
+    assert "HANGUL_REMAINS" in result.quality_flags
+
+
 @pytest.mark.parametrize(
     ("source", "expected"),
     [
@@ -162,24 +396,199 @@ def test_korean_translation_local_llm_requires_trained_adapter(tmp_path: Path) -
         )
 
 
-def test_korean_translation_local_llm_settings_with_endpoint_use_openai_compatible_client() -> None:
+def test_korean_translation_local_llm_settings_with_endpoint_use_qwen_http_client() -> None:
     settings = Settings(
         korean_translation_generation_mode="local_llm",
         korean_translation_llm_endpoint="http://127.0.0.1:18081",
-        korean_translation_llm_model="qwen3-translation-sidecar",
+        korean_translation_llm_model="Qwen3-4B-GGUF-Q4",
     )
 
     generator = KoreanTranslationGenerator.from_settings(settings)
 
     assert generator._enabled is True
-    assert isinstance(generator._client, OpenAiCompatibleKoreanTranslationClient)
-    assert generator._model_name == "local-llm:qwen3-translation-sidecar"
+    assert isinstance(generator._client, QwenHttpKoreanTranslationClient)
+    assert generator._model_name == "local-llm:Qwen3-4B-GGUF-Q4"
+    assert generator._rule_based_repairs_enabled is False
 
 
-def test_korean_translation_nmt_client_defaults_to_local_nllb_model() -> None:
-    client = NllbKoreanEnglishTranslationClient()
+def test_qwen_http_client_retries_transient_service_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses: list[object] = [
+        urllib.error.HTTPError("http://127.0.0.1", 503, "loading", {}, None),
+        urllib.error.URLError("temporarily unavailable"),
+        FakeHttpResponse(),
+    ]
+    sleeps: list[float] = []
 
-    assert client.model_name == "facebook/nllb-200-distilled-600M"
+    def fake_urlopen(*_args: object, **_kwargs: object) -> FakeHttpResponse:
+        response = responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(
+        "hannah_montana_ai.services.korean_translation_generator.time.sleep",
+        sleeps.append,
+    )
+    client = QwenHttpKoreanTranslationClient("http://127.0.0.1:18081", "qwen", 1.0)
+
+    result = client.generate([{"role": "user", "content": "translate"}], 64)
+
+    assert result == '{"translation":"translated"}'
+    assert sleeps == [1.0, 2.0]
+
+
+def test_qwen_http_client_does_not_duplicate_timed_out_inference(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    attempts = 0
+
+    def fake_urlopen(*_args: object, **_kwargs: object) -> FakeHttpResponse:
+        nonlocal attempts
+        attempts += 1
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    client = QwenHttpKoreanTranslationClient("http://127.0.0.1:18081", "qwen", 1.0)
+
+    with pytest.raises(TimeoutError):
+        client.generate([{"role": "user", "content": "translate"}], 64)
+
+    assert attempts == 1
+
+
+def test_korean_translation_local_llm_does_not_mask_qwen_failure_with_grounded_repair() -> None:
+    client = FakeTranslationClient(json_translation("코스피는 하락했다."))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="반도체 고점론·중동 불안에...코스피 7,200선 '털썩'",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.provider == "source-language-fallback"
+    assert result.translated_text == ""
+    assert "HANGUL_REMAINS" in result.quality_flags
+
+
+def test_korean_translation_retries_residual_cjk_fragment() -> None:
+    client = SequenceTranslationClient(
+        [
+            json_translation("The company will acquire 14,200,000 普通 shares."),
+            json_translation("The company will acquire 14,200,000 common shares."),
+        ]
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="회사는 보통주 14,200,000주를 취득할 예정이다.",
+            source_type="DISCLOSURE",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.translated_text == "The company will acquire 14,200,000 common shares."
+    assert len(client.calls) == 2
+
+
+@pytest.mark.parametrize(
+    ("source", "translated", "expected"),
+    [
+        (
+            "하나금융지주 밸류에이션 매력 여전",
+            "Hana Financial Group's valueation remains attractive.",
+            "Hana Financial Group's valuation remains attractive.",
+        ),
+        (
+            "알짜 현대홈쇼핑 상장폐지",
+            "Alza Hyundai Home Shopping delisting.",
+            "High-value Hyundai Home Shopping delisting.",
+        ),
+        (
+            "목표가는 19% 하향-유진",
+            "The target price was cut 19% - Yu Jin.",
+            "The target price was cut 19% - Eugene Investment & Securities.",
+        ),
+        (
+            "SK하이닉스 ADR 훈풍에 코스피 급등",
+            "SKHynix ADR windmill lifted KOSPI. The headline also references SK and 3%.",
+            "SK hynix ADR tailwind lifted KOSPI.",
+        ),
+        (
+            "코스피 2.5% 상승해 7,400선 회복…매수 사이드카",
+            "KOSPI rises 2.5% to recover above 7,400... Buy-side car",
+            "KOSPI rises 2.5% to recover above 7,400... Buy-side trading curb",
+        ),
+        (
+            "[운용 NOW] KB자산운용·신한자산운용",
+            "[Operation NOW] KB Asset Management · Shinhan Asset Management",
+            "[Asset Management NOW] KB Asset Management · Shinhan Asset Management",
+        ),
+    ],
+)
+def test_korean_translation_repairs_recurring_financial_surface_errors(
+    source: str,
+    translated: str,
+    expected: str,
+) -> None:
+    generator = KoreanTranslationGenerator(enabled=False)
+
+    assert generator._repair_common_translation_surfaces(source, translated) == expected
+
+
+def test_korean_translation_removes_generated_numeric_appendix_after_surface_repair() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "LG Uplus targets KRW 1 trillion in annual operating profit "
+            "after strong second-quarter results."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="LG유플러스, 2분기 호실적 넘어 연 영업이익 1조 정조준",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "headline also references" not in result.translated_text.lower()
+
+
+def test_korean_translation_removes_leading_generated_appendix_without_losing_body() -> None:
+    generator = KoreanTranslationGenerator(enabled=False)
+
+    result = generator._remove_generated_surface_appendix(
+        ". The headline also references 25 won. KNN approved the financial statements "
+        "and declared a cash dividend of KRW 25 per share."
+    )
+
+    assert result == (
+        "KNN approved the financial statements and declared a cash dividend "
+        "of KRW 25 per share."
+    )
 
 
 def test_korean_translation_qwen_output_returns_complete_english_translation() -> None:
@@ -194,6 +603,7 @@ def test_korean_translation_qwen_output_returns_complete_english_translation() -
         enabled=True,
         client=client,
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
 
     result = generator.translate(
@@ -211,6 +621,104 @@ def test_korean_translation_qwen_output_returns_complete_english_translation() -
     assert "Samsung Electronics disclosed" in result.translated_text
     assert result.quality_flags == []
     assert client.calls
+
+
+def test_korean_translation_retries_qwen_semantic_mismatch_chunk() -> None:
+    client = SequenceTranslationClient(
+        [
+            json_translation("Samsung Electronics said 2-month operating profit improved."),
+            json_translation("Samsung Electronics said second-quarter operating profit improved."),
+        ]
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자는 2분기 영업이익이 개선됐다고 밝혔다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "second-quarter operating profit" in result.translated_text
+    assert result.quality_flags == []
+    assert len(client.calls) == 2
+
+
+def test_korean_translation_accepts_plain_qwen_english_output() -> None:
+    client = FakeTranslationClient(
+        "KOSPI fell sharply as semiconductor shares weakened and foreign selling widened."
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="코스피는 반도체주 약세와 외국인 매도 확대에 급락했다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "local-open-source-qwen3-translation"
+    assert result.quality_flags == []
+    assert "KOSPI fell sharply" in result.translated_text
+
+
+def test_korean_translation_strips_qwen_thinking_before_json_parse() -> None:
+    client = FakeTranslationClient(
+        '<think>요청을 번역한다.</think>\n'
+        '{"translation":"KOSPI rebounded as chip stocks recovered."}'
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="코스피는 반도체주 회복에 반등했다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.quality_flags == []
+    assert result.translated_text == "KOSPI rebounded as chip stocks recovered."
+
+
+def test_korean_translation_recovers_malformed_qwen_json_string() -> None:
+    client = FakeTranslationClient(
+        '{"translation":"KOSPI fell after Samsung Electronics called the plan '
+        '"shareholder-friendly".\\nForeign selling widened."}'
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자가 주주친화 계획을 언급한 뒤 코스피가 하락했고 외국인 매도가 확대됐다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.quality_flags == []
+    assert "shareholder-friendly" in result.translated_text
+    assert "Foreign selling widened" in result.translated_text
 
 
 def test_korean_translation_rejects_hangul_or_summary_output() -> None:
@@ -231,6 +739,18 @@ def test_korean_translation_rejects_hangul_or_summary_output() -> None:
     assert result.translated_text == ""
     assert result.status == "SOURCE_LANGUAGE_FALLBACK"
     assert "HANGUL_REMAINS" in result.quality_flags
+
+
+def test_disclosure_body_acceptance_rejects_summary_and_missing_numbers() -> None:
+    generator = KoreanTranslationGenerator(enabled=False)
+
+    flags = generator._body_acceptance_quality_flags(
+        "공시 본문 " * 100,
+        ["POSSIBLE_SUMMARY_INSTEAD_OF_TRANSLATION", "SOURCE_NUMBER_MISSING"],
+        "DISCLOSURE",
+    )
+
+    assert flags == ["POSSIBLE_SUMMARY_INSTEAD_OF_TRANSLATION", "SOURCE_NUMBER_MISSING"]
 
 
 def test_korean_translation_preserves_localism_surface_for_glossary() -> None:
@@ -586,6 +1106,68 @@ def test_korean_translation_repairs_kosdaq_surface_when_qwen_outputs_kosx() -> N
     assert result.quality_flags == []
 
 
+def test_korean_translation_injects_required_market_glossary_without_request_terms() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "KOSDAQ circulation trading is becoming more likely as the dominance of Samsung "
+            "Electronics and SK Hynix eases. Brokerages said that if large semiconductor "
+            "stocks remain range-bound in the second half, investment funds could move into "
+            "small and mid-cap stocks and growth stocks. Investors should check supply-demand "
+            "changes together with increases in trading value."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "코스닥 순환매 가능성이 커지며 삼성전자와 SK하이닉스 독주가 완화됐다. "
+                "증권가는 하반기 대형 반도체주가 박스권에 머물면 투자자금이 중소형주와 "
+                "성장주로 이동할 수 있다고 봤다. 투자자는 수급 변화와 거래대금 증가를 "
+                "함께 확인해야 한다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    payload = json.loads(client.calls[0][1]["content"])
+    assert {
+        "source_term": "코스닥",
+        "normalized_term": "코스닥",
+        "english_term": "KOSDAQ",
+        "category": "market",
+    } in payload["glossary"]
+    assert result.status == "TRANSLATED"
+    assert result.quality_flags == []
+
+
+def test_korean_translation_repairs_market_surface_paraphrases() -> None:
+    client = FakeTranslationClient(
+        json_translation("The Korean stock market fell while the tech-heavy market also weakened.")
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="코스피와 코스닥은 투자심리 악화로 동반 하락했다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "KOSPI fell" in result.translated_text
+    assert "KOSDAQ also weakened" in result.translated_text
+    assert result.quality_flags == []
+
+
 def test_korean_translation_rejects_repeated_long_phrase() -> None:
     repeated = (
         "Naver's KRW e-commerce platform broke even after a 76 percent drop from its KRW price."
@@ -611,6 +1193,67 @@ def test_korean_translation_rejects_repeated_long_phrase() -> None:
     assert result.status == "SOURCE_LANGUAGE_FALLBACK"
     assert result.translated_text == ""
     assert "REPEATED_TRANSLATION_PHRASE" in result.quality_flags
+
+
+def test_korean_translation_rejects_repetitive_disclosure_table_summary() -> None:
+    repeated = (
+        "The disclosure table explains treasury-share disposal details for eligible employees."
+    )
+    client = FakeTranslationClient(json_translation(" ".join([repeated, repeated, repeated])))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+    source = " ".join(
+        [
+            "삼성전자 공시 표 본문",
+            "2026-07-06",
+            "대상주식수 1,083,434주",
+            "발행주식총수 5,846,278,608주",
+            "예정금액 78,000,000,000원",
+            "이사회결의일 2026-07-06",
+            "직원 개인별 계좌 입고",
+        ]
+        * 12
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=source,
+            source_type="DISCLOSURE",
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+
+
+def test_korean_translation_rejects_short_disclosure_table_number_omission() -> None:
+    client = FakeTranslationClient(
+        json_translation("Samsung Electronics filed a short disclosure table for investors.")
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "삼성전자 공시 2026-07-06 1,083,434주 5,846,278,608주 "
+                "78,000,000,000원 0.019% 10:00 2026-07-30"
+            ),
+            source_type="DISCLOSURE",
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert "SOURCE_NUMBER_MISSING" in result.quality_flags
 
 
 def test_korean_translation_rejects_unsupported_numeric_fact_and_uppercase_word_salad() -> None:
@@ -645,11 +1288,79 @@ def test_korean_translation_rejects_unsupported_numeric_fact_and_uppercase_word_
     assert "UPPERCASE_WORD_SALAD" in result.quality_flags
 
 
+def test_korean_translation_rejects_unsupported_year_even_when_source_has_other_numbers() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "On Nov. 9, 2023, foreign investors sold Samsung Electronics as fund "
+            "allocation rules forced mechanical selling."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "9일 구독자 55만1000명을 보유한 채널에서 전문가는 외국인 매도가 "
+                "해외 펀드의 자산 배분 규정에 따른 기계적 매도라고 설명했다."
+            ),
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="삼성전자",
+                    normalized_term="삼성전자",
+                    english_term="Samsung Electronics",
+                    category="company",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert "UNSUPPORTED_YEAR_FACT" in result.quality_flags
+
+
+def test_korean_translation_repairs_yum_director_surface() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Yam I said foreign funds must reduce the stock weight when Samsung "
+            "Electronics exceeds limits."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "염 이사는 삼성전자 비중이 한도를 넘으면 외국계 펀드가 "
+                "비중을 줄여야 한다고 말했다."
+            ),
+            glossary_terms=[
+                FinancialGlossaryTerm(
+                    source_term="삼성전자",
+                    normalized_term="삼성전자",
+                    english_term="Samsung Electronics",
+                    category="company",
+                ),
+            ],
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "Yum said foreign funds" in result.translated_text
+    assert "Yam I" not in result.translated_text
+
+
 def test_korean_translation_rejects_qwen_romanized_korean_word_salad() -> None:
     client = FakeTranslationClient(
         json_translation(
-            "Kang Nam-Go's 4J revenue lingers, pab-wo-yeon's bellwether stock "
-            "faces a rebound."
+            "Kang Nam-Go's 4J revenue lingers, pab-wo-yeon's bellwether stock faces a rebound."
         )
     )
     generator = KoreanTranslationGenerator(
@@ -708,41 +1419,6 @@ def test_korean_translation_repairs_honam_region_and_megaproject_surface() -> No
     assert result.quality_flags == []
 
 
-def test_korean_translation_uses_nmt_for_hallucinated_summary_surface() -> None:
-    client = FakeTranslationClient(
-        json_translation(
-            "Golden Electric Group became Korea's largest semiconductor company on a "
-            "Korean basis on a Korean scale."
-        )
-    )
-    nmt_client = FakeNmtClient(
-        "On the 30th, Kumho E&C and other stocks closed at their upper limits as "
-        "investors focused on the Honam semiconductor mega project."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "30일 금호건설, 미래산업, 삼화전자가 상한가에 이름을 올리고 "
-                "호남 반도체 메가 프로젝트 수혜 기대가 투자자들의 관심을 끌었다."
-            ),
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "Golden Electric Group" not in result.translated_text
-    assert "Kumho E&C" in result.translated_text
-    assert result.quality_flags == []
-
-
 def test_korean_translation_rejects_missing_source_numbers() -> None:
     client = FakeTranslationClient(
         json_translation("Samsung Electronics limited internal home loans for employees.")
@@ -770,6 +1446,17 @@ def test_korean_translation_rejects_missing_source_numbers() -> None:
     assert result.status == "SOURCE_LANGUAGE_FALLBACK"
     assert result.translated_text == ""
     assert "SOURCE_NUMBER_MISSING" in result.quality_flags
+
+
+def test_translation_accepts_most_numbers_in_dense_disclosure() -> None:
+    generator = KoreanTranslationGenerator(enabled=False)
+    source = "공시일 2026-06-18, 행사일 2026-06-24, 1분기, 6월 24일, 2026-04-24"
+    translated = (
+        "The filing date is 2026-06-18, the event is on 2026-06-24, "
+        "and it covers the first quarter and June 24."
+    )
+
+    assert generator._has_missing_source_number(source, translated) is False
 
 
 def test_korean_translation_uses_grounded_headline_prompt_for_short_titles() -> None:
@@ -870,344 +1557,248 @@ def test_korean_translation_canonicalizes_dart_disclosure_title() -> None:
     assert result.quality_flags == []
 
 
-def test_korean_translation_uses_local_nmt_when_qwen_body_translation_is_low_quality() -> None:
-    client = FakeTranslationClient(
-        json_translation("LG화학은 반도체 소재 사업을 확대했다.")
-    )
-    nmt_client = FakeNmtClient(
-        "LG Chem expanded its semiconductor materials business as AI investment increased."
-    )
+def test_korean_translation_canonicalizes_ir_disclosure_title_without_request_glossary() -> None:
+    client = FakeTranslationClient(json_translation("기업설명회 개최"))
     generator = KoreanTranslationGenerator(
         enabled=True,
         client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
 
     result = generator.translate(
         KoreanTranslationContext(
-            text=(
-                "LG화학은 AI 투자 확대와 고대역폭 메모리 수요 증가로 "
-                "반도체 소재 사업 확대를 본격화하며 글로벌 고객사 공급을 늘려 "
-                "전자소재 매출 기반을 강화할 계획이라고 밝혔다."
-            ),
-            glossary_terms=[
-                FinancialGlossaryTerm(
-                    source_term="LG화학",
-                    normalized_term="LG화학",
-                    english_term="LG Chem",
-                    category="stock",
-                ),
-            ],
+            text="삼성전자/기업설명회(IR)개최(안내공시)/2026.07.07",
+            source_type="DISCLOSURE",
         )
     )
 
     assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert result.model_version == "local-nmt:test-nllb"
-    assert result.translated_text.startswith("LG Chem expanded")
+    assert (
+        result.translated_text
+        == "Samsung Electronics / Investor relations conference notice / 2026.07.07"
+    )
     assert result.quality_flags == []
-    assert nmt_client.calls
-
-
-def test_korean_translation_accepts_nmt_body_when_korean_unit_numbers_shift() -> None:
-    client = FakeTranslationClient(json_translation("폐배터리 관련주는 강세를 이어갔다."))
-    nmt_client = FakeNmtClient(
-        "Waste-battery shares rose 10.44% as investor demand improved."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    source = (
-        "폐배터리 관련주가 29일 강세를 이어가고 있다. "
-        "한국거래소에 따르면 이날 오후 2시53분 현재 에코프로는 "
-        "23.79% 오른 11만8100원에 거래중이다."
-    )
-
-    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert result.translated_text.startswith("Waste-battery shares rose")
-    assert result.quality_flags == []
-    assert nmt_client.calls
-
-
-def test_korean_translation_accepts_hyphenated_source_term_surface_from_nmt() -> None:
-    client = FakeTranslationClient(json_translation("데이터센터 관련 수요가 늘었다."))
-    nmt_client = FakeNmtClient(
-        "Battery suppliers rose as AI data-center demand and energy-storage investment grew."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "2차전지 기업들은 인공지능 데이터센터 증가와 에너지저장장치 투자 확대에 "
-                "따른 배터리 수요 기대감으로 상승했다."
-            ),
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "data-center demand" in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_repairs_unbacked_korean_exporters_surface() -> None:
-    client = FakeTranslationClient(json_translation("관광업 주가가 약세를 보였다."))
-    nmt_client = FakeNmtClient(
-        "Korean exporters saw weaker prices as travel demand slowed."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text="국내 관광산업 관련 상장사들의 주가가 전반적으로 약세를 나타냈다.",
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert "tourism companies saw weaker prices" in result.translated_text
-    assert "Korean exporters" not in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_best_effort_nmt_recovers_long_body() -> None:
-    nmt_client = FakeNmtClient(
-        [
-            "The article says Korean companies faced restructuring pressure.",
-            "Investors should monitor credit risk and ownership changes.",
-            "Regulatory filings and market reactions also need attention.",
-        ]
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=FakeTranslationClient("{}"),
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-    source = (
-        "한계기업 구조조정 압박이 커지면서 투자자는 신용위험과 대주주 변경을 "
-        "확인해야 한다. 금융당국 공시와 시장 반응도 함께 점검해야 한다. "
-    ) * 20
-
-    result = generator._translate_body_with_nmt_best_effort(
-        source,
-        KoreanTranslationContext(text=source, source_type="NEWS"),
-    )
-
-    assert result is not None
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "Korean companies faced restructuring pressure" in result.translated_text
-    assert "Regulatory filings" in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_nmt_recovers_mid_sized_body_with_source_term_flag() -> None:
-    client = FakeTranslationClient(json_translation("삼성전자는 엑시노스 확대를 밝혔다."))
-    nmt_client = FakeNmtClient(
-        [
-            "Samsung Electronics will use Exynos 2700 in some Galaxy S27 models.",
-            "The strategy is expected to improve non-memory earnings.",
-        ]
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-    source = (
-        "삼성전자는 갤럭시S27 일부 모델에 엑시노스 2700을 적용하고 "
-        "미국 시장에는 퀄컴 스냅드래곤을 탑재한다고 밝혔다. "
-        "비메모리 실적 개선 기대가 커졌고 파운드리 가동률 회복도 주목된다. "
-    ) * 4
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=source,
-            source_type="NEWS",
-            title="삼성전자 엑시노스 확대",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "Samsung Electronics will use Exynos 2700" in result.translated_text
-    assert result.quality_flags == []
-    assert nmt_client.calls
-
-
-def test_korean_translation_prefers_nmt_for_long_repetitive_reference_body() -> None:
-    nmt_client = FakeNmtClient(
-        "Hyundai Motor ranked first in the electric-vehicle brand reputation index."
-    )
-    client = FakeTranslationClient(json_translation("브랜드평판 기사입니다."))
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-    source = (
-        "2026년 7월 전기차 관련 상장기업 브랜드평판 조사에서 현대차가 1위를 "
-        "차지했고 삼성SDI와 LG에너지솔루션이 뒤를 이었다. 브랜드평판지수는 "
-        "참여가치, 소통가치, 시장가치와 재무가치를 합산해 산정했다. "
-        "현대모비스도 전기차 부품 공급망과 브랜드 빅데이터 분석 대상에 포함됐다. "
-    ) * 26
-
-    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "brand reputation index" in result.translated_text
-    assert "Hyundai Mobis" in result.translated_text
-    assert result.quality_flags == []
-    assert nmt_client.calls
     assert client.calls == []
 
 
-def test_korean_translation_appends_missing_market_surface_in_long_nmt_body() -> None:
-    nmt_client = FakeNmtClient(
-        [
-            "Medikox attracted attention after its largest shareholder changed.",
-            "Investors are watching governance changes and funding plans.",
-            "The company is reviewing new business expansion with outside investors.",
-        ]
-    )
+def test_korean_translation_structures_dart_earnings_disclosure_without_hangul() -> None:
+    client = FakeTranslationClient(json_translation("삼성전자 실적기간 당기실적"))
     generator = KoreanTranslationGenerator(
         enabled=True,
-        client=FakeTranslationClient("{}"),
-        nmt_client=nmt_client,  # type: ignore[arg-type]
+        client=client,
         model_name="test-qwen3-translation",
     )
-    source = (
-        "코스닥 상장사 메디콕스는 최대주주 변경 이후 신사업 확대와 자금 조달 "
-        "계획을 검토하고 있다. 투자자는 지배구조 변화와 자금 사용처를 확인해야 한다. "
-    ) * 10
 
-    result = generator._translate_body_with_nmt_best_effort(
-        source,
-        KoreanTranslationContext(text=source, source_type="NEWS"),
-    )
-
-    assert result is not None
-    assert result.status == "TRANSLATED"
-    assert "KOSDAQ" in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_appends_missing_glossary_surface_in_long_nmt_body() -> None:
-    nmt_client = FakeNmtClient(
-        [
-            "DXVX rose as investors watched infectious-disease diagnosis demand.",
-            "Pharmaceutical companies tracked antibiotic supply and treatment demand.",
-            "Investors monitored respiratory-disease diagnostics and drug pipelines.",
-        ]
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=FakeTranslationClient("{}"),
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-    source = (
-        "젠큐릭스와 DXVX는 감염병 진단 수요와 호흡기 질환 치료제 공급 이슈로 "
-        "투자자 관심을 받았다. 제약·바이오 기업들은 진단 인프라와 신약 파이프라인을 "
-        "강조했다. "
-    ) * 8
-
-    result = generator._translate_body_with_nmt_best_effort(
-        source,
+    result = generator.translate(
         KoreanTranslationContext(
-            text=source,
-            source_type="NEWS",
-            glossary_terms=[
-                FinancialGlossaryTerm(
-                    source_term="젠큐릭스",
-                    normalized_term="젠큐릭스",
-                    english_term="Gencurix",
-                    category="stock",
-                )
-            ],
-        ),
+            source_type="DISCLOSURE",
+            text=(
+                "삼성전자/연결재무제표기준영업(잠정)실적(공정공시)/2026.07.08\n"
+                "실적기간 당기실적 2026-04-01 ~ 2026-06-30\n"
+                "단위 조원, %\n"
+                "매출액 당해실적 171.00 133.87 27.74 - 74.57 129.31\n"
+                "영업이익 당해실적 89.40 57.23 56.21 - 4.68 1,810.26\n"
+                "상기 실적은 잠정치로 외부감사인의 감사결과에 따라 변경될 수 있습니다."
+            ),
+        )
     )
 
-    assert result is not None
-    assert "Gencurix" in result.translated_text
+    assert result.status == "TRANSLATED"
+    assert result.provider == "structured-dart-disclosure-ko-en-translation"
     assert result.quality_flags == []
+    assert not re.search("[가-힣]", result.translated_text)
+    assert "Samsung Electronics disclosed preliminary consolidated operating results" in (
+        result.translated_text
+    )
+    assert "2026-04-01 ~ 2026-06-30" in result.translated_text
+    assert "Sales were 171.00" in result.translated_text
+    assert "Operating profit was 89.40" in result.translated_text
+    assert not client.calls
 
 
-def test_korean_translation_removes_residual_hangul_from_long_nmt_body() -> None:
-    nmt_client = FakeNmtClient(
+def test_korean_translation_structures_dart_ir_disclosure_without_hangul() -> None:
+    client = FakeTranslationClient(json_translation("기업설명회 개최"))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            source_type="DISCLOSURE",
+            text=(
+                "삼성전자/기업설명회(IR) 개최(안내공시)/2026.07.10\n"
+                "일시 2026-07-30 10:00\n"
+                "개최목적 2분기 실적발표 및 질의응답\n"
+                "주요설명회내용 2분기 실적 및 질의응답\n"
+                "참가대상자 국내외 기관투자자, 애널리스트 및 언론"
+            ),
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "structured-dart-disclosure-ko-en-translation"
+    assert result.quality_flags == []
+    assert not re.search("[가-힣]", result.translated_text)
+    assert "Samsung Electronics announced an investor relations conference notice" in (
+        result.translated_text
+    )
+    assert "2026-07-30 10:00" in result.translated_text
+    assert "second-quarter" in result.translated_text
+    assert "Q&A" in result.translated_text
+    assert not client.calls
+
+
+def test_korean_translation_structures_treasury_share_disposal_without_hangul() -> None:
+    client = FakeTranslationClient(json_translation("한국거래소 자기주식 처분"))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            source_type="DISCLOSURE",
+            text=(
+                "삼성전자 주요사항보고서(자기주식처분결정)\n"
+                "처분 대상 주식가격(원)은 이사회 결의일 전일(2026년 7월 6일) "
+                "한국거래소 종가 기준임. 실제 처분금액은 처분시점 주가에 따라 "
+                "변동될 수 있음. 처분방법은 당사의 자기주식 계좌에서 대상 직원의 "
+                "개인별 계좌로 입고 예정임. 처분상대방별 회사 또는 최대주주와의 "
+                "관계 - 회사 직원. 처분상대방 선정사유 - 2026년 성과급 노사합의에 "
+                "따른 자기주식 지급대상. 처분상대방별 처분주식수(주) - 보통주식 "
+                "1,083,434주. 발행주식총수(보통주 5,846,278,608주)의 0.019% 수준이며 "
+                "주식가치 희석효과는 미미할 것으로 예상."
+            ),
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "structured-dart-disclosure-ko-en-translation"
+    assert result.quality_flags == []
+    assert not re.search("[가-힣]", result.translated_text)
+    assert result.translated_text.startswith("Samsung Electronics disclosed material event report")
+    assert "1,083,434 common shares" in result.translated_text
+    assert "0.019%" in result.translated_text
+    assert "5,846,278,608 issued common shares" in result.translated_text
+    assert "Korea Exchange disclosed" not in result.translated_text
+    assert not client.calls
+
+
+def test_korean_translation_structures_major_shareholder_ownership_report_in_local_llm_mode() -> (
+    None
+):
+    client = FakeTranslationClient(json_translation("임원 주요주주 소유상황보고서"))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            source_type="DISCLOSURE",
+            text=(
+                "삼성전자/임원ㆍ주요주주 특정증권등 소유상황보고서/2026.07.09\n"
+                "보고의무발생일 2026년 07월 09일\n"
+                "발행회사에 관한 사항 회사명 삼성전자주식회사\n"
+                "보고자에 관한 사항 성명 홍길동\n"
+                "특정증권등의 소유상황 보통주 12,000주"
+            ),
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert result.provider == "structured-dart-disclosure-ko-en-translation"
+    assert result.quality_flags == []
+    assert not re.search("[가-힣]", result.translated_text)
+    assert (
+        "Samsung Electronics disclosed report on ownership of specified securities "
+        "by officers and major shareholders"
+    ) in result.translated_text
+    assert "2026.07.09" in result.translated_text
+    assert not client.calls
+
+
+def test_korean_translation_does_not_replace_long_disclosure_body_with_generic_summary() -> None:
+    client = SequenceTranslationClient(
         [
-            "Laneige 라네즈 launched a facial serum for skin-care demand.",
-            "TriCircle 트라이써클 expanded fashion-commerce promotions.",
-            "Investors watched brand demand and online sales channels.",
+            json_translation(
+                "Samsung Electronics filed a report on ownership of specified securities by "
+                "officers and major shareholders on 2026.07.09. The filing date was "
+                "2026-07-09. The body listed 12,000 common shares."
+            ),
+            json_translation(
+                "The filer described changes in ownership, the purpose of the holding, "
+                "and the reporting obligations in the body."
+            ),
         ]
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
-        client=FakeTranslationClient("{}"),
-        nmt_client=nmt_client,  # type: ignore[arg-type]
+        client=client,
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
     source = (
-        "라네즈는 신제품 세럼을 출시했고 트라이써클은 패션 커머스 프로모션을 "
-        "확대했다. 투자자는 브랜드 수요와 온라인 판매 채널을 확인해야 한다. "
-    ) * 10
-
-    result = generator._translate_body_with_nmt_best_effort(
-        source,
-        KoreanTranslationContext(text=source, source_type="NEWS"),
+        "삼성전자/임원ㆍ주요주주 특정증권등 소유상황보고서/2026.07.09\n"
+        "보고의무발생일 2026년 07월 09일\n"
+        "발행회사에 관한 사항 회사명 삼성전자주식회사\n"
+        "특정증권등의 소유상황 보통주 12,000주\n"
+        + "보고자는 특정증권 등의 변동 내역과 보유 목적을 본문에 기재했다. "
+        * 20
     )
 
-    assert result is not None
-    assert "Laneige" in result.translated_text
-    assert "TriCircle" in result.translated_text
-    assert not re.search(r"[가-힣ㄱ-ㅎㅏ-ㅣ]", result.translated_text)
-    assert result.quality_flags == []
+    result = generator.translate(
+        KoreanTranslationContext(
+            source_type="DISCLOSURE",
+            text=source,
+        )
+    )
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert client.calls
 
 
-def test_korean_translation_repairs_pathological_nmt_repetition() -> None:
+def test_korean_translation_does_not_structure_long_disclosure_body_with_title_prefix() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Samsung Electronics filed a full ownership report for officers and major "
+            "shareholders. The body includes reporter information, filing dates, ownership "
+            "details, share counts, and reporting obligations for investors."
+        )
+    )
     generator = KoreanTranslationGenerator(
         enabled=True,
-        client=FakeTranslationClient("{}"),
+        client=client,
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
     source = (
-        "제약업계는 임상 결과와 신약 공급 일정을 설명했다. "
-        "투자자는 제품 허가 일정과 시장 반응을 함께 확인해야 한다. "
-    ) * 10
-    translated = (
-        "Professor Dr. Dr. Dr. Dr. Dr. Dr. Lee shared clinical results. "
-        "Professor Dr. Dr. Dr. Dr. Dr. Dr. Lee shared clinical results. "
-        "Professor Dr. Dr. Dr. Dr. Dr. Dr. Lee shared clinical results."
+        "삼성전자 임원ㆍ주요주주 특정증권등 소유상황보고서\n"
+        "보고의무발생일 : 2026년 07월 09일 보고서작성기준일 : 2026년 07월 09일\n"
+        "보고자에 관한 사항 성명 신경섭 주소 서울특별시 특정증권등의 소유상황 "
+        "보통주식 1,083,434주 발행주식총수 5,846,278,608주 "
+        + "보고자는 특정증권 등의 취득, 처분, 보유 목적, 변동 내역과 제출 의무를 본문에 기재했다. "
+        * 18
     )
 
-    repaired = generator._repair_pathological_repetitions(translated)
+    result = generator.translate(
+        KoreanTranslationContext(
+            source_type="DISCLOSURE",
+            text=source,
+        )
+    )
 
-    assert "Dr. Dr. Dr." not in repaired
-    assert "REPEATED_TRANSLATION_PHRASE" not in generator._quality_flags(source, repaired)
+    assert len(source) > 700
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert result.translated_text == ""
+    assert client.calls
 
 
 def test_korean_translation_repairs_unbacked_highest_bidder_surface() -> None:
@@ -1224,106 +1815,6 @@ def test_korean_translation_repairs_unbacked_highest_bidder_surface() -> None:
 
     assert "highest bidder" not in repaired.lower()
     assert "later entrant" in repaired
-
-
-def test_korean_translation_accepts_best_effort_qwen_for_long_body_noncritical_flags() -> None:
-    client = FakeTranslationClient(
-            json_translation(
-                "Samsung Electronics expanded AI infrastructure investment while investors "
-                "tracked semiconductor supply-chain capacity, data center demand, and "
-                "earnings recovery."
-        )
-    )
-    nmt_client = FakeNmtClient("NMT should not be called for noncritical Qwen body flags.")
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "삼성전자는 2026년 AI 인프라 투자 확대와 반도체 공급망 개선 계획을 "
-                "발표했다. 투자자들은 실적 회복 속도와 시장 흐름을 확인하고 있다. "
-                "시장 관계자들은 고객사 주문과 메모리 가격 반등 여부를 함께 점검하고 "
-                "있다. 증권가는 공급망 투자 집행 속도가 향후 매출 회복의 핵심 변수가 "
-                "될 것으로 보고 있다. 회사는 고성능 메모리와 데이터센터 수요 변화에 "
-                "맞춰 생산 계획을 조정하고, 주요 고객사와 장기 공급 협의를 이어가고 "
-                "있다고 설명했다. 업계는 투자 집행 일정과 설비 반입 속도도 함께 "
-                "확인하고 있다."
-            ),
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-qwen3-translation"
-    assert result.model_version == "test-qwen3-translation"
-    assert "Samsung Electronics expanded AI infrastructure" in result.translated_text
-    assert result.quality_flags == []
-    assert client.calls
-    assert nmt_client.calls == []
-
-
-def test_korean_translation_repairs_local_nmt_semiconductor_body_surfaces() -> None:
-    client = FakeTranslationClient(json_translation("LG화학은 반도체 사업을 확대했다."))
-    nmt_client = FakeNmtClient(
-        "The products supplied by LG Chem are customized strippers optimized for "
-        "Amkor's new line, reducing photoresist and residue removal time by 50%. "
-        "LG Chem said on the 5th that it will mass-produce semiconductor strippers "
-        "for back-end OSAT company Amkor. Residue removal performance directly affects "
-        "product yield. LG Chem President Kim Dong-chun said cooperation with Amkor "
-        "will strengthen. LG Chem will invest 15 trillion won in R&D by 2035 and "
-        "grow its electronic materials business to about 2 trillion won by 2030, "
-        "focusing on thermal management materials and glass substrates."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "LG화학이 공급하는 제품은 앰코의 신규 라인 환경에 최적화된 맞춤형 "
-                "스트리퍼로 포토레지스트와 잔여물을 벗겨내는 시간을 기존 대비 50% "
-                "단축했다. LG화학은 5일 미국 글로벌 반도체 후공정(OSAT) 기업 "
-                "앰코에 반도체용 스트리퍼를 양산 공급한다고 밝혔다. 잔여물 제거 "
-                "성능은 제품 수율에 직접적인 영향을 미치고 있다. 김동춘 LG화학 "
-                "사장은 앰코와 협력을 강화한다고 밝혔다. "
-                "LG화학은 최근 2035년까지 연구개발(R&D)에 총 15조원을 투자하고 "
-                "반도체·인프라 분야에서 열관리 소재·유리기판 경쟁력 확보에 주력해 "
-                "전자소재 사업을 2030년까지 약 2조원 규모로 성장시킨다는 방침이다."
-            ),
-            glossary_terms=[
-                FinancialGlossaryTerm(
-                    source_term="LG화학",
-                    normalized_term="LG화학",
-                    english_term="LG Chem",
-                    category="stock",
-                ),
-            ],
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert "LG Chem" in result.translated_text
-    assert "Amkor" in result.translated_text
-    assert "Kim Dong-chun" in result.translated_text
-    assert "15 trillion won" in result.translated_text
-    assert "on the 5th" in result.translated_text
-    assert "back-end OSAT company Amkor" in result.translated_text
-    assert "product yield" in result.translated_text
-    assert "thermal management materials" in result.translated_text
-    assert "glass substrates" in result.translated_text
-    assert "Kim Jong-un" not in result.translated_text
-    assert "Striper" not in result.translated_text
-    assert "Amko Amkor" not in result.translated_text
-    assert result.quality_flags == []
 
 
 def test_korean_translation_repairs_korean_bank_deposit_body_surfaces() -> None:
@@ -1369,156 +1860,71 @@ def test_korean_translation_repairs_korean_bank_deposit_body_surfaces() -> None:
     assert result.quality_flags == []
 
 
-def test_korean_translation_repairs_semiconductor_adr_body_when_local_models_fail() -> None:
-    client = FakeTranslationClient(json_translation("고장난 전문 번역"))
-    nmt_client = FakeNmtClient("고장난 NMT 전문 번역")
+def test_korean_translation_repairs_foreign_currency_for_implied_large_won_amount() -> None:
+    client = FakeTranslationClient(
+        json_translation("SK hynix will use 40 trillion yen for aggressive investment.")
+    )
     generator = KoreanTranslationGenerator(
         enabled=True,
         client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
 
     result = generator.translate(
         KoreanTranslationContext(
-            text=(
-                "코스피가 극심한 변동성 끝에 8000선을 회복했지만 시장의 시선은 이번 주 "
-                "예정된 반도체 이벤트에 집중되고 있다. 7일 삼성전자 2분기 잠정실적 "
-                "발표와 10일 SK하이닉스 미국 주식예탁증서(ADR) 상장이 연이어 예정돼 "
-                "있기 때문이다. 두 이벤트 결과에 따라 최근 급락한 반도체주의 투자심리가 "
-                "빠르게 회복될지 여부가 결정될 가능성이 크다. 지난주 코스피는 장중 "
-                "7300선까지 밀리며 고점 대비 20% 넘게 하락했지만 기관 중심의 저가 "
-                "매수세가 유입되며 8088.34로 거래를 마쳤다. ◆ 외국인 20조원 "
-                "매도…반도체 집중 이탈 지난주 외국인은 유가증권시장에서 약 "
-                "19조8000억원을 순매도했다. 매도는 삼성전자와 SK하이닉스에 집중됐다. "
-                "반면 개인과 기관은 각각 11조원, 8조원 넘게 순매수하며 낙폭 과대 "
-                "종목을 받아냈다. 시장에서는 이번 주 삼성전자 실적과 하이닉스 ADR "
-                "상장이 외국인 수급을 다시 반도체로 돌려세울 수 있는 시험대가 될 것으로 "
-                "보고 있다. ◆ 삼성전자 실적이 첫 번째 분수령 증권가는 이번 주 가장 "
-                "중요한 이벤트로 삼성전자 잠정실적을 꼽는다. 영업이익이 시장 예상치를 "
-                "웃도는 '어닝 서프라이즈'가 나올 경우 메모리 업황 개선 기대가 다시 "
-                "살아나며 최근의 AI 투자 둔화 우려를 상당 부분 상쇄할 수 있다는 분석이다. "
-                "이어 10일 예정된 SK하이닉스 ADR 상장은 해외 투자자의 접근성을 높이는 "
-                "계기가 될 것으로 기대된다. ADR 상장이 본격적인 해외 자금 유입으로 "
-                "이어질 경우 하이닉스는 물론 국내 반도체 업종 전반의 투자심리 개선에도 "
-                "긍정적으로 작용할 수 있다. ◆ 아직 끝나지 않은 변동성…\"7월 중순까지 "
-                "확인 필요\" 다만 시장의 긴장감은 여전하다. 코스피200 변동성지수"
-                "(VKOSPI)는 89 수준으로 금융시장 불안이 여전히 높은 상태를 나타내고 "
-                "있다. 이는 하루 평균 ±5% 안팎의 큰 변동성이 이어질 수 있다는 의미다. "
-                "전문가들은 삼성전자 실적이 단기 반등의 첫 번째 관문이라면, 이후에는 "
-                "TSMC와 ASML 실적, 글로벌 AI 기업들의 설비투자(CAPEX) 계획이 하반기 "
-                "증시 방향을 결정할 핵심 변수라고 보고 있다."
-            ),
+            text="SK하이닉스, 나스닥 입성…40조 실탄으로 광폭 투자",
             source_type="NEWS",
         )
     )
 
     assert result.status == "TRANSLATED"
-    assert "KOSPI recovered the 8,000 level" in result.translated_text
-    assert "SK hynix is scheduled to list its U.S. American depositary receipts (ADR)" in (
-        result.translated_text
+    assert "40 trillion won" in result.translated_text
+    assert "yen" not in result.translated_text.lower()
+
+
+def test_korean_translation_repairs_korean_large_unit_amount_values() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "The share price was 224.9751 won versus 218.6 thousand won. "
+            "The offering raised 2.657 billion dollars and 40.23 trillion won."
+        )
     )
-    assert "KRW 19.8 trillion" in result.translated_text
-    assert "KRW 11 trillion and KRW 8 trillion" in result.translated_text
-    assert "KOSPI 200 volatility index (VKOSPI) is near 89" in result.translated_text
-    assert "capital expenditure (CAPEX)" in result.translated_text
-    assert "고장난" not in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_repairs_weekly_semiconductor_flow_report_body() -> None:
-    client = FakeTranslationClient(json_translation("고장난 수급 리포트 번역"))
-    nmt_client = FakeNmtClient("고장난 수급 리포트 NMT")
     generator = KoreanTranslationGenerator(
         enabled=True,
         client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
         model_name="test-qwen3-translation",
+        rule_based_repairs_enabled=False,
     )
 
     result = generator.translate(
         KoreanTranslationContext(
             text=(
-                "지난 한 주간 국내 증시는 외국인의 거센 매도세에 밀려 코스피와 "
-                "코스닥 지수 모두 하락 마감했다. 외국인이 쏟아낸 물량은 코스피 "
-                "시장에서 개인과 기관이, 코스닥 시장에서는 개인이 고스란히 받아냈다. "
-                "6일 한국거래소에 따르면 지난달 29일부터 이달 3일까지 코스피 지수는 "
-                "8394.65에서 8088.34로 306.31포인트(3.65%) 하락했다. 같은 기간 "
-                "코스닥 지수 역시 920.57에서 869.41로 51.16포인트(5.56%) 내렸다. "
-                "코스피 시장에서는 개인이 11조1217억원, 기관이 8조1212억원을 각각 "
-                "순매수하며 지수 방어에 나섰다. 반면 외국인은 홀로 19조8374억원을 "
-                "순매도하며 하락세를 주도했다. 코스닥에서는 개인이 3490억원을 "
-                "순매수했지만, 기관과 외국인은 각각 1769억원, 1827억원을 순매도했다. "
-                "기관 순매수로는 SK스퀘어에 가장 많은 2조3009억원 자금이 몰렸다. "
-                "이어 삼성전자(1조8150억원), 이수페타시스(4652억원), KB금융"
-                "(2746억원), 삼성전기(1837억원), 한화에어로스페이스(1836억원), "
-                "SK하이닉스(1628억원) 순으로 많이 사들였다. 개인은 SK하이닉스"
-                "(7조7920억원)와 삼성전자(5조6603억원)를 집중 매수했다. "
-                "한미반도체(2222억원), 삼성전자우(1661억원), 한화오션(1256억원), "
-                "LS일렉트릭(1048억원)이 뒤를 이었다. 반면 가장 많이 판 종목은 "
-                "삼성전기(6076억원)였으며, SK스퀘어(2953억원), 이수페타시스"
-                "(1442억원), 셀트리온(1224억원) 등은 순매도했다. 외국인은 "
-                "삼성전기(4462억원)를 가장 많이 받아갔다. 이어 DB하이텍"
-                "(2860억원), LG이노텍(1657억원), 한미반도체(1485억원), "
-                "삼성바이오로직스(536억원) 순으로 순매수했다. 반면 SK하이닉스를 "
-                "8조2824억원 팔아치웠으며, 삼성전자(7조6880억원), SK스퀘어"
-                "(1조9875억원), 이수페타시스(3182억원), 삼성전자우(2630억원) 등 "
-                "반도체 대형주를 대거 차익 실현했다. 이경민 대신증권 연구원은 "
-                "\"미국 증시에서 메타, 애플발 쇼크 여파로 반도체 업종의 약세가 "
-                "지속됐다\"며 \"지난주 국내 증시에서도 삼성전자와 SK하이닉스 등 "
-                "반도체주가 하락 출발했으나, 단기 급락에 따른 반발 매수세가 유입되며 "
-                "낙폭을 만회하고 반등에 성공했다\"고 분석했다. 이어 \"7일 삼성전자 "
-                "잠정실적 발표가 예정된 가운데, 앤트로픽 자체 AI 칩 개발 협력 소식과 "
-                "3분기 D램 가격 최대 20% 인상 전망이 맞물리면서 실적 개선에 대한 "
-                "기대감이 한층 높아지고 있다\"고 덧붙였다."
+                "신주 발행가는 주당 224만 9751원으로, "
+                "전일 종가 218만 6000원보다 높다. "
+                "총 265억 700만 달러, 약 40조 230억원을 조달한다."
             ),
             source_type="NEWS",
         )
     )
 
-    assert result.status == "TRANSLATED"
-    assert "KOSPI fell 306.31 points, or 3.65%, from 8,394.65 to 8,088.34" in (
-        result.translated_text
-    )
-    assert "KOSDAQ fell 51.16 points, or 5.56%, from 920.57 to 869.41" in (
-        result.translated_text
-    )
-    assert "SK Square drew the largest inflow" in result.translated_text
-    assert "KRW 8.2824 trillion of SK hynix" in result.translated_text
-    assert "Anthropic's collaboration on its own AI chip" in result.translated_text
-    assert "20% increase in third-quarter DRAM prices" in result.translated_text
-    assert "고장난" not in result.translated_text
-    assert result.quality_flags == []
+    assert "KRW 2.249751 million" in result.translated_text
+    assert "KRW 2.186 million" in result.translated_text
+    assert "$26.507 billion" in result.translated_text
+    assert "KRW 40.023 trillion" in result.translated_text
+    assert "224.9751 won" not in result.translated_text
+    assert "2.657 billion dollars" not in result.translated_text
 
 
-def test_korean_translation_preserves_semiconductor_glossary_appendix_with_nmt() -> None:
-    client = FakeTranslationClient(json_translation("고대역폭 메모리와 OSAT 설명."))
-    nmt_client = FakeNmtClient(
-        "Outsourced Semiconductor Assembly and Test (OSAT) is a specialized "
-        "semiconductor assembly and testing company."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
+def test_korean_translation_preserves_decimal_currency_amount() -> None:
+    generator = KoreanTranslationGenerator(enabled=False)
+
+    repaired = generator._repair_korean_currency_amounts(
+        "원달러 환율은 1,527.6원이다.",
+        "The won-dollar exchange rate is 1,527 won.",
     )
 
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "고대역폭 메모리(High Bandwidth Memory) = AI 반도체 등에 쓰이는 "
-                "초고속·고성능 메모리 OSAT(Outsourced Semiconductor Assembly and "
-                "Test) = 반도체 후공정인 조립과 시험을 수행하는 전문업체"
-            ),
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert "AI semiconductors" in result.translated_text
-    assert "Outsourced Semiconductor Assembly and Test (OSAT)" in result.translated_text
-    assert result.quality_flags == []
+    assert repaired == "The won-dollar exchange rate is KRW 1,527.6."
 
 
 def test_korean_translation_removes_news_boilerplate_before_chunking() -> None:
@@ -1527,12 +1933,18 @@ def test_korean_translation_removes_news_boilerplate_before_chunking() -> None:
     normalized = generator._normalize_text(
         "잠깐! 현재 Internet Explorer 8이하 버전을 이용중이십니다. "
         "최신 브라우저(Browser) 사용을 권장드립니다! "
-        "[투데이에너지 신영균 기자] LG화학이 반도체 소재 사업을 확대하고 있다."
+        "[투데이에너지 신영균 기자] LG화학이 반도체 소재 사업을 확대하고 있다. "
+        "googletag.cmd.push(function(){googletag.display('div-gpt-ad-1');}); "
+        "dschoi@fnnews.com 최두선 기자 #삼성전자 #SK하이닉스 "
+        "※ 저작권자 ⓒ 파이낸셜뉴스, 무단전재-재배포 금지"
     )
 
     assert "Internet Explorer" not in normalized
     assert "최신 브라우저" not in normalized
     assert "기자" not in normalized
+    assert "googletag" not in normalized
+    assert "fnnews.com" not in normalized
+    assert "저작권자" not in normalized
     assert normalized == "LG화학이 반도체 소재 사업을 확대하고 있다."
 
 
@@ -1565,6 +1977,62 @@ def test_korean_translation_rejects_single_token_romanized_korean_noise() -> Non
     assert result.status == "SOURCE_LANGUAGE_FALLBACK"
     assert result.translated_text == ""
     assert "SUSPICIOUS_ROMANIZED_KOREAN" in result.quality_flags
+
+
+def test_korean_translation_allows_title_case_romanized_korean_person_names() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Professor Ryu Sang-yeon said single-stock leveraged products increased "
+            "volatility, and Kim Yong-bum was involved in the product launch review."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "류상윤 교수는 단일종목 레버리지 상품이 변동성을 키웠다고 말했다. "
+                "김용범 정책실장은 상품 출시 검토에 관여했다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "SUSPICIOUS_ROMANIZED_KOREAN" not in result.quality_flags
+    assert result.quality_flags == []
+
+
+def test_korean_translation_allows_disclosure_hyphenated_market_terms() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "The disposal method includes over-the-counter trading, off-market disposal, "
+            "and end-of-period quantity disclosures."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "처분방법은 시간외대량매매와 장외처분을 포함한다. "
+                "자기주식 처분 결정 전 자기주식 보유현황에는 기말수량이 표시된다."
+            ),
+            source_type="DISCLOSURE",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "SUSPICIOUS_ROMANIZED_KOREAN" not in result.quality_flags
+    assert result.quality_flags == []
 
 
 def test_korean_translation_rejects_semantically_broken_summary_fragments() -> None:
@@ -1618,47 +2086,6 @@ def test_korean_translation_repairs_stock_name_surface_from_glossary() -> None:
 
     assert result.status == "TRANSLATED"
     assert result.translated_text == "Samsung Electronics expects operating profit to improve."
-    assert result.quality_flags == []
-
-
-def test_korean_translation_repairs_broken_skhynix_nasdaq_title() -> None:
-    client = FakeTranslationClient(
-        json_translation(
-            "SK hynix was expected to trade on the NMSK exchange. "
-            "The NMSK market may close within a few days."
-        )
-    )
-    nmt_client = FakeNmtClient(
-        "SK hynix is preparing a Nasdaq listing, raising questions about whether "
-        "it will help or hurt the domestic stock market."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text="[오늘의 경제뉴스] SK하이닉스 나스닥 상장...국내 증시에 약일까 독일...",
-            glossary_terms=[
-                FinancialGlossaryTerm(
-                    source_term="SK하이닉스",
-                    normalized_term="SK하이닉스",
-                    english_term="SK hynix",
-                    category="stock",
-                ),
-            ],
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert "NMSK" not in result.translated_text
-    assert result.translated_text == (
-        "Today's Economic News: SK hynix's Nasdaq listing raises questions about "
-        "its impact on the domestic stock market."
-    )
     assert result.quality_flags == []
 
 
@@ -1753,8 +2180,7 @@ def test_korean_translation_repairs_broken_skhynix_nasdaq_title() -> None:
         ),
         (
             "실상은 다른 회사(?)…삼성전자 DX·DS '투트랙 ESG' 속사정",
-            "Samsung Electronics' DX and DS divisions pursue separate two-track "
-            "ESG strategies.",
+            "Samsung Electronics' DX and DS divisions pursue separate two-track ESG strategies.",
         ),
         (
             "현대차·기아·모비스 초비상…美 부품 82% 유지",
@@ -1763,8 +2189,7 @@ def test_korean_translation_repairs_broken_skhynix_nasdaq_title() -> None:
         ),
         (
             "“증시 때문에 머리가 다 빠지네요”…결국 은행으로 다시 돈 몰린다",
-            '"The stock market is making my hair fall out"; money is flowing '
-            "back into banks.",
+            '"The stock market is making my hair fall out"; money is flowing back into banks.',
         ),
         (
             "외국인 20조 던진 반도체…이번 주 '삼전 실적·하이닉스 ADR'이 승부 가...",
@@ -1863,44 +2288,6 @@ def test_korean_translation_preserves_samnik_short_localism_surface() -> None:
     assert result.status == "TRANSLATED"
     assert "Samjeon Nix" in result.translated_text
     assert "Samnick" not in result.translated_text
-    assert result.quality_flags == []
-
-
-def test_korean_translation_uses_nmt_when_qwen_drops_market_supply_chain_terms() -> None:
-    client = FakeTranslationClient(
-        json_translation(
-            "Nvidia's revenue contribution still lags, and domestic investors are "
-            "from both the North and South are shifting attention to cars."
-        )
-    )
-    nmt_client = FakeNmtClient(
-        "As it turns out that Envidia's actual sales contribution to the global robotics "
-        "rally remains small, domestic investors are shifting attention to the parts "
-        "supply chain instead of finished products."
-    )
-    generator = KoreanTranslationGenerator(
-        enabled=True,
-        client=client,
-        nmt_client=nmt_client,  # type: ignore[arg-type]
-        model_name="test-qwen3-translation",
-    )
-
-    result = generator.translate(
-        KoreanTranslationContext(
-            text=(
-                "글로벌 로봇주 랠리를 이끌어온 엔비디아의 실제 매출 기여도가 아직 "
-                "미미하다는 사실이 확인되면서, 국내 투자자들의 관심이 완제품 대신 "
-                "부품 공급망으로 옮겨가고 있다."
-            ),
-            source_type="NEWS",
-        )
-    )
-
-    assert result.status == "TRANSLATED"
-    assert result.provider == "local-open-source-ko-en-nmt-translation"
-    assert "Nvidia" in result.translated_text
-    assert "supply chain" in result.translated_text
-    assert "Enbody" not in result.translated_text
     assert result.quality_flags == []
 
 
@@ -2117,10 +2504,7 @@ def test_korean_translation_returns_grounded_bank_earnings_body_before_model_cal
             ("daily disclosure roundup", "corporate actions", "shareholder-return"),
         ),
         (
-            (
-                "라온시큐어 이순형 대표는 지난 22일부터 이틀간 약 2억136만원 "
-                "규모의 주식을 매입했다."
-            ),
+            ("라온시큐어 이순형 대표는 지난 22일부터 이틀간 약 2억136만원 규모의 주식을 매입했다."),
             ("RaonSecure CEO Lee Soon-hyung", "KRW 201.36 million", "insider-buying"),
         ),
         (
@@ -2203,24 +2587,6 @@ def test_korean_translation_returns_grounded_fx_headline_before_model_call() -> 
     assert client.calls == []
 
 
-def test_korean_translation_splits_long_nmt_units_at_clause_boundaries() -> None:
-    generator = KoreanTranslationGenerator(enabled=True, client=FakeTranslationClient("{}"))
-
-    units = generator._nmt_units(
-        (
-            "글로벌 로봇주 랠리를 이끌어온 엔비디아의 실제 매출 기여도가 아직 "
-            "미미하다는 사실이 확인되면서, 국내 투자자들의 관심이 완제품 대신 "
-            "부품 공급망으로 옮겨가고 있다. "
-            "마켓워치는 지난 3일 엔비디아의 피지컬 AI 매출이 최근 12개월 기준 "
-            "13조 7700억원을 넘어섰다고 보도했다. "
-        )
-        * 4
-    )
-
-    assert len(units) >= 2
-    assert all(len(unit) <= 520 for unit in units)
-
-
 def test_korean_translation_repairs_market_news_source_term_surfaces() -> None:
     client = FakeTranslationClient(
         json_translation(
@@ -2255,10 +2621,10 @@ def test_korean_translation_repairs_market_news_source_term_surfaces() -> None:
     assert result.quality_flags == []
 
 
-def test_korean_translation_repairs_sk_hynix_nmt_surface() -> None:
+def test_korean_translation_accepts_citigroup_as_citi_source_term_surface() -> None:
     client = FakeTranslationClient(
         json_translation(
-            "AI investors expressed interest in SKHynx ADRs, while the SK Hyanix fund grew."
+            "Citi and Goldman Sachs expect underwriting fees as SK hynix lists on Nasdaq."
         )
     )
     generator = KoreanTranslationGenerator(
@@ -2270,18 +2636,208 @@ def test_korean_translation_repairs_sk_hynix_nmt_surface() -> None:
     result = generator.translate(
         KoreanTranslationContext(
             text=(
-                "글로벌 AI 투자사들이 SK하이닉스 미국 주식예탁증서(ADR)에 "
-                "투자 의향을 밝혔다."
+                "씨티그룹과 골드만삭스는 SK하이닉스의 나스닥 상장으로 인수 수수료를 기대하고 있다."
             ),
             source_type="NEWS",
         )
     )
 
     assert result.status == "TRANSLATED"
-    assert "SK hynix ADRs" in result.translated_text
-    assert "SK hynix fund" in result.translated_text
-    assert "SKHynx" not in result.translated_text
-    assert "SK Hyanix" not in result.translated_text
+    assert "SOURCE_TERM_MISSING:CITI" not in result.quality_flags
+    assert "Citi" in result.translated_text
+    assert result.quality_flags == []
+
+
+def test_korean_translation_recovers_missing_body_chunk_with_qwen_full_text_retry() -> None:
+    client = SequenceTranslationClient(
+        [
+            json_translation(""),
+            json_translation(""),
+            json_translation(""),
+            json_translation(
+                "The second paragraph says investors watched foreign flows and chip earnings."
+            ),
+            json_translation(
+                "The first paragraph explains SK hynix's Nasdaq listing and fee expectations "
+                "for Wall Street investment banks. Citi and Goldman Sachs participated as "
+                "bookrunners, and the second paragraph says investors watched foreign flows "
+                "and chip earnings. KOSPI and KOSDAQ volatility also increased. The disclosure "
+                "adds that liquidity, risk management, listing costs, and follow-up filings "
+                "should be monitored. It also says investors should compare trading value, "
+                "short-selling pressure, and valuation changes before reacting."
+            ),
+        ]
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+    source = (
+        "첫 번째 문단은 SK하이닉스의 나스닥 상장과 월가 투자은행의 수수료 기대를 설명한다. "
+        "씨티그룹과 골드만삭스가 주관사로 참여했고 시장 관심이 커졌다는 내용이다. "
+        "두 번째 문단은 투자자들이 외국인 수급과 반도체 업황을 확인해야 한다고 설명한다. "
+        "코스피와 코스닥의 변동성이 커졌고 위험 관리가 중요하다는 분석도 포함됐다. "
+        "세 번째 문단은 상장 비용, 유동성, 후속 공시 확인 필요성을 설명한다. "
+        "네 번째 문단은 투자자들이 가격 반응과 거래대금 변화를 함께 점검해야 한다고 덧붙였다. "
+        "다섯 번째 문단은 공매도 압력과 밸류에이션 변화도 함께 비교해야 한다고 설명한다. "
+        "여섯 번째 문단은 단기 수급보다 실제 상장 조건과 후속 자료 확인이 더 중요하다고 강조했다."
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert result.quality_flags == []
+    assert "Nasdaq listing" in result.translated_text
+    assert len(client.calls) == 5
+
+
+def test_korean_translation_retries_qwen_chunk_when_year_is_hallucinated() -> None:
+    client = SequenceTranslationClient(
+        [
+            json_translation("Samsung Electronics said the product review would continue in 2028."),
+            json_translation(
+                "Samsung Electronics said the product review would continue this year."
+            ),
+        ]
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자는 상품 검토가 올해 계속될 것이라고 밝혔다.",
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "UNSUPPORTED_YEAR_FACT" not in result.quality_flags
+    assert len(client.calls) == 2
+    assert "this year" in result.translated_text
+
+
+def test_korean_translation_retries_qwen_chunk_when_translation_is_empty() -> None:
+    client = SequenceTranslationClient(
+        [
+            json_translation(""),
+            json_translation(
+                "Samsung Electronics filed a report on ownership of specified securities."
+            ),
+        ]
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text="삼성전자는 특정증권등 소유상황보고서를 제출했다.",
+            source_type="DISCLOSURE",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "EMPTY_TRANSLATION" not in result.quality_flags
+    assert len(client.calls) == 2
+    assert "specified securities" in result.translated_text
+
+
+def test_korean_translation_repairs_korean_compound_dollar_amount_and_chip_suppliers() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Microchip's stock price rose more than 6% and fluctuated around the $1,200 "
+            "level. Applied Material, KLA, Ram Research, and ARM also rose 6-11%."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "마이크론의 주가는 6% 이상 급등해 1천20달러선을 등락하고 있다. "
+                "어플라이드머티어리얼즈, KLA, 램 리서치, ARM 등도 6∼11% 올랐다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "Micron's stock price" in result.translated_text
+    assert "$1,020" in result.translated_text
+    assert "Applied Materials" in result.translated_text
+    assert "Lam Research" in result.translated_text
+    assert result.quality_flags == []
+
+
+def test_korean_translation_allows_market_hyphen_terms_and_repairs_trillion_dollars() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "Software stocks have recovered from a months-long decline. The software index "
+            "reduced its year-to-date decline, while the semiconductor index remains near "
+            "an all-time high. AI investment plans worth billions of dollars are under review."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(
+        KoreanTranslationContext(
+            text=(
+                "소프트웨어 주식들은 수개월간 급락한 끝에 되살아나는 모습이다. "
+                "소프트웨어 지수는 연초 대비 하락 폭을 줄였고 반도체 지수는 역대 최고치에 가깝다. "
+                "수조 달러에 달하는 AI 설비투자 계획이 실제 집행될지 투자자들이 의심하고 있다."
+            ),
+            source_type="NEWS",
+        )
+    )
+
+    assert result.status == "TRANSLATED"
+    assert "SUSPICIOUS_ROMANIZED_KOREAN" not in result.quality_flags
+    assert "trillions of dollars" in result.translated_text
+    assert result.quality_flags == []
+
+
+def test_korean_translation_appends_missing_required_company_surface_in_body_chunk() -> None:
+    client = FakeTranslationClient(
+        json_translation(
+            "He pointed to single-stock leveraged ETFs as the reason KOSDAQ and small-cap "
+            "stocks have lagged behind KOSPI. Investors sold KOSDAQ stocks and moved into "
+            "those products, concentrating supply and demand on one side."
+        )
+    )
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        model_name="test-qwen3-translation",
+    )
+    source = (
+        "그는 코스피에 비해 코스닥과 중소형주가 힘을 쓰지 못하는 이유로 단일 종목 "
+        "레버리지 ETF를 지목했다. 염 이사는 삼성전자와 하이닉스를 두 배 추종하는 "
+        "단일 종목 레버리지 ETF가 양극화를 크게 만들었다고 분석했다. 투자자들이 "
+        "코스닥 주식을 팔아 이 상품으로 갈아타면서 수급이 한쪽으로 쏠렸다고 설명했다. "
+        "그는 대형 반도체주 쏠림이 시장의 체력을 약하게 만들 수 있어, 투자자들이 "
+        "종목별 실적과 수급 변화를 함께 확인해야 한다고 덧붙였다. "
+        "또한 높은 금리 환경에서도 기업 이익이 유지되는지 살피는 것이 중요하다고 말했다."
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert "SK hynix" in result.translated_text
+    assert "SOURCE_TERM_MISSING:SK_HYNIX" not in result.quality_flags
     assert result.quality_flags == []
 
 
@@ -2326,9 +2882,7 @@ def test_korean_translation_returns_grounded_uiseong_move_to_you_body_before_mod
 
 def test_korean_translation_returns_grounded_lg_supplier_body_before_model_call() -> None:
     client = FakeTranslationClient(
-        json_translation(
-            "LG will provide small-cap investors with low-stake compensation."
-        )
+        json_translation("LG will provide small-cap investors with low-stake compensation.")
     )
     generator = KoreanTranslationGenerator(
         enabled=True,
@@ -2456,16 +3010,32 @@ def test_korean_translation_returns_grounded_lg_supplier_body_before_model_call(
         ),
         (
             "삼성전기 주가 10%대 털썩…코스피 급락에 약세 면치 못했나?",
-            (
-                "Samsung Electro-Mechanics shares tumble more than 10% as the KOSPI "
-                "selloff weighs."
-            ),
+            ("Samsung Electro-Mechanics shares tumble more than 10% as the KOSPI selloff weighs."),
         ),
         (
             "코스피·코스닥 5% 넘게 폭락..반도체 고점 우려에 중동리스크까지",
             (
                 "KOSPI and KOSDAQ plunge more than 5% as semiconductor peak concerns "
                 "and Middle East risks weigh."
+            ),
+        ),
+        (
+            "최태원 SK그룹 회장, SK하이닉스 ADR 상장 기념식 직접 참석 | 중앙일보",
+            "SK Group Chairman Chey Tae-won attends SK hynix ADR listing ceremony.",
+        ),
+        (
+            "미래에셋증권, 해외 기관투자자 대상 ′Korea Bond Market Forum′ 개최…"
+            "WGBI 편입 맞아 한국 채권시장 투자 매력 알려",
+            (
+                "Mirae Asset Securities holds Korea Bond Market Forum for overseas "
+                "institutional investors as Korea joins WGBI."
+            ),
+        ),
+        (
+            "눈치보기 장세 펼쳐진 코스피, 7200선 마감…개인은 2조원 순매도",
+            (
+                "KOSPI closes near the 7,200 level in cautious trading as retail "
+                "investors net sell KRW 2 trillion."
             ),
         ),
         (
@@ -2502,9 +3072,55 @@ def test_korean_translation_returns_grounded_market_news_titles_before_glossary(
 
 
 @pytest.mark.parametrize(
+    ("source", "model_output", "required_terms"),
+    [
+        (
+            "코스닥",
+            "Junior market.",
+            ("KOSDAQ",),
+        ),
+        (
+            "최태원 SK그룹 회장, SK하이닉스 ADR 상장 기념식 직접 참석",
+            "Chairman Chey Tae-won attended the listing ceremony.",
+            ("SK", "SK hynix", "ADR"),
+        ),
+        (
+            "눈치보기 장세 펼쳐진 코스피, 7200선 마감…개인은 2조원 순매도",
+            "The market closed lower as retail investors sold heavily.",
+            ("KOSPI", "7,200", "2 trillion"),
+        ),
+    ],
+)
+def test_korean_translation_repairs_short_qwen_titles_before_quality_gate(
+    source: str,
+    model_output: str,
+    required_terms: tuple[str, ...],
+) -> None:
+    client = FakeTranslationClient(json_translation(model_output))
+    generator = KoreanTranslationGenerator(
+        enabled=True,
+        client=client,
+        local_glossary_enabled=False,
+        model_name="test-qwen3-translation",
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source, source_type="NEWS"))
+
+    assert result.status == "TRANSLATED"
+    assert result.provider in {
+        "local-open-source-qwen3-translation",
+        "article-grounded-ko-en-translation",
+    }
+    assert result.quality_flags == []
+    assert not re.search(r"[가-힣\u3400-\u4dbf\u4e00-\u9fff]", result.translated_text)
+    for term in required_terms:
+        assert term in result.translated_text
+
+
+@pytest.mark.parametrize(
     "translated",
     [
-        "韓Korean stock market \" \"",
+        '韓Korean stock market " "',
         "KOSPI 3%↑",
         "[ ] KOSPI, 239.85p(3.31%) 7486.64",
         "KOSPI·, [ ]",

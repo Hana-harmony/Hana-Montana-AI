@@ -77,8 +77,7 @@ def main() -> None:
         "split_counts": split_counts,
         "training": training_result,
         "serving_note": (
-            "운영 t4g.medium에서는 병합/양자화된 GGUF를 llama.cpp OpenAI-compatible "
-            "server로 띄우고 HANNAH_NEWS_SUMMARY_LLM_ENDPOINT로 연결한다."
+            "운영에서는 Qwen3 GGUF를 띄우고 HANNAH_NEWS_SUMMARY_LLM_ENDPOINT로 연결한다."
         ),
     }
     args.report_path.parent.mkdir(parents=True, exist_ok=True)

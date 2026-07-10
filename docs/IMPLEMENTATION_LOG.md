@@ -1,5 +1,11 @@
 # 구현 기록
 
+## 2026-07-09 한국어 전문 번역 모델 상향
+- 실제 뉴스 전문 수집 검증에서 Qwen3-0.6B LoRA가 제목 오역, 한국어 잔존, 전문 축약으로 strict translation gate를 통과하지 못하는 문제가 확인됐다.
+- 전문 번역, 뉴스 요약, 한국 금융 용어, 글로벌 피어 설명의 운영 기본값을 Qwen3-4B GGUF Q4로 통일했다.
+- 전문 번역은 `HANNAH_KOREAN_TRANSLATION_LLM_MODEL=Qwen3-4B-GGUF-Q4`, timeout 120초, max tokens 2048로 조정했다.
+- `scripts/run_qwen3_4b_gguf.sh`를 추가해 로컬 Mac과 OCI A1 Flex ARM CPU 환경 모두 Qwen3-4B GGUF Q4 방식으로 같은 경로를 검증하게 했다.
+
 ## 2026-07-08 세무 서류 실제 OCR API 연결
 - `/api/v1/tax/documents/verify`가 `document_content_base64` 이미지/PDF payload를 받으면 임시 파일로 격리한 뒤 `PaddleOCREngine`과 `hanah_tax_ocr` parser/reviewer를 실행하도록 연결했다.
 - `extracted_text`만 받은 기존 협력사 계약은 rule gate로 유지하되, 파일 payload는 실제 OCR confidence를 응답 `ocr_confidence`로 반환한다.
@@ -9,23 +15,23 @@
 
 ## 2026-07-05 한국어 전문 번역 Qwen3 LLM 실제 serving 전환
 - GPT/DeepL 의존 번역 경로와 분리해 `HANNAH_KOREAN_TRANSLATION_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 번역기를 실제 API serving 경로에 연결했다.
-- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 호출한다.
-- `POST /api/v1/translation/ko-en`을 추가하고, disabled 기본값에서는 `LOCAL_TRANSLATION_DISABLED` source fallback만 반환하게 했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_translation_qwen3_lora`를 재현용으로 유지하고, 운영은 Qwen3-4B GGUF Q4를 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 호출한다.
+- `POST /api/v1/translation/ko-en`을 추가하고, disabled 기본값에서는 번역문을 비워 실패 상태를 반환하게 했다.
 - `data/training/korean_translation_sft.jsonl` 39건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 420 iters 학습했다. train split 31, valid 4, test 4, final train loss 0.019, final validation loss 0.025를 기록했다.
 - raw Qwen3 generation 평가는 뉴스·공시·localism 대표 4건 기준 4/4 pass다. `Ants`, `Samjeon Nix`, `bellwether stock`, `treasury-share cancellation`, `trading-halt`, `remediation plan` 같은 필수 표면형을 검증한다.
 - 출력 gate는 한글 잔존, 원문 반환, 요약 축약, 말줄임표, meta/refusal, glossary localism 누락을 모두 실패 처리한다.
 
 ## 2026-07-05 뉴스·공시 What/Why/Impact Qwen3 요약 LLM 실제 serving 전환
 - 사용자 지적에 따라 뉴스·공시 3줄 요약이 rule fallback과 문서상 후보에 머무르던 상태를 수정하고, `HANNAH_NEWS_SUMMARY_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 생성기를 실제 `AlertAnalyzer` serving 경로에 연결했다.
-- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 호출한다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/news_summary_qwen3_lora`를 재현용으로 유지하고, 운영은 Qwen3-4B GGUF Q4를 `HANNAH_NEWS_SUMMARY_LLM_ENDPOINT`로 호출한다.
 - Qwen 입력은 full content가 있을 때만 사용하며, 출력은 strict JSON `{what, why, impact}`와 영어 한 문장 3개, 생략부호 금지, 중요도·감성 메타 금지, 투자 조언 금지, 원문 근거 매칭 gate를 통과해야 채택된다.
 - `data/training/news_summary_wwi_sft.jsonl` 128건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 480 iters 학습했다. train split 116, valid 6, test 6, peak memory 1.422GB, test perplexity 1.000을 기록했다.
 - raw Qwen3 generation 평가는 뉴스·공시 대표 5건 기준 JSON valid 5/5, 영어 문장 5/5, grounded 5/5, pass rate 1.0이다.
 - 로컬 API smoke에서 뉴스와 공시 full-content 요청 모두 영어 What/Why/Impact 세 문장으로 응답함을 확인했다.
 
 ## 2026-07-05 한국 금융 용어 Qwen3 설명 LLM 실제 serving 전환
-- 사용자 지적에 따라 한국 금융 용어 RAG가 사전과 OpenAI fallback만 쓰던 상태를 수정하고, `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3-0.6B LoRA 설명기를 실제 API serving 경로에 연결했다.
-- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 직접 로드하고, t4g.medium 운영은 Qwen3-0.6B GGUF Q4 sidecar를 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 호출한다.
+- 사용자 지적에 따라 한국 금융 용어 RAG가 사전에 머무르던 상태를 수정하고, `HANNAH_KOREAN_FINANCIAL_TERM_GENERATION_MODE=local_llm`에서 Qwen3 설명기를 실제 API serving 경로에 연결했다.
+- 로컬은 `mlx-community/Qwen3-0.6B-4bit`와 `src/hannah_montana_ai/model_store/korean_term_qwen3_explainer_lora`를 재현용으로 유지하고, 운영은 Qwen3-4B GGUF Q4를 `HANNAH_KOREAN_FINANCIAL_TERM_LLM_ENDPOINT`로 호출한다.
 - `earnings`, `Foreign investors` 같은 일반 영어 금융 단어는 glossary 후보에서 제외하고, 한글 클릭 용어와 기사 evidence가 있을 때만 local Qwen 생성으로 보낸다.
 - `삼전닉스`를 seed glossary에 추가해 `Samjeon Nix` alias도 Samsung Electronics와 SK hynix 묶음 표현으로 dictionary-backed explanation을 제공한다.
 - `data/training/korean_financial_term_explanation_sft.jsonl` 362건을 생성하고 `mlx-community/Qwen3-0.6B-4bit` LoRA를 520 iters 학습했다. final validation loss 0.005, test loss 0.007, test perplexity 1.007, peak memory 1.498GB를 기록했다.
@@ -35,8 +41,8 @@
 - 요약 rule engine에서 글자 수 hard cut을 제거하고 문장 경계 기반 truncate로 바꿨다.
 - snippet 생략부호와 중요도·감성·classification 메타 문장을 요약 후보에서 제외한다.
 - impact가 분류 설명으로 노출되지 않도록 투자자 영향/확인 문장 fallback을 추가했다.
-- Qwen은 live 요약 기본값으로 도입하지 않고, `reports/news-summary-llm-readiness-report.json`에 MacBook M4 Pro 24GB 학습 실측 근거와 운영 CPU sidecar guard를 남겼다.
-- 로컬 번역 baseline은 `local-financial-glossary-v2`로 유지하고, GPT 번역 비교는 OmniLens `reports/openai-translation-smoke-report.json`과 join key로 연결한다.
+- Qwen은 live 요약 품질 gate 뒤에서만 채택하고, `reports/news-summary-llm-readiness-report.json`에 MacBook M4 Pro 24GB 학습 실측 근거와 운영 CPU guard를 남겼다.
+- 로컬 번역 baseline은 `local-financial-glossary-v2`로 유지하고, 운영 전문 번역은 Qwen3 품질 gate를 통과한 결과만 채택한다.
 
 ## 2026-07-03 옴니렌즈 AI 품질 하드닝
 - 뉴스·공시 What/Why/Impact 요약에서 공시 배경 문장과 투자자 영향 문장이 뒤바뀌는 문제를 수정했다. reason/impact keyword를 분리하고 투자자 행동 문장은 impact 후보로 우선 배치한다.
@@ -80,7 +86,7 @@
 
 ## 2026-06-30 글로벌 피어 Qwen3 설명 LLM 학습
 - 글로벌 피어 매칭은 기존 hybrid ranker가 담당하고, headline/summary만 구조화 근거 기반 설명 생성기로 분리했다.
-- `GlobalPeerExplanationGenerator`를 추가해 기본은 deterministic grounded template을 사용하고, `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`일 때 OpenAI-compatible local LLM endpoint를 호출하도록 했다.
+- `GlobalPeerExplanationGenerator`를 추가해 `HANNAH_GLOBAL_PEER_EXPLANATION_MODE=local_llm`일 때 Qwen3 endpoint를 호출하도록 했다.
 - LLM 출력은 JSON, 종목명, peer명 또는 허용 축약명, ticker/섹터/산업/사업모델 uppercase token, 금지 투자조언 문구를 검증하며 실패하면 template으로 fallback한다.
 - Codex 검수로 학습 target 문체를 정리했다. sector/industry를 1순위 근거로 쓰고, 재무/규모는 strict size match가 아니라 US-market reference인지 설명하도록 변경했다.
 - anchor `display_name`을 추가해 알테오젠처럼 stock universe 영문명이 비어 있는 종목도 글로벌 투자자용 표시명을 유지한다. raw Qwen3가 display name을 누락하면 실제 API는 grounded guard에서 template fallback을 사용한다.
@@ -88,7 +94,7 @@
 - MLX 학습용 split은 train 3,571 / valid 198 / test 198이다.
 - `mlx-community/Qwen3-0.6B-4bit`를 LoRA로 500 iters 학습했다. trainable parameter는 1.442M / 596.050M, final validation loss 0.014, test loss 0.000, test perplexity 1.000, peak memory 1.830GB를 기록했다.
 - adapter는 `src/hannah_montana_ai/model_store/global_peer_qwen3_explainer_lora/adapters.safetensors`와 `adapter_config.json`에 저장했다.
-- 운영 t4g.medium은 GPU가 없으므로 API 프로세스 내 로딩이 아니라 Qwen3-0.6B GGUF Q4를 llama.cpp OpenAI-compatible server로 띄우고 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`로 연결하는 구조를 문서화했다.
+- 운영 CPU 환경은 API 프로세스 내 로딩이 아니라 Qwen3-4B GGUF Q4를 띄우고 `HANNAH_GLOBAL_PEER_LLM_ENDPOINT`로 연결하는 구조를 문서화했다.
 
 ## 2026-06-28 외국인 취득한도 제한 종목 ML 학습
 - 정정: 전체 국내주식 full-universe 학습은 외국인 취득한도 경고 목적의 운영 universe가 아니다. 외국인 취득한도 제한 종목만 학습/평가/promotion 대상이어야 하므로 기존 full-universe artifact/report/benchmark는 `restricted_universe_not_applied` 사유로 `guarded` 또는 `invalidated` 처리했다.
@@ -1071,7 +1077,7 @@
 
 - `k-finance-term-rag-v2` 계약을 추가해 한국 금융 신조어/고유어 클릭 해설을 Hannah AI에서 생성할 수 있게 했다.
 - `data/reference/korean_financial_terms_seed.json`에 개미, 대장주, 따따블, 품절주, 쩜상, 밸류업 등 초기 high-frequency 용어 seed를 추가했다.
-- `KoreanFinancialTermExplanationService`는 seed 사전 hit, 기사 문맥 RAG, OpenAI Responses API web search fallback provider, 검수 필요 fallback을 분리한다.
+- `KoreanFinancialTermExplanationService`는 seed 사전 hit, 기사 문맥 Qwen3 RAG, 검수 필요 상태를 분리한다.
 - `POST /api/v1/korean-financial-terms/explain` API를 추가했다.
 - `scripts/evaluate_korean_financial_term_explainer.py`와 `data/evaluation/korean_financial_term_explanation_gold.jsonl`을 추가해 seed/unknown 경로를 평가한다.
 - 현재 `reports/korean-financial-term-explanation-eval.json` 기준 샘플 11건 정확도 1.0, 사전 커버리지 0.909091, 캐시 가능률 0.909091, quality gate pass다.

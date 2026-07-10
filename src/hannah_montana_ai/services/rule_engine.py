@@ -388,7 +388,7 @@ class FinancialRuleEngine:
             if sentence not in selected:
                 continue
             next_length = current_length + len(sentence) + (1 if cleaned_sentences else 0)
-            if next_length > 20_000:
+            if next_length > 60_000:
                 break
             cleaned_sentences.append(sentence)
             current_length = next_length
