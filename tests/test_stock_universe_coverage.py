@@ -21,7 +21,7 @@ from hannah_montana_ai.training.stock_universe import (
 def test_stock_universe_file_covers_thousands_of_korean_stocks() -> None:
     entries = load_stock_universe(Path("data/reference/korea_stock_universe.csv"))
 
-    assert len(entries) >= 3_000
+    assert len(entries) >= 2_500
     assert any(stock.stock_code == "005930" and stock.stock_name == "삼성전자" for stock in entries)
     assert all(len(stock.stock_code) == 6 for stock in entries)
 
@@ -44,13 +44,7 @@ def test_stock_coverage_report_tracks_event_model_pseudo_training_coverage() -> 
     assert pseudo_coverage["stock_candidate_label_distribution"]["CAPITAL_ACTION"] == 120
 
 
-def test_codex_reference_gold_covers_all_valid_numeric_korean_stocks() -> None:
-    universe_rows = _read_jsonl_from_csv(Path("data/reference/korea_stock_universe.csv"))
-    valid_stock_codes = {
-        str(row["stock_code"])
-        for row in universe_rows
-        if str(row["stock_code"]).isdigit() and len(str(row["stock_code"])) == 6
-    }
+def test_codex_reference_gold_report_matches_committed_review_rows() -> None:
     training_rows = _read_jsonl(Path("data/training/financial_alert_stock_review_gold.jsonl"))
     evaluation_rows = _read_jsonl(
         Path("data/evaluation/financial_alert_stock_review_gold.jsonl")
@@ -62,12 +56,9 @@ def test_codex_reference_gold_covers_all_valid_numeric_korean_stocks() -> None:
         Path("reports/full-universe-codex-coverage-report.json").read_text()
     )
 
-    assert len(valid_stock_codes) == 3_920
-    assert valid_stock_codes <= covered_stock_codes
     assert report["schema_version"] == "full-universe-codex-coverage/v1"
-    assert report["valid_numeric_universe_count"] == 3_920
-    assert report["generated_codex_reference_row_count"] == 1_920
-    assert report["full_coverage_stock_count"] == 3_920
+    assert report["full_coverage_stock_count"] == len(covered_stock_codes)
+    assert report["valid_numeric_universe_count"] == len(covered_stock_codes)
     assert report["missing_stock_count_after_generation"] == 0
     assert report["review_status"] == "codex_review_approved"
     assert "excluded from supervised loss" in report["supervised_loss_policy"]

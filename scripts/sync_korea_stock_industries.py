@@ -23,7 +23,8 @@ def sync_korea_stock_industries(
     stocks = load_stock_universe(settings.stock_universe_path)
     existing = load_korea_industry_profiles(settings.global_peer_korea_industry_path)
     rows = dict(existing)
-    pending = [stock for stock in stocks if stock.stock_code not in rows]
+    # 업종·비교군은 변경되므로 활성 universe 전체를 매번 갱신한다.
+    pending = stocks
     failures: list[dict[str, str]] = []
 
     with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:

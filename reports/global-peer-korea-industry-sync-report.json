@@ -1,514 +1,514 @@
 {
   "schema_version": "global-peer-korea-industry-sync/v1",
-  "generated_at": "2026-06-30T04:05:46.364867+00:00",
+  "generated_at": "2026-07-11T03:34:14.306300+00:00",
   "source": "NAVER_STOCK_INDUSTRY_COMPARE",
-  "stock_universe_count": 3967,
-  "existing_count_before_sync": 2649,
-  "attempted_count": 1318,
-  "profile_count": 2649,
-  "specific_profile_count": 2451,
-  "generic_profile_count": 198,
-  "failure_count": 1211,
+  "stock_universe_count": 2752,
+  "existing_count_before_sync": 2742,
+  "attempted_count": 2752,
+  "profile_count": 2742,
+  "specific_profile_count": 2566,
+  "generic_profile_count": 176,
+  "failure_count": 188,
   "failures": [
     {
-      "stock_code": "000470",
-      "stock_name": "그린손해보험",
+      "stock_code": "203690",
+      "stock_name": "아크솔루션스",
       "reason": "HTTP Error 409: 409"
     },
     {
-      "stock_code": "000380",
-      "stock_name": "대아건설",
+      "stock_code": "222160",
+      "stock_name": "NPX",
       "reason": "HTTP Error 409: 409"
     },
     {
-      "stock_code": "000420",
-      "stock_name": "로케트전기",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "439090",
+      "stock_name": "마녀공장",
+      "reason": "<urlopen error _ssl.c:993: The handshake operation timed out>"
     },
     {
-      "stock_code": "000110",
-      "stock_name": "한국스탠다드차타드은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "439580",
+      "stock_name": "블루엠텍",
+      "reason": "<urlopen error _ssl.c:993: The handshake operation timed out>"
     },
     {
-      "stock_code": "000360",
-      "stock_name": "삼환기업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "439260",
+      "stock_name": "대한조선",
+      "reason": "<urlopen error _ssl.c:993: The handshake operation timed out>"
     },
     {
-      "stock_code": "000060",
-      "stock_name": "메리츠화재해상보험",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "437730",
+      "stock_name": "삼현",
+      "reason": "The read operation timed out"
     },
     {
-      "stock_code": "000010",
-      "stock_name": "신한은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "438700",
+      "stock_name": "버넥트",
+      "reason": "The read operation timed out"
     },
     {
-      "stock_code": "000030",
-      "stock_name": "우리은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "439960",
+      "stock_name": "코스모로보틱스",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001280",
-      "stock_name": "우리증권",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "440110",
+      "stock_name": "파두",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001150",
-      "stock_name": "서통",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "440290",
+      "stock_name": "HB인베스트먼트",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "000800",
-      "stock_name": "경남기업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "440320",
+      "stock_name": "오픈놀",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "000610",
-      "stock_name": "제일화재해상보험",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "441270",
+      "stock_name": "파인엠텍",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001190",
-      "stock_name": "마이크로닉스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "443250",
+      "stock_name": "레뷰코퍼레이션",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "000830",
-      "stock_name": "삼성물산",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "443670",
+      "stock_name": "에스피소프트",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "000790",
-      "stock_name": "씨앤상선",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "443060",
+      "stock_name": "HD현대마린솔루션",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001140",
-      "stock_name": "국보",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "445180",
+      "stock_name": "퓨릿",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001300",
-      "stock_name": "제일모직",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "445090",
+      "stock_name": "에이직랜드",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001590",
-      "stock_name": "일화모직공업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "444530",
+      "stock_name": "심플랫폼",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001580",
-      "stock_name": "신광기업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "446840",
+      "stock_name": "지슨",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001370",
-      "stock_name": "FnC코오롱",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "445680",
+      "stock_name": "큐리옥스바이오시스템즈",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001310",
-      "stock_name": "풍림산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "446070",
+      "stock_name": "유니드비티플러스",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001670",
-      "stock_name": "경남모직",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "446440",
+      "stock_name": "에피바이오텍",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001490",
-      "stock_name": "천지산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "446540",
+      "stock_name": "메가터치",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001600",
-      "stock_name": "서광건설산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "447690",
+      "stock_name": "아이오바이오",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001880",
-      "stock_name": "디엘건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "448280",
+      "stock_name": "에코아이",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001830",
-      "stock_name": "동부일렉트로닉스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "448710",
+      "stock_name": "코츠테크놀로지",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001890",
-      "stock_name": "아이파크영창",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "450080",
+      "stock_name": "에코프로머티",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001950",
-      "stock_name": "남한제지",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "450520",
+      "stock_name": "인스웨이브",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001970",
-      "stock_name": "에스지신성건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "448780",
+      "stock_name": "마이크로엔엑스",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "001980",
-      "stock_name": "대호",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "450330",
+      "stock_name": "하스",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "002000",
-      "stock_name": "생고뱅코리아홀딩스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "448900",
+      "stock_name": "한국피아이엠",
+      "reason": "<urlopen error timed out>"
     },
     {
-      "stock_code": "002250",
-      "stock_name": "알보젠코리아",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452200",
+      "stock_name": "민테크",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002300",
-      "stock_name": "한국제지",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452160",
+      "stock_name": "제이엔비",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002540",
-      "stock_name": "고제",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452190",
+      "stock_name": "한빛레이저",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002270",
-      "stock_name": "롯데푸드",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "451760",
+      "stock_name": "컨텍",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002530",
-      "stock_name": "벽산건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452260",
+      "stock_name": "한화갤러리아",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002480",
-      "stock_name": "범양사",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452450",
+      "stock_name": "피아이이",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "002850",
-      "stock_name": "영풍산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452300",
+      "stock_name": "캡스톤파트너스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "002550",
-      "stock_name": "KB손해보험",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452430",
+      "stock_name": "사피엔반도체",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "002670",
-      "stock_name": "미주제강",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452400",
+      "stock_name": "이닉스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "002860",
-      "stock_name": "하나은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "452280",
+      "stock_name": "한선엔지니어링",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003020",
-      "stock_name": "남양",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "451220",
+      "stock_name": "아이엠티",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "003040",
-      "stock_name": "한일약품공업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "451250",
+      "stock_name": "삐아",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002950",
-      "stock_name": "두산건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "450950",
+      "stock_name": "아스테라시스",
+      "reason": "<urlopen error [Errno 51] Network is unreachable>"
     },
     {
-      "stock_code": "002930",
-      "stock_name": "삼도물산",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "453860",
+      "stock_name": "에이에스텍",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003050",
-      "stock_name": "링세오코리아",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "454910",
+      "stock_name": "두산로보틱스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003190",
-      "stock_name": "알앤엘재생의학연구소",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "453340",
+      "stock_name": "현대그린푸드",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003330",
-      "stock_name": "하나IB증권",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "455180",
+      "stock_name": "케이지에이",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003450",
-      "stock_name": "케이비증권",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "453450",
+      "stock_name": "그리드위즈",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003410",
-      "stock_name": "쌍용씨앤이",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "455900",
+      "stock_name": "엔젤로보틱스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003590",
-      "stock_name": "광덕물산",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456010",
+      "stock_name": "아이씨티케이",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003560",
-      "stock_name": "아이에이치큐",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456040",
+      "stock_name": "OCI",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003660",
-      "stock_name": "고려시멘트",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456190",
+      "stock_name": "큐라켐",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003600",
-      "stock_name": "SK",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456070",
+      "stock_name": "이엔셀",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003900",
-      "stock_name": "동원데어리푸드",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456570",
+      "stock_name": "아이엠지티",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003640",
-      "stock_name": "유니온스틸",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "456160",
+      "stock_name": "지투지바이오",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003930",
-      "stock_name": "부흥",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "457190",
+      "stock_name": "이수스페셜티케미컬",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003940",
-      "stock_name": "삼양제넥스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "457370",
+      "stock_name": "한켐",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "003990",
-      "stock_name": "BHK",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "457600",
+      "stock_name": "벡트",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004130",
-      "stock_name": "대덕GDS",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "457550",
+      "stock_name": "우진엔텍",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004190",
-      "stock_name": "스마텔",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "459510",
+      "stock_name": "나우로보틱스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004200",
-      "stock_name": "고려개발",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "459550",
+      "stock_name": "알트",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004230",
-      "stock_name": "세신",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "458650",
+      "stock_name": "성우",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004010",
-      "stock_name": "롯데미도파",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "459100",
+      "stock_name": "위츠",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004320",
-      "stock_name": "호반산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "458350",
+      "stock_name": "에스팀",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004510",
-      "stock_name": "디와이홀딩스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "458870",
+      "stock_name": "씨어스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004530",
-      "stock_name": "에스와이",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460470",
+      "stock_name": "아이빔테크놀로지",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004550",
-      "stock_name": "대우송도개발",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460850",
+      "stock_name": "동국씨엠",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004620",
-      "stock_name": "캠브리지코오롱",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460860",
+      "stock_name": "동국제강",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004660",
-      "stock_name": "신동방CP",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460870",
+      "stock_name": "에스엠씨지",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004740",
-      "stock_name": "보루네오가구",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460930",
+      "stock_name": "현대힘스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004790",
-      "stock_name": "렉스엘이앤지",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462350",
+      "stock_name": "이노스페이스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004940",
-      "stock_name": "하나은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462310",
+      "stock_name": "뉴키즈온",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "004820",
-      "stock_name": "조인에너지",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "461300",
+      "stock_name": "아이스크림미디어",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005190",
-      "stock_name": "동성화학",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "461030",
+      "stock_name": "아이엠비디엑스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005270",
-      "stock_name": "아이엠뱅크",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "460940",
+      "stock_name": "피앤에스로보틱스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005330",
-      "stock_name": "카스코",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462510",
+      "stock_name": "라메디텍",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005350",
-      "stock_name": "심팩인더스트리",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462870",
+      "stock_name": "시프트업",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005280",
-      "stock_name": "부산은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462860",
+      "stock_name": "더즌",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005390",
-      "stock_name": "신성통상",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462520",
+      "stock_name": "조선내화",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005450",
-      "stock_name": "신한",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "463020",
+      "stock_name": "뉴엔AI",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005600",
-      "stock_name": "중앙제지",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "462980",
+      "stock_name": "아이지넷",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005560",
-      "stock_name": "제이에스전선",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "463480",
+      "stock_name": "모티브링크",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005620",
-      "stock_name": "대성합동지주",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "464080",
+      "stock_name": "에스오에스랩",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005760",
-      "stock_name": "위너스인프라인",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "464280",
+      "stock_name": "티디에스팜",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005890",
-      "stock_name": "동원증권",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "464500",
+      "stock_name": "아이언디바이스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005900",
-      "stock_name": "동양건설산업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "465320",
+      "stock_name": "교보15호스팩",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "005980",
-      "stock_name": "성지건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "464490",
+      "stock_name": "쿼드메디슨",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006210",
-      "stock_name": "휴리프",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "464580",
+      "stock_name": "닷밀",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006150",
-      "stock_name": "한메엔에스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "466100",
+      "stock_name": "클로봇",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006070",
-      "stock_name": "기린",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "465480",
+      "stock_name": "인스피언",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006350",
-      "stock_name": "전북은행",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "465770",
+      "stock_name": "STX그린로지스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006250",
-      "stock_name": "극동전선",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "466410",
+      "stock_name": "사이냅소프트",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006440",
-      "stock_name": "한일건설",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "466690",
+      "stock_name": "키움히어로제1호스팩",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006390",
-      "stock_name": "한일현대시멘트",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "467930",
+      "stock_name": "IBKS제23호스팩",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006580",
-      "stock_name": "대양제지공업",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "469480",
+      "stock_name": "IBKS제24호스팩",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "007050",
-      "stock_name": "유리이에스",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "468530",
+      "stock_name": "프로티나",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006750",
-      "stock_name": "센추리",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "469610",
+      "stock_name": "이노테크",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "006600",
-      "stock_name": "동신제약",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "468760",
+      "stock_name": "유진스팩10호",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     },
     {
-      "stock_code": "007150",
-      "stock_name": "동양텔레콤",
-      "reason": "HTTP Error 409: 409"
+      "stock_code": "469750",
+      "stock_name": "아이비젼웍스",
+      "reason": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
     }
   ]
 }
