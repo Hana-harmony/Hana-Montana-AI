@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Literal, cast
 
@@ -25,6 +26,7 @@ from hannah_montana_ai.services.model import (
     ModelArtifactNotFoundError,
 )
 from hannah_montana_ai.training.global_peer_trainer import (
+    CURATED_GLOBAL_BRAND_TIERS,
     GENERIC_LISTED_INDUSTRY,
     GENERIC_LISTED_SECTOR,
     GLOBAL_PEER_SCHEMA_VERSION,
@@ -43,6 +45,403 @@ from hannah_montana_ai.training.stock_universe import StockUniverseEntry
 ConfidenceLevel = Literal["LOW", "MEDIUM", "HIGH"]
 PAIRWISE_CANDIDATE_POOL_SIZE = 512
 COMPARISON_LIMIT = 3
+StrengthSignal = tuple[
+    str,
+    str,
+    GlobalPeerStrengthIconKey,
+    tuple[str, ...],
+]
+STRENGTH_SIGNALS: tuple[StrengthSignal, ...] = (
+    (
+        "Memory Technology",
+        "Its disclosed portfolio includes DRAM, NAND, HBM, or next-generation memory products.",
+        "memory",
+        ("dram", "nand", "hbm", "memory", "메모리"),
+    ),
+    (
+        "Foundry Capability",
+        "The company discloses foundry or advanced semiconductor manufacturing capabilities.",
+        "foundry",
+        ("foundry", "파운드리", "선단 공정", "선단공정"),
+    ),
+    (
+        "AI Technology",
+        "AI products, infrastructure, or AI-led technology development are stated priorities.",
+        "ai",
+        ("artificial intelligence", " ai ", "ai ", " ai", "인공지능"),
+    ),
+    (
+        "Consumer Devices",
+        "Its disclosed product portfolio spans consumer devices, electronics, or appliances.",
+        "consumer_electronics",
+        ("스마트폰", "가전", "tv", "consumer device", "전자 제품"),
+    ),
+    (
+        "Battery Technology",
+        "Battery cells, energy storage, or rechargeable-battery technology anchors the business.",
+        "battery",
+        ("이차전지", "2차전지", "배터리", "battery", "energy storage"),
+    ),
+    (
+        "Advanced Materials",
+        "The disclosed portfolio includes advanced materials or critical production inputs.",
+        "materials",
+        ("양극소재", "양극활물질", "nca", "ncm", "첨단소재", "신소재"),
+    ),
+    (
+        "Vehicle Manufacturing",
+        "Vehicle manufacturing and new-model execution are identified as core operations.",
+        "automotive",
+        ("자동차 제조", "자동차제조", "차량부문", "automobile manufacturing"),
+    ),
+    (
+        "Mobility Portfolio",
+        "Mobility services, vehicle technology, or transportation solutions broaden its reach.",
+        "automotive",
+        ("모빌리티", "mobility", "전기차", " ev ", "전동화"),
+    ),
+    (
+        "Banking Network",
+        "Banking operations and a domestic or global branch network underpin the franchise.",
+        "financial_services",
+        ("은행업", "은행", "banking", "금융지주"),
+    ),
+    (
+        "Capital Markets",
+        "Securities, investment, trust, or asset-management operations diversify earnings.",
+        "financial_services",
+        (
+            "금융투자",
+            "증권업",
+            "증권 사업",
+            "증권사",
+            "하나증권",
+            "자산운용",
+            "자산신탁",
+            "capital-market",
+        ),
+    ),
+    (
+        "Payments and Cards",
+        "Payments, cards, or consumer-finance services extend the customer ecosystem.",
+        "payments",
+        ("신용카드", "카드업", "결제", "payments", "할부금융", "페이"),
+    ),
+    (
+        "Insurance Services",
+        "Life or non-life insurance operations add recurring financial-service exposure.",
+        "financial_services",
+        ("생명보험", "손해보험", "보험업", "insurance"),
+    ),
+    (
+        "Digital Platform",
+        "A software, messaging, portal, or cloud platform forms a core customer channel.",
+        "software_platform",
+        (
+            "플랫폼 부문",
+            "플랫폼 사업",
+            "소프트웨어 플랫폼",
+            "온라인 플랫폼",
+            "디지털 플랫폼",
+            "메신저",
+            "포털",
+            "software platform",
+            "cloud",
+        ),
+    ),
+    (
+        "Commerce Ecosystem",
+        "Commerce, merchant, advertising, or marketplace services expand monetization.",
+        "commerce",
+        ("커머스", "톡비즈", "광고", "marketplace", "merchant", "commerce"),
+    ),
+    (
+        "Content Portfolio",
+        "Music, story, media, gaming, or entertainment content diversifies the platform.",
+        "media",
+        ("콘텐츠", "뮤직", "스토리", "게임", "엔터테인먼트", "media content"),
+    ),
+    (
+        "Biotechnology Platform",
+        "Biotechnology, biologics, or pharmaceutical capabilities support the growth pipeline.",
+        "biotechnology",
+        ("바이오", "의약품", "신약", "biotech", "biologics", "pharma"),
+    ),
+    (
+        "Drug-Delivery Technology",
+        "Drug-delivery, formulation, or licensing technology is a disclosed platform strength.",
+        "drug_delivery",
+        ("약물전달", "피하주사", "제형", "drug delivery", "subcutaneous", "licensing"),
+    ),
+    (
+        "Telecom Network",
+        "Telecommunications and network infrastructure provide recurring service reach.",
+        "telecommunications",
+        ("통신", "5g", "무선", "telecom", "network infrastructure"),
+    ),
+    (
+        "Energy Infrastructure",
+        "Power, generation, renewable-energy, or energy infrastructure anchors operations.",
+        "energy",
+        ("발전", "전력", "신재생", "에너지", "power generation", "renewable"),
+    ),
+    (
+        "Industrial Solutions",
+        "Manufacturing, machinery, defense, rail, or plant capabilities support industrial demand.",
+        "industrial",
+        ("제조", "기계", "디펜스", "레일", "플랜트", "industrial"),
+    ),
+    (
+        "Product Portfolio",
+        "Portfolio expansion or business diversification broadens the addressable market.",
+        "ecosystem",
+        ("제품 포트폴리오", "포트폴리오 다각화", "사업 다각화", "다각화된"),
+    ),
+    (
+        "Biomanufacturing Scale",
+        "CDMO, contract manufacturing, or disclosed production capacity supports global supply.",
+        "biotechnology",
+        ("cdmo", "위탁생산", "생산능력", "cmo", "공정 개발"),
+    ),
+    (
+        "Aviation Network",
+        "Domestic and international routes provide a scaled passenger-transport network.",
+        "industrial",
+        ("항공운송", "항공 여객", "국제항공", "취항", "노선개설"),
+    ),
+    (
+        "Passenger and Cargo",
+        "Passenger and cargo services diversify aviation revenue and network utilization.",
+        "commerce",
+        ("여객·화물", "여객 및 화물", "여객운송", "화물 운송", "화물사업"),
+    ),
+    (
+        "Fleet Operations",
+        "A disclosed aircraft fleet and operating model support route capacity and efficiency.",
+        "industrial",
+        ("항공기", "여객기", "기대", "lcc", "안전 운항"),
+    ),
+    (
+        "Aerospace Capability",
+        "Aerospace, aircraft maintenance, drones, or defense programs extend technical depth.",
+        "industrial",
+        ("항공우주", "군용기", "무인기", "드론", "mro", "항공기체"),
+    ),
+    (
+        "Broadcast Network",
+        "Broadcast channels, satellite, cable, or nationwide distribution provide audience reach.",
+        "media",
+        ("방송서비스", "위성방송", "유선방송", "방송채널", "방송사업자"),
+    ),
+    (
+        "Digital Broadcasting",
+        "HD, UHD, or digital broadcasting technology differentiates the viewing service.",
+        "media",
+        ("uhd", " hd ", "h.264", "디지털방송", "다채널"),
+    ),
+    (
+        "Wireless Connectivity",
+        "Mobile, wireless-data, or 5G services anchor recurring connectivity demand.",
+        "telecommunications",
+        ("이동통신", "이동전화", "무선데이터", "5g 가입자", "무선통신"),
+    ),
+    (
+        "Broadband and IPTV",
+        "Broadband, IPTV, or fixed-line services diversify the communications portfolio.",
+        "telecommunications",
+        ("초고속인터넷", "iptv", "유선통신", "유선 통신", "브로드밴드"),
+    ),
+    (
+        "Cloud Infrastructure",
+        "Cloud, compute, storage, network, or GPU infrastructure supports enterprise workloads.",
+        "software_platform",
+        ("클라우드", "cpu", "gpu", "storage", "인프라 서비스", "ito"),
+    ),
+    (
+        "IT Services",
+        "System integration, managed IT, or enterprise services provide recurring demand.",
+        "software_platform",
+        ("it서비스", "it 서비스", " si ", "시스템 통합", "기업용 소프트웨어"),
+    ),
+    (
+        "Logistics Network",
+        "Logistics, distribution, or fulfillment capabilities support end-to-end delivery.",
+        "industrial",
+        ("물류", "지상조업", "배송", "풀필먼트", "logistics"),
+    ),
+    (
+        "Electronic Components",
+        "Electronic components, modules, substrates, or passive devices anchor the product mix.",
+        "consumer_electronics",
+        ("전자부품", "카메라모듈", "패키지기판", "수동소자", "광학솔루션"),
+    ),
+    (
+        "Power Grid",
+        "Generation, transmission, distribution, or electricity sales form "
+        "essential infrastructure.",
+        "energy",
+        ("송전", "변전", "배전", "전기판매", "전력자원", "스마트그리드"),
+    ),
+    (
+        "Energy Transition",
+        "Hydrogen, ammonia, ESS, renewables, or carbon-neutral projects expand future options.",
+        "energy",
+        ("수소", "암모니아", "ess", "탄소중립", "수소경제", "원전 수출"),
+    ),
+    (
+        "LNG Infrastructure",
+        "LNG supply, pipelines, storage, or resource development supports "
+        "national energy delivery.",
+        "energy",
+        ("천연가스", "lng", "배관망", "탱크로리", "자원개발", "벙커링"),
+    ),
+    (
+        "Protection Products",
+        "Life-stage protection products cover death, illness, disability, or accidents.",
+        "financial_services",
+        ("보장성 보험", "사망", "질병", "장애", "사고", "보험상품"),
+    ),
+    (
+        "Retirement Solutions",
+        "Pension, savings, or senior-living products address long-duration customer needs.",
+        "financial_services",
+        ("연금", "저축성", "노후대비", "시니어리빙", "생애 단계"),
+    ),
+    (
+        "Subsidiary Portfolio",
+        "A disclosed subsidiary portfolio broadens operating capabilities across adjacent markets.",
+        "ecosystem",
+        ("종속회사", "자회사", "연결대상 종속회사", "연결대상종속회사"),
+    ),
+    (
+        "Market Leadership",
+        "Disclosed market leadership, share, or competitive positioning supports brand strength.",
+        "global_business",
+        ("국내 1위", "시장을 선도", "시장 선도", "시장을 선도", "시장 경쟁력", "점유"),
+    ),
+    (
+        "Production Expansion",
+        "Capacity expansion, acquisitions, or new facilities support future production growth.",
+        "operational_scale",
+        ("생산능력을", "생산능력 ", "생산 능력", "증설", "사업을 확장", "사업 확장"),
+    ),
+    (
+        "Advanced Modalities",
+        "Next-generation modalities or process technologies extend the development pipeline.",
+        "biotechnology",
+        ("mrna", "adc", "세포주", "차세대 모달리티", "바이오시밀러"),
+    ),
+    (
+        "Biosimilar Portfolio",
+        "Approved biosimilars and direct commercialization broaden global product reach.",
+        "biotechnology",
+        ("바이오시밀러", "품목허가", "항체", "자가면역질환", "종양 치료"),
+    ),
+    (
+        "Robotics Growth",
+        "Robotics, actuators, or intelligent-home initiatives create adjacent growth options.",
+        "industrial",
+        ("로봇", "액추에이터", "ai홈", "양자컴퓨터"),
+    ),
+    (
+        "Advertising Revenue",
+        "Advertising, sponsorship, or retransmission provides monetization for media reach.",
+        "media",
+        ("방송광고", "협찬", "재송신", "광고 수익", "광고수익"),
+    ),
+    (
+        "Content Production",
+        "Content production, investment, distribution, or channel operations support the slate.",
+        "media",
+        ("콘텐트 제작", "영화 제작", "투자 배급", "채널운영", "프로그램"),
+    ),
+    (
+        "Cinema Network",
+        "Cinema sites and theatrical distribution provide direct consumer reach.",
+        "media",
+        ("멀티플렉스", "영화관", "메가박스", "흥행작"),
+    ),
+    (
+        "Leisure Operations",
+        "Leisure venues or experience-based businesses diversify the operating portfolio.",
+        "commerce",
+        ("레저", "골프장", "놀이터", "공연·행사", "문화사업"),
+    ),
+    (
+        "Security Services",
+        "Security monitoring or security software adds enterprise-service exposure.",
+        "software_platform",
+        ("보안관제", "보안소프트웨어", "security monitoring"),
+    ),
+    (
+        "Low-Cost Operations",
+        "A low-cost carrier model and efficiency program support competitive unit economics.",
+        "operational_scale",
+        ("저비용항공사", "lcc 운영", "저비용 구조", "연료 효율"),
+    ),
+    (
+        "Sales Channels",
+        "Direct, digital, and partner sales channels broaden customer acquisition.",
+        "commerce",
+        ("직접 판매", "간접 판매", "온라인 채널", "대리점 파트너십", "판매법인"),
+    ),
+    (
+        "Regional Audience",
+        "A defined regional footprint and network agreements support local audience reach.",
+        "media",
+        ("방송권역", "시청권역", "지역 민영방송", "네트워크 협정"),
+    ),
+    (
+        "Petrochemical Portfolio",
+        "Petrochemicals, industrial resins, or agricultural inputs diversify material demand.",
+        "materials",
+        ("석유화학", " pvc", " abs", "작물보호제", "종자", "비료 사업"),
+    ),
+    (
+        "Multi-Division Operations",
+        "Multiple disclosed business divisions provide a diversified operating base.",
+        "ecosystem",
+        ("사업부문으로", "사업부문을", "사업부문에서", "사업본부", "개 사업부문"),
+    ),
+    (
+        "Digital Vouchers",
+        "Mobile vouchers, barcode, or QR delivery connects digital payments and commerce.",
+        "payments",
+        ("모바일상품권", "기프티쇼", "qr코드", "바코드", "디지털 유통"),
+    ),
+    (
+        "Broadcast Commerce",
+        "TV or data-broadcast commerce combines media distribution with retail conversion.",
+        "commerce",
+        ("t커머스", "데이터방송", "tv 방송 플랫폼", "쇼핑 운영"),
+    ),
+    (
+        "Digital Media",
+        "Online, mobile, or paid content expands digital audience and subscription reach.",
+        "media",
+        ("뉴미디어", "온라인 콘텐츠", "유료 콘텐츠", "경제 전문 미디어", "스마트플랫폼"),
+    ),
+    (
+        "Specialty Finance",
+        "Specialty lending or finance subsidiaries diversify media or platform earnings.",
+        "financial_services",
+        ("여신전문금융업", "에이캐피탈", "specialty finance"),
+    ),
+    (
+        "Global Reach",
+        "The disclosed operating footprint includes global customers, exports, "
+        "or overseas networks.",
+        "global_business",
+        ("글로벌", "전세계", "해외", "수출", "global network"),
+    ),
+    (
+        "Technology Innovation",
+        "Product innovation, advanced technology, or research and development "
+        "supports differentiation.",
+        "global_business",
+        ("기술력", "기술 개발", "연구개발", "innovation", "r&d", "제품 차별화"),
+    ),
+)
 
 
 class GlobalPeerMatcher:
@@ -75,6 +474,11 @@ class GlobalPeerMatcher:
         }
         self._us_market_cap_percentiles = self._market_cap_percentiles(self._eligible_us_profiles)
         self._korea_profiles = dict(payload["korea_profiles"])
+        self._korea_profile_by_name = {
+            str(profile.get("display_name") or "").strip(): profile
+            for profile in self._korea_profiles.values()
+            if str(profile.get("display_name") or "").strip()
+        }
         self._explainer = explainer or GlobalPeerExplanationGenerator()
 
     def match(self, request: GlobalPeerMatchRequest) -> GlobalPeerMatchResponse:
@@ -247,55 +651,103 @@ class GlobalPeerMatcher:
             self._company_family(self._eligible_us_profiles[index])
             for index in selected_indices
         }
-        strict_modes = (
-            (True, False)
-            if dimension in {"overall_business", "operational_scale"}
-            else (True,)
-        )
-        for strict in strict_modes:
-            best_index: int | None = None
-            best_score = float("-inf")
-            for index in ranked_indices[:PAIRWISE_CANDIDATE_POOL_SIZE]:
-                if index in selected_indices:
-                    continue
-                profile = self._eligible_us_profiles[index]
-                if self._company_family(profile) in selected_families:
-                    continue
-                dimension_fit = self._dimension_fit(dimension, profile)
-                if strict and not self._comparison_domain_compatible(
-                    stock_profile,
-                    profile,
-                    dimension,
-                    dimension_fit,
-                ):
-                    continue
-                familiarity = self._score(profile.get("familiarity_score"))
-                completeness = self._score(profile.get("profile_completeness_score"))
-                reliability = self._score(profile.get("market_cap_reliability_score"))
-                redundancy = max(
-                    (
-                        self._profile_redundancy(
-                            profile,
-                            self._eligible_us_profiles[selected],
-                        )
-                        for selected in selected_indices
-                    ),
-                    default=0.0,
-                )
-                score = (
-                    float(similarities[index])
-                    + (0.14 * dimension_fit)
-                    + (0.10 * familiarity)
-                    + (0.06 * completeness)
-                    + (0.02 * reliability)
-                    - (0.16 * redundancy)
-                )
-                if score > best_score:
-                    best_index = index
-                    best_score = score
-            if best_index is not None:
-                return best_index
+        candidate_indices = list(ranked_indices[:PAIRWISE_CANDIDATE_POOL_SIZE])
+        for ticker in CURATED_GLOBAL_BRAND_TIERS:
+            index = self._eligible_us_index_by_ticker.get(ticker)
+            if index is not None and index not in candidate_indices:
+                candidate_indices.append(index)
+        for curated_only in (True, False):
+            for strict in (True, False):
+                best_index: int | None = None
+                best_score = float("-inf")
+                for index in candidate_indices:
+                    if index in selected_indices:
+                        continue
+                    profile = self._eligible_us_profiles[index]
+                    if self._company_family(profile) in selected_families:
+                        continue
+                    ticker = str(profile.get("identifier") or "")
+                    brand_tier = CURATED_GLOBAL_BRAND_TIERS.get(ticker, 0.0)
+                    if curated_only and brand_tier <= 0.0:
+                        continue
+                    dimension_fit = (
+                        self._overall_business_fit(stock_profile, profile)
+                        if dimension == "overall_business"
+                        else self._dimension_fit(dimension, profile)
+                    )
+                    if strict and not self._comparison_domain_compatible(
+                        stock_profile,
+                        profile,
+                        dimension,
+                        dimension_fit,
+                    ):
+                        continue
+                    if not strict and dimension != "overall_business" and dimension_fit < 0.5:
+                        continue
+                    familiarity = self._score(profile.get("familiarity_score"))
+                    completeness = self._score(profile.get("profile_completeness_score"))
+                    reliability = self._score(profile.get("market_cap_reliability_score"))
+                    redundancy = max(
+                        (
+                            self._profile_redundancy(
+                                profile,
+                                self._eligible_us_profiles[selected],
+                            )
+                            for selected in selected_indices
+                        ),
+                        default=0.0,
+                    )
+                    score = (
+                        float(similarities[index])
+                        + (0.18 * dimension_fit)
+                        + (0.12 * familiarity)
+                        + (0.30 * brand_tier)
+                        + (0.06 * completeness)
+                        + (0.02 * reliability)
+                        - (0.16 * redundancy)
+                    )
+                    if score > best_score:
+                        best_index = index
+                        best_score = score
+                if best_index is not None:
+                    return best_index
         return None
+
+    @staticmethod
+    def _overall_business_fit(
+        stock_profile: dict[str, object],
+        peer_profile: dict[str, object],
+    ) -> float:
+        if GlobalPeerMatcher._is_aviation_profile(stock_profile):
+            return GlobalPeerMatcher._dimension_fit("industrial", peer_profile)
+        business_dimension = GlobalPeerMatcher._dimension_for(
+            str(stock_profile.get("business_model") or "")
+        )
+        if business_dimension != "operational_scale":
+            return GlobalPeerMatcher._dimension_fit(business_dimension, peer_profile)
+        dimensions = [
+            GlobalPeerMatcher._dimension_for_icon(signal[2])
+            for _, _, signal in GlobalPeerMatcher._profile_strength_signals(stock_profile)[:2]
+        ]
+        domain_dimensions = [
+            dimension
+            for dimension in dimensions
+            if dimension not in {"overall_business", "operational_scale"}
+        ]
+        if not domain_dimensions:
+            return GlobalPeerMatcher._dimension_fit("overall_business", peer_profile)
+        return max(
+            GlobalPeerMatcher._dimension_fit(dimension, peer_profile)
+            for dimension in domain_dimensions
+        )
+
+    @staticmethod
+    def _is_aviation_profile(stock_profile: dict[str, object]) -> bool:
+        business_summary = str(stock_profile.get("business_summary") or "").lower()
+        return any(
+            term in business_summary
+            for term in ("항공운송", "저비용항공사", "항공기", "여객기")
+        )
 
     @staticmethod
     def _comparison_domain_compatible(
@@ -310,13 +762,23 @@ class GlobalPeerMatcher:
         peer_sector = str(peer_profile.get("sector") or "Unclassified")
         stock_industry = str(stock_profile.get("industry") or "Unclassified")
         peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        if GlobalPeerMatcher._is_aviation_profile(stock_profile) and dimension in {
+            "overall_business",
+            "industrial",
+            "commerce",
+            "operational_scale",
+        }:
+            return peer_industry == "Airlines" and dimension_fit >= 0.5
         if (
             stock_sector not in generic_sectors
             and peer_sector not in generic_sectors
             and stock_sector != peer_sector
         ):
-            return False
+            if dimension != "overall_business" or not stock_profile.get("business_summary"):
+                return False
         if dimension in {"overall_business", "operational_scale"}:
+            if dimension == "overall_business" and stock_profile.get("business_summary"):
+                return dimension_fit >= 0.5
             return stock_industry in generic_industries or peer_industry == stock_industry
         return dimension_fit >= 0.5
 
@@ -333,16 +795,51 @@ class GlobalPeerMatcher:
     def _general_comparison_dimensions(
         stock_profile: dict[str, object],
     ) -> list[GlobalPeerComparisonDimension]:
-        raw_tags = stock_profile.get("business_tags", [])
-        tags = [str(tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
         dimensions: list[GlobalPeerComparisonDimension] = ["overall_business"]
-        for value in [*tags, str(stock_profile.get("industry") or "")]:
-            dimension = GlobalPeerMatcher._dimension_for(value)
+        for _, _, (_, _, icon_key, _) in GlobalPeerMatcher._profile_strength_signals(
+            stock_profile
+        ):
+            dimension = GlobalPeerMatcher._dimension_for_icon(icon_key)
+            if dimension not in dimensions:
+                dimensions.append(dimension)
+        if len(dimensions) == 1:
+            dimension = GlobalPeerMatcher._dimension_for(
+                str(stock_profile.get("industry") or "")
+            )
             if dimension not in dimensions:
                 dimensions.append(dimension)
         if "operational_scale" not in dimensions:
             dimensions.append("operational_scale")
         return dimensions
+
+    @staticmethod
+    def _dimension_for_icon(
+        icon_key: GlobalPeerStrengthIconKey,
+    ) -> GlobalPeerComparisonDimension:
+        mappings: dict[GlobalPeerStrengthIconKey, GlobalPeerComparisonDimension] = {
+            "memory": "memory",
+            "foundry": "foundry",
+            "ai": "semiconductor",
+            "ecosystem": "overall_business",
+            "semiconductor": "semiconductor",
+            "consumer_electronics": "consumer_electronics",
+            "software_platform": "software_platform",
+            "financial_services": "financial_services",
+            "payments": "payments",
+            "biotechnology": "biotechnology",
+            "drug_delivery": "drug_delivery",
+            "battery": "battery",
+            "automotive": "automotive",
+            "telecommunications": "telecommunications",
+            "energy": "energy",
+            "materials": "materials",
+            "industrial": "industrial",
+            "commerce": "commerce",
+            "media": "media",
+            "global_business": "operational_scale",
+            "operational_scale": "operational_scale",
+        }
+        return mappings[icon_key]
 
     @staticmethod
     def _dimension_for(value: str) -> GlobalPeerComparisonDimension:
@@ -408,8 +905,21 @@ class GlobalPeerMatcher:
             "telecommunications": ("telecom", "wireless", "network"),
             "energy": ("energy", "power", "oil", "gas"),
             "materials": ("material", "chemical", "steel", "metal"),
-            "industrial": ("industrial", "machinery", "construction", "engineering"),
-            "commerce": ("retail", "commerce", "merchant", "consumer"),
+            "industrial": (
+                "industrial",
+                "machinery",
+                "construction",
+                "engineering",
+                "aerospace",
+                "aviation",
+            ),
+            "commerce": (
+                "retail",
+                "commerce",
+                "merchant",
+                "consumer",
+                "passenger transportation",
+            ),
             "media": ("media", "content", "gaming", "entertainment"),
             "operational_scale": ("mega cap", "large cap", "mid cap", "scale"),
             "overall_business": (),
@@ -469,14 +979,6 @@ class GlobalPeerMatcher:
             ]
 
         subject = GlobalPeerExplanationGenerator._stock_display_name(request)
-        business_summary = str(stock_profile.get("business_summary") or "").strip()
-        evidence_label = (
-            "company business summary and industry profile"
-            if business_summary
-            else "industry and market profile"
-        )
-        raw_tags = stock_profile.get("business_tags", [])
-        tags = [str(tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
         strengths: list[GlobalPeerKeyStrength] = []
         seen_titles: set[str] = set()
         seen_descriptions: set[str] = set()
@@ -500,52 +1002,43 @@ class GlobalPeerMatcher:
                 )
             )
 
-        for tag in tags:
-            if tag == "general listed company":
-                continue
-            title = GlobalPeerMatcher._title_label(tag)
-            add(
-                title,
-                f"{subject}'s {evidence_label} identifies {tag} as a core operating area.",
-                tag,
-            )
+        for _, _, (
+            title,
+            description,
+            icon_key,
+            _,
+        ) in GlobalPeerMatcher._profile_strength_signals(stock_profile):
+            add(title, description, icon_key)
 
-        industry = str(stock_profile.get("industry") or "")
-        if industry not in {"", "Unclassified", GENERIC_LISTED_INDUSTRY}:
-            add(
-                "Industry Position",
-                f"{subject} is classified in {industry}, grounding its cross-market peer set.",
-                industry,
-            )
-        business_model = str(stock_profile.get("business_model") or "Operating company")
-        add(
-            "Business Model",
-            f"{subject} operates through {business_model.lower()}.",
-            business_model,
-        )
-        scale_bucket = str(stock_profile.get("scale_bucket") or "UNKNOWN")
-        scale_label = scale_bucket.replace("_", " ").lower()
-        add(
-            "Operational Scale",
-            f"{subject} is evaluated as a {scale_label} company in the global peer universe.",
-            "operational scale",
-        )
-        sector = str(stock_profile.get("sector") or GENERIC_LISTED_SECTOR)
-        add(
-            "Sector Footprint",
-            f"{subject}'s source profile places its primary operations in {sector}.",
-            sector,
-        )
-        add(
-            "Global Business",
-            f"{subject} has a complete listed-company profile for global reference analysis.",
-            "global business",
-        )
         if len(strengths) != 4:
             raise ModelArtifactInvalidError(
-                "Global peer strength generation must produce four items"
+                f"Company evidence is insufficient for four key strengths: {subject}"
             )
         return strengths
+
+    @staticmethod
+    def _profile_strength_signals(
+        stock_profile: dict[str, object],
+    ) -> list[tuple[int, int, StrengthSignal]]:
+        business_summary = str(stock_profile.get("business_summary") or "").strip()
+        raw_tags = stock_profile.get("business_tags", [])
+        tags = [str(tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
+        evidence = " ".join(
+            value
+            for value in (
+                business_summary,
+                str(stock_profile.get("industry") or ""),
+                str(stock_profile.get("business_model") or ""),
+                "" if business_summary else " ".join(tags),
+            )
+            if value
+        ).lower()
+        ranked: list[tuple[int, int, StrengthSignal]] = []
+        for index, signal in enumerate(STRENGTH_SIGNALS):
+            matches = sum(keyword.lower() in evidence for keyword in signal[3])
+            if matches:
+                ranked.append((matches, -index, signal))
+        return sorted(ranked, reverse=True)
 
     @staticmethod
     def _title_label(value: str) -> str:
@@ -553,7 +1046,32 @@ class GlobalPeerMatcher:
 
     @staticmethod
     def _strength_icon_key(value: str) -> GlobalPeerStrengthIconKey:
-        normalized = value.lower()
+        normalized = value.lower().replace("_", " ")
+        direct_keys = {
+            "memory",
+            "foundry",
+            "ai",
+            "ecosystem",
+            "semiconductor",
+            "consumer electronics",
+            "software platform",
+            "financial services",
+            "payments",
+            "biotechnology",
+            "drug delivery",
+            "battery",
+            "automotive",
+            "telecommunications",
+            "energy",
+            "materials",
+            "industrial",
+            "commerce",
+            "media",
+            "global business",
+            "operational scale",
+        }
+        if normalized in direct_keys:
+            return cast(GlobalPeerStrengthIconKey, normalized.replace(" ", "_"))
         mappings: tuple[tuple[tuple[str, ...], GlobalPeerStrengthIconKey], ...] = (
             (("memory", "dram", "nand", "hbm"), "memory"),
             (("foundry", "fab"), "foundry"),
@@ -628,6 +1146,9 @@ class GlobalPeerMatcher:
 
     def _stock_profile(self, request: GlobalPeerMatchRequest) -> dict[str, object]:
         existing = self._korea_profiles.get(request.stock_code)
+        if existing is None:
+            base_name = re.sub(r"(?:\d+)?우B?$", "", request.stock_name).strip()
+            existing = self._korea_profile_by_name.get(base_name)
         if existing is not None:
             profile = cast(dict[str, object], existing).copy()
             enrichment = " ".join(

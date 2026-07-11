@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import joblib
+import pytest
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest
 from hannah_montana_ai.services.global_peer_explainer import (
@@ -8,7 +9,9 @@ from hannah_montana_ai.services.global_peer_explainer import (
     GlobalPeerExplanationGenerator,
 )
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
+from hannah_montana_ai.services.model import ModelArtifactInvalidError
 from hannah_montana_ai.training.global_peer_trainer import (
+    CURATED_GLOBAL_BRAND_TIERS,
     KoreaCompanyProfile,
     clean_security_name,
     infer_business_tags_from_company_summary,
@@ -114,6 +117,60 @@ def test_non_curated_comparison_is_complete_and_unique() -> None:
     assert len(response.key_strengths) == 4
 
 
+def test_company_summary_drives_non_samsung_strengths_and_familiar_peers() -> None:
+    matcher = GlobalPeerMatcher(MODEL_PATH)
+    cases = [
+        (
+            "035720",
+            "카카오",
+            "Kakao",
+            "KOSPI",
+            {"Digital Platform", "Content Portfolio", "Mobility Portfolio", "Payments and Cards"},
+        ),
+        (
+            "005380",
+            "현대자동차",
+            "Hyundai Motor",
+            "KOSPI",
+            {
+                "Industrial Solutions",
+                "Vehicle Manufacturing",
+                "Mobility Portfolio",
+                "Subsidiary Portfolio",
+            },
+        ),
+        (
+            "247540",
+            "에코프로비엠",
+            "EcoPro BM",
+            "KOSDAQ",
+            {
+                "Battery Technology",
+                "Advanced Materials",
+                "Product Portfolio",
+                "Industrial Solutions",
+            },
+        ),
+    ]
+
+    for code, name, english_name, market, expected_titles in cases:
+        response = matcher.match(
+            GlobalPeerMatchRequest(
+                stock_code=code,
+                stock_name=name,
+                stock_name_en=english_name,
+                market=market,
+            )
+        )
+
+        assert {strength.title for strength in response.key_strengths} == expected_titles
+        assert all(
+            comparison.peer.ticker in CURATED_GLOBAL_BRAND_TIERS
+            for comparison in response.comparisons
+        )
+        assert all("core operating area" not in item.description for item in response.key_strengths)
+
+
 def test_explanation_generator_is_always_template_backed() -> None:
     request = GlobalPeerMatchRequest(
         stock_code="035420",
@@ -151,6 +208,7 @@ def test_global_peer_artifact_is_serving_only_and_github_safe() -> None:
     payload = joblib.load(MODEL_PATH)
 
     assert MODEL_PATH.stat().st_size < 95_000_000
+    assert MODEL_PATH.stat().st_mode & 0o444 == 0o444
     assert "korea_business_profile_classifier" not in payload
     assert payload["eligible_us_matrix"].shape[1] <= 100_000
     assert payload["semantic_reducer"].components_.shape[0] <= 192
@@ -192,15 +250,40 @@ def test_korea_company_profile_roundtrip_preserves_summary(tmp_path: Path) -> No
 
 
 def test_unknown_english_name_does_not_leak_korean_or_internal_score() -> None:
-    response = GlobalPeerMatcher(MODEL_PATH).match(
-        GlobalPeerMatchRequest(stock_code="000010", stock_name="신한은행", market="KOSPI")
-    )
-    user_copy = f"{response.stock_name_en} {response.headline} {response.summary}"
+    with pytest.raises(ModelArtifactInvalidError, match="Company evidence is insufficient"):
+        GlobalPeerMatcher(MODEL_PATH).match(
+            GlobalPeerMatchRequest(
+                stock_code="000010",
+                stock_name="신한은행",
+                market="KOSPI",
+            )
+        )
 
-    assert response.stock_name_en == "Korean stock 000010"
-    assert "신한은행" not in user_copy
-    assert "similarity score" not in user_copy.lower()
-    assert "confidence" not in user_copy.lower()
+
+def test_preferred_share_reuses_issuer_company_evidence() -> None:
+    matcher = GlobalPeerMatcher(MODEL_PATH)
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="003495",
+            stock_name="대한항공우",
+            stock_name_en="Korean Air Preferred",
+            market="KOSPI",
+        )
+    )
+    issuer_response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code="003490",
+            stock_name="대한항공",
+            stock_name_en="Korean Air",
+            market="KOSPI",
+        )
+    )
+
+    assert len(response.key_strengths) == 4
+    assert [item.title for item in response.key_strengths] == [
+        item.title for item in issuer_response.key_strengths
+    ]
+    assert [item.peer.ticker for item in response.comparisons] == ["DAL", "UAL", "AAL"]
 
 
 def test_request_accepts_krx_alphanumeric_codes() -> None:

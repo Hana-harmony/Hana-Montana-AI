@@ -5,6 +5,7 @@ import pytest
 
 from hannah_montana_ai.core.config import Settings
 from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm
+from hannah_montana_ai.services.analyzer import _contains_glossary_surface
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
@@ -179,6 +180,15 @@ def test_missing_localism_surface_is_rejected() -> None:
     assert generator._glossary_quality_flags("Investors were net buyers.", glossary) == [
         "GLOSSARY_TERM_MISSING:개미"
     ]
+
+
+def test_english_glossary_alias_requires_a_whole_token() -> None:
+    generator = KoreanTranslationGenerator()
+
+    assert _contains_glossary_surface("A market participant bought shares.", "ant") is False
+    assert generator._contains_source_term("A market participant bought shares.", "ant") is False
+    assert _contains_glossary_surface("An Ant bought shares.", "ant") is True
+    assert generator._contains_source_term("An Ant bought shares.", "ant") is True
 
 
 def test_empty_source_returns_source_language_fallback() -> None:
