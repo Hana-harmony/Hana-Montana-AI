@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-ai-smoke/v1",
-  "generated_at": "2026-07-02T19:19:30.774605+00:00",
-  "model_version": "global-peer-hybrid-ranker-20260701011926",
+  "generated_at": "2026-07-11T05:06:13.791673+00:00",
+  "model_version": "global-peer-dynamic-similarity-20260711050601",
   "sample_count": 15,
   "cases": [
     {
@@ -11,48 +11,49 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "MU",
-        "company_name": "Micron Technology",
+        "ticker": "INTC",
+        "company_name": "Intel",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.7494,
+        "similarity_score": 0.5352,
         "business_tags": [
           "semiconductors",
-          "memory chips"
+          "foundry"
         ],
         "sector": "Information Technology",
         "industry": "Semiconductors",
-        "business_model": "Memory semiconductor manufacturing",
+        "business_model": "Integrated semiconductor design and manufacturing",
         "scale_bucket": "MEGA_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 1288603703496.0,
-        "revenue_usd": 37378000000.0,
-        "operating_income_usd": 9770000000.0,
-        "net_income_usd": 8539000000.0,
+        "market_cap_usd": 658355740000.0,
+        "revenue_usd": 52853000000.0,
+        "operating_income_usd": -2214000000.0,
+        "net_income_usd": 26000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
-        "financial_similarity_score": 0.54,
+        "financial_similarity_score": 0.776,
         "matched_factors": [
-          "Sector: both are mapped to Information Technology.",
-          "Industry: both are mapped to Semiconductors.",
-          "Business model: source=Semiconductor and electronics manufacturing, peer=Memory semiconductor manufacturing.",
-          "Scale: both are mapped to MEGA_CAP.",
-          "Financial comparability: market-cap input is treated as directional because the source value looks high relative to revenue; adjusted score 0.5400.",
-          "Model similarity: blended peer score 0.7494."
+          "Sector: Samsung Electronics and Intel map to Information Technology.",
+          "Industry: Samsung Electronics and Intel map to Semiconductors.",
+          "Business model: source=Semiconductor manufacturing or supply chain, peer=Integrated semiconductor design and manufacturing.",
+          "Scale: Samsung Electronics and Intel map to MEGA_CAP.",
+          "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.7760.",
+          "US peer-universe position: MEGA_CAP peer, around the top 0.4% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.5352."
         ],
-        "rationale": "Both companies map to the global semiconductors peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Intel is selected as the global semiconductors reference for Samsung Electronics based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
-        "MU",
-        "STM",
-        "Q",
-        "NXPI",
-        "ON"
+        "INTC",
+        "TSM",
+        "AMD",
+        "ON",
+        "NXPI"
       ],
-      "headline": "Samsung Electronics Maps Closest To 'Micron Technology' — A Semiconductors Peer",
-      "summary": "Samsung Electronics is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductors. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.7494,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "Samsung Electronics Maps Closest To 'Intel' — A Semiconductors Peer",
+      "summary": "Samsung Electronics is matched with Intel as the closest US-listed reference peer for this Korean semiconductor business. Intel provides a semiconductors reference within Information Technology, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Intel is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5352,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -62,48 +63,49 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "MU",
-        "company_name": "Micron Technology",
+        "ticker": "INTC",
+        "company_name": "Intel",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8725,
+        "similarity_score": 0.5403,
         "business_tags": [
           "semiconductors",
-          "memory chips"
+          "foundry"
         ],
         "sector": "Information Technology",
         "industry": "Semiconductors",
-        "business_model": "Memory semiconductor manufacturing",
+        "business_model": "Integrated semiconductor design and manufacturing",
         "scale_bucket": "MEGA_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 1288603703496.0,
-        "revenue_usd": 37378000000.0,
-        "operating_income_usd": 9770000000.0,
-        "net_income_usd": 8539000000.0,
+        "market_cap_usd": 658355740000.0,
+        "revenue_usd": 52853000000.0,
+        "operating_income_usd": -2214000000.0,
+        "net_income_usd": 26000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
-        "financial_similarity_score": 0.54,
+        "financial_similarity_score": 0.772,
         "matched_factors": [
-          "Sector: both are mapped to Information Technology.",
-          "Industry: both are mapped to Semiconductors.",
-          "Business model: both are mapped to Memory semiconductor manufacturing.",
-          "Scale: both are mapped to MEGA_CAP.",
-          "Financial comparability: market-cap input is treated as directional because the source value looks high relative to revenue; adjusted score 0.5400.",
-          "Model similarity: blended peer score 0.8725."
+          "Sector: SK hynix and Intel map to Information Technology.",
+          "Industry: SK hynix and Intel map to Semiconductors.",
+          "Business model: source=Semiconductor manufacturing or supply chain, peer=Integrated semiconductor design and manufacturing.",
+          "Scale: SK hynix and Intel map to MEGA_CAP.",
+          "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.7720.",
+          "US peer-universe position: MEGA_CAP peer, around the top 0.4% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.5403."
         ],
-        "rationale": "Both companies map to the global semiconductors peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Intel is selected as the global semiconductors reference for SK hynix based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "INTC",
         "MU",
-        "NXPI",
-        "STM",
-        "MCHP",
-        "CMG"
+        "TSM",
+        "CMG",
+        "NXPI"
       ],
-      "headline": "SK hynix Maps Closest To 'Micron Technology' — A Semiconductors Peer",
-      "summary": "SK hynix is matched with Micron Technology as the closest US-listed reference peer for this Korean semiconductors. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around semiconductors. Scale and financial data are used as secondary context: Micron Technology is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8725,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "SK hynix Maps Closest To 'Intel' — A Semiconductors Peer",
+      "summary": "SK hynix is matched with Intel as the closest US-listed reference peer for this Korean semiconductor business. Intel provides a semiconductors reference within Information Technology, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Intel is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5403,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -113,50 +115,50 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "GOOGL",
-        "company_name": "Alphabet . Class A",
+        "ticker": "MSFT",
+        "company_name": "Microsoft",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.7795,
+        "similarity_score": 0.4788,
         "business_tags": [
           "software platform",
-          "internet search",
-          "online advertising"
+          "cloud",
+          "artificial intelligence"
         ],
         "sector": "Information Technology",
-        "industry": "Internet Platforms",
-        "business_model": "Platform software, search advertising, and commerce",
+        "industry": "Software",
+        "business_model": "Enterprise software, cloud, and AI platform services",
         "scale_bucket": "MEGA_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 4272949720000.0,
-        "revenue_usd": 402836000000.0,
-        "operating_income_usd": 129039000000.0,
-        "net_income_usd": 73795000000.0,
+        "market_cap_usd": 2732178284131.0,
+        "revenue_usd": 281724000000.0,
+        "operating_income_usd": 128528000000.0,
+        "net_income_usd": 101832000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.9999,
         "matched_factors": [
-          "Sector: both are mapped to Information Technology.",
-          "Industry: both are mapped to Internet Platforms.",
-          "Business model: both are mapped to Platform software, search advertising, and commerce.",
+          "Sector: NAVER and Microsoft map to Information Technology.",
+          "Industry: NAVER and Microsoft map to Software.",
+          "Business model: source=Platform software and recurring services, peer=Enterprise software, cloud, and AI platform services.",
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.1% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7795."
+          "Model similarity: blended peer score 0.4788."
         ],
-        "rationale": "Both companies map to the global software platform peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Microsoft is selected as the global software platform reference for NAVER based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "MSFT",
+        "INTC",
         "GOOGL",
-        "GOOG",
-        "ESE",
-        "PAYC",
-        "FDS"
+        "CRS",
+        "KEYS"
       ],
-      "headline": "NAVER Maps Closest To 'Alphabet' — An Internet Platforms Peer",
-      "summary": "NAVER is matched with Alphabet as the closest US-listed reference peer for this Korean internet platforms. The match is driven first by sector and industry fit: both companies sit in Information Technology and operate around internet platforms. Scale and financial data are used as secondary context: Alphabet is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.7795,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "NAVER Maps Closest To 'Microsoft' — A Software Peer",
+      "summary": "NAVER is matched with Microsoft as the closest US-listed reference peer for this Korean software business. Microsoft provides a software reference within Information Technology, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Microsoft is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.48,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -166,48 +168,48 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "TM",
-        "company_name": "Toyota Motor",
+        "ticker": "GM",
+        "company_name": "General Motors",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8184,
+        "similarity_score": 0.6577,
         "business_tags": [
           "automotive"
         ],
         "sector": "Consumer Discretionary",
         "industry": "Automobiles",
         "business_model": "Automobile manufacturing and mobility supply chain",
-        "scale_bucket": "MEGA_CAP",
+        "scale_bucket": "LARGE_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 270773470027.0,
-        "revenue_usd": 222373000000.0,
-        "operating_income_usd": 14045000000.0,
-        "net_income_usd": 11520000000.0,
+        "market_cap_usd": 70185618779.0,
+        "revenue_usd": 185019000000.0,
+        "operating_income_usd": 2909000000.0,
+        "net_income_usd": 2780000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
-        "financial_similarity_score": 1.0,
+        "financial_similarity_score": 0.9998,
         "matched_factors": [
-          "Sector: both are mapped to Consumer Discretionary.",
-          "Industry: both are mapped to Automobiles.",
-          "Business model: both are mapped to Automobile manufacturing and mobility supply chain.",
-          "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
-          "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
-          "US peer-universe position: MEGA_CAP peer, around the top 1.1% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8184."
+          "Sector: Hyundai Motor and General Motors map to Consumer Discretionary.",
+          "Industry: Hyundai Motor and General Motors map to Automobiles.",
+          "Business model: Hyundai Motor and General Motors map to Automobile manufacturing and mobility supply chain.",
+          "Scale: Hyundai Motor and General Motors map to LARGE_CAP.",
+          "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9998.",
+          "US peer-universe position: LARGE_CAP peer, around the top 4.8% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.6577."
         ],
-        "rationale": "Both companies map to the global automotive peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "General Motors is selected as the global automotive reference for Hyundai Motor based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
-        "TM",
         "GM",
-        "ALV",
-        "AN",
-        "LAD"
+        "CAT",
+        "TM",
+        "ORLY",
+        "MSI"
       ],
-      "headline": "Hyundai Motor Maps Closest To 'Toyota Motor' — An Automotive Peer",
-      "summary": "Hyundai Motor is matched with Toyota Motor as the closest US-listed reference peer for this Korean automotive. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around automobiles. Scale and financial data are used as secondary context: Toyota Motor is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8184,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "Hyundai Motor Maps Closest To 'General Motors' — An Automotive Peer",
+      "summary": "Hyundai Motor is matched with General Motors as the closest US-listed reference peer for this Korean automotive business. General Motors provides a automobiles reference within Consumer Discretionary, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: General Motors is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6577,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -221,7 +223,7 @@
         "company_name": "Tesla",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8302,
+        "similarity_score": 0.6586,
         "business_tags": [
           "battery",
           "automotive"
@@ -238,28 +240,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.9993,
         "matched_factors": [
-          "Sector: both are mapped to Industrials.",
-          "Industry: both are mapped to Battery and Energy Storage.",
-          "Business model: both are mapped to Battery manufacturing and energy storage supply chain.",
+          "Sector: LG Energy Solution and Tesla map to Industrials.",
+          "Industry: LG Energy Solution and Tesla map to Battery and Energy Storage.",
+          "Business model: LG Energy Solution and Tesla map to Battery manufacturing and energy storage supply chain.",
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8302."
+          "Model similarity: blended peer score 0.6586."
         ],
-        "rationale": "Both companies map to the global battery peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Tesla is selected as the global battery reference for LG Energy Solution based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "TSLA",
+        "ALB",
+        "DAL",
         "TDG",
-        "QS",
-        "ABAT",
-        "ELBM"
+        "QS"
       ],
       "headline": "LG Energy Solution Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
-      "summary": "LG Energy Solution is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8302,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "summary": "LG Energy Solution is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. Tesla provides a battery and energy storage reference within Industrials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6586,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -269,49 +271,49 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "TMO",
-        "company_name": "Thermo Fisher Scientific",
-        "exchange": "NYSE",
+        "ticker": "BIIB",
+        "company_name": "Biogen",
+        "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.6355,
+        "similarity_score": 0.5539,
         "business_tags": [
           "biotech",
-          "biologics cdmo"
+          "biologics"
         ],
         "sector": "Health Care",
         "industry": "Biotechnology",
-        "business_model": "Biologics contract development and life-science services",
+        "business_model": "Biologics and specialty drug development",
         "scale_bucket": "LARGE_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 187282353501.0,
-        "revenue_usd": 44556000000.0,
-        "operating_income_usd": 7746000000.0,
-        "net_income_usd": 6721000000.0,
+        "market_cap_usd": 31843849766.0,
+        "revenue_usd": 9890600000.0,
+        "operating_income_usd": 2840700000.0,
+        "net_income_usd": 1292900000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.9998,
         "matched_factors": [
-          "Sector: both are mapped to Health Care.",
-          "Industry: both are mapped to Biotechnology.",
-          "Business model: source=Biologics contract development and manufacturing, peer=Biologics contract development and life-science services.",
-          "Scale: both are mapped to LARGE_CAP.",
+          "Sector: Samsung Biologics and Biogen map to Health Care.",
+          "Industry: Samsung Biologics and Biogen map to Biotechnology.",
+          "Business model: source=Biotechnology research, development, and manufacturing, peer=Biologics and specialty drug development.",
+          "Scale: Samsung Biologics and Biogen map to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9998.",
-          "US peer-universe position: LARGE_CAP peer, around the top 1.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.6355."
+          "US peer-universe position: LARGE_CAP peer, around the top 8.9% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.5539."
         ],
-        "rationale": "Both companies map to the global biotech peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Biogen is selected as the global biotech reference for Samsung Biologics based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
-        "TMO",
         "BIIB",
-        "CPRX",
-        "PTCT",
-        "HALO"
+        "TMO",
+        "HALO",
+        "ZBH",
+        "OHI"
       ],
-      "headline": "Samsung Biologics Maps Closest To 'Thermo Fisher Scientific' — A Biotechnology Peer",
-      "summary": "Samsung Biologics is matched with Thermo Fisher Scientific as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.6355,
+      "headline": "Samsung Biologics Maps Closest To 'Biogen' — A Biotechnology Peer",
+      "summary": "Samsung Biologics is matched with Biogen as the closest US-listed reference peer for this Korean biotechnology. Biogen provides a biotechnology reference within Health Care, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.62,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -325,7 +327,7 @@
         "company_name": "Biogen",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.6905,
+        "similarity_score": 0.5554,
         "business_tags": [
           "biotech",
           "biologics"
@@ -342,28 +344,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.9999,
         "matched_factors": [
-          "Sector: both are mapped to Health Care.",
-          "Industry: both are mapped to Biotechnology.",
-          "Business model: source=Biologics and biosimilar development, peer=Biologics and specialty drug development.",
-          "Scale: both are mapped to LARGE_CAP.",
+          "Sector: Celltrion and Biogen map to Health Care.",
+          "Industry: Celltrion and Biogen map to Biotechnology.",
+          "Business model: source=Biotechnology research, development, and manufacturing, peer=Biologics and specialty drug development.",
+          "Scale: Celltrion and Biogen map to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9999.",
-          "US peer-universe position: LARGE_CAP peer, around the top 8.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.6905."
+          "US peer-universe position: LARGE_CAP peer, around the top 8.9% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.5554."
         ],
-        "rationale": "Both companies map to the global biotech peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Biogen is selected as the global biotech reference for Celltrion based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "BIIB",
-        "TGTX",
-        "INDV",
+        "TMO",
         "HALO",
-        "LGND"
+        "ZBH",
+        "WST"
       ],
       "headline": "Celltrion Maps Closest To 'Biogen' — A Biotechnology Peer",
-      "summary": "Celltrion is matched with Biogen as the closest US-listed reference peer for this Korean biotechnology. The match is driven first by sector and industry fit: both companies sit in Health Care and operate around biotechnology. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.6905,
+      "summary": "Celltrion is matched with Biogen as the closest US-listed reference peer for this Korean biotechnology. Biogen provides a biotechnology reference within Health Care, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Biogen is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.62,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -377,7 +379,7 @@
         "company_name": "Citigroup",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.7494,
+        "similarity_score": 0.5374,
         "business_tags": [
           "banking",
           "financials"
@@ -394,28 +396,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.8355,
         "matched_factors": [
-          "Sector: both are mapped to Financials.",
-          "Industry: both are mapped to Banks.",
-          "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
+          "Sector: KB Financial Group and Citigroup map to Financials.",
+          "Industry: KB Financial Group and Citigroup map to Banks.",
+          "Business model: KB Financial Group and Citigroup map to Banking, spread income, fees, and capital-market services.",
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.8355.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7494."
+          "Model similarity: blended peer score 0.5374."
         ],
-        "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Citigroup is selected as the global banking reference for KB Financial Group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "C",
-        "BAC",
-        "CFR",
-        "COLB",
-        "WAL"
+        "INTC",
+        "JPM",
+        "USB",
+        "MTB"
       ],
       "headline": "KB Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
-      "summary": "KB Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.7494,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "summary": "KB Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. Citigroup provides a banks reference within Financials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5374,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -429,7 +431,7 @@
         "company_name": "Citigroup",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.73,
+        "similarity_score": 0.5352,
         "business_tags": [
           "banking",
           "financials"
@@ -446,28 +448,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.8357,
         "matched_factors": [
-          "Sector: both are mapped to Financials.",
-          "Industry: both are mapped to Banks.",
-          "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
+          "Sector: Shinhan Financial Group and Citigroup map to Financials.",
+          "Industry: Shinhan Financial Group and Citigroup map to Banks.",
+          "Business model: Shinhan Financial Group and Citigroup map to Banking, spread income, fees, and capital-market services.",
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.8357.",
           "US peer-universe position: MEGA_CAP peer, around the top 1.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.7300."
+          "Model similarity: blended peer score 0.5352."
         ],
-        "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Citigroup is selected as the global banking reference for Shinhan Financial Group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "C",
-        "BAC",
-        "CFR",
         "JPM",
-        "COLB"
+        "PYPL",
+        "USB",
+        "MTB"
       ],
       "headline": "Shinhan Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
-      "summary": "Shinhan Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.73,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "summary": "Shinhan Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. Citigroup provides a banks reference within Financials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5352,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -477,11 +479,11 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "C",
-        "company_name": "Citigroup",
+        "ticker": "JPM",
+        "company_name": "JP Morgan Chase &",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.7226,
+        "similarity_score": 0.4865,
         "business_tags": [
           "banking",
           "financials"
@@ -491,34 +493,34 @@
         "business_model": "Banking, spread income, fees, and capital-market services",
         "scale_bucket": "MEGA_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 244827044005.0,
-        "revenue_usd": 85225000000.0,
+        "market_cap_usd": 885417752964.0,
+        "revenue_usd": 182447000000.0,
         "operating_income_usd": null,
-        "net_income_usd": 14452000000.0,
+        "net_income_usd": 49552000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.54,
         "matched_factors": [
-          "Sector: both are mapped to Financials.",
-          "Industry: both are mapped to Banks.",
-          "Business model: both are mapped to Banking, spread income, fees, and capital-market services.",
-          "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
+          "Sector: Hana Financial Group and JP Morgan Chase & map to Financials.",
+          "Industry: Hana Financial Group and JP Morgan Chase & map to Banks.",
+          "Business model: Hana Financial Group and JP Morgan Chase & map to Banking, spread income, fees, and capital-market services.",
+          "Scale: source=UNKNOWN, peer=MEGA_CAP.",
           "Financial comparability: market-cap input is treated as directional because the source value looks high relative to revenue; adjusted score 0.5400.",
-          "Model similarity: blended peer score 0.7226."
+          "Model similarity: blended peer score 0.4865."
         ],
-        "rationale": "Both companies map to the global banking peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "JP Morgan Chase & is selected as the global banking reference for Hana Financial Group based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "JPM",
         "C",
+        "PYPL",
         "PEBO",
-        "BAC",
-        "CFR",
-        "JPM"
+        "GBFH"
       ],
-      "headline": "Hana Financial Group Maps Closest To 'Citigroup' — A Banking Peer",
-      "summary": "Hana Financial Group is matched with Citigroup as the closest US-listed reference peer for this Korean banking. The match is driven first by sector and industry fit: both companies sit in Financials and operate around banks. Scale and financial data are used as secondary context: Citigroup is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.7226,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "Hana Financial Group Maps Closest To 'JP Morgan Chase &' — A Banking Peer",
+      "summary": "Hana Financial Group is matched with JP Morgan Chase & as the closest US-listed reference peer for this Korean banking. JP Morgan Chase & provides a banks reference within Financials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: JP Morgan Chase & is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.52,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -532,7 +534,7 @@
         "company_name": "Dow",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8356,
+        "similarity_score": 0.672,
         "business_tags": [
           "chemicals"
         ],
@@ -548,28 +550,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.9432,
         "matched_factors": [
-          "Sector: both are mapped to Materials.",
-          "Industry: both are mapped to Specialty Chemicals.",
-          "Business model: both are mapped to Chemical and advanced materials manufacturing.",
-          "Scale: both are mapped to LARGE_CAP.",
+          "Sector: LG Chem and Dow map to Materials.",
+          "Industry: LG Chem and Dow map to Specialty Chemicals.",
+          "Business model: LG Chem and Dow map to Chemical and advanced materials manufacturing.",
+          "Scale: LG Chem and Dow map to LARGE_CAP.",
           "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9432.",
-          "US peer-universe position: LARGE_CAP peer, around the top 11.9% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.8356."
+          "US peer-universe position: LARGE_CAP peer, around the top 12.2% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.6720."
         ],
-        "rationale": "Both companies map to the global chemicals peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Dow is selected as the global chemicals reference for LG Chem based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "DOW",
+        "ALB",
+        "TMO",
         "EMN",
-        "RYAM",
-        "OC",
-        "DLTR"
+        "APD"
       ],
       "headline": "LG Chem Maps Closest To 'Dow' — A Specialty Chemicals Peer",
-      "summary": "LG Chem is matched with Dow as the closest US-listed reference peer for this Korean specialty chemicals. The match is driven first by sector and industry fit: both companies sit in Materials and operate around specialty chemicals. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8356,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "summary": "LG Chem is matched with Dow as the closest US-listed reference peer for this Korean specialty chemicals. Dow provides a specialty chemicals reference within Materials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Dow is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.672,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -583,7 +585,7 @@
         "company_name": "Tesla",
         "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.6736,
+        "similarity_score": 0.5674,
         "business_tags": [
           "battery",
           "automotive"
@@ -600,28 +602,28 @@
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.582,
         "matched_factors": [
-          "Sector: both are mapped to Industrials.",
-          "Industry: both are mapped to Battery and Energy Storage.",
-          "Business model: both are mapped to Battery manufacturing and energy storage supply chain.",
+          "Sector: Samsung SDI and Tesla map to Industrials.",
+          "Industry: Samsung SDI and Tesla map to Battery and Energy Storage.",
+          "Business model: Samsung SDI and Tesla map to Battery manufacturing and energy storage supply chain.",
           "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
           "Financial comparability: partial direct similarity; the peer is used as a business-domain proxy with financial score 0.5820.",
           "US peer-universe position: MEGA_CAP peer, around the top 0.2% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.6736."
+          "Model similarity: blended peer score 0.5674."
         ],
-        "rationale": "Both companies map to the global battery peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Tesla is selected as the global battery reference for Samsung SDI based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
         "TSLA",
-        "QS",
-        "ABAT",
+        "ALB",
+        "XOM",
         "TDG",
-        "ELBM"
+        "QS"
       ],
       "headline": "Samsung SDI Maps Closest To 'Tesla' — A Battery and Energy Storage Peer",
-      "summary": "Samsung SDI is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. The match is driven first by sector and industry fit: both companies sit in Industrials and operate around battery and energy storage. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.6736,
+      "summary": "Samsung SDI is matched with Tesla as the closest US-listed reference peer for this Korean battery and energy storage. Tesla provides a battery and energy storage reference within Industrials, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Tesla is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5674,
       "confidence_level": "MEDIUM",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -631,48 +633,49 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "WHR",
-        "company_name": "Whirlpool",
-        "exchange": "NYSE",
+        "ticker": "AAPL",
+        "company_name": "Apple",
+        "exchange": "NASDAQ_GLOBAL_SELECT",
         "country": "US",
-        "similarity_score": 0.8618,
+        "similarity_score": 0.5468,
         "business_tags": [
-          "consumer electronics"
+          "consumer electronics",
+          "software platform"
         ],
         "sector": "Consumer Discretionary",
         "industry": "Consumer Electronics and Appliances",
-        "business_model": "Consumer electronics and appliance manufacturing",
-        "scale_bucket": "MID_CAP",
+        "business_model": "Integrated consumer devices, software, and services ecosystem",
+        "scale_bucket": "MEGA_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 2465871523.0,
-        "revenue_usd": 15524000000.0,
-        "operating_income_usd": 838000000.0,
-        "net_income_usd": 341000000.0,
+        "market_cap_usd": 4136253196720.0,
+        "revenue_usd": 416161000000.0,
+        "operating_income_usd": 133050000000.0,
+        "net_income_usd": 112010000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
-        "financial_similarity_score": 0.9999,
+        "financial_similarity_score": 0.9991,
         "matched_factors": [
-          "Sector: both are mapped to Consumer Discretionary.",
-          "Industry: both are mapped to Consumer Electronics and Appliances.",
-          "Business model: both are mapped to Consumer electronics and appliance manufacturing.",
-          "Scale: source=LARGE_CAP, peer=MID_CAP.",
-          "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MID_CAP); use as a US-market proxy rather than a strict size match.",
-          "US peer-universe position: MID_CAP peer, around the top 38.5% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
-          "Model similarity: blended peer score 0.8618."
+          "Sector: LG Electronics and Apple map to Consumer Discretionary.",
+          "Industry: LG Electronics and Apple map to Consumer Electronics and Appliances.",
+          "Business model: source=Consumer electronics and appliance manufacturing, peer=Integrated consumer devices, software, and services ecosystem.",
+          "Scale: source=LARGE_CAP, peer=MEGA_CAP.",
+          "Financial comparability: strong financial-vector similarity, but scale differs (LARGE_CAP vs MEGA_CAP); use as a US-market proxy rather than a strict size match.",
+          "US peer-universe position: MEGA_CAP peer, around the top 0.1% among eligible US peers; size is interpreted as relative US-market positioning rather than a strict Korean-size match.",
+          "Model similarity: blended peer score 0.5468."
         ],
-        "rationale": "Both companies map to the global consumer electronics peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "Apple is selected as the global consumer electronics reference for LG Electronics based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "AAPL",
+        "INTC",
+        "DAL",
         "WHR",
-        "SONY",
-        "ALV",
-        "AN",
-        "LAD"
+        "SONY"
       ],
-      "headline": "LG Electronics Maps Closest To 'Whirlpool' — A Consumer Electronics and Appliances Peer",
-      "summary": "LG Electronics is matched with Whirlpool as the closest US-listed reference peer for this Korean consumer electronics and appliances. The match is driven first by sector and industry fit: both companies sit in Consumer Discretionary and operate around consumer electronics and appliances. Scale and financial data are used as secondary context: Whirlpool is treated as a mid-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8618,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "LG Electronics Maps Closest To 'Apple' — A Consumer Electronics and Appliances Peer",
+      "summary": "LG Electronics is matched with Apple as the closest US-listed reference peer for this Korean consumer electronics and appliances. Apple provides a consumer electronics and appliances reference within Consumer Discretionary, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Apple is treated as a mega-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.5468,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -682,11 +685,11 @@
       "market": "KOSPI",
       "primary_peer": {
         "rank": 1,
-        "ticker": "VZ",
-        "company_name": "Verizon Communications",
+        "ticker": "T",
+        "company_name": "AT&T",
         "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8203,
+        "similarity_score": 0.6526,
         "business_tags": [
           "telecommunications"
         ],
@@ -695,35 +698,35 @@
         "business_model": "Telecom network subscription services",
         "scale_bucket": "LARGE_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 183160891587.0,
-        "revenue_usd": 138191000000.0,
-        "operating_income_usd": 29259000000.0,
-        "net_income_usd": 17608000000.0,
+        "market_cap_usd": 151473786603.0,
+        "revenue_usd": 125648000000.0,
+        "operating_income_usd": 24162000000.0,
+        "net_income_usd": 23386000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
-        "financial_similarity_score": 0.9996,
+        "financial_similarity_score": 0.9995,
         "matched_factors": [
-          "Sector: both are mapped to Communication Services.",
-          "Industry: both are mapped to Telecommunications.",
-          "Business model: both are mapped to Telecom network subscription services.",
-          "Scale: both are mapped to LARGE_CAP.",
-          "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9996.",
-          "US peer-universe position: LARGE_CAP peer, around the top 1.7% by market cap among eligible US peers.",
-          "Model similarity: blended peer score 0.8203."
+          "Sector: SK Telecom and AT&T map to Communication Services.",
+          "Industry: SK Telecom and AT&T map to Telecommunications.",
+          "Business model: SK Telecom and AT&T map to Telecom network subscription services.",
+          "Scale: SK Telecom and AT&T map to LARGE_CAP.",
+          "Financial comparability: direct market cap, revenue, and profitability similarity score 0.9995.",
+          "US peer-universe position: LARGE_CAP peer, around the top 1.9% by market cap among eligible US peers.",
+          "Model similarity: blended peer score 0.6526."
         ],
-        "rationale": "Both companies map to the global telecommunications peer group based on sector, industry, business model, scale, and trained cross-market profile similarity."
+        "rationale": "AT&T is selected as the global telecommunications reference for SK Telecom based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "T",
         "VZ",
-        "IRDM",
+        "AMD",
         "CHTR",
-        "ZM",
-        "SBAC"
+        "ZM"
       ],
-      "headline": "SK Telecom Maps Closest To 'Verizon Communications' — A Telecommunications Peer",
-      "summary": "SK Telecom is matched with Verizon Communications as the closest US-listed reference peer for this Korean telecommunications. The match is driven first by sector and industry fit: both companies sit in Communication Services and operate around telecommunications. Scale and financial data are used as secondary context: Verizon Communications is treated as a large-cap US-market reference, not as a one-for-one size match.",
-      "confidence_score": 0.8203,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "SK Telecom Maps Closest To 'AT&T' — A Telecommunications Peer",
+      "summary": "SK Telecom is matched with AT&T as the closest US-listed reference peer for this Korean telecommunications business. AT&T provides a telecommunications reference within Communication Services, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: AT&T is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.6526,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     },
     {
@@ -733,49 +736,48 @@
       "market": "KOSDAQ",
       "primary_peer": {
         "rank": 1,
-        "ticker": "HALO",
-        "company_name": "Halozyme Therapeutics",
-        "exchange": "NASDAQ_GLOBAL_SELECT",
+        "ticker": "TMO",
+        "company_name": "Thermo Fisher Scientific",
+        "exchange": "NYSE",
         "country": "US",
-        "similarity_score": 0.8034,
+        "similarity_score": 0.4351,
         "business_tags": [
-          "biotech platform",
-          "drug delivery",
-          "royalty licensing"
+          "biotech",
+          "biologics cdmo"
         ],
         "sector": "Health Care",
         "industry": "Biotechnology",
-        "business_model": "Biotech platform licensing",
-        "scale_bucket": "MID_CAP",
+        "business_model": "Biologics contract development and life-science services",
+        "scale_bucket": "LARGE_CAP",
         "fiscal_year": 2025,
-        "market_cap_usd": 9120153570.0,
-        "revenue_usd": 1396611000.0,
-        "operating_income_usd": 469006000.0,
-        "net_income_usd": 316889000.0,
+        "market_cap_usd": 187282353501.0,
+        "revenue_usd": 44556000000.0,
+        "operating_income_usd": 7746000000.0,
+        "net_income_usd": 6721000000.0,
         "financial_data_source": "SEC_COMPANYFACTS+NASDAQ_SUMMARY_MARKET_CAP",
         "financial_similarity_score": 0.54,
         "matched_factors": [
-          "Sector: both are Health Care companies.",
-          "Industry: both operate in Biotechnology.",
-          "Business model: both monetize platform drug-delivery technology through licensing, milestones, and royalties.",
-          "Technology: both are associated with hyaluronidase-enabled IV-to-SC formulation conversion.",
-          "Scale: both are treated as mid-cap biotech platform peers in the curated anchor set.",
-          "Financial similarity: market cap, revenue, and profitability score 0.5400."
+          "Sector: Alteogen and Thermo Fisher Scientific map to Health Care.",
+          "Industry: Alteogen and Thermo Fisher Scientific map to Biotechnology.",
+          "Business model: source=Biotechnology research, development, and manufacturing, peer=Biologics contract development and life-science services.",
+          "Scale: source=UNKNOWN, peer=LARGE_CAP.",
+          "Financial comparability: market-cap input is treated as directional because the source value looks high relative to revenue; adjusted score 0.5400.",
+          "Model similarity: blended peer score 0.4351."
         ],
-        "rationale": "Both companies are biotech platform providers centered on drug-delivery technology, subcutaneous formulation conversion, and royalty-style licensing."
+        "rationale": "Thermo Fisher Scientific is selected as the global biotech reference for Alteogen based on sector, industry, business model, scale, and trained cross-market profile similarity."
       },
       "peer_tickers": [
+        "TMO",
+        "BIIB",
         "HALO",
         "CPRX",
-        "PTCT",
-        "TGTX",
-        "AHR"
+        "OHI"
       ],
-      "headline": "Alteogen Is The 'Halozyme Therapeutics' of South Korea — A Global Biotech Platform Leader",
-      "summary": "Alteogen is a high-margin Biotech Platform provider. Instead of developing its own new drugs, it licenses out its proprietary drug-delivery technology to global Big Pharma, securing long-term milestone and royalty fees.",
-      "confidence_score": 0.8034,
-      "confidence_level": "HIGH",
-      "model_version": "global-peer-hybrid-ranker-20260701011926",
+      "headline": "Alteogen Maps Closest To 'Thermo Fisher Scientific' — A Biotechnology Peer",
+      "summary": "Alteogen is matched with Thermo Fisher Scientific as the closest US-listed reference peer for this Korean biotechnology. Thermo Fisher Scientific provides a biotechnology reference within Health Care, which is the primary domain signal used for this match. Scale and financial data are used as secondary context: Thermo Fisher Scientific is treated as a large-cap US-market reference, not as a one-for-one size match.",
+      "confidence_score": 0.46,
+      "confidence_level": "MEDIUM",
+      "model_version": "global-peer-dynamic-similarity-20260711050601",
       "source": "HANNAH_GLOBAL_PEER_HYBRID_RANKER"
     }
   ]
