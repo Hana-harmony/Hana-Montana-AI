@@ -833,12 +833,10 @@ class GlobalPeerMatcher:
                 return True
             stock_raw_tags = stock_profile.get("business_tags", [])
             peer_raw_tags = peer_profile.get("business_tags", [])
-            stock_tags = {
-                str(tag).lower() for tag in stock_raw_tags if isinstance(stock_raw_tags, list)
-            }
-            peer_tags = {
-                str(tag).lower() for tag in peer_raw_tags if isinstance(peer_raw_tags, list)
-            }
+            stock_tag_values = stock_raw_tags if isinstance(stock_raw_tags, list) else []
+            peer_tag_values = peer_raw_tags if isinstance(peer_raw_tags, list) else []
+            stock_tags = {str(tag).lower() for tag in stock_tag_values}
+            peer_tags = {str(tag).lower() for tag in peer_tag_values}
             return bool(stock_tags & peer_tags)
         if dimension == "operational_scale":
             return stock_industry in generic_industries or peer_industry == stock_industry
