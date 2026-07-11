@@ -32,8 +32,8 @@
 ## 발표용 핵심 메시지
 - 전일값 유지가 강한 금융 시계열 문제에서도 제한 종목별 routing과 MAPE guard를 적용하면 안정적으로 baseline을 개선할 수 있다.
 - N-HiTS/PatchTST와 동일 walk-forward sample에서 비교했을 때 Hannah 모델이 MAE/RMSE/MAPE 모두 우수하다.
-- 한도수량은 예측 대상이 아니라 예측 보유수량을 한도소진율로 환산하는 분모로만 사용한다.
-- 모델 결과는 주문 차단이 아니라 금일 한도 도달 가능성 사전 고지용 risk boundary에 사용한다.
+- 한도수량은 예측 보유수량을 한도소진율로 환산하는 분모다.
+- 모델 결과는 금일 한도 도달 가능성 사전 고지용 risk boundary다. 주문 차단에는 사용하지 않는다.
 
 ## 산출물
 - 학습 리포트: `reports/foreign-ownership-quantity-training-report.json`

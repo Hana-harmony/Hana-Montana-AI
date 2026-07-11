@@ -1,113 +1,26 @@
-# Git Strategy
+# Git 전략
 
-## 브랜치 전략
-- 기본: `feature` 통합 브랜치 기반 개발 흐름
-- 운영 브랜치: `main`
-- 개발 통합 브랜치: `feature`
-- 작업 브랜치 형식: `<유형>/<기능명>`
-- 유형은 아래 값만 사용한다.
-  - `feat`: 기능 추가
-  - `fix`: 버그 수정
-  - `hotfix`: 긴급 장애 수정
-  - `refactor`: 리팩터링
-  - `chore`: 빌드/설정/의존성 작업
-  - `docs`: 문서 작업
-  - `test`: 테스트 작업
-  - `security`: 보안 작업
-  - `release`: 배포 작업
-- 브랜치명은 영문 소문자 케밥 케이스를 사용한다.
-- 예시:
-  - `feat/amazon-parser`
-  - `fix/token-refresh-bug`
-  - `security/cors-allowlist-hardening`
+## 브랜치
 
-### 브랜치 역할
-- `main`: 운영 배포 기준 브랜치다. `feature`에서 검증 완료된 변경만 PR로 병합한다.
-- `feature`: 기능 통합 브랜치다. 일반 기능/수정/문서 작업 PR의 기본 대상이다.
-- `<유형>/<기능명>`: 실제 구현 브랜치다. 항상 최신 `feature`에서 생성한다.
+- `main`: 운영 release 기준
+- `feature`: 검증된 모델·코드 변경 통합
+- 작업 브랜치: 최신 `feature`에서 생성한 `<type>/<kebab-case-description>`
+- type: `feat`, `fix`, `hotfix`, `refactor`, `docs`, `test`, `security`, `chore`, `release`
 
-### 작업 흐름
-1. `feature` 브랜치를 최신 원격 상태로 동기화한다.
-2. `feature`에서 `<유형>/<기능명>` 작업 브랜치를 생성한다.
-3. 기능 단위 구현과 로컬 검증을 완료한다.
-4. 작업 브랜치에서 `feature` 대상으로 PR을 생성한다.
-5. 개발자가 PR을 검토하고 `feature`에 병합한다.
-6. 배포 적용 시점에 `feature`에서 `main` 대상으로 릴리스 PR을 생성한다.
-7. `main` 병합 후 CI, 이미지 발행, 운영 배포 워크플로를 실행한다.
-
-권장 명령:
 ```bash
 git switch feature
 git pull --ff-only origin feature
-git switch -c feat/example-feature
+git switch -c docs/refresh-current-implementation
 uv run python scripts/verify_harness_git_flow.py --pr-base feature
 ```
 
-릴리스 PR:
-- base: `main`
-- compare: `feature`
-- 목적: `feature`에 누적된 검증 완료 변경을 운영 배포에 반영한다.
-- 병합 후 `main` 기준 운영 배포가 실행된다.
+작업 브랜치 → `feature` PR을 체크 후 병합하고, 이어서 `feature` → `main` release PR을 체크 후 병합한다. 보호 브랜치에 직접 push하지 않는다.
 
-## 커밋 메시지 규칙 (한글 필수)
-Conventional Commits 구조를 따르되 제목과 본문은 모두 한글로 작성한다.
+## 커밋과 PR
 
-형식:
-`type(scope): 제목`
-
-규칙:
-- `type`, `scope`는 영문 키워드를 사용한다.
-- `제목`은 한글로 작성하고 50자 내외로 유지한다.
-- 본문은 왜 변경했는지와 무엇을 어떻게 바꿨는지 작성한다.
-- 본문은 항목형으로 작성한다.
-- 제목과 본문은 존댓말을 쓰지 않고 `~함`, `~다`, 명사형으로 간결하게 끝낸다.
-- 이슈 번호가 있으면 푸터에 `관련 이슈: #번호`로 작성한다.
-
-타입 목록:
-- `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `security`, `perf`, `build`, `ci`, `revert`
-
-커밋 본문 템플릿:
-- 배경: 변경이 필요한 이유
-- 변경: 핵심 변경 사항
-- 검증: 수행한 테스트와 결과
-- 관련 이슈: 이슈 번호(있으면 작성)
-
-로컬 Git 템플릿:
-- `.gitmessage.txt`를 사용한다.
-- 적용 명령: `git config commit.template .gitmessage.txt`
-
-예시:
-- 제목: `feat(extension): 아마존 상품 성분 파서 초안 추가`
-- 본문:
-  - 배경: 아마존 상품 페이지 분석 MVP 범위를 우선 구현해야 함
-  - 변경: 제목/브랜드/성분 영역 추출 로직 추가
-  - 검증: `npm run test:extension` 통과
-  - 관련 이슈: #12
-
-## PR 메시지 규칙 (한글 필수)
-- PR 제목과 본문은 모두 한글로 작성한다.
-- PR 제목은 `type(scope): 한글 제목` 형식으로 변경 목적이 드러나도록 간결하게 작성한다.
-- 단일 커밋 PR의 제목은 대표 커밋 제목 전체와 일치시킨다.
-- PR 제목과 본문은 존댓말을 쓰지 않고 `~함`, `~다`, 명사형으로 간결하게 끝낸다.
-- PR 본문은 아래 템플릿을 사용한다.
-
-PR 본문 템플릿:
-- 배경: 작업 배경과 문제 정의
-- 변경 사항: 주요 변경 내용
-- 검증 결과: 실행한 테스트와 결과
-- 영향 범위: 사용자/시스템 영향
-- 롤백 방법: 문제 발생 시 복구 방법
-- 체크리스트:
-  - [ ] CI 통과
-  - [ ] 보안/민감정보 점검
-  - [ ] 문서 업데이트
-
-## 병합/승인 규칙
-- PR 최종 승인은 개발자(레포 오너)가 수행한다.
-- CI 통과 후 병합한다.
-- 스쿼시 머지를 기본으로 사용한다.
-- 직접 `main` 푸시를 금지한다.
-- 직접 `feature` 푸시도 금지하고 PR 병합만 허용한다.
-- 일반 작업 PR은 `feature`를 대상으로 생성한다.
-- 운영 배포 PR은 `feature`에서 `main`을 대상으로 생성한다.
-- 작업 완료 전 `scripts/verify_harness_git_flow.py`로 보호 브랜치 직접 작업, 브랜치명 형식, 최신 `origin/feature` 포함 여부, PR base를 점검한다.
+- 커밋과 PR 제목: `type(scope): 한글 제목`
+- 단일 커밋 PR 제목은 커밋 제목과 일치시킨다.
+- 본문은 배경, 변경 사항, 검증 결과, 영향 범위, rollback과 체크리스트를 포함한다.
+- `.gitmessage.txt`와 `.github/PULL_REQUEST_TEMPLATE.md`를 사용한다.
+- 모델 변경 PR은 artifact·report diff, 데이터 lineage, 평가 gate와 rollback model version을 명시한다.
+- CI와 message convention 검사가 통과한 PR만 squash merge한다.

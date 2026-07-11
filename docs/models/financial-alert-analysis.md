@@ -30,7 +30,7 @@
 - 중요도 구조: `source_type`, TF-IDF char n-gram, 한국 금융 token feature, Logistic Regression 다중분류
 - stock linker: `stock_linker_ml.joblib`의 TF-IDF char n-gram nearest-neighbor entity linker와 선두 term 검증
 - 전문 v2: 제목/snippet 모델을 baseline으로 유지하고, 권리 확인된 전문이 있으면 full content summary와 content hash를 추가한다.
-- 생성형 Qwen 요약은 기본 live 경로에 넣지 않는다. 도입 조건은 [news-summary-llm-readiness.md](news-summary-llm-readiness.md)에 기록한다.
+- What/Why/Impact는 검증 규칙으로 생성한다. Qwen3는 한국어→영어 번역에만 사용한다.
 - pseudo-label은 teacher confidence gate와 라벨 quota를 통과한 샘플만 사용한다.
 - 사람이 검수하지 않은 실제 전문 약한 라벨은 supervised loss와 holdout 정답에서 제외한다.
 
