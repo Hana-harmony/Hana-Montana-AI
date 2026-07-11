@@ -24,6 +24,26 @@ STOCK_UNIVERSE_SCHEMA_VERSION = "korea-stock-universe/v1"
 COVERAGE_REPORT_SCHEMA_VERSION = "stock-coverage-report/v1"
 DEFAULT_NEWS_INTENTS = ("실적", "공시", "수주", "유상증자", "거래정지")
 _NORMALIZE_PATTERN = re.compile(r"[^0-9a-z가-힣]+")
+KIS_STOCK_MASTER_SOURCES = (
+    (
+        "KOSPI",
+        "https://new.real.download.dws.co.kr/common/master/kospi_code.mst.zip",
+        "kospi_code.mst",
+        228,
+    ),
+    (
+        "KOSDAQ",
+        "https://new.real.download.dws.co.kr/common/master/kosdaq_code.mst.zip",
+        "kosdaq_code.mst",
+        222,
+    ),
+    (
+        "KONEX",
+        "https://new.real.download.dws.co.kr/common/master/konex_code.mst.zip",
+        "konex_code.mst",
+        184,
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -94,6 +114,84 @@ def fetch_open_dart_stock_universe(api_key: str) -> list[StockUniverseEntry]:
             dart_corp_code=dart_corp_code,
         )
     return sorted(entries.values(), key=lambda stock: stock.stock_code)
+
+
+def fetch_kis_stock_universe() -> list[StockUniverseEntry]:
+    entries: dict[str, StockUniverseEntry] = {}
+    for market, url, entry_name, tail_width in KIS_STOCK_MASTER_SOURCES:
+        request = Request(  # noqa: S310  # nosec B310
+            url,
+            headers={"User-Agent": "Hannah-Montana-AI KIS stock master sync"},
+        )
+        with urlopen(request, timeout=30) as response:  # noqa: S310  # nosec B310
+            payload = response.read()
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            content = archive.read(entry_name).decode("cp949")
+        for entry in parse_kis_stock_master(content, market=market, tail_width=tail_width):
+            entries[entry.stock_code] = entry
+    return sorted(entries.values(), key=lambda stock: stock.stock_code)
+
+
+def parse_kis_stock_master(
+    content: str,
+    *,
+    market: str,
+    tail_width: int,
+) -> list[StockUniverseEntry]:
+    entries: list[StockUniverseEntry] = []
+    for line in content.splitlines():
+        if len(line) <= tail_width + 21:
+            continue
+        head = line[:-tail_width]
+        tail = line[-tail_width:]
+        stock_code = head[:9].strip()
+        isin_code = head[9:21].strip()
+        stock_name = head[21:].strip()
+        if (
+            not re.fullmatch(r"\d{6}", stock_code)
+            or not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{10}", isin_code)
+            or not stock_name
+            or not tail.lstrip().startswith("ST")
+        ):
+            continue
+        entries.append(
+            StockUniverseEntry(
+                stock_code=stock_code,
+                stock_name=stock_name,
+                market=market,
+            )
+        )
+    return entries
+
+
+def merge_stock_universe_metadata(
+    active_stocks: Sequence[StockUniverseEntry],
+    metadata_sources: Sequence[Sequence[StockUniverseEntry]],
+) -> list[StockUniverseEntry]:
+    metadata_by_code: dict[str, StockUniverseEntry] = {}
+    for source in metadata_sources:
+        for entry in source:
+            previous = metadata_by_code.get(entry.stock_code)
+            if previous is None or entry.dart_corp_code:
+                metadata_by_code[entry.stock_code] = entry
+
+    merged: list[StockUniverseEntry] = []
+    for active in active_stocks:
+        metadata = metadata_by_code.get(active.stock_code)
+        aliases = list(metadata.aliases if metadata else ())
+        if metadata and metadata.stock_name != active.stock_name:
+            aliases.append(metadata.stock_name)
+        merged.append(
+            StockUniverseEntry(
+                stock_code=active.stock_code,
+                stock_name=active.stock_name,
+                stock_name_en=metadata.stock_name_en if metadata else "",
+                market=active.market,
+                dart_corp_code=metadata.dart_corp_code if metadata else "",
+                aliases=tuple(dict.fromkeys(alias for alias in aliases if alias)),
+            )
+        )
+    return merged
 
 
 def load_stock_universe(path: Path) -> list[StockUniverseEntry]:

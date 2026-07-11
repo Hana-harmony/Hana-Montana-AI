@@ -1,7 +1,7 @@
 {
   "schema_version": "korea-stock-universe/v1",
-  "provider": "open-dart-corp-code",
+  "provider": "kis-stock-master+open-dart-metadata",
   "output_path": "data/reference/korea_stock_universe.csv",
-  "stock_count": 3967,
-  "credential_policy": "OPEN_DART_API_KEY is loaded from gitignored local env only"
+  "stock_count": 2752,
+  "credential_policy": "KIS master is public; OPEN_DART_API_KEY metadata enrichment is optional and loaded from gitignored local env only"
 }

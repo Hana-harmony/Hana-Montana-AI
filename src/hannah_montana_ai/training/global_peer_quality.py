@@ -255,7 +255,8 @@ def _report(
         matched_factor_missing_count / success_count if success_count else 1.0
     )
     quality_gate: dict[str, Any] = {
-        "minimum_attempted_count": 3_000,
+        "minimum_active_equity_count": 2_500,
+        "expected_active_equity_count": stock_count,
         "actual_attempted_count": attempted_count,
         "minimum_success_ratio": 1.0,
         "actual_success_ratio": round(success_ratio, 6),
@@ -270,7 +271,8 @@ def _report(
     }
     quality_gate["status"] = (
         "pass"
-        if attempted_count >= int(quality_gate["minimum_attempted_count"])
+        if attempted_count == int(quality_gate["expected_active_equity_count"])
+        and attempted_count >= int(quality_gate["minimum_active_equity_count"])
         and success_ratio >= float(quality_gate["minimum_success_ratio"])
         and same_company_noise_ratio <= float(quality_gate["maximum_same_company_noise_ratio"])
         and matched_factor_missing_ratio

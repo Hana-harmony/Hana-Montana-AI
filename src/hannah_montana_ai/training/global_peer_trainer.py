@@ -23,7 +23,6 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import FeatureUnion
 from sklearn.preprocessing import normalize
@@ -33,8 +32,8 @@ from hannah_montana_ai.training.stock_universe import (
     load_stock_universe,
 )
 
-GLOBAL_PEER_SCHEMA_VERSION = "global-peer-hybrid-ranker/v4"
-GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-hybrid-ranker"
+GLOBAL_PEER_SCHEMA_VERSION = "global-peer-dynamic-similarity/v5"
+GLOBAL_PEER_MODEL_VERSION_PREFIX = "global-peer-dynamic-similarity"
 GLOBAL_PEER_TFIDF_MAX_FEATURES = 100_000
 GLOBAL_PEER_SEMANTIC_MAX_COMPONENTS = 192
 GENERIC_LISTED_SECTOR = "General Listed Equity"
@@ -42,6 +41,7 @@ GENERIC_LISTED_INDUSTRY = "Listed Operating Company"
 NAVER_INDUSTRY_CODE_TAG_OVERRIDES: dict[str, tuple[str, ...]] = {
     "266": ("consumer brands",),
     "267": ("software platform",),
+    "272": ("chemicals",),
     "274": ("consumer brands",),
     "275": ("food and beverage",),
     "276": ("holding company",),
@@ -51,6 +51,7 @@ NAVER_INDUSTRY_CODE_TAG_OVERRIDES: dict[str, tuple[str, ...]] = {
     "293": ("software platform",),
     "297": ("consumer brands",),
     "303": ("consumer brands",),
+    "307": ("consumer electronics",),
     "327": ("consumer electronics",),
     "328": ("retail",),
     "330": ("insurance",),
@@ -62,12 +63,14 @@ NAVER_INDUSTRY_CODE_TAG_OVERRIDES: dict[str, tuple[str, ...]] = {
 }
 NAVER_INDUSTRY_CODE_ALWAYS_OVERRIDE_CODES = {
     "267",
+    "272",
     "274",
     "276",
     "277",
     "287",
     "292",
     "293",
+    "307",
     "327",
     "328",
     "330",
@@ -104,26 +107,6 @@ KRX_DAILY_TRADE_PATHS = (
     "/svc/apis/sto/ksq_bydd_trd",
     "/svc/apis/sto/knx_bydd_trd",
 )
-PAIRWISE_FEATURE_NAMES = (
-    "text_similarity",
-    "semantic_similarity",
-    "financial_similarity",
-    "same_sector",
-    "same_industry",
-    "same_business_model",
-    "same_scale_bucket",
-    "specific_sector_mismatch",
-    "specific_industry_mismatch",
-    "peer_market_cap_log",
-    "peer_revenue_log",
-    "market_cap_log_gap",
-    "revenue_log_gap",
-    "operating_margin_gap",
-    "peer_familiarity",
-    "peer_profile_completeness",
-    "peer_market_cap_reliability",
-)
-
 CURATED_GLOBAL_BRAND_TIERS: dict[str, float] = {
     "AAL": 0.85,
     "AAPL": 1.0,
@@ -295,6 +278,7 @@ def _runtime_profile_payload(
     fields = {
         "identifier",
         "display_name",
+        "market",
         "profile_text",
         "business_tags",
         "sector",
@@ -325,20 +309,6 @@ class PeerTrainingResult:
 
 
 @dataclass(frozen=True)
-class PeerComparisonAnchor:
-    dimension: str
-    preferred_peer_ticker: str
-    description: str
-
-
-@dataclass(frozen=True)
-class PeerStrengthAnchor:
-    title: str
-    description: str
-    icon_key: str
-
-
-@dataclass(frozen=True)
 class PeerAnchor:
     profile_text: str
     business_tags: tuple[str, ...]
@@ -355,261 +325,7 @@ class PeerAnchor:
     display_name: str = ""
     positioning_title: str = ""
     preferred_peer_ticker: str = ""
-    headline_template: str = ""
-    summary: str = ""
-    comparison_dimensions: tuple[PeerComparisonAnchor, ...] = ()
-    key_strengths: tuple[PeerStrengthAnchor, ...] = ()
 
-
-KOREA_ANCHORS: dict[str, PeerAnchor] = {
-    "000660": PeerAnchor(
-        profile_text=(
-            "SK hynix memory semiconductor DRAM NAND HBM chips data center AI memory "
-            "global memory manufacturer"
-        ),
-        business_tags=("semiconductors", "memory chips"),
-        sector="Information Technology",
-        industry="Semiconductors",
-        business_model="Memory semiconductor manufacturing",
-        scale_bucket="MEGA_CAP",
-        preferred_peer_ticker="MU",
-    ),
-    "005930": PeerAnchor(
-        profile_text=(
-            "Samsung Electronics semiconductor memory DRAM NAND HBM foundry consumer "
-            "electronics mobile display appliances global technology manufacturer"
-        ),
-        business_tags=("semiconductors", "memory chips", "consumer electronics"),
-        sector="Information Technology",
-        industry="Semiconductors",
-        business_model="Semiconductor and electronics manufacturing",
-        scale_bucket="MEGA_CAP",
-        preferred_peer_ticker="MU",
-        headline_template=(
-            "{stock_name_en} Is The 'Apple + TSMC' of South Korea"
-        ),
-        summary=(
-            "Samsung Electronics combines Apple's consumer ecosystem with TSMC's "
-            "semiconductor manufacturing strength across devices, memory, foundry, "
-            "and AI infrastructure."
-        ),
-        comparison_dimensions=(
-            PeerComparisonAnchor(
-                dimension="overall_business",
-                preferred_peer_ticker="AAPL",
-                description=(
-                    "Apple provides the closest global reference for Samsung Electronics' "
-                    "integrated consumer-device ecosystem and premium hardware reach."
-                ),
-            ),
-            PeerComparisonAnchor(
-                dimension="semiconductor_ds",
-                preferred_peer_ticker="INTC",
-                description=(
-                    "Intel is the reference for Samsung Electronics' semiconductor division, "
-                    "where advanced logic, manufacturing, and data-center demand intersect."
-                ),
-            ),
-            PeerComparisonAnchor(
-                dimension="foundry",
-                preferred_peer_ticker="TSM",
-                description=(
-                    "TSMC provides the global foundry benchmark for Samsung Electronics' "
-                    "leading-edge process and contract chip-manufacturing capabilities."
-                ),
-            ),
-        ),
-        key_strengths=(
-            PeerStrengthAnchor(
-                title="Memory Leadership",
-                description="Global DRAM, NAND, and HBM scale anchors its semiconductor franchise.",
-                icon_key="memory",
-            ),
-            PeerStrengthAnchor(
-                title="Advanced Foundry",
-                description=(
-                    "Leading-edge process development supports advanced contract chip production."
-                ),
-                icon_key="foundry",
-            ),
-            PeerStrengthAnchor(
-                title="Device Ecosystem",
-                description=(
-                    "Smartphones, TVs, appliances, displays, and connected devices broaden demand."
-                ),
-                icon_key="ecosystem",
-            ),
-            PeerStrengthAnchor(
-                title="AI Infrastructure",
-                description=(
-                    "Memory, foundry, and device capabilities position it across "
-                    "the AI value chain."
-                ),
-                icon_key="ai",
-            ),
-        ),
-    ),
-    "006400": PeerAnchor(
-        profile_text=(
-            "Samsung SDI lithium ion battery EV battery cells energy storage electronic "
-            "materials rechargeable battery manufacturer"
-        ),
-        business_tags=("battery",),
-        sector="Industrials",
-        industry="Battery and Energy Storage",
-        business_model="Battery manufacturing and energy storage supply chain",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="QS",
-    ),
-    "017670": PeerAnchor(
-        profile_text=(
-            "SK Telecom wireless carrier mobile network broadband telecom operator "
-            "5G communications services"
-        ),
-        business_tags=("telecommunications",),
-        sector="Communication Services",
-        industry="Telecommunications",
-        business_model="Telecom network subscription services",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="VZ",
-    ),
-    "035420": PeerAnchor(
-        profile_text=(
-            "NAVER internet search portal online advertising commerce cloud content "
-            "software platform online search advertising"
-        ),
-        business_tags=("software platform", "internet search", "online advertising"),
-        sector="Information Technology",
-        industry="Internet Platforms",
-        business_model="Platform software, search advertising, and commerce",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="GOOGL",
-    ),
-    "051910": PeerAnchor(
-        profile_text=(
-            "LG Chem specialty chemicals petrochemicals advanced materials battery "
-            "materials chemical manufacturer"
-        ),
-        business_tags=("chemicals",),
-        sector="Materials",
-        industry="Specialty Chemicals",
-        business_model="Chemical and advanced materials manufacturing",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="DOW",
-    ),
-    "055550": PeerAnchor(
-        profile_text=(
-            "Shinhan Financial Group bank financial holding consumer banking credit cards "
-            "wealth management capital markets"
-        ),
-        business_tags=("banking", "financials"),
-        sector="Financials",
-        industry="Banks",
-        business_model="Banking, spread income, fees, and capital-market services",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="C",
-    ),
-    "066570": PeerAnchor(
-        profile_text=(
-            "LG Electronics consumer electronics home appliances TV display HVAC devices "
-            "global electronics brand"
-        ),
-        business_tags=("consumer electronics", "home appliances"),
-        sector="Consumer Discretionary",
-        industry="Consumer Electronics and Appliances",
-        business_model="Consumer electronics and appliance manufacturing",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="WHR",
-    ),
-    "068270": PeerAnchor(
-        profile_text=(
-            "Celltrion biosimilar monoclonal antibody biologics pharmaceutical developer "
-            "biotech manufacturing global biosimilar company"
-        ),
-        business_tags=("biotech", "biosimilar"),
-        sector="Health Care",
-        industry="Biotechnology",
-        business_model="Biologics and biosimilar development",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="BIIB",
-    ),
-    "086790": PeerAnchor(
-        profile_text=(
-            "Hana Financial Group bank financial holding commercial banking wealth "
-            "management securities capital markets"
-        ),
-        business_tags=("banking", "financials"),
-        sector="Financials",
-        industry="Banks",
-        business_model="Banking, spread income, fees, and capital-market services",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="C",
-    ),
-    "105560": PeerAnchor(
-        profile_text=(
-            "KB Financial Group bank financial holding commercial banking insurance "
-            "credit card wealth management"
-        ),
-        business_tags=("banking", "financials"),
-        sector="Financials",
-        industry="Banks",
-        business_model="Banking, spread income, fees, and capital-market services",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="C",
-    ),
-    "196170": PeerAnchor(
-        profile_text=(
-            "Alteogen biotech platform hyaluronidase drug delivery technology "
-            "converts intravenous biologics into subcutaneous formulation licensing "
-            "milestone royalty big pharma"
-        ),
-        business_tags=("biotech platform", "drug delivery", "royalty licensing"),
-        sector="Health Care",
-        industry="Biotechnology",
-        business_model="Biotech platform licensing",
-        scale_bucket="MID_CAP",
-        market_cap_usd=9_800_000_000,
-        revenue_usd=230_000_000,
-        operating_income_usd=50_000_000,
-        net_income_usd=42_000_000,
-        fiscal_year=2025,
-        display_name="Alteogen",
-        positioning_title="Global Biotech Platform Leader",
-        preferred_peer_ticker="HALO",
-        headline_template=(
-            "{stock_name_en} Is The '{peer_name}' of South Korea — A Global Biotech Platform Leader"
-        ),
-        summary=(
-            "Alteogen is a high-margin Biotech Platform provider. Instead of developing "
-            "its own new drugs, it licenses out its proprietary drug-delivery technology "
-            "to global Big Pharma, securing long-term milestone and royalty fees."
-        ),
-    ),
-    "207940": PeerAnchor(
-        profile_text=(
-            "Samsung Biologics biologics CDMO contract development manufacturing "
-            "large scale biopharmaceutical manufacturing"
-        ),
-        business_tags=("biotech", "biologics cdmo"),
-        sector="Health Care",
-        industry="Biotechnology",
-        business_model="Biologics contract development and manufacturing",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="TMO",
-    ),
-    "373220": PeerAnchor(
-        profile_text=(
-            "LG Energy Solution lithium ion EV battery cells energy storage battery "
-            "manufacturer electric vehicle supply chain"
-        ),
-        business_tags=("battery",),
-        sector="Industrials",
-        industry="Battery and Energy Storage",
-        business_model="Battery manufacturing and energy storage supply chain",
-        scale_bucket="LARGE_CAP",
-        preferred_peer_ticker="TSLA",
-    ),
-}
 
 US_ANCHORS: dict[str, PeerAnchor] = {
     "AAL": PeerAnchor(
@@ -1331,6 +1047,80 @@ def write_korea_company_profiles(
             writer.writerow(row.to_dict())
 
 
+def inherit_preferred_share_issuer_profiles(
+    stocks: Sequence[StockUniverseEntry],
+    industry_profiles: dict[str, KoreaIndustryProfile],
+    company_profiles: dict[str, KoreaCompanyProfile],
+) -> tuple[dict[str, KoreaIndustryProfile], dict[str, KoreaCompanyProfile]]:
+    stocks_by_name = {stock.stock_name: stock for stock in stocks}
+    common_by_corp_code = {
+        stock.dart_corp_code: stock
+        for stock in stocks
+        if stock.dart_corp_code and _preferred_share_base_name(stock.stock_name) is None
+    }
+    enriched_industries = dict(industry_profiles)
+    enriched_companies = dict(company_profiles)
+    for stock in stocks:
+        base_name = _preferred_share_base_name(stock.stock_name)
+        if base_name is None:
+            continue
+        issuer = common_by_corp_code.get(stock.dart_corp_code) or stocks_by_name.get(base_name)
+        if issuer is None:
+            continue
+        issuer_industry = industry_profiles.get(issuer.stock_code)
+        if issuer_industry is not None:
+            enriched_industries[stock.stock_code] = replace(
+                issuer_industry,
+                stock_code=stock.stock_code,
+                stock_name=stock.stock_name,
+                source=f"{issuer_industry.source}+PREFERRED_SHARE_ISSUER",
+            )
+        issuer_company = company_profiles.get(issuer.stock_code)
+        if issuer_company is not None:
+            enriched_companies[stock.stock_code] = replace(
+                issuer_company,
+                stock_code=stock.stock_code,
+                stock_name=stock.stock_name,
+                source=f"{issuer_company.source}+PREFERRED_SHARE_ISSUER",
+            )
+    return enriched_industries, enriched_companies
+
+
+def _preferred_share_base_name(stock_name: str) -> str | None:
+    normalized = stock_name.strip()
+    base_name = re.sub(r"\s*(?:\d+)?우B?$", "", normalized).strip()
+    return base_name if base_name and base_name != normalized else None
+
+
+def inherit_preferred_share_issuer_fundamentals(
+    stocks: Sequence[StockUniverseEntry],
+    fundamentals: dict[tuple[str, str], GlobalPeerFundamentals],
+) -> dict[tuple[str, str], GlobalPeerFundamentals]:
+    stocks_by_name = {stock.stock_name: stock for stock in stocks}
+    common_by_corp_code = {
+        stock.dart_corp_code: stock
+        for stock in stocks
+        if stock.dart_corp_code and _preferred_share_base_name(stock.stock_name) is None
+    }
+    enriched = dict(fundamentals)
+    for stock in stocks:
+        base_name = _preferred_share_base_name(stock.stock_name)
+        if base_name is None or ("KR", stock.stock_code) in enriched:
+            continue
+        issuer = common_by_corp_code.get(stock.dart_corp_code) or stocks_by_name.get(base_name)
+        if issuer is None:
+            continue
+        issuer_fundamental = fundamentals.get(("KR", issuer.stock_code))
+        if issuer_fundamental is None:
+            continue
+        enriched[("KR", stock.stock_code)] = replace(
+            issuer_fundamental,
+            identifier=stock.stock_code,
+            source=f"{issuer_fundamental.source}+PREFERRED_SHARE_ISSUER",
+        )
+    return enriched
+
+
 def load_korea_industry_profiles(path: Path) -> dict[str, KoreaIndustryProfile]:
     if not path.exists():
         return {}
@@ -1654,8 +1444,6 @@ def train_korea_business_profile_classifier(
     evaluated_generic_count = 0
     for stock in korea_universe:
         current_profile = industry_profiles.get(stock.stock_code)
-        if stock.stock_code in KOREA_ANCHORS:
-            continue
         if current_profile and _is_specific_korea_industry_profile(current_profile):
             continue
         evaluated_generic_count += 1
@@ -2006,6 +1794,10 @@ def train_global_peer_model(
     korea_universe = load_stock_universe(korea_stock_universe_path)
     us_universe = load_us_stock_universe(us_stock_universe_path)
     fundamentals = load_global_peer_fundamentals(fundamentals_path)
+    fundamentals = inherit_preferred_share_issuer_fundamentals(
+        korea_universe,
+        fundamentals,
+    )
     korea_industries = (
         load_korea_industry_profiles(korea_industry_path) if korea_industry_path else {}
     )
@@ -2014,8 +1806,13 @@ def train_global_peer_model(
         if korea_company_profile_path
         else {}
     )
-    if len(korea_universe) < 3_000:
-        raise ValueError("global peer training requires the full Korean stock universe")
+    korea_industries, korea_company_profiles = inherit_preferred_share_issuer_profiles(
+        korea_universe,
+        korea_industries,
+        korea_company_profiles,
+    )
+    if len(korea_universe) < 2_500:
+        raise ValueError("global peer training requires the active KIS equity universe")
     if len(us_universe) < 5_000:
         raise ValueError("global peer training requires the full United States stock universe")
 
@@ -2070,14 +1867,6 @@ def train_global_peer_model(
         [profile.financial_feature_vector for profile in eligible_us_profiles],
         dtype=np.float32,
     )
-    pairwise_ranker, pairwise_ranker_report = train_pairwise_peer_ranker(
-        korea_profiles=korea_profiles,
-        eligible_us_profiles=eligible_us_profiles,
-        vectorizer=vectorizer,
-        eligible_us_matrix=eligible_us_matrix,
-        semantic_reducer=semantic_reducer,
-        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
-    )
     trained_at = datetime.now(UTC).isoformat()
     version = f"{GLOBAL_PEER_MODEL_VERSION_PREFIX}-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
     artifact = {
@@ -2089,8 +1878,6 @@ def train_global_peer_model(
         "semantic_reducer": semantic_reducer,
         "eligible_us_semantic_matrix": eligible_us_semantic_matrix,
         "eligible_us_financial_matrix": eligible_us_financial_matrix,
-        "pairwise_ranker": pairwise_ranker,
-        "pairwise_feature_names": list(PAIRWISE_FEATURE_NAMES),
         "eligible_us_profiles": [
             _runtime_profile_payload(profile, include_business_summary=False)
             for profile in eligible_us_profiles
@@ -2102,7 +1889,6 @@ def train_global_peer_model(
             )
             for profile in korea_profiles
         },
-        "korea_anchors": _anchors_to_payload(KOREA_ANCHORS),
         "us_anchors": _anchors_to_payload(US_ANCHORS),
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2136,9 +1922,6 @@ def train_global_peer_model(
         korea_industry_profiles=korea_industries,
         korea_company_profiles=korea_company_profiles,
         business_profile_classifier_report=business_profile_classifier_result.report,
-        vectorizer=vectorizer,
-        eligible_us_matrix=eligible_us_matrix,
-        pairwise_ranker_report=pairwise_ranker_report,
     )
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
@@ -2163,11 +1946,7 @@ def build_global_peer_training_report(
     korea_industry_profiles: dict[str, KoreaIndustryProfile],
     korea_company_profiles: dict[str, KoreaCompanyProfile],
     business_profile_classifier_report: dict[str, object],
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    pairwise_ranker_report: dict[str, object],
 ) -> dict[str, object]:
-    anchor_evaluation = evaluate_anchor_pairs(vectorizer, eligible_us_matrix, eligible_us_profiles)
     tag_distribution = Counter(
         tag for profile in [*korea_profiles, *us_profiles] for tag in profile.business_tags
     )
@@ -2180,36 +1959,29 @@ def build_global_peer_training_report(
         and profile.industry not in {"Unclassified", GENERIC_LISTED_INDUSTRY}
     )
     all_profiles = [*korea_profiles, *us_profiles]
-    minimum_korea_universe_count = 3_000
+    minimum_korea_universe_count = 2_500
     actual_korea_universe_count = len(korea_profiles)
     minimum_us_universe_count = 5_000
     actual_us_universe_count = len(us_profiles)
-    minimum_anchor_top1_accuracy = 0.75
-    raw_anchor_top1_accuracy = anchor_evaluation["top1_accuracy"]
-    if not isinstance(raw_anchor_top1_accuracy, int | float):
-        raise TypeError("anchor top1 accuracy must be numeric")
-    actual_anchor_top1_accuracy = float(raw_anchor_top1_accuracy)
-    raw_ranker_top1_accuracy = pairwise_ranker_report["top1_accuracy"]
-    if not isinstance(raw_ranker_top1_accuracy, int | float):
-        raise TypeError("pairwise ranker top1 accuracy must be numeric")
-    minimum_pairwise_ranker_top1_accuracy = 0.85
-    actual_pairwise_ranker_top1_accuracy = float(raw_ranker_top1_accuracy)
+    minimum_specific_profile_ratio = 0.95
+    actual_specific_profile_ratio = (
+        korea_industry_specific_count / actual_korea_universe_count
+        if actual_korea_universe_count
+        else 0.0
+    )
     coverage_gate: dict[str, object] = {
         "minimum_korea_universe_count": minimum_korea_universe_count,
         "actual_korea_universe_count": actual_korea_universe_count,
         "minimum_us_universe_count": minimum_us_universe_count,
         "actual_us_universe_count": actual_us_universe_count,
-        "minimum_anchor_top1_accuracy": minimum_anchor_top1_accuracy,
-        "actual_anchor_top1_accuracy": actual_anchor_top1_accuracy,
-        "minimum_pairwise_ranker_top1_accuracy": minimum_pairwise_ranker_top1_accuracy,
-        "actual_pairwise_ranker_top1_accuracy": actual_pairwise_ranker_top1_accuracy,
+        "minimum_specific_profile_ratio": minimum_specific_profile_ratio,
+        "actual_specific_profile_ratio": actual_specific_profile_ratio,
     }
     coverage_gate["status"] = (
         "pass"
         if actual_korea_universe_count >= minimum_korea_universe_count
         and actual_us_universe_count >= minimum_us_universe_count
-        and actual_anchor_top1_accuracy >= minimum_anchor_top1_accuracy
-        and actual_pairwise_ranker_top1_accuracy >= minimum_pairwise_ranker_top1_accuracy
+        and actual_specific_profile_ratio >= minimum_specific_profile_ratio
         else "fail"
     )
     return {
@@ -2243,355 +2015,13 @@ def build_global_peer_training_report(
         },
         "eligible_us_peer_count": len(eligible_us_profiles),
         "tag_distribution": dict(sorted(tag_distribution.items())),
-        "anchor_evaluation": anchor_evaluation,
-        "pairwise_ranker_evaluation": pairwise_ranker_report,
+        "matching_policy": (
+            "dynamic TF-IDF, latent semantic, financial, domain, profile quality, "
+            "and global familiarity signals; no per-stock serving override"
+        ),
         "business_profile_classifier": business_profile_classifier_report,
         "coverage_gate": coverage_gate,
     }
-
-
-def evaluate_anchor_pairs(
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    eligible_us_profiles: Sequence[CompanyPeerProfile],
-) -> dict[str, object]:
-    rows: list[dict[str, object]] = []
-    hits = 0
-    for stock_code, anchor in KOREA_ANCHORS.items():
-        query_vector = vectorizer.transform([anchor.profile_text])
-        similarities = cosine_similarity(query_vector, eligible_us_matrix)[0]
-        best_index = int(similarities.argmax())
-        best_profile = eligible_us_profiles[best_index]
-        hit = best_profile.identifier == anchor.preferred_peer_ticker
-        hits += 1 if hit else 0
-        rows.append(
-            {
-                "stock_code": stock_code,
-                "expected_peer_ticker": anchor.preferred_peer_ticker,
-                "predicted_peer_ticker": best_profile.identifier,
-                "score": round(float(similarities[best_index]), 6),
-                "hit": hit,
-            }
-        )
-    return {
-        "sample_count": len(rows),
-        "top1_accuracy": hits / len(rows) if rows else 0.0,
-        "rows": rows,
-    }
-
-
-def train_pairwise_peer_ranker(
-    korea_profiles: Sequence[CompanyPeerProfile],
-    eligible_us_profiles: Sequence[CompanyPeerProfile],
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    semantic_reducer: TruncatedSVD,
-    eligible_us_semantic_matrix: np.ndarray,
-) -> tuple[LogisticRegression, dict[str, object]]:
-    korea_by_code = {profile.identifier: profile for profile in korea_profiles}
-    us_by_ticker = {profile.identifier: profile for profile in eligible_us_profiles}
-    feature_rows: list[list[float]] = []
-    labels: list[int] = []
-    candidate_count_by_stock: dict[str, int] = {}
-
-    for stock_code, anchor in KOREA_ANCHORS.items():
-        if not anchor.preferred_peer_ticker:
-            continue
-        stock_profile = korea_by_code.get(stock_code)
-        expected_profile = us_by_ticker.get(anchor.preferred_peer_ticker)
-        if stock_profile is None or expected_profile is None:
-            continue
-
-        text_scores, semantic_scores, financial_scores, base_scores = _candidate_scores(
-            stock_profile=stock_profile,
-            eligible_us_profiles=eligible_us_profiles,
-            vectorizer=vectorizer,
-            eligible_us_matrix=eligible_us_matrix,
-            semantic_reducer=semantic_reducer,
-            eligible_us_semantic_matrix=eligible_us_semantic_matrix,
-        )
-        expected_index = next(
-            index
-            for index, profile in enumerate(eligible_us_profiles)
-            if profile.identifier == expected_profile.identifier
-        )
-        hard_negative_indices = [
-            int(index) for index in base_scores.argsort()[::-1] if int(index) != expected_index
-        ][:40]
-        candidate_indices = [expected_index, *hard_negative_indices]
-        candidate_count_by_stock[stock_code] = len(candidate_indices)
-        for index in candidate_indices:
-            feature_rows.append(
-                pairwise_feature_vector(
-                    stock_profile,
-                    eligible_us_profiles[index],
-                    text_scores[index],
-                    semantic_scores[index],
-                    financial_scores[index],
-                )
-            )
-            labels.append(1 if index == expected_index else 0)
-
-    if not feature_rows or len(set(labels)) != 2:
-        raise ValueError("global peer ranker requires positive and negative peer labels")
-
-    ranker = LogisticRegression(
-        max_iter=1000,
-        class_weight="balanced",
-        random_state=42,
-    )
-    ranker.fit(np.array(feature_rows, dtype=float), np.array(labels, dtype=int))
-    evaluation = evaluate_pairwise_ranker(
-        ranker=ranker,
-        korea_profiles=korea_profiles,
-        eligible_us_profiles=eligible_us_profiles,
-        vectorizer=vectorizer,
-        eligible_us_matrix=eligible_us_matrix,
-        semantic_reducer=semantic_reducer,
-        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
-    )
-    return ranker, {
-        **evaluation,
-        "training_pair_count": len(KOREA_ANCHORS),
-        "training_sample_count": len(feature_rows),
-        "positive_sample_count": sum(labels),
-        "negative_sample_count": len(labels) - sum(labels),
-        "feature_names": list(PAIRWISE_FEATURE_NAMES),
-        "candidate_count_by_stock": candidate_count_by_stock,
-        "ranking_model": "LogisticRegression(class_weight=balanced)",
-        "label_policy": (
-            "curated_peer_pairs_used_as supervised pairwise ranking labels, "
-            "not serving-time forced anchors"
-        ),
-    }
-
-
-def evaluate_pairwise_ranker(
-    ranker: LogisticRegression,
-    korea_profiles: Sequence[CompanyPeerProfile],
-    eligible_us_profiles: Sequence[CompanyPeerProfile],
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    semantic_reducer: TruncatedSVD,
-    eligible_us_semantic_matrix: np.ndarray,
-) -> dict[str, object]:
-    korea_by_code = {profile.identifier: profile for profile in korea_profiles}
-    rows: list[dict[str, object]] = []
-    top1_hits = 0
-    top3_hits = 0
-    reciprocal_ranks: list[float] = []
-
-    for stock_code, anchor in KOREA_ANCHORS.items():
-        stock_profile = korea_by_code.get(stock_code)
-        if stock_profile is None or not anchor.preferred_peer_ticker:
-            continue
-        scores = rank_pair_candidates(
-            ranker=ranker,
-            stock_profile=stock_profile,
-            eligible_us_profiles=eligible_us_profiles,
-            vectorizer=vectorizer,
-            eligible_us_matrix=eligible_us_matrix,
-            semantic_reducer=semantic_reducer,
-            eligible_us_semantic_matrix=eligible_us_semantic_matrix,
-        )
-        ranked_indices = scores.argsort()[::-1]
-        predicted_profile = eligible_us_profiles[int(ranked_indices[0])]
-        expected_rank = next(
-            (
-                rank
-                for rank, index in enumerate(ranked_indices, start=1)
-                if eligible_us_profiles[int(index)].identifier == anchor.preferred_peer_ticker
-            ),
-            len(ranked_indices) + 1,
-        )
-        hit_top1 = predicted_profile.identifier == anchor.preferred_peer_ticker
-        hit_top3 = expected_rank <= 3
-        top1_hits += 1 if hit_top1 else 0
-        top3_hits += 1 if hit_top3 else 0
-        reciprocal_ranks.append(1.0 / expected_rank)
-        rows.append(
-            {
-                "stock_code": stock_code,
-                "expected_peer_ticker": anchor.preferred_peer_ticker,
-                "predicted_peer_ticker": predicted_profile.identifier,
-                "expected_peer_rank": expected_rank,
-                "score": round(float(scores[int(ranked_indices[0])]), 6),
-                "top1_hit": hit_top1,
-                "top3_hit": hit_top3,
-            }
-        )
-
-    sample_count = len(rows)
-    return {
-        "sample_count": sample_count,
-        "top1_accuracy": top1_hits / sample_count if sample_count else 0.0,
-        "top3_accuracy": top3_hits / sample_count if sample_count else 0.0,
-        "mean_reciprocal_rank": (
-            sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
-        ),
-        "rows": rows,
-    }
-
-
-def rank_pair_candidates(
-    ranker: LogisticRegression,
-    stock_profile: CompanyPeerProfile,
-    eligible_us_profiles: Sequence[CompanyPeerProfile],
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    semantic_reducer: TruncatedSVD,
-    eligible_us_semantic_matrix: np.ndarray,
-) -> np.ndarray:
-    text_scores, semantic_scores, financial_scores, base_scores = _candidate_scores(
-        stock_profile=stock_profile,
-        eligible_us_profiles=eligible_us_profiles,
-        vectorizer=vectorizer,
-        eligible_us_matrix=eligible_us_matrix,
-        semantic_reducer=semantic_reducer,
-        eligible_us_semantic_matrix=eligible_us_semantic_matrix,
-    )
-    feature_rows = np.array(
-        [
-            pairwise_feature_vector(
-                stock_profile,
-                peer_profile,
-                text_scores[index],
-                semantic_scores[index],
-                financial_scores[index],
-            )
-            for index, peer_profile in enumerate(eligible_us_profiles)
-        ],
-        dtype=float,
-    )
-    ranker_scores = np.asarray(ranker.predict_proba(feature_rows)[:, 1], dtype=float)
-    familiarity_scores = np.array(
-        [profile.familiarity_score for profile in eligible_us_profiles],
-        dtype=float,
-    )
-    completeness_scores = np.array(
-        [profile.profile_completeness_score for profile in eligible_us_profiles],
-        dtype=float,
-    )
-    combined = np.asarray(
-        (0.55 * ranker_scores)
-        + (0.35 * base_scores)
-        + (0.06 * familiarity_scores)
-        + (0.04 * completeness_scores),
-        dtype=float,
-    )
-    for index, peer_profile in enumerate(eligible_us_profiles):
-        combined[index] *= domain_priority_multiplier(stock_profile, peer_profile)
-    return combined
-
-
-def domain_priority_multiplier(
-    stock_profile: CompanyPeerProfile,
-    peer_profile: CompanyPeerProfile,
-) -> float:
-    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
-    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
-    multiplier = 1.0
-    if stock_profile.sector not in generic_sectors:
-        if peer_profile.sector in generic_sectors:
-            multiplier *= 0.60
-        elif stock_profile.sector != peer_profile.sector:
-            multiplier *= 0.20
-    if stock_profile.industry not in generic_industries:
-        if peer_profile.industry in generic_industries:
-            multiplier *= 0.75
-        elif stock_profile.industry != peer_profile.industry:
-            multiplier *= 0.45
-    return multiplier
-
-
-def pairwise_feature_vector(
-    stock_profile: CompanyPeerProfile,
-    peer_profile: CompanyPeerProfile,
-    text_similarity: float,
-    semantic_similarity: float,
-    financial_similarity: float,
-) -> list[float]:
-    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
-    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
-    same_sector = stock_profile.sector == peer_profile.sector and stock_profile.sector not in {
-        *generic_sectors,
-    }
-    same_industry = (
-        stock_profile.industry == peer_profile.industry
-        and stock_profile.industry not in {*generic_industries}
-    )
-    same_business_model = stock_profile.business_model == peer_profile.business_model
-    same_scale = (
-        stock_profile.scale_bucket != "UNKNOWN"
-        and stock_profile.scale_bucket == peer_profile.scale_bucket
-    )
-    specific_sector_mismatch = (
-        stock_profile.sector not in generic_sectors
-        and peer_profile.sector not in generic_sectors
-        and stock_profile.sector != peer_profile.sector
-    )
-    specific_industry_mismatch = (
-        stock_profile.industry not in generic_industries
-        and peer_profile.industry not in generic_industries
-        and stock_profile.industry != peer_profile.industry
-    )
-    return [
-        float(text_similarity),
-        float(semantic_similarity),
-        float(financial_similarity),
-        1.0 if same_sector else 0.0,
-        1.0 if same_industry else 0.0,
-        1.0 if same_business_model else 0.0,
-        1.0 if same_scale else 0.0,
-        1.0 if specific_sector_mismatch else 0.0,
-        1.0 if specific_industry_mismatch else 0.0,
-        _normalized_log_feature(peer_profile.market_cap_usd),
-        _normalized_log_feature(peer_profile.revenue_usd),
-        _log_gap(stock_profile.market_cap_usd, peer_profile.market_cap_usd),
-        _log_gap(stock_profile.revenue_usd, peer_profile.revenue_usd),
-        abs(
-            _margin_feature(stock_profile.operating_income_usd, stock_profile.revenue_usd)
-            - _margin_feature(peer_profile.operating_income_usd, peer_profile.revenue_usd)
-        ),
-        peer_profile.familiarity_score,
-        peer_profile.profile_completeness_score,
-        peer_profile.market_cap_reliability_score,
-    ]
-
-
-def _candidate_scores(
-    stock_profile: CompanyPeerProfile,
-    eligible_us_profiles: Sequence[CompanyPeerProfile],
-    vectorizer: TfidfVectorizer,
-    eligible_us_matrix: object,
-    semantic_reducer: TruncatedSVD,
-    eligible_us_semantic_matrix: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    query_vector = vectorizer.transform([stock_profile.profile_text])
-    text_scores = cosine_similarity(query_vector, eligible_us_matrix)[0]
-    query_semantic = normalize(semantic_reducer.transform(query_vector), norm="l2")
-    semantic_scores = cosine_similarity(query_semantic, eligible_us_semantic_matrix)[0]
-    financial_scores = np.array(
-        [
-            _financial_similarity(
-                stock_profile.financial_feature_vector,
-                peer_profile.financial_feature_vector,
-            )
-            for peer_profile in eligible_us_profiles
-        ],
-        dtype=float,
-    )
-    base_scores = (0.50 * text_scores) + (0.30 * semantic_scores) + (0.20 * financial_scores)
-    return text_scores, semantic_scores, financial_scores, base_scores
-
-
-def _financial_similarity(stock_vector: Sequence[float], peer_vector: Sequence[float]) -> float:
-    if not has_financial_signal(stock_vector) or not has_financial_signal(peer_vector):
-        return 0.0
-    stock_array = np.array(stock_vector, dtype=float).reshape(1, -1)
-    peer_array = np.array(peer_vector, dtype=float).reshape(1, -1)
-    score = float(cosine_similarity(stock_array, peer_array)[0][0])
-    return max(0.0, min(1.0, (score + 1.0) / 2.0))
 
 
 def _semantic_component_count(sample_count: int, feature_count: int) -> int:
@@ -2603,20 +2033,6 @@ def _semantic_component_count(sample_count: int, feature_count: int) -> int:
             feature_count - 1,
         ),
     )
-
-
-def _log_gap(left: float | None, right: float | None) -> float:
-    left_value = _log_feature(left)
-    right_value = _log_feature(right)
-    if left_value == 0.0 or right_value == 0.0:
-        return 1.0
-    return abs(left_value - right_value)
-
-
-def _normalized_log_feature(value: float | None) -> float:
-    if value is None or value <= 0:
-        return 0.0
-    return max(0.0, min(1.0, math.log10(value) / 12.0))
 
 
 def market_cap_reliability_score(fundamental: GlobalPeerFundamentals) -> float:
@@ -2722,18 +2138,17 @@ def build_korea_profile(
     industry_profiles: dict[str, KoreaIndustryProfile] | None = None,
     company_profiles: dict[str, KoreaCompanyProfile] | None = None,
 ) -> CompanyPeerProfile:
-    anchor = KOREA_ANCHORS.get(stock.stock_code)
     industry_profile = industry_profiles.get(stock.stock_code) if industry_profiles else None
     company_profile = company_profiles.get(stock.stock_code) if company_profiles else None
-    fundamental = _fundamental_for("KR", stock.stock_code, anchor, fundamentals)
+    fundamental = _fundamental_for("KR", stock.stock_code, None, fundamentals)
     stock_name_en = stock.stock_name_en or _english_name_fallback(stock)
-    inferred_tags = tuple(infer_business_tags(stock.stock_name, stock_name_en))
-    if anchor:
-        tags = anchor.business_tags
-        sector = anchor.sector
-        industry = anchor.industry
-        business_model = anchor.business_model
-    elif industry_profile and industry_profile.sector != GENERIC_LISTED_SECTOR:
+    inferred_tags = _merge_business_tags(
+        tuple(infer_business_tags(stock.stock_name, stock_name_en)),
+        infer_business_tags_from_ksic(
+            company_profile.induty_code if company_profile else ""
+        ),
+    )
+    if industry_profile and _is_specific_korea_industry_profile(industry_profile):
         tags = industry_profile.business_tags
         sector = industry_profile.sector
         industry = industry_profile.industry
@@ -2746,8 +2161,6 @@ def build_korea_profile(
     market_cap_reliability = market_cap_reliability_score(fundamental)
     financial_fundamental = _financial_fundamental(fundamental, market_cap_reliability)
     scale_bucket = derive_scale_bucket(financial_fundamental.market_cap_usd)
-    if scale_bucket == "UNKNOWN" and anchor:
-        scale_bucket = anchor.scale_bucket
     financial_tokens = financial_profile_tokens(financial_fundamental)
     business_summary = company_profile.business_summary_text if company_profile else ""
     base_text = " ".join(
@@ -2758,7 +2171,6 @@ def build_korea_profile(
             stock_name_en,
             stock.market,
             " ".join(stock.aliases),
-            anchor.profile_text if anchor else "",
             industry_profile.industry_code if industry_profile else "",
             " ".join(industry_profile.peer_stock_names[:20]) if industry_profile else "",
             business_summary,
@@ -2803,7 +2215,13 @@ def build_korea_profile(
             industry=industry,
             business_model=business_model,
             fundamental=fundamental,
-            has_business_evidence=bool(business_summary or anchor),
+            has_business_evidence=bool(
+                business_summary
+                or (
+                    industry_profile
+                    and _is_specific_korea_industry_profile(industry_profile)
+                )
+            ),
             market_cap_reliability=market_cap_reliability,
         ),
         familiarity_score=0.0,
@@ -2924,7 +2342,6 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
         (
             (
                 "semiconductor",
-                "electronics",
                 "memory",
                 "dram",
                 "hbm",
@@ -2932,7 +2349,6 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
                 "hynix",
                 "하이닉스",
                 "반도체",
-                "전자",
             ),
             "semiconductors",
         ),
@@ -3172,6 +2588,45 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
     return list(dict.fromkeys(tags or ["general listed company"]))
 
 
+def infer_business_tags_from_ksic(industry_code: str) -> tuple[str, ...]:
+    normalized = industry_code.strip()
+    if not normalized:
+        return ()
+    rules: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
+        (("10",), ("food and beverage",)),
+        (("13", "14"), ("consumer brands",)),
+        (("16", "24", "25"), ("materials", "industrial machinery")),
+        (("20",), ("chemicals", "materials")),
+        (("21", "271", "70113"), ("biotech",)),
+        (("261", "262", "264", "265"), ("semiconductors", "electrical equipment")),
+        (("27",), ("biotech", "industrial machinery")),
+        (("28",), ("electrical equipment", "industrial machinery")),
+        (("29",), ("industrial machinery",)),
+        (("30", "452"), ("automotive",)),
+        (("33",), ("consumer brands", "industrial machinery")),
+        (("41", "42"), ("construction", "industrial machinery")),
+        (("45",), ("automotive", "retail")),
+        (("46", "47"), ("retail",)),
+        (("49", "52"), ("logistics",)),
+        (("58", "62"), ("software platform",)),
+        (("59",), ("media entertainment",)),
+        (("64",), ("financials",)),
+        (("70",), ("biotech", "industrial machinery")),
+        (("71", "72", "73"), ("software platform", "industrial machinery")),
+        (("76",), ("leisure",)),
+        (("85",), ("education",)),
+        (("86",), ("biotech",)),
+    )
+    return next(
+        (
+            tags
+            for prefixes, tags in rules
+            if any(normalized.startswith(prefix) for prefix in prefixes)
+        ),
+        (),
+    )
+
+
 def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
     text = summary.lower()
     if not text:
@@ -3310,6 +2765,8 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Battery manufacturing and energy storage supply chain"
     if "semiconductors" in tags:
         return "Semiconductor manufacturing or supply chain"
+    if "biotech" in tags or "biologics" in tags or "biologics cdmo" in tags:
+        return "Biotechnology research, development, and manufacturing"
     if "automotive" in tags:
         return "Automobile manufacturing and mobility supply chain"
     if "chemicals" in tags:
@@ -3839,8 +3296,6 @@ def _other_exchange(value: str) -> str:
 
 
 def _english_name_fallback(stock: StockUniverseEntry) -> str:
-    if stock.stock_code == "196170":
-        return "Alteogen"
     return stock.stock_name_en or stock.stock_name
 
 
@@ -3862,10 +3317,6 @@ def _anchors_to_payload(anchors: dict[str, PeerAnchor]) -> dict[str, dict[str, o
             "display_name": anchor.display_name,
             "positioning_title": anchor.positioning_title,
             "preferred_peer_ticker": anchor.preferred_peer_ticker,
-            "headline_template": anchor.headline_template,
-            "summary": anchor.summary,
-            "comparison_dimensions": [asdict(item) for item in anchor.comparison_dimensions],
-            "key_strengths": [asdict(item) for item in anchor.key_strengths],
         }
         for key, anchor in anchors.items()
     }

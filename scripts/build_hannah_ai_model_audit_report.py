@@ -31,6 +31,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
     peer_training = _load_json("reports/global-peer-training-report.json")
     peer_coverage = _load_json("reports/global-peer-full-coverage-report.json")
     peer_smoke = _load_json("reports/global-peer-ai-smoke-report.json")
+    peer_all_results = _load_json("reports/global-peer-all-results.json")
 
     peer_gate_status = (
         "pass"
@@ -117,25 +118,22 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                 "artifact": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
                 "version": peer_training["version"],
                 "model_type": (
-                    "TF-IDF retrieval + SVD semantic embedding + financial features + "
-                    "pairwise LogisticRegression reranker"
+                    "TF-IDF retrieval + SVD semantic embedding + financial, domain, "
+                    "profile-quality, and global-familiarity dynamic similarity"
                 ),
                 "serving_surface": "Korean stock detail global peer popup",
                 "release_status": peer_training["coverage_gate"]["status"],
-                "training_samples": peer_training["pairwise_ranker_evaluation"][
-                    "training_sample_count"
-                ],
+                "training_samples": peer_training["korea_universe_count"],
                 "evaluation": {
-                    "curated_pairwise_top1_accuracy": peer_training[
-                        "pairwise_ranker_evaluation"
-                    ]["top1_accuracy"],
-                    "curated_anchor_top1_accuracy": peer_training["coverage_gate"][
-                        "actual_anchor_top1_accuracy"
-                    ],
+                    "active_korea_universe_count": peer_training["korea_universe_count"],
+                    "eligible_us_peer_count": peer_training["eligible_us_peer_count"],
                     "full_coverage_success_ratio": peer_coverage["quality_gate"][
                         "actual_success_ratio"
                     ],
                     "full_coverage_quality_gate": peer_coverage["quality_gate"]["status"],
+                    "all_results_quality_status": peer_all_results["performance"][
+                        "quality_status"
+                    ],
                     "confidence_monitoring": peer_coverage["confidence_monitoring"],
                     "smoke_sample_count": peer_smoke["sample_count"],
                 },

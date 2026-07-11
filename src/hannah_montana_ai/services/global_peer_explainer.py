@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
-from hannah_montana_ai.training.global_peer_trainer import KOREA_ANCHORS
 
 EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v8"
 TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v3"
@@ -67,18 +66,6 @@ class GlobalPeerExplanationGenerator:
     def template(self, context: GlobalPeerExplanationContext) -> GlobalPeerExplanation:
         request = context.request
         peer = context.primary_peer
-        anchor = KOREA_ANCHORS.get(request.stock_code)
-        if anchor and anchor.headline_template and anchor.summary:
-            stock_name_en = self._stock_display_name(request)
-            return GlobalPeerExplanation(
-                headline=anchor.headline_template.format(
-                    stock_name_en=stock_name_en,
-                    peer_name=peer.company_name,
-                ),
-                summary=anchor.summary,
-                source="GROUNDED_TEMPLATE_STRUCTURED_RAG",
-                model_version=TEMPLATE_EXPLANATION_MODEL_VERSION,
-            )
         stock_name = self._stock_display_name(request)
         peer_name = self._display_peer_name(peer.company_name)
         business_label = self._business_label(peer)
@@ -126,9 +113,6 @@ class GlobalPeerExplanationGenerator:
 
     @staticmethod
     def _stock_display_name(request: GlobalPeerMatchRequest) -> str:
-        anchor = KOREA_ANCHORS.get(request.stock_code)
-        if anchor and anchor.display_name:
-            return anchor.display_name
         curated_name = KOREA_ENGLISH_DISPLAY_NAMES.get(request.stock_code)
         if curated_name:
             return curated_name
@@ -140,7 +124,7 @@ class GlobalPeerExplanationGenerator:
             request.stock_name
         ):
             return request.stock_name
-        return f"Korean stock {request.stock_code}"
+        return request.stock_name or f"Korean stock {request.stock_code}"
 
     @staticmethod
     def _contains_hangul(value: str) -> bool:
