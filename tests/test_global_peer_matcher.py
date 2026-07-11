@@ -208,6 +208,7 @@ def test_global_peer_artifact_is_serving_only_and_github_safe() -> None:
     payload = joblib.load(MODEL_PATH)
 
     assert MODEL_PATH.stat().st_size < 95_000_000
+    assert MODEL_PATH.stat().st_mode & 0o444 == 0o444
     assert "korea_business_profile_classifier" not in payload
     assert payload["eligible_us_matrix"].shape[1] <= 100_000
     assert payload["semantic_reducer"].components_.shape[0] <= 192

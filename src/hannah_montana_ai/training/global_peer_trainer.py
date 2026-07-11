@@ -2086,6 +2086,7 @@ def train_global_peer_model(
         temporary_path = Path(temporary_file.name)
     try:
         joblib.dump(artifact, temporary_path, compress=9)
+        temporary_path.chmod(0o644)
         os.replace(temporary_path, model_path)
     finally:
         temporary_path.unlink(missing_ok=True)
