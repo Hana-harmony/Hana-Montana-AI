@@ -24,4 +24,4 @@
 ## 품질 게이트
 
 - `reports/global-peer-full-coverage-report.json`은 현재 KIS universe 개수와 전체 실행 개수의 일치, 100% 성공률, 비교 3개의 차원·회사 유일성, Key Strength 4개의 근거·유일성을 검증한다.
-- 상장폐지·합병 종목은 이전 누적 CSV가 아니라 매 동기화 시점의 KIS 활성 스냅샷에서 제외한다.
+- 상장폐지·합병 종목은 매 동기화 시점의 KIS 활성 스냅샷에서 제외한다.
