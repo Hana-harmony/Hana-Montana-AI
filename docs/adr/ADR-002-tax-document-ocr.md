@@ -22,7 +22,7 @@ Hannah-Montana-AI가 세무 서류 OCR 검증 API의 모델 경계를 가진다.
 - 파일 bytes는 Hannah 프로세스의 임시 파일로만 저장하고 요청 처리 후 삭제한다.
 - 협력사 API key나 최종투자자 credential은 Hannah에 저장하지 않는다.
 - OCR confidence는 모델 산출값으로만 응답하며, upstream이 임의로 제공한 값은 파일 payload 검증 경로에서 통과 조건으로 사용하지 않는다.
-- OCR 엔진 장애는 성공 fallback이 아니라 관측 가능한 실패/수동검수 상태로 노출한다.
+- OCR 엔진 장애는 관측 가능한 실패 또는 수동 검수 상태로 노출한다.
 
 ## 결과
 거래소 앱의 세무 제출 버튼은 세 문서가 모두 `HANNAH_MONTANA_AI_TAX_OCR` 출처로 `VERIFIED`되고 manual review가 false일 때만 제출 완료로 진행한다.

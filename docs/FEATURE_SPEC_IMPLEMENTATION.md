@@ -1,4 +1,4 @@
-# 기능정의서 구현 계약
+# 기능 계약 구현 현황
 
 ## 적용 범위
 - 이 서비스는 AI/계산/패킹 계층이다. KIS, KRX, GPT 번역, 국세청, 현지 MTS의 실제 계정·주문·세무 제출 실행은 외부 백엔드 어댑터가 담당한다.
@@ -12,7 +12,7 @@
 - 파서:
   - `parse_kis_master_csv`: KIS 종목 마스터 파일의 종목코드, 국문명, 영문명, 시장, 발행주식수, 상·하한가 기준가를 정규화한다.
   - `parse_kis_realtime_packet`: KIS 실시간 현재가/VI/단일가 패킷을 정규화한다.
-  - `parse_krx_foreign_holding_row`: 레거시 함수명은 유지하되, 현재는 KIS 현재가 REST snapshot 또는 동일 스키마의 외국인 보유 row를 정규화한다.
+  - `parse_krx_foreign_holding_row`: 호환 함수명으로 KIS 현재가 REST snapshot과 동일 스키마의 외국인 보유 row를 정규화한다.
   - `build_stock_order_status_request`: 세 provider row의 종목코드 일치성을 검증하고 모델 입력을 생성한다.
 - 계산:
   - 외국인 보유율 = `foreign_owned_quantity / issued_shares * 100`
@@ -57,7 +57,7 @@
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
   - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
-  - 한국어 전문 번역은 Hannah가 로컬 Qwen 4B GGUF endpoint를 호출하며 외부 GPT/DeepL provider를 사용하지 않는다.
+  - 한국어 전문 번역은 Hannah의 로컬 Qwen3-4B GGUF endpoint를 사용한다.
   - 한국 금융 용어는 단일 dictionary 표면형을 번역 품질 gate에 전달한다.
 - 출력 핵심 필드:
   - `alert_id`, `duplicate_key`, `stock_code`, `news_disclosure_type`
@@ -109,7 +109,7 @@
   - `tax_model_version`, `document_model_version`
 
 ## 하네스 보강
-- `tests/test_feature_definition_contracts.py`가 기능정의서의 세 도메인 계약을 직접 검증한다.
+- `tests/test_feature_definition_contracts.py`가 주문 상태, 인텔리전스, 세무 도메인 계약을 직접 검증한다.
 - 주문 하네스는 외국인 한도 잔여 수량, 한도 사용 상태, 매수/매도 가능 여부, 제한 사유, VI, 상한가, 현지통화 환산, 즉시체결 제한 문구를 검증한다.
 - provider parser 하네스는 KIS 마스터, KIS 실시간 패킷, 외국인 보유 snapshot row를 모델 입력으로 합성하고 종목코드 불일치를 거부하는지 검증한다.
 - 인텔리전스 하네스는 Naver/OpenDART provider row 파싱, API/WebSocket 중복키 생성, 종목·출처별 중복키 경계, 번역 제목, 요약, 이벤트 태그, 감성, 중요도, holder/watchlist target, WebSocket 이벤트 패킷, 데이터 출처를 검증한다.
