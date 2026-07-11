@@ -527,13 +527,23 @@ class GlobalPeerMatcher:
             )
             for rank, index in enumerate(selected_indices, start=1)
         ]
-        primary_peer = peers[0]
         comparisons = self._build_comparisons(
             request=request,
             stock_profile=stock_profile,
             ranked_indices=[int(index) for index in ranked_indices],
             similarities=similarities,
             financial_similarities=financial_similarities,
+        )
+        if not comparisons:
+            raise ModelArtifactInvalidError(
+                "global peer model could not produce a grounded comparison"
+            )
+        primary_peer = comparisons[0].peer
+        peers = self._ordered_peer_matches(
+            primary_peer=primary_peer,
+            comparisons=comparisons,
+            ranked_peers=peers,
+            limit=max(1, request.peer_count),
         )
         key_strengths = self._build_key_strengths(request, stock_profile)
         confidence_score = self._calibrated_confidence_score(
@@ -567,6 +577,30 @@ class GlobalPeerMatcher:
             explanation_model_version=explanation.model_version,
             explanation_prompt_version=explanation.prompt_version,
         )
+
+    @staticmethod
+    def _ordered_peer_matches(
+        *,
+        primary_peer: GlobalPeerMatch,
+        comparisons: list[GlobalPeerComparison],
+        ranked_peers: list[GlobalPeerMatch],
+        limit: int,
+    ) -> list[GlobalPeerMatch]:
+        ordered: list[GlobalPeerMatch] = []
+        seen_tickers: set[str] = set()
+        candidates = [
+            primary_peer,
+            *(comparison.peer for comparison in comparisons),
+            *ranked_peers,
+        ]
+        for candidate in candidates:
+            if candidate.ticker in seen_tickers:
+                continue
+            seen_tickers.add(candidate.ticker)
+            ordered.append(candidate.model_copy(update={"rank": len(ordered) + 1}))
+            if len(ordered) == limit:
+                break
+        return ordered
 
     def _build_comparisons(
         self,

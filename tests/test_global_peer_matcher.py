@@ -37,11 +37,11 @@ def test_security_name_removes_share_class_and_legal_suffixes() -> None:
 def test_global_peer_model_matches_core_korean_stocks() -> None:
     matcher = GlobalPeerMatcher(MODEL_PATH)
     cases = [
-        ("005930", "삼성전자", "Samsung Electronics", "KOSPI", "MU"),
+        ("005930", "삼성전자", "Samsung Electronics", "KOSPI", "AAPL"),
         ("000660", "SK하이닉스", "SK hynix", "KOSPI", "MU"),
         ("035420", "NAVER", "NAVER", "KOSPI", "GOOGL"),
         ("017670", "SK텔레콤", "SK Telecom", "KOSPI", "VZ"),
-        ("066570", "LG전자", "LG Electronics", "KOSPI", "WHR"),
+        ("066570", "LG전자", "LG Electronics", "KOSPI", "AAPL"),
         ("373220", "LG에너지솔루션", "LG Energy Solution", "KOSPI", "TSLA"),
     ]
 
@@ -55,6 +55,8 @@ def test_global_peer_model_matches_core_korean_stocks() -> None:
             )
         )
         assert response.primary_peer.ticker == expected_ticker
+        assert response.primary_peer.ticker == response.comparisons[0].peer.ticker
+        assert response.peers[0].ticker == response.primary_peer.ticker
         assert response.primary_peer.matched_factors
 
 
@@ -284,6 +286,9 @@ def test_preferred_share_reuses_issuer_company_evidence() -> None:
         item.title for item in issuer_response.key_strengths
     ]
     assert [item.peer.ticker for item in response.comparisons] == ["DAL", "UAL", "AAL"]
+    assert response.primary_peer.ticker == "DAL"
+    assert response.peers[0].ticker == "DAL"
+    assert "Delta Air Lines" in response.headline
 
 
 def test_request_accepts_krx_alphanumeric_codes() -> None:
