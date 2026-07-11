@@ -1,7 +1,7 @@
 {
   "schema_version": "global-peer-hybrid-ranker/v4",
-  "version": "global-peer-hybrid-ranker-20260711000630",
-  "trained_at": "2026-07-11T00:06:30.148065+00:00",
+  "version": "global-peer-hybrid-ranker-20260711005100",
+  "trained_at": "2026-07-11T00:51:00.242600+00:00",
   "korea_stock_universe_path": "data/reference/korea_stock_universe.csv",
   "us_stock_universe_path": "data/reference/us_stock_universe.csv",
   "fundamentals_path": "data/reference/global_peer_fundamentals.csv",
@@ -52,7 +52,7 @@
     "foundry": 2,
     "gaming": 52,
     "general listed company": 9746,
-    "holding company": 1476,
+    "holding company": 1475,
     "home appliances": 1,
     "industrial machinery": 437,
     "insurance": 48,
@@ -63,6 +63,7 @@
     "media entertainment": 264,
     "memory chips": 3,
     "online advertising": 4,
+    "passenger transportation": 3,
     "payments": 3,
     "pharmaceuticals": 1,
     "real estate": 231,
@@ -102,7 +103,7 @@
         "stock_code": "017670",
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
-        "score": 0.687539,
+        "score": 0.687391,
         "hit": true
       },
       {
@@ -123,7 +124,7 @@
         "stock_code": "055550",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.277344,
+        "score": 0.277346,
         "hit": true
       },
       {
@@ -137,7 +138,7 @@
         "stock_code": "068270",
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
-        "score": 0.361055,
+        "score": 0.361054,
         "hit": true
       },
       {
@@ -151,7 +152,7 @@
         "stock_code": "105560",
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
-        "score": 0.343948,
+        "score": 0.343949,
         "hit": true
       },
       {
@@ -188,7 +189,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.82669,
+        "score": 0.826715,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -197,7 +198,7 @@
         "expected_peer_ticker": "MU",
         "predicted_peer_ticker": "MU",
         "expected_peer_rank": 1,
-        "score": 0.724096,
+        "score": 0.724115,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -206,7 +207,7 @@
         "expected_peer_ticker": "QS",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 2,
-        "score": 0.764339,
+        "score": 0.764247,
         "top1_hit": false,
         "top3_hit": true
       },
@@ -215,7 +216,7 @@
         "expected_peer_ticker": "VZ",
         "predicted_peer_ticker": "VZ",
         "expected_peer_rank": 1,
-        "score": 0.843747,
+        "score": 0.843606,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -224,7 +225,7 @@
         "expected_peer_ticker": "GOOGL",
         "predicted_peer_ticker": "GOOGL",
         "expected_peer_rank": 1,
-        "score": 0.81767,
+        "score": 0.817578,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -233,7 +234,7 @@
         "expected_peer_ticker": "DOW",
         "predicted_peer_ticker": "DOW",
         "expected_peer_rank": 1,
-        "score": 0.83043,
+        "score": 0.830528,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -242,7 +243,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.779944,
+        "score": 0.779935,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -251,7 +252,7 @@
         "expected_peer_ticker": "WHR",
         "predicted_peer_ticker": "WHR",
         "expected_peer_rank": 1,
-        "score": 0.77172,
+        "score": 0.771714,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -260,7 +261,7 @@
         "expected_peer_ticker": "BIIB",
         "predicted_peer_ticker": "BIIB",
         "expected_peer_rank": 1,
-        "score": 0.754417,
+        "score": 0.754598,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -269,7 +270,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.751282,
+        "score": 0.751202,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -278,7 +279,7 @@
         "expected_peer_ticker": "C",
         "predicted_peer_ticker": "C",
         "expected_peer_rank": 1,
-        "score": 0.784645,
+        "score": 0.784636,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -287,7 +288,7 @@
         "expected_peer_ticker": "HALO",
         "predicted_peer_ticker": "HALO",
         "expected_peer_rank": 1,
-        "score": 0.808528,
+        "score": 0.808536,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -296,7 +297,7 @@
         "expected_peer_ticker": "TMO",
         "predicted_peer_ticker": "TMO",
         "expected_peer_rank": 1,
-        "score": 0.749785,
+        "score": 0.749845,
         "top1_hit": true,
         "top3_hit": true
       },
@@ -305,7 +306,7 @@
         "expected_peer_ticker": "TSLA",
         "predicted_peer_ticker": "TSLA",
         "expected_peer_rank": 1,
-        "score": 0.864472,
+        "score": 0.864458,
         "top1_hit": true,
         "top3_hit": true
       }

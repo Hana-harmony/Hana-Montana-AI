@@ -206,7 +206,7 @@ STRENGTH_SIGNALS: tuple[StrengthSignal, ...] = (
     (
         "Aviation Network",
         "Domestic and international routes provide a scaled passenger-transport network.",
-        "global_business",
+        "industrial",
         ("항공운송", "항공 여객", "국제항공", "취항", "노선개설"),
     ),
     (
@@ -402,6 +402,30 @@ STRENGTH_SIGNALS: tuple[StrengthSignal, ...] = (
         "Multiple disclosed business divisions provide a diversified operating base.",
         "ecosystem",
         ("사업부문으로", "사업부문을", "사업부문에서", "사업본부", "개 사업부문"),
+    ),
+    (
+        "Digital Vouchers",
+        "Mobile vouchers, barcode, or QR delivery connects digital payments and commerce.",
+        "payments",
+        ("모바일상품권", "기프티쇼", "qr코드", "바코드", "디지털 유통"),
+    ),
+    (
+        "Broadcast Commerce",
+        "TV or data-broadcast commerce combines media distribution with retail conversion.",
+        "commerce",
+        ("t커머스", "데이터방송", "tv 방송 플랫폼", "쇼핑 운영"),
+    ),
+    (
+        "Digital Media",
+        "Online, mobile, or paid content expands digital audience and subscription reach.",
+        "media",
+        ("뉴미디어", "온라인 콘텐츠", "유료 콘텐츠", "경제 전문 미디어", "스마트플랫폼"),
+    ),
+    (
+        "Specialty Finance",
+        "Specialty lending or finance subsidiaries diversify media or platform earnings.",
+        "financial_services",
+        ("여신전문금융업", "에이캐피탈", "specialty finance"),
     ),
     (
         "Global Reach",
@@ -694,6 +718,8 @@ class GlobalPeerMatcher:
         stock_profile: dict[str, object],
         peer_profile: dict[str, object],
     ) -> float:
+        if GlobalPeerMatcher._is_aviation_profile(stock_profile):
+            return GlobalPeerMatcher._dimension_fit("industrial", peer_profile)
         business_dimension = GlobalPeerMatcher._dimension_for(
             str(stock_profile.get("business_model") or "")
         )
@@ -716,6 +742,14 @@ class GlobalPeerMatcher:
         )
 
     @staticmethod
+    def _is_aviation_profile(stock_profile: dict[str, object]) -> bool:
+        business_summary = str(stock_profile.get("business_summary") or "").lower()
+        return any(
+            term in business_summary
+            for term in ("항공운송", "저비용항공사", "항공기", "여객기")
+        )
+
+    @staticmethod
     def _comparison_domain_compatible(
         stock_profile: dict[str, object],
         peer_profile: dict[str, object],
@@ -728,6 +762,13 @@ class GlobalPeerMatcher:
         peer_sector = str(peer_profile.get("sector") or "Unclassified")
         stock_industry = str(stock_profile.get("industry") or "Unclassified")
         peer_industry = str(peer_profile.get("industry") or "Unclassified")
+        if GlobalPeerMatcher._is_aviation_profile(stock_profile) and dimension in {
+            "overall_business",
+            "industrial",
+            "commerce",
+            "operational_scale",
+        }:
+            return peer_industry == "Airlines" and dimension_fit >= 0.5
         if (
             stock_sector not in generic_sectors
             and peer_sector not in generic_sectors
@@ -864,8 +905,21 @@ class GlobalPeerMatcher:
             "telecommunications": ("telecom", "wireless", "network"),
             "energy": ("energy", "power", "oil", "gas"),
             "materials": ("material", "chemical", "steel", "metal"),
-            "industrial": ("industrial", "machinery", "construction", "engineering"),
-            "commerce": ("retail", "commerce", "merchant", "consumer"),
+            "industrial": (
+                "industrial",
+                "machinery",
+                "construction",
+                "engineering",
+                "aerospace",
+                "aviation",
+            ),
+            "commerce": (
+                "retail",
+                "commerce",
+                "merchant",
+                "consumer",
+                "passenger transportation",
+            ),
             "media": ("media", "content", "gaming", "entertainment"),
             "operational_scale": ("mega cap", "large cap", "mid cap", "scale"),
             "overall_business": (),

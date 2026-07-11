@@ -283,6 +283,7 @@ def test_preferred_share_reuses_issuer_company_evidence() -> None:
     assert [item.title for item in response.key_strengths] == [
         item.title for item in issuer_response.key_strengths
     ]
+    assert [item.peer.ticker for item in response.comparisons] == ["DAL", "UAL", "AAL"]
 
 
 def test_request_accepts_krx_alphanumeric_codes() -> None:

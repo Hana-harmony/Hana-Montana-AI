@@ -125,6 +125,7 @@ PAIRWISE_FEATURE_NAMES = (
 )
 
 CURATED_GLOBAL_BRAND_TIERS: dict[str, float] = {
+    "AAL": 0.85,
     "AAPL": 1.0,
     "ALB": 0.85,
     "AMD": 0.9,
@@ -137,6 +138,7 @@ CURATED_GLOBAL_BRAND_TIERS: dict[str, float] = {
     "COST": 0.95,
     "CRM": 0.9,
     "CVX": 0.9,
+    "DAL": 0.9,
     "DIS": 0.95,
     "DOW": 0.85,
     "F": 0.9,
@@ -167,6 +169,7 @@ CURATED_GLOBAL_BRAND_TIERS: dict[str, float] = {
     "TMUS": 0.9,
     "TSLA": 1.0,
     "TSM": 1.0,
+    "UAL": 0.9,
     "V": 0.95,
     "VZ": 0.9,
     "WMT": 0.95,
@@ -609,6 +612,15 @@ KOREA_ANCHORS: dict[str, PeerAnchor] = {
 }
 
 US_ANCHORS: dict[str, PeerAnchor] = {
+    "AAL": PeerAnchor(
+        profile_text="American Airlines passenger cargo aviation fleet global route network",
+        business_tags=("aerospace", "passenger transportation"),
+        sector="Industrials",
+        industry="Airlines",
+        business_model="Passenger and cargo airline operations",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Global Airline",
+    ),
     "AAPL": PeerAnchor(
         profile_text=(
             "Apple consumer electronics smartphones personal computers wearables services "
@@ -801,6 +813,15 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         scale_bucket="MEGA_CAP",
         positioning_title="Global Semiconductor Foundry",
     ),
+    "UAL": PeerAnchor(
+        profile_text="United Airlines passenger cargo aviation fleet global route network",
+        business_tags=("aerospace", "passenger transportation"),
+        sector="Industrials",
+        industry="Airlines",
+        business_model="Passenger and cargo airline operations",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Global Airline",
+    ),
     "VZ": PeerAnchor(
         profile_text=(
             "Verizon wireless carrier mobile network broadband telecom operator "
@@ -839,6 +860,15 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         business_model="Global media content and entertainment ecosystem",
         scale_bucket="LARGE_CAP",
         positioning_title="Media and Entertainment Group",
+    ),
+    "DAL": PeerAnchor(
+        profile_text="Delta Air Lines passenger cargo aviation fleet global route network",
+        business_tags=("aerospace", "passenger transportation"),
+        sector="Industrials",
+        industry="Airlines",
+        business_model="Passenger and cargo airline operations",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Global Airline",
     ),
     "GM": PeerAnchor(
         profile_text="General Motors global automobile vehicle EV manufacturing mobility",
