@@ -41,6 +41,19 @@ from hannah_montana_ai.training.stock_universe import (
 )
 
 
+def _contains_glossary_surface(text: str, surface: str) -> bool:
+    candidate = surface.strip()
+    if not candidate:
+        return False
+    if re.search(r"[A-Za-z0-9]", candidate):
+        pattern = re.compile(
+            rf"(?<![A-Za-z0-9]){re.escape(candidate)}(?![A-Za-z0-9])",
+            re.IGNORECASE,
+        )
+        return bool(pattern.search(text))
+    return candidate in text
+
+
 @dataclass(frozen=True)
 class StockMatchResult:
     stock: StockCandidate | StockUniverseEntry | None
@@ -599,7 +612,7 @@ class AlertAnalyzer:
                 (
                     term
                     for term in (normalized_term, *entry.aliases)
-                    if term and term in text
+                    if _contains_glossary_surface(text, term)
                 ),
                 "",
             )

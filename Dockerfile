@@ -23,6 +23,8 @@ COPY pyproject.toml uv.lock ./
 COPY src ./src
 COPY data/reference ./data/reference
 
+RUN find /app/src -type f -name '*.joblib' -exec chmod 0444 {} +
+
 RUN uv sync --frozen --no-dev
 RUN mkdir -p /app/.cache/.tesseract \
     && chown -R 65532:65532 /app/.cache

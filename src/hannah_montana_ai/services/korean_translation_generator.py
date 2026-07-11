@@ -1393,7 +1393,15 @@ class KoreanTranslationGenerator:
 
     def _contains_source_term(self, source_text: str, term: str) -> bool:
         candidate = term.strip()
-        return bool(candidate) and candidate in source_text
+        if not candidate:
+            return False
+        if re.search(r"[A-Za-z0-9]", candidate):
+            pattern = re.compile(
+                rf"(?<![A-Za-z0-9]){re.escape(candidate)}(?![A-Za-z0-9])",
+                re.IGNORECASE,
+            )
+            return bool(pattern.search(source_text))
+        return candidate in source_text
 
     def _parse_translation(self, raw_output: str) -> str:
         cleaned = self._clean_qwen_translation_output(raw_output)
