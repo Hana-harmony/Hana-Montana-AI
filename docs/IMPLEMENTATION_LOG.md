@@ -1,11 +1,11 @@
 # 구현 기록
 
-## 2026-07-11 전 종목 글로벌 피어·glossary 경계 보강
+## 2026-07-11 활성 일반주식 전체 글로벌 피어·glossary 경계 보강
 
-- 거래소 서빙 59종목 전체의 Key Strength 4개를 종목별 사업요약 근거로 생성하며, 증거가 4개 미만이면 더미 카드 대신 명시적 실패를 반환한다.
-- 삼성전자 전용 anchor 외 종목도 사업요약의 반도체·배터리·자동차·금융·플랫폼·바이오·항공·미디어 증거를 각각 다른 강점으로 매핑한다.
-- 비교 종목은 실제 사업 차원 적합도와 글로벌 인지도 catalog를 함께 사용하며 거래소 서빙 전체에서 3개 비교·4개 강점 계약을 검증했다.
-- 영문 glossary alias는 영숫자 token 경계를 만족할 때만 인식하므로 `participant`의 부분 문자열 `ant`를 고유어로 처리하지 않는다.
+- KIS 공식 마스터의 KOSPI·KOSDAQ·KONEX 활성 일반주식 2,752개를 모델 universe의 단일 기준으로 사용한다.
+- 한국 종목별 고정 peer·headline·비교·강점 anchor와 14개 pairwise 정답 라벨을 제거했다. 모든 요청은 사업 태그, KSIC 업종, 사업 요약, TF-IDF, 잠재 의미, 재무 규모, 글로벌 인지도 신호를 실시간 조합해 후보를 점수화한다.
+- 활성 2,752종목 전체 추론으로 2,752/2,752 성공, 고유한 3개 비교, 근거가 있는 4개 Key Strength, 동일 회사 중복 0건을 검증한다.
+- 영문 glossary alias 전체에 양쪽 영숫자 단어 경계를 적용한다. `ant`는 `participant`, `significant`, `antitrust`에서, 다른 alias도 더 긴 영문 단어 내부에서 인식되지 않는다.
 - 재학습 아티팩트는 `0644`로 교체하고 이미지 빌드 시 `0444`로 고정해 non-root serving 계정의 읽기 실패를 방지한다.
 - `primaryPeer`·headline·peers 첫 항목을 Global Comparison 1순위와 동일하게 구성해 대표 피어와 실제 비교 카드가 엇갈리지 않게 한다.
 
@@ -26,9 +26,3 @@
 - `/api/v1/tax/documents/verify`가 이미지/PDF payload를 공통 `TaxDocumentPipeline`으로 검증한다.
 - Tesseract `kor+eng` OCR, 문서별 parser/reviewer, 위변조·필수필드 gate를 사용한다.
 - OCR 불가 입력은 임의 통과시키지 않고 명시적 실패 사유를 반환한다.
-
-## 2026-07-03 글로벌 피어 비교 강화
-
-- 글로벌 비교는 3개 고유 비교 차원과 인지도 높은 peer를 반환한다.
-- 삼성전자는 Apple/Intel/TSMC 비교와 memory/foundry/ecosystem/AI 네 강점을 제공한다.
-- 핵심 강점은 비교 문구가 아니라 한국 기업 자체의 강점으로 구성한다.

@@ -64,7 +64,7 @@ def test_internal_stock_universe_matches_every_stock_code() -> None:
         is None
     ]
 
-    assert len(entries) >= 3_000
+    assert len(entries) >= 2_500
     assert misses == []
 
 
