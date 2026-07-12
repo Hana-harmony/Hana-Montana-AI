@@ -22,8 +22,10 @@ RUN apt-get update \
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 COPY data/reference ./data/reference
+COPY reports/k-fnspid-impact-training-report.json ./reports/k-fnspid-impact-training-report.json
 
-RUN find /app/src -type f -name '*.joblib' -exec chmod 0444 {} +
+RUN find /app/src -type f -name '*.joblib' -exec chmod 0444 {} + \
+    && chmod 0444 /app/reports/k-fnspid-impact-training-report.json
 
 RUN uv sync --frozen --no-dev
 RUN mkdir -p /app/.cache/.tesseract \
