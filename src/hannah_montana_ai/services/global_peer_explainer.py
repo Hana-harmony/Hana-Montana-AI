@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 
 from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest
+from hannah_montana_ai.services.english_company_name import resolve_english_company_name
 
 EXPLANATION_PROMPT_VERSION = "global-peer-structured-rag-explainer-v8"
 TEMPLATE_EXPLANATION_MODEL_VERSION = "grounded-template-structured-rag-v3"
@@ -85,6 +86,7 @@ class GlobalPeerExplanationGenerator:
             source="GROUNDED_TEMPLATE_STRUCTURED_RAG",
             model_version=TEMPLATE_EXPLANATION_MODEL_VERSION,
         )
+
     @staticmethod
     def _business_label(peer: GlobalPeerMatch) -> str:
         if peer.industry and peer.industry not in {"Unclassified", "Listed Operating Company"}:
@@ -116,19 +118,11 @@ class GlobalPeerExplanationGenerator:
         curated_name = KOREA_ENGLISH_DISPLAY_NAMES.get(request.stock_code)
         if curated_name:
             return curated_name
-        if request.stock_name_en and not GlobalPeerExplanationGenerator._contains_hangul(
-            request.stock_name_en
-        ):
-            return request.stock_name_en
-        if request.stock_name and not GlobalPeerExplanationGenerator._contains_hangul(
-            request.stock_name
-        ):
-            return request.stock_name
-        return request.stock_name or f"Korean stock {request.stock_code}"
-
-    @staticmethod
-    def _contains_hangul(value: str) -> bool:
-        return bool(re.search(r"[가-힣]", value))
+        return resolve_english_company_name(
+            stock_code=request.stock_code,
+            stock_name=request.stock_name,
+            stock_name_en=request.stock_name_en,
+        )
 
     @staticmethod
     def _display_peer_name(company_name: str) -> str:
