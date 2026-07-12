@@ -123,6 +123,21 @@ def test_samsung_comparison_uses_familiar_companies_and_four_strengths() -> None
     assert all("both companies" not in item.description.lower() for item in response.key_strengths)
 
 
+def test_missing_master_english_name_never_leaks_hangul_into_peer_copy() -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
+        GlobalPeerMatchRequest(
+            stock_code="000050",
+            stock_name="경방",
+            stock_name_en="",
+            market="KOSPI",
+        )
+    )
+
+    assert response.stock_name_en == "Gyeongbang"
+    assert "경방" not in response.headline
+    assert "경방" not in response.summary
+
+
 def test_non_curated_comparison_is_complete_and_unique() -> None:
     response = GlobalPeerMatcher(MODEL_PATH).match(
         GlobalPeerMatchRequest(
