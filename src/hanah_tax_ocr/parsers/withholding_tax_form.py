@@ -107,6 +107,20 @@ class WithholdingTaxFormParser(BaseDocumentParser):
             full_text_address_raw,
             address,
         )
+        birth_date = self._extract_iso_date(
+            self._region_value(ocr_result, "birth_date")
+            or self._find_first(
+                r"(?:생년월일|Date\s+of\s+Birth)\s*[:;]?\s*((?:19|20)\d{2}[-./]\d{1,2}[-./]\d{1,2})",
+                single_line,
+            )
+        )
+        phone_number = self._extract_phone_number(
+            self._region_value(ocr_result, "phone_number")
+            or self._find_first(
+                r"(?:전화번호|거주지\s*전화|Phone|Tel)\s*[:;]?\s*(\+?\d[\d\s()-]{7,20}\d)",
+                single_line,
+            )
+        )
         region_country = self._region_value(ocr_result, "residency_country")
         country_code = normalize_country_code(
             self._region_value(ocr_result, "residency_country_code")
@@ -171,6 +185,8 @@ class WithholdingTaxFormParser(BaseDocumentParser):
             "last_name": last_name,
             "middle_name": middle_name,
             "tin": tin,
+            "birth_date": birth_date,
+            "phone_number": phone_number,
             "address": address,
             "residency_country": country,
             "residency_country_code": country_code,
@@ -192,6 +208,23 @@ class WithholdingTaxFormParser(BaseDocumentParser):
             quality_checks=quality_checks,
             parser_warnings=[],
         )
+
+    def _extract_iso_date(self, value: str | None) -> str | None:
+        if not value:
+            return None
+        match = re.search(r"((?:19|20)\d{2})[-./]\s*(\d{1,2})[-./]\s*(\d{1,2})", value)
+        if not match:
+            return None
+        return f"{match.group(1)}-{int(match.group(2)):02d}-{int(match.group(3)):02d}"
+
+    def _extract_phone_number(self, value: str | None) -> str | None:
+        if not value:
+            return None
+        match = re.search(r"\+?\d[\d\s()-]{7,20}\d", value)
+        if not match:
+            return None
+        normalized = re.sub(r"[^\d+]", "", match.group(0))
+        return normalized if normalized.startswith("+") else normalized
 
     def _merge_address_candidates(
         self,
