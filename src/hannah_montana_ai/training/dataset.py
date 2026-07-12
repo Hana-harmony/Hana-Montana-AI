@@ -27,6 +27,14 @@ class LabeledAlert:
     source_license_policy: str = ""
     source_url: str = ""
     content_hash: str = ""
+    provider: str = ""
+    published_at: str = ""
+    published_at_kst: str = ""
+    published_precision: str = ""
+    market_session: str = ""
+    effective_trade_date: str = ""
+    document_id: str = ""
+    event_cluster_id: str = ""
 
     @property
     def model_text(self) -> str:
@@ -64,6 +72,14 @@ def load_labeled_alerts(path: Path) -> list[LabeledAlert]:
                 source_license_policy=payload.get("source_license_policy", ""),
                 source_url=payload.get("source_url", payload.get("original_url", "")),
                 content_hash=payload.get("content_hash", ""),
+                provider=payload.get("provider", ""),
+                published_at=payload.get("published_at", ""),
+                published_at_kst=payload.get("published_at_kst", ""),
+                published_precision=payload.get("published_precision", ""),
+                market_session=payload.get("market_session", ""),
+                effective_trade_date=payload.get("effective_trade_date", ""),
+                document_id=payload.get("document_id", ""),
+                event_cluster_id=payload.get("event_cluster_id", ""),
             )
         )
     return samples

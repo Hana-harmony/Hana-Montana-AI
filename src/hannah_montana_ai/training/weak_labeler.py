@@ -92,6 +92,10 @@ def weak_label(alert: RawCollectedAlert) -> LabeledAlert | None:
         sentiment=sentiment,
         importance=importance,
         source_type=alert.source_type,
+        provider=alert.provider,
+        published_at=alert.published_at,
+        source_url=alert.original_url,
+        content_hash=alert.content_hash,
     )
 
 

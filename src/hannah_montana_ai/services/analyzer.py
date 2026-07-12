@@ -27,6 +27,10 @@ from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationGenerator,
     KoreanTranslationResult,
 )
+from hannah_montana_ai.services.market_impact_model import (
+    KFnspidMarketImpactModel,
+    blend_importance,
+)
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
 from hannah_montana_ai.services.news_summary_generator import (
     NewsSummaryContext,
@@ -298,6 +302,10 @@ class AlertAnalyzer:
         settings = get_settings()
         self.rule_engine = FinancialRuleEngine()
         self.model = MachineLearningFinancialNlpModel(settings.model_path)
+        self.market_impact_model = KFnspidMarketImpactModel(
+            settings.market_impact_model_path,
+            settings.market_impact_training_report_path,
+        )
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
         self.summary_generator = summary_generator or NewsSummaryGenerator()
         self.translation_generator = (
@@ -339,6 +347,7 @@ class AlertAnalyzer:
             self._top_label(importance_probabilities, fallback="MEDIUM"),
         )
         importance = self._augment_importance(text, request.source_type, importance)
+        market_impact_prediction = self.market_impact_model.predict(text)
         related_stocks = self._match_related_stocks_from_request_or_internal(
             text,
             request.stock_universe,
@@ -349,6 +358,11 @@ class AlertAnalyzer:
         event_confidence = self._event_confidence(event_tags, event_probabilities)
         sentiment_confidence = sentiment_probabilities.get(sentiment, 0.0)
         importance_confidence = importance_probabilities.get(importance, 0.0)
+        importance, importance_confidence = blend_importance(
+            importance,
+            importance_confidence,
+            market_impact_prediction,
+        )
         event_confidence, sentiment_confidence, importance_confidence = (
             self._cap_summary_only_confidences(
                 has_full_content,
@@ -459,7 +473,11 @@ class AlertAnalyzer:
             translation_status=translation_status,
             duplicate_key=duplicate_key,
             cluster_key=self._cluster_key(request, stock_code, duplicate_key),
-            model_version=self.model.version,
+            model_version=(
+                f"{self.model.version}|impact:{self.market_impact_model.version}"
+                if self.market_impact_model.enabled
+                else self.model.version
+            ),
             event_confidence=round(event_confidence, 6),
             sentiment_confidence=round(sentiment_confidence, 6),
             importance_confidence=round(importance_confidence, 6),

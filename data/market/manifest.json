@@ -1,0 +1,25 @@
+{
+  "schema_version": "k-fnspid-market-price/v1",
+  "generated_at": "2026-07-13T05:58:03.491509+09:00",
+  "row_count": 1239658,
+  "stock_count": 948,
+  "min_trade_date": "2021-01-04",
+  "max_trade_date": "2026-07-10",
+  "sources": [
+    {
+      "source": "hf-kospi-daily-features",
+      "path": "data/external/kospi-daily-stock-features.parquet",
+      "row_count": 1214339,
+      "sha256": "deaf394425fa4c9b69354fcd0c86681e8d529a226800058fc4a36bdff3ebdeb7"
+    },
+    {
+      "source": "yahoo-finance-chart-daily",
+      "row_count": 28811
+    }
+  ],
+  "output": {
+    "path": "data/market/market_daily_price.parquet",
+    "bytes": 22038742,
+    "sha256": "72ea0f45fbb8d322273e068e22aa20549c864bfb0ea572b5848eb352a1ba3005"
+  }
+}

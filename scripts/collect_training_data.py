@@ -131,6 +131,10 @@ def main() -> None:
                     "stock_code": alert.stock_code,
                     "stock_name": alert.stock_name,
                     "stock_aliases": alert.stock_aliases,
+                    "provider": alert.provider,
+                    "published_at": alert.published_at,
+                    "source_url": alert.source_url,
+                    "content_hash": alert.content_hash,
                 }
                 for alert in labeled_alerts
             ],
