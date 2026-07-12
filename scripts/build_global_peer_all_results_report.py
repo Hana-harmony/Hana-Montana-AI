@@ -217,7 +217,7 @@ def _report(
     presentation_contract_failure_count = sum(
         1
         for row in rows
-        if len(cast(list[object], row["comparisons"])) != 3
+        if len(cast(list[object], row["comparisons"])) not in {1, 2, 3}
         or len(cast(list[object], row["key_strengths"])) != 4
     )
     performance = {
@@ -309,12 +309,7 @@ def _write_csv(csv_path: Path, rows: list[dict[str, object]]) -> None:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for row in rows:
-            writer.writerow(
-                {
-                    key: _csv_value(row.get(key, ""))
-                    for key in fieldnames
-                }
-            )
+            writer.writerow({key: _csv_value(row.get(key, "")) for key in fieldnames})
 
 
 def _csv_value(value: object) -> object:

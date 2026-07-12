@@ -8,9 +8,7 @@ from hannah_montana_ai.training.foreign_ownership_quantity_trainer import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_TRAINING_DATA_PATH = (
-    PROJECT_ROOT / "data/training/foreign_ownership_quantity_history.csv"
-)
+DEFAULT_TRAINING_DATA_PATH = PROJECT_ROOT / "data/training/foreign_ownership_quantity_history.csv"
 DEFAULT_MODEL_PATH = (
     PROJECT_ROOT / "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib"
 )
@@ -27,6 +25,12 @@ def main() -> None:
     parser.add_argument("--min-promotable-history-days", type=int, default=730)
     parser.add_argument("--min-promotable-observations", type=int, default=100_000)
     parser.add_argument("--max-model-training-samples", type=int, default=250_000)
+    parser.add_argument(
+        "--candidate-model",
+        action="append",
+        dest="candidate_models",
+        help="검증할 후보 모델 이름. 여러 번 지정할 수 있다.",
+    )
     args = parser.parse_args()
 
     report = train_foreign_ownership_quantity_model(
@@ -37,6 +41,7 @@ def main() -> None:
         minimum_promotable_history_days=args.min_promotable_history_days,
         minimum_promotable_observations=args.min_promotable_observations,
         max_model_training_samples=args.max_model_training_samples,
+        candidate_model_names=args.candidate_models,
     )
     args.report_path.parent.mkdir(parents=True, exist_ok=True)
     args.report_path.write_text(

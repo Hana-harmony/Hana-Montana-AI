@@ -1,187 +1,188 @@
 {
   "schema_version": "global-peer-full-coverage/v2",
-  "generated_at": "2026-07-11T05:13:06.763256+00:00",
-  "model_version": "global-peer-dynamic-similarity-20260711050601",
+  "generated_at": "2026-07-12T10:00:49.393965+00:00",
+  "model_version": "global-peer-dynamic-similarity-20260712095157",
   "stock_universe_path": "data/reference/korea_stock_universe.csv",
   "model_path": "src/hannah_montana_ai/model_store/global_peer_ml.joblib",
   "attempted_count": 2752,
   "success_count": 2752,
   "failure_count": 0,
-  "unique_primary_peer_count": 70,
+  "unique_primary_peer_count": 67,
   "confidence_distribution": {
     "HIGH": 2,
-    "LOW": 15,
-    "MEDIUM": 2735
+    "LOW": 12,
+    "MEDIUM": 2738
   },
   "sector_distribution": {
-    "Information Technology": 724,
-    "Industrials": 499,
-    "Health Care": 434,
-    "Consumer Staples": 246,
-    "Consumer Discretionary": 245,
-    "Materials": 244,
-    "Financials": 176,
-    "Communication Services": 124,
-    "Energy": 53,
-    "Real Estate": 7
+    "Industrials": 623,
+    "Health Care": 451,
+    "Information Technology": 371,
+    "Materials": 309,
+    "Consumer Staples": 260,
+    "Consumer Discretionary": 255,
+    "Communication Services": 193,
+    "Energy": 162,
+    "Financials": 124,
+    "Real Estate": 4
   },
   "industry_distribution": {
-    "Biotechnology": 434,
-    "Software": 420,
-    "Semiconductors": 304,
-    "Industrial Machinery": 245,
-    "Specialty Chemicals": 244,
-    "Automobiles": 165,
-    "Household and Personal Products": 145,
-    "Banks": 119,
-    "Food and Beverage": 101,
-    "Media and Entertainment": 93,
-    "Electrical Equipment": 92,
-    "Battery and Energy Storage": 89,
-    "Oil and Gas": 53,
-    "Investment Holding Companies": 42,
-    "Retail": 34,
-    "Logistics and Transportation": 30,
+    "Biotechnology": 451,
+    "Industrial Machinery": 373,
+    "Specialty Chemicals": 309,
+    "Software": 200,
+    "Semiconductors": 171,
+    "Oil and Gas": 162,
+    "Household and Personal Products": 144,
+    "Retail": 140,
+    "Media and Entertainment": 129,
+    "Construction and Engineering": 118,
+    "Food and Beverage": 116,
+    "Banks": 114,
+    "Automobiles": 55,
+    "Telecommunications": 53,
+    "Logistics and Transportation": 49,
+    "Shipbuilding": 35,
+    "Consumer Electronics and Appliances": 33,
     "Airlines": 26,
-    "Interactive Entertainment": 25,
-    "Consumer Electronics and Appliances": 23,
-    "Construction and Engineering": 17,
-    "Insurance": 15,
-    "Hotels, Restaurants, and Leisure": 11,
-    "Art and Collectibles Marketplace": 11,
-    "Real Estate": 7,
-    "Telecommunications": 6,
+    "Hotels, Restaurants, and Leisure": 24,
+    "Electrical Equipment": 18,
+    "Interactive Entertainment": 11,
+    "Insurance": 9,
+    "Real Estate": 4,
+    "Battery and Energy Storage": 4,
+    "Art and Collectibles Marketplace": 2,
+    "Investment Holding Companies": 1,
     "Education Services": 1
   },
   "top_primary_peers": [
     {
-      "ticker": "MSFT",
-      "count": 420
+      "ticker": "CAT",
+      "count": 373
     },
     {
       "ticker": "TMO",
-      "count": 353
-    },
-    {
-      "ticker": "INTC",
-      "count": 304
-    },
-    {
-      "ticker": "CAT",
-      "count": 245
-    },
-    {
-      "ticker": "GM",
-      "count": 134
-    },
-    {
-      "ticker": "DOW",
-      "count": 125
+      "count": 361
     },
     {
       "ticker": "ALB",
-      "count": 119
+      "count": 285
     },
     {
-      "ticker": "JPM",
-      "count": 110
+      "ticker": "MSFT",
+      "count": 200
     },
     {
-      "ticker": "ELF",
-      "count": 97
-    },
-    {
-      "ticker": "TSLA",
-      "count": 89
-    },
-    {
-      "ticker": "DIS",
-      "count": 86
-    },
-    {
-      "ticker": "BIIB",
-      "count": 81
-    },
-    {
-      "ticker": "MNST",
-      "count": 74
+      "ticker": "INTC",
+      "count": 170
     },
     {
       "ticker": "XOM",
-      "count": 53
-    },
-    {
-      "ticker": "POR",
-      "count": 43
-    },
-    {
-      "ticker": "EMR",
-      "count": 38
+      "count": 162
     },
     {
       "ticker": "WMT",
-      "count": 34
+      "count": 140
     },
     {
-      "ticker": "ULTA",
-      "count": 27
+      "ticker": "DIS",
+      "count": 124
     },
     {
-      "ticker": "F",
-      "count": 23
+      "ticker": "JPM",
+      "count": 104
     },
     {
-      "ticker": "DAL",
-      "count": 23
+      "ticker": "MNST",
+      "count": 96
     },
     {
-      "ticker": "LVLU",
-      "count": 21
+      "ticker": "BIIB",
+      "count": 87
     },
     {
-      "ticker": "AAPL",
-      "count": 20
-    },
-    {
-      "ticker": "OSK",
-      "count": 18
-    },
-    {
-      "ticker": "GME",
-      "count": 18
-    },
-    {
-      "ticker": "JBHT",
-      "count": 15
+      "ticker": "ELF",
+      "count": 73
     },
     {
       "ticker": "BLDR",
-      "count": 14
+      "count": 69
     },
     {
-      "ticker": "USFD",
+      "ticker": "T",
+      "count": 51
+    },
+    {
+      "ticker": "GM",
+      "count": 49
+    },
+    {
+      "ticker": "ULTA",
+      "count": 44
+    },
+    {
+      "ticker": "AAPL",
+      "count": 33
+    },
+    {
+      "ticker": "GD",
+      "count": 32
+    },
+    {
+      "ticker": "MEC",
+      "count": 26
+    },
+    {
+      "ticker": "DAL",
+      "count": 25
+    },
+    {
+      "ticker": "LVLU",
+      "count": 25
+    },
+    {
+      "ticker": "DOW",
+      "count": 24
+    },
+    {
+      "ticker": "ECG",
+      "count": 23
+    },
+    {
+      "ticker": "JBHT",
+      "count": 18
+    },
+    {
+      "ticker": "AXP",
       "count": 13
     },
     {
-      "ticker": "KNX",
-      "count": 11
-    },
-    {
-      "ticker": "ACVA",
-      "count": 11
+      "ticker": "EMR",
+      "count": 13
     },
     {
       "ticker": "TAP",
-      "count": 11
+      "count": 12
+    },
+    {
+      "ticker": "KNX",
+      "count": 10
+    },
+    {
+      "ticker": "TRV",
+      "count": 10
+    },
+    {
+      "ticker": "C",
+      "count": 10
     }
   ],
   "confidence_root_cause_distribution": {
-    "domain_mismatch": 15,
-    "not_low_confidence": 2737
+    "domain_mismatch": 12,
+    "not_low_confidence": 2740
   },
   "generic_sector_count": 0,
   "generic_industry_count": 0,
-  "low_confidence_count": 15,
+  "low_confidence_count": 12,
   "same_company_noise_count": 0,
   "matched_factor_missing_count": 0,
   "invalid_comparison_count": 0,
@@ -204,7 +205,7 @@
   },
   "confidence_monitoring": {
     "maximum_low_confidence_ratio": 0.35,
-    "actual_low_confidence_ratio": 0.005451,
+    "actual_low_confidence_ratio": 0.00436,
     "maximum_generic_sector_ratio": 0.85,
     "actual_generic_sector_ratio": 0.0,
     "status": "pass"
@@ -214,46 +215,46 @@
     "minimum_profile_count": 2500,
     "actual_profile_count": 2752,
     "maximum_low_confidence_ratio": 0.02,
-    "actual_low_confidence_ratio": 0.005451,
-    "low_confidence_count": 15,
+    "actual_low_confidence_ratio": 0.00436,
+    "low_confidence_count": 12,
     "status": "pass"
   },
   "failures": [],
   "low_confidence_samples": [
     {
-      "stock_code": "010820",
-      "stock_name": "퍼스텍",
+      "stock_code": "003490",
+      "stock_name": "대한항공",
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.2652,
+      "confidence_score": 0.333,
       "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
+      "source_sector": "Consumer Discretionary",
+      "source_industry": "Retail",
+      "source_business_model": "Merchandising and commerce",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
       "business_model": "Passenger and cargo airline operations",
       "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.9996,
+      "financial_similarity_score": 0.9999,
       "matched_factor_count": 7,
       "same_company_noise": false,
       "comparison_count": 3,
       "comparison_tickers": [
         "DAL",
-        "MSFT",
-        "UAL"
+        "UAL",
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
-        "software_platform",
-        "industrial"
+        "industrial",
+        "commerce"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -261,39 +262,119 @@
       "strength_copy_clean": true
     },
     {
-      "stock_code": "012450",
-      "stock_name": "한화에어로스페이스",
+      "stock_code": "003495",
+      "stock_name": "대한항공우",
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.39,
+      "confidence_score": 0.3327,
       "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
+      "source_sector": "Consumer Discretionary",
+      "source_industry": "Retail",
+      "source_business_model": "Merchandising and commerce",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
       "business_model": "Passenger and cargo airline operations",
       "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 1.0,
+      "financial_similarity_score": 0.9999,
       "matched_factor_count": 7,
       "same_company_noise": false,
       "comparison_count": 3,
       "comparison_tickers": [
         "DAL",
-        "PYPL",
-        "MSFT"
+        "UAL",
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
-        "payments",
-        "software_platform"
+        "industrial",
+        "commerce"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9725,
+      "comparison_average_familiarity": 0.9375,
+      "comparison_average_profile_completeness": 1.0,
+      "strength_count": 4,
+      "strength_titles_unique": true,
+      "strength_descriptions_unique": true,
+      "strength_copy_clean": true
+    },
+    {
+      "stock_code": "004770",
+      "stock_name": "써니전자",
+      "stock_name_en": "",
+      "primary_peer_ticker": "DAL",
+      "primary_peer_name": "Delta Air Lines",
+      "confidence_score": 0.2191,
+      "confidence_level": "LOW",
+      "source_sector": "Consumer Discretionary",
+      "source_industry": "Consumer Electronics and Appliances",
+      "source_business_model": "Consumer electronics and appliance manufacturing",
+      "confidence_root_cause": "domain_mismatch",
+      "sector": "Industrials",
+      "industry": "Airlines",
+      "business_model": "Passenger and cargo airline operations",
+      "scale_bucket": "LARGE_CAP",
+      "financial_similarity_score": 0.9994,
+      "matched_factor_count": 7,
+      "same_company_noise": false,
+      "comparison_count": 3,
+      "comparison_tickers": [
+        "DAL",
+        "UAL",
+        "AAL"
+      ],
+      "comparison_dimensions": [
+        "overall_business",
+        "industrial",
+        "operational_scale"
+      ],
+      "comparison_unique": true,
+      "comparison_dimension_unique": true,
+      "comparison_copy_clean": true,
+      "comparison_average_familiarity": 0.9375,
+      "comparison_average_profile_completeness": 1.0,
+      "strength_count": 4,
+      "strength_titles_unique": true,
+      "strength_descriptions_unique": true,
+      "strength_copy_clean": true
+    },
+    {
+      "stock_code": "038390",
+      "stock_name": "레드캡투어",
+      "stock_name_en": "",
+      "primary_peer_ticker": "DAL",
+      "primary_peer_name": "Delta Air Lines",
+      "confidence_score": 0.2505,
+      "confidence_level": "LOW",
+      "source_sector": "Communication Services",
+      "source_industry": "Media and Entertainment",
+      "source_business_model": "Content production, distribution, and advertising",
+      "confidence_root_cause": "domain_mismatch",
+      "sector": "Industrials",
+      "industry": "Airlines",
+      "business_model": "Passenger and cargo airline operations",
+      "scale_bucket": "LARGE_CAP",
+      "financial_similarity_score": 0.9999,
+      "matched_factor_count": 7,
+      "same_company_noise": false,
+      "comparison_count": 3,
+      "comparison_tickers": [
+        "DAL",
+        "UAL",
+        "AAL"
+      ],
+      "comparison_dimensions": [
+        "overall_business",
+        "industrial",
+        "operational_scale"
+      ],
+      "comparison_unique": true,
+      "comparison_dimension_unique": true,
+      "comparison_copy_clean": true,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -304,36 +385,36 @@
       "stock_code": "044340",
       "stock_name": "위닉스",
       "stock_name_en": "",
-      "primary_peer_ticker": "UAL",
-      "primary_peer_name": "United Airlines Holdings",
-      "confidence_score": 0.1362,
+      "primary_peer_ticker": "DAL",
+      "primary_peer_name": "Delta Air Lines",
+      "confidence_score": 0.1296,
       "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
+      "source_sector": "Consumer Discretionary",
+      "source_industry": "Consumer Electronics and Appliances",
+      "source_business_model": "Consumer electronics and appliance manufacturing",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
       "business_model": "Passenger and cargo airline operations",
       "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.5497,
+      "financial_similarity_score": 0.5474,
       "matched_factor_count": 7,
       "same_company_noise": false,
       "comparison_count": 3,
       "comparison_tickers": [
+        "DAL",
         "UAL",
-        "INTC",
-        "MSFT"
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
-        "consumer_electronics",
-        "software_platform"
+        "industrial",
+        "commerce"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9846,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -346,11 +427,11 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.3617,
+      "confidence_score": 0.3565,
       "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
+      "source_sector": "Communication Services",
+      "source_industry": "Telecommunications",
+      "source_business_model": "Telecom network subscription services",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
@@ -363,97 +444,17 @@
       "comparison_tickers": [
         "DAL",
         "UAL",
-        "MSFT"
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
         "operational_scale",
-        "software_platform"
-      ],
-      "comparison_unique": true,
-      "comparison_dimension_unique": true,
-      "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
-      "comparison_average_profile_completeness": 1.0,
-      "strength_count": 4,
-      "strength_titles_unique": true,
-      "strength_descriptions_unique": true,
-      "strength_copy_clean": true
-    },
-    {
-      "stock_code": "050890",
-      "stock_name": "쏠리드",
-      "stock_name_en": "",
-      "primary_peer_ticker": "UAL",
-      "primary_peer_name": "United Airlines Holdings",
-      "confidence_score": 0.2356,
-      "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
-      "confidence_root_cause": "domain_mismatch",
-      "sector": "Industrials",
-      "industry": "Airlines",
-      "business_model": "Passenger and cargo airline operations",
-      "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.9998,
-      "matched_factor_count": 7,
-      "same_company_noise": false,
-      "comparison_count": 3,
-      "comparison_tickers": [
-        "UAL",
-        "MSFT",
-        "VZ"
-      ],
-      "comparison_dimensions": [
-        "overall_business",
-        "software_platform",
         "telecommunications"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.982,
-      "comparison_average_profile_completeness": 1.0,
-      "strength_count": 4,
-      "strength_titles_unique": true,
-      "strength_descriptions_unique": true,
-      "strength_copy_clean": true
-    },
-    {
-      "stock_code": "065450",
-      "stock_name": "빅텍",
-      "stock_name_en": "",
-      "primary_peer_ticker": "DAL",
-      "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.2624,
-      "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
-      "confidence_root_cause": "domain_mismatch",
-      "sector": "Industrials",
-      "industry": "Airlines",
-      "business_model": "Passenger and cargo airline operations",
-      "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.9996,
-      "matched_factor_count": 7,
-      "same_company_noise": false,
-      "comparison_count": 3,
-      "comparison_tickers": [
-        "DAL",
-        "MSFT",
-        "UAL"
-      ],
-      "comparison_dimensions": [
-        "overall_business",
-        "software_platform",
-        "industrial"
-      ],
-      "comparison_unique": true,
-      "comparison_dimension_unique": true,
-      "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -466,7 +467,7 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.215,
+      "confidence_score": 0.2177,
       "confidence_level": "LOW",
       "source_sector": "Information Technology",
       "source_industry": "Software",
@@ -477,46 +478,6 @@
       "business_model": "Passenger and cargo airline operations",
       "scale_bucket": "LARGE_CAP",
       "financial_similarity_score": 0.787,
-      "matched_factor_count": 7,
-      "same_company_noise": false,
-      "comparison_count": 3,
-      "comparison_tickers": [
-        "DAL",
-        "MSFT",
-        "UAL"
-      ],
-      "comparison_dimensions": [
-        "overall_business",
-        "software_platform",
-        "industrial"
-      ],
-      "comparison_unique": true,
-      "comparison_dimension_unique": true,
-      "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
-      "comparison_average_profile_completeness": 1.0,
-      "strength_count": 4,
-      "strength_titles_unique": true,
-      "strength_descriptions_unique": true,
-      "strength_copy_clean": true
-    },
-    {
-      "stock_code": "119500",
-      "stock_name": "포메탈",
-      "stock_name_en": "",
-      "primary_peer_ticker": "DAL",
-      "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.2331,
-      "confidence_level": "LOW",
-      "source_sector": "Materials",
-      "source_industry": "Metals and Materials",
-      "source_business_model": "Metals, materials, and industrial inputs",
-      "confidence_root_cause": "domain_mismatch",
-      "sector": "Industrials",
-      "industry": "Airlines",
-      "business_model": "Passenger and cargo airline operations",
-      "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.9995,
       "matched_factor_count": 7,
       "same_company_noise": false,
       "comparison_count": 3,
@@ -546,7 +507,7 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.2845,
+      "confidence_score": 0.2869,
       "confidence_level": "LOW",
       "source_sector": "Information Technology",
       "source_industry": "Software",
@@ -562,18 +523,18 @@
       "comparison_count": 3,
       "comparison_tickers": [
         "DAL",
-        "MSFT",
-        "UAL"
+        "UAL",
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
-        "software_platform",
-        "industrial"
+        "industrial",
+        "operational_scale"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -586,11 +547,11 @@
       "stock_name_en": "",
       "primary_peer_ticker": "UAL",
       "primary_peer_name": "United Airlines Holdings",
-      "confidence_score": 0.1295,
+      "confidence_score": 0.125,
       "confidence_level": "LOW",
-      "source_sector": "Health Care",
-      "source_industry": "Biotechnology",
-      "source_business_model": "Biotechnology research, development, and manufacturing",
+      "source_sector": "Consumer Staples",
+      "source_industry": "Household and Personal Products",
+      "source_business_model": "Consumer electronics and appliance manufacturing",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
@@ -602,59 +563,19 @@
       "comparison_count": 3,
       "comparison_tickers": [
         "UAL",
-        "LLY",
-        "DAL"
-      ],
-      "comparison_dimensions": [
-        "overall_business",
-        "biotechnology",
-        "industrial"
-      ],
-      "comparison_unique": true,
-      "comparison_dimension_unique": true,
-      "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9649,
-      "comparison_average_profile_completeness": 0.975,
-      "strength_count": 4,
-      "strength_titles_unique": true,
-      "strength_descriptions_unique": true,
-      "strength_copy_clean": true
-    },
-    {
-      "stock_code": "258610",
-      "stock_name": "케일럼",
-      "stock_name_en": "",
-      "primary_peer_ticker": "DAL",
-      "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.1251,
-      "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Semiconductors",
-      "source_business_model": "Semiconductor manufacturing or supply chain",
-      "confidence_root_cause": "domain_mismatch",
-      "sector": "Industrials",
-      "industry": "Airlines",
-      "business_model": "Passenger and cargo airline operations",
-      "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.5836,
-      "matched_factor_count": 7,
-      "same_company_noise": false,
-      "comparison_count": 3,
-      "comparison_tickers": [
         "DAL",
-        "UAL",
-        "XOM"
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
         "industrial",
-        "energy"
+        "operational_scale"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9644,
-      "comparison_average_profile_completeness": 0.975,
+      "comparison_average_familiarity": 0.9375,
+      "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
       "strength_descriptions_unique": true,
@@ -666,11 +587,11 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.1441,
+      "confidence_score": 0.1308,
       "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
+      "source_sector": "Materials",
+      "source_industry": "Metals and Materials",
+      "source_business_model": "Metals, materials, and industrial inputs",
       "confidence_root_cause": "domain_mismatch",
       "sector": "Industrials",
       "industry": "Airlines",
@@ -683,17 +604,17 @@
       "comparison_tickers": [
         "DAL",
         "UAL",
-        "MSFT"
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
         "industrial",
-        "software_platform"
+        "operational_scale"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -706,7 +627,7 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.2872,
+      "confidence_score": 0.2886,
       "confidence_level": "LOW",
       "source_sector": "Information Technology",
       "source_industry": "Software",
@@ -722,18 +643,18 @@
       "comparison_count": 3,
       "comparison_tickers": [
         "DAL",
-        "MSFT",
-        "UAL"
+        "UAL",
+        "AAL"
       ],
       "comparison_dimensions": [
         "overall_business",
-        "software_platform",
-        "industrial"
+        "industrial",
+        "operational_scale"
       ],
       "comparison_unique": true,
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
+      "comparison_average_familiarity": 0.9375,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,
@@ -746,7 +667,7 @@
       "stock_name_en": "",
       "primary_peer_ticker": "DAL",
       "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.1228,
+      "confidence_score": 0.1226,
       "confidence_level": "LOW",
       "source_sector": "Consumer Staples",
       "source_industry": "Household and Personal Products",
@@ -774,46 +695,6 @@
       "comparison_dimension_unique": true,
       "comparison_copy_clean": true,
       "comparison_average_familiarity": 0.9375,
-      "comparison_average_profile_completeness": 1.0,
-      "strength_count": 4,
-      "strength_titles_unique": true,
-      "strength_descriptions_unique": true,
-      "strength_copy_clean": true
-    },
-    {
-      "stock_code": "462350",
-      "stock_name": "이노스페이스",
-      "stock_name_en": "",
-      "primary_peer_ticker": "DAL",
-      "primary_peer_name": "Delta Air Lines",
-      "confidence_score": 0.0938,
-      "confidence_level": "LOW",
-      "source_sector": "Information Technology",
-      "source_industry": "Software",
-      "source_business_model": "Platform software and recurring services",
-      "confidence_root_cause": "domain_mismatch",
-      "sector": "Industrials",
-      "industry": "Airlines",
-      "business_model": "Passenger and cargo airline operations",
-      "scale_bucket": "LARGE_CAP",
-      "financial_similarity_score": 0.3422,
-      "matched_factor_count": 6,
-      "same_company_noise": false,
-      "comparison_count": 3,
-      "comparison_tickers": [
-        "DAL",
-        "MSFT",
-        "UAL"
-      ],
-      "comparison_dimensions": [
-        "overall_business",
-        "software_platform",
-        "industrial"
-      ],
-      "comparison_unique": true,
-      "comparison_dimension_unique": true,
-      "comparison_copy_clean": true,
-      "comparison_average_familiarity": 0.9739,
       "comparison_average_profile_completeness": 1.0,
       "strength_count": 4,
       "strength_titles_unique": true,

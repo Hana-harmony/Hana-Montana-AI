@@ -500,6 +500,7 @@ class GlobalPeerMatcher:
         )
 
         selected_indices = self._selected_indices(
+            stock_profile=stock_profile,
             ranked_indices=[int(index) for index in ranked_indices],
             limit=max(1, request.peer_count),
         )
@@ -655,6 +656,13 @@ class GlobalPeerMatcher:
                 if index in selected_indices:
                     continue
                 profile = self._eligible_us_profiles[index]
+                if not self._comparison_domain_compatible(
+                    stock_profile,
+                    profile,
+                    "overall_business",
+                    self._overall_business_fit(stock_profile, profile),
+                ):
+                    continue
                 family = self._company_family(profile)
                 if family in selected_families:
                     continue
@@ -700,8 +708,7 @@ class GlobalPeerMatcher:
         similarities: np.ndarray,
     ) -> int | None:
         selected_families = {
-            self._company_family(self._eligible_us_profiles[index])
-            for index in selected_indices
+            self._company_family(self._eligible_us_profiles[index]) for index in selected_indices
         }
         candidate_indices = list(ranked_indices[:PAIRWISE_CANDIDATE_POOL_SIZE])
         for ticker in CURATED_GLOBAL_BRAND_TIERS:
@@ -721,6 +728,13 @@ class GlobalPeerMatcher:
                     ticker = str(profile.get("identifier") or "")
                     brand_tier = CURATED_GLOBAL_BRAND_TIERS.get(ticker, 0.0)
                     if curated_only and brand_tier <= 0.0:
+                        continue
+                    if not self._comparison_domain_compatible(
+                        stock_profile,
+                        profile,
+                        "overall_business",
+                        self._overall_business_fit(stock_profile, profile),
+                    ):
                         continue
                     dimension_fit = (
                         self._overall_business_fit(stock_profile, profile)
@@ -798,8 +812,7 @@ class GlobalPeerMatcher:
     def _is_aviation_profile(stock_profile: dict[str, object]) -> bool:
         business_summary = str(stock_profile.get("business_summary") or "").lower()
         return any(
-            term in business_summary
-            for term in ("항공운송", "저비용항공사", "항공기", "여객기")
+            term in business_summary for term in ("항공운송", "저비용항공사", "항공기", "여객기")
         )
 
     @staticmethod
@@ -829,14 +842,22 @@ class GlobalPeerMatcher:
         ):
             return False
         if dimension == "overall_business":
-            if stock_industry not in generic_industries and peer_industry == stock_industry:
-                return True
             stock_raw_tags = stock_profile.get("business_tags", [])
             peer_raw_tags = peer_profile.get("business_tags", [])
             stock_tag_values = stock_raw_tags if isinstance(stock_raw_tags, list) else []
             peer_tag_values = peer_raw_tags if isinstance(peer_raw_tags, list) else []
             stock_tags = {str(tag).lower() for tag in stock_tag_values}
             peer_tags = {str(tag).lower() for tag in peer_tag_values}
+            primary_stock_tag = str(stock_tag_values[0]).lower() if stock_tag_values else ""
+            if (
+                primary_stock_tag == "shipbuilding"
+                and not str(peer_profile.get("business_summary") or "").strip()
+            ):
+                return False
+            if stock_industry not in generic_industries and peer_industry == stock_industry:
+                return True
+            if stock_industry not in generic_industries:
+                return bool(primary_stock_tag and primary_stock_tag in peer_tags)
             return bool(stock_tags & peer_tags)
         if dimension == "operational_scale":
             return stock_industry in generic_industries or peer_industry == stock_industry
@@ -856,16 +877,12 @@ class GlobalPeerMatcher:
         stock_profile: dict[str, object],
     ) -> list[GlobalPeerComparisonDimension]:
         dimensions: list[GlobalPeerComparisonDimension] = ["overall_business"]
-        for _, _, (_, _, icon_key, _) in GlobalPeerMatcher._profile_strength_signals(
-            stock_profile
-        ):
+        for _, _, (_, _, icon_key, _) in GlobalPeerMatcher._profile_strength_signals(stock_profile):
             dimension = GlobalPeerMatcher._dimension_for_icon(icon_key)
             if dimension not in dimensions:
                 dimensions.append(dimension)
         if len(dimensions) == 1:
-            dimension = GlobalPeerMatcher._dimension_for(
-                str(stock_profile.get("industry") or "")
-            )
+            dimension = GlobalPeerMatcher._dimension_for(str(stock_profile.get("industry") or ""))
             if dimension not in dimensions:
                 dimensions.append(dimension)
         if "operational_scale" not in dimensions:
@@ -1327,8 +1344,7 @@ class GlobalPeerMatcher:
         existing = self._korea_profiles.get(request.stock_code)
         if existing is None:
             raise ModelArtifactInvalidError(
-                "stock is not in the synchronized KIS equity model universe: "
-                f"{request.stock_code}"
+                f"stock is not in the synchronized KIS equity model universe: {request.stock_code}"
             )
         profile = cast(dict[str, object], existing).copy()
         enrichment = " ".join(
@@ -1563,11 +1579,20 @@ class GlobalPeerMatcher:
 
     def _selected_indices(
         self,
+        stock_profile: dict[str, object],
         ranked_indices: list[int],
         limit: int,
     ) -> list[int]:
         selected: list[int] = []
         for index in ranked_indices:
+            profile = self._eligible_us_profiles[index]
+            if not self._comparison_domain_compatible(
+                stock_profile,
+                profile,
+                "overall_business",
+                self._overall_business_fit(stock_profile, profile),
+            ):
+                continue
             if index not in selected:
                 selected.append(index)
             if len(selected) >= limit:
@@ -1770,9 +1795,7 @@ class GlobalPeerMatcher:
         for profile in profiles:
             identifier = str(profile.get("identifier") or "")
             market_cap = profile.get("market_cap_usd")
-            reliability = GlobalPeerMatcher._score(
-                profile.get("market_cap_reliability_score")
-            )
+            reliability = GlobalPeerMatcher._score(profile.get("market_cap_reliability_score"))
             if (
                 not identifier
                 or not isinstance(market_cap, int | float)
