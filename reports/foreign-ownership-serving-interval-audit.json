@@ -1,0 +1,341 @@
+{
+  "schema_version": "foreign-ownership-serving-interval-audit/v1",
+  "generated_at": "2026-07-12T09:47:52.275746+00:00",
+  "model_version": "hannah-foreign-owned-quantity-ml-v2",
+  "restricted_stock_count": 32,
+  "ml_interval_stock_count": 29,
+  "zero_limit_excluded_stock_codes": [
+    "033830",
+    "034120",
+    "058400"
+  ],
+  "interval_policy": "stock-level walk-forward absolute-error p90 cap with latest 60-observation absolute-delta p90 regime adaptation",
+  "walk_forward_coverage_min": 0.9006622516556292,
+  "full_width_limit_exhaustion_percentage_points": {
+    "min": 6.264781163832829e-06,
+    "median": 0.3407180845080191,
+    "p90": 0.8168513643798815,
+    "max": 2.7556275586247283
+  },
+  "rows": [
+    {
+      "stock_code": "003490",
+      "base_date": "2026-06-26",
+      "lower_quantity": 84386934,
+      "predicted_quantity": 84778080,
+      "upper_quantity": 85169226,
+      "full_width_quantity": 782292,
+      "full_width_limit_exhaustion_percentage_points": 0.42498891258159754,
+      "walk_forward_abs_p90_cap_quantity": 391146,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "003495",
+      "base_date": "2026-06-26",
+      "lower_quantity": 15754,
+      "predicted_quantity": 16270,
+      "upper_quantity": 16786,
+      "full_width_quantity": 1032,
+      "full_width_limit_exhaustion_percentage_points": 0.18585017450466967,
+      "walk_forward_abs_p90_cap_quantity": 516,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "015760",
+      "base_date": "2026-06-26",
+      "lower_quantity": 133974340,
+      "predicted_quantity": 134572798,
+      "upper_quantity": 135171256,
+      "full_width_quantity": 1196916,
+      "full_width_limit_exhaustion_percentage_points": 0.4661148660611777,
+      "walk_forward_abs_p90_cap_quantity": 598458,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "017670",
+      "base_date": "2026-06-26",
+      "lower_quantity": 80484115,
+      "predicted_quantity": 80730449,
+      "upper_quantity": 80976783,
+      "full_width_quantity": 492668,
+      "full_width_limit_exhaustion_percentage_points": 0.4681058939319635,
+      "walk_forward_abs_p90_cap_quantity": 246334,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "020560",
+      "base_date": "2026-06-26",
+      "lower_quantity": 6937231,
+      "predicted_quantity": 6994502,
+      "upper_quantity": 7051773,
+      "full_width_quantity": 114542,
+      "full_width_limit_exhaustion_percentage_points": 0.11123308706844617,
+      "walk_forward_abs_p90_cap_quantity": 57271,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "030200",
+      "base_date": "2026-06-26",
+      "lower_quantity": 123490312,
+      "predicted_quantity": 123490613,
+      "upper_quantity": 123490914,
+      "full_width_quantity": 602,
+      "full_width_limit_exhaustion_percentage_points": 0.0004874863943114192,
+      "walk_forward_abs_p90_cap_quantity": 165289,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "031310",
+      "base_date": "2026-06-26",
+      "lower_quantity": 908567,
+      "predicted_quantity": 953916,
+      "upper_quantity": 999265,
+      "full_width_quantity": 90698,
+      "full_width_limit_exhaustion_percentage_points": 0.6222480609890642,
+      "walk_forward_abs_p90_cap_quantity": 45349,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "032640",
+      "base_date": "2026-06-26",
+      "lower_quantity": 177108877,
+      "predicted_quantity": 177463172,
+      "upper_quantity": 177817467,
+      "full_width_quantity": 708590,
+      "full_width_limit_exhaustion_percentage_points": 0.3407180845080191,
+      "walk_forward_abs_p90_cap_quantity": 354295,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "033130",
+      "base_date": "2026-06-26",
+      "lower_quantity": 969764,
+      "predicted_quantity": 1023120,
+      "upper_quantity": 1076476,
+      "full_width_quantity": 106712,
+      "full_width_limit_exhaustion_percentage_points": 0.5867655210482996,
+      "walk_forward_abs_p90_cap_quantity": 53356,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "035760",
+      "base_date": "2026-06-26",
+      "lower_quantity": 2849801,
+      "predicted_quantity": 2878468,
+      "upper_quantity": 2907135,
+      "full_width_quantity": 57334,
+      "full_width_limit_exhaustion_percentage_points": 0.5335735627300718,
+      "walk_forward_abs_p90_cap_quantity": 28667,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "036030",
+      "base_date": "2026-06-26",
+      "lower_quantity": 642257,
+      "predicted_quantity": 660619,
+      "upper_quantity": 678981,
+      "full_width_quantity": 36724,
+      "full_width_limit_exhaustion_percentage_points": 0.15289276619126443,
+      "walk_forward_abs_p90_cap_quantity": 23285,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "036420",
+      "base_date": "2026-06-26",
+      "lower_quantity": 96981,
+      "predicted_quantity": 120936,
+      "upper_quantity": 144891,
+      "full_width_quantity": 47910,
+      "full_width_limit_exhaustion_percentage_points": 0.8290803524396179,
+      "walk_forward_abs_p90_cap_quantity": 23955,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "036460",
+      "base_date": "2026-06-26",
+      "lower_quantity": 10378427,
+      "predicted_quantity": 10491536,
+      "upper_quantity": 10604645,
+      "full_width_quantity": 226218,
+      "full_width_limit_exhaustion_percentage_points": 0.8168513643798815,
+      "walk_forward_abs_p90_cap_quantity": 200325,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "036630",
+      "base_date": "2026-06-26",
+      "lower_quantity": 70442,
+      "predicted_quantity": 81724,
+      "upper_quantity": 93006,
+      "full_width_quantity": 22564,
+      "full_width_limit_exhaustion_percentage_points": 0.46048979591836736,
+      "walk_forward_abs_p90_cap_quantity": 84960,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "037560",
+      "base_date": "2026-06-26",
+      "lower_quantity": 3720885,
+      "predicted_quantity": 3786361,
+      "upper_quantity": 3851837,
+      "full_width_quantity": 130952,
+      "full_width_limit_exhaustion_percentage_points": 0.34507397883114804,
+      "walk_forward_abs_p90_cap_quantity": 65476,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "039290",
+      "base_date": "2026-06-26",
+      "lower_quantity": 32954,
+      "predicted_quantity": 40158,
+      "upper_quantity": 47362,
+      "full_width_quantity": 14408,
+      "full_width_limit_exhaustion_percentage_points": 0.3382120722085591,
+      "walk_forward_abs_p90_cap_quantity": 13284,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "039340",
+      "base_date": "2026-06-26",
+      "lower_quantity": 274474,
+      "predicted_quantity": 277761,
+      "upper_quantity": 281048,
+      "full_width_quantity": 6574,
+      "full_width_limit_exhaustion_percentage_points": 0.060983302411873844,
+      "walk_forward_abs_p90_cap_quantity": 7813,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "040300",
+      "base_date": "2026-06-26",
+      "lower_quantity": 251365,
+      "predicted_quantity": 317055,
+      "upper_quantity": 382745,
+      "full_width_quantity": 131380,
+      "full_width_limit_exhaustion_percentage_points": 2.7556275586247283,
+      "walk_forward_abs_p90_cap_quantity": 67260,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "053210",
+      "base_date": "2026-06-26",
+      "lower_quantity": 3153888,
+      "predicted_quantity": 3170034,
+      "upper_quantity": 3186180,
+      "full_width_quantity": 32292,
+      "full_width_limit_exhaustion_percentage_points": 0.13867412216858638,
+      "walk_forward_abs_p90_cap_quantity": 16146,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "057050",
+      "base_date": "2026-06-26",
+      "lower_quantity": 1841657,
+      "predicted_quantity": 1849274,
+      "upper_quantity": 1856891,
+      "full_width_quantity": 15234,
+      "full_width_limit_exhaustion_percentage_points": 0.2590816326530612,
+      "walk_forward_abs_p90_cap_quantity": 7617,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "065530",
+      "base_date": "2026-06-26",
+      "lower_quantity": 636652,
+      "predicted_quantity": 663169,
+      "upper_quantity": 689686,
+      "full_width_quantity": 53034,
+      "full_width_limit_exhaustion_percentage_points": 0.22624469135094624,
+      "walk_forward_abs_p90_cap_quantity": 26517,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "066790",
+      "base_date": "2026-06-26",
+      "lower_quantity": 200370,
+      "predicted_quantity": 200371,
+      "upper_quantity": 200372,
+      "full_width_quantity": 2,
+      "full_width_limit_exhaustion_percentage_points": 6.264781163832829e-06,
+      "walk_forward_abs_p90_cap_quantity": 296267,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "089590",
+      "base_date": "2026-06-26",
+      "lower_quantity": 2072851,
+      "predicted_quantity": 2144265,
+      "upper_quantity": 2215679,
+      "full_width_quantity": 142828,
+      "full_width_limit_exhaustion_percentage_points": 0.35430264830488506,
+      "walk_forward_abs_p90_cap_quantity": 71414,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "091810",
+      "base_date": "2026-06-26",
+      "lower_quantity": 3683140,
+      "predicted_quantity": 4056254,
+      "upper_quantity": 4429368,
+      "full_width_quantity": 746228,
+      "full_width_limit_exhaustion_percentage_points": 0.36146848662853653,
+      "walk_forward_abs_p90_cap_quantity": 373114,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "122450",
+      "base_date": "2026-06-26",
+      "lower_quantity": 906974,
+      "predicted_quantity": 925662,
+      "upper_quantity": 944350,
+      "full_width_quantity": 37376,
+      "full_width_limit_exhaustion_percentage_points": 0.1701870422802514,
+      "walk_forward_abs_p90_cap_quantity": 18688,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "126560",
+      "base_date": "2026-06-26",
+      "lower_quantity": 820135,
+      "predicted_quantity": 849649,
+      "upper_quantity": 879163,
+      "full_width_quantity": 59028,
+      "full_width_limit_exhaustion_percentage_points": 0.11031516295258455,
+      "walk_forward_abs_p90_cap_quantity": 58113,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "127710",
+      "base_date": "2026-06-26",
+      "lower_quantity": 150538,
+      "predicted_quantity": 153960,
+      "upper_quantity": 157382,
+      "full_width_quantity": 6844,
+      "full_width_limit_exhaustion_percentage_points": 0.051790561813329535,
+      "walk_forward_abs_p90_cap_quantity": 3422,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "272450",
+      "base_date": "2026-06-26",
+      "lower_quantity": 504237,
+      "predicted_quantity": 557847,
+      "upper_quantity": 611457,
+      "full_width_quantity": 107220,
+      "full_width_limit_exhaustion_percentage_points": 0.41088677505616067,
+      "walk_forward_abs_p90_cap_quantity": 53610,
+      "walk_forward_coverage": 0.9006622516556292
+    },
+    {
+      "stock_code": "298690",
+      "base_date": "2026-06-26",
+      "lower_quantity": 1225643,
+      "predicted_quantity": 1305614,
+      "upper_quantity": 1385585,
+      "full_width_quantity": 159942,
+      "full_width_limit_exhaustion_percentage_points": 0.2743038319598076,
+      "walk_forward_abs_p90_cap_quantity": 89225,
+      "walk_forward_coverage": 0.9006622516556292
+    }
+  ]
+}

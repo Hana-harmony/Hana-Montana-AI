@@ -132,6 +132,8 @@ class ForeignOwnershipQuantityModelTrainingReport:
     blend_alpha_by_stock: dict[str, float]
     model_prediction_modes: dict[str, str]
     residual_abs_p90_ratio: float
+    prediction_interval_abs_p90_by_stock: dict[str, int]
+    prediction_interval_coverage_by_stock: dict[str, float]
     quality_gates: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
@@ -162,6 +164,8 @@ class ForeignOwnershipQuantityModelTrainingReport:
             "blend_alpha_by_stock": self.blend_alpha_by_stock,
             "model_prediction_modes": self.model_prediction_modes,
             "residual_abs_p90_ratio": self.residual_abs_p90_ratio,
+            "prediction_interval_abs_p90_by_stock": self.prediction_interval_abs_p90_by_stock,
+            "prediction_interval_coverage_by_stock": self.prediction_interval_coverage_by_stock,
             "quality_gates": self.quality_gates,
         }
 
@@ -227,9 +231,7 @@ def train_foreign_ownership_quantity_model(
 
     for fold_index, (train_samples, test_samples) in enumerate(folds, start=1):
         _log_training(
-            "fold="
-            f"{fold_index} train_samples={len(train_samples)} "
-            f"test_samples={len(test_samples)}"
+            f"fold={fold_index} train_samples={len(train_samples)} test_samples={len(test_samples)}"
         )
         actual = [sample.target_quantity for sample in test_samples]
         baseline_predicted = [baseline_prediction(sample) for sample in test_samples]
@@ -312,11 +314,18 @@ def train_foreign_ownership_quantity_model(
         for report in per_stock_validation
     }
     model_by_stock = {
-        str(report["stock_code"]): str(report["best_ml_model"])
-        for report in per_stock_validation
+        str(report["stock_code"]): str(report["best_ml_model"]) for report in per_stock_validation
     }
     blend_alpha_by_stock = {
         str(report["stock_code"]): float(report["best_ml_blend_alpha"])
+        for report in per_stock_validation
+    }
+    prediction_interval_abs_p90_by_stock = {
+        str(report["stock_code"]): int(report["prediction_interval_abs_p90_quantity"])
+        for report in per_stock_validation
+    }
+    prediction_interval_coverage_by_stock = {
+        str(report["stock_code"]): float(report["prediction_interval_coverage"])
         for report in per_stock_validation
     }
     selected_metrics = _stock_routed_model_metrics(
@@ -390,6 +399,9 @@ def train_foreign_ownership_quantity_model(
             "fallback_model": fallback_model_name,
             "blend_alpha": selected_blend_alpha,
             "residual_abs_p90_ratio": residual_ratio,
+            "prediction_interval_abs_p90_by_stock": prediction_interval_abs_p90_by_stock,
+            "prediction_interval_coverage_by_stock": prediction_interval_coverage_by_stock,
+            "prediction_interval_target_coverage": 0.9,
             "minimum_history_observations": MIN_HISTORY_OBSERVATIONS,
             "release_status": release_status,
             "runtime_by_stock": runtime_by_stock,
@@ -441,6 +453,8 @@ def train_foreign_ownership_quantity_model(
         blend_alpha_by_stock=blend_alpha_by_stock,
         model_prediction_modes=model_prediction_modes,
         residual_abs_p90_ratio=residual_ratio,
+        prediction_interval_abs_p90_by_stock=prediction_interval_abs_p90_by_stock,
+        prediction_interval_coverage_by_stock=prediction_interval_coverage_by_stock,
         quality_gates=quality_gates | {"release_status": release_status},
     )
 
@@ -707,12 +721,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_gradient": RegressionCandidate(
@@ -733,12 +745,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_gradient_deep": RegressionCandidate(
@@ -759,12 +769,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_gradient_smooth": RegressionCandidate(
@@ -785,12 +793,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_absolute_deep": RegressionCandidate(
@@ -812,12 +818,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_absolute_smooth": RegressionCandidate(
@@ -839,12 +843,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_stale_guarded_hist_absolute_mape_weighted": RegressionCandidate(
@@ -866,12 +868,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             sample_weight_mode="inverse_target",
         ),
@@ -893,12 +893,10 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
             prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX
-                + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
+                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20
             ),
         ),
         "residual_median_extra_trees": RegressionCandidate(
@@ -919,9 +917,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_median_extra_trees_deep": RegressionCandidate(
             estimator=Pipeline(
@@ -941,9 +937,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_median_hist_gradient_deep": RegressionCandidate(
             estimator=Pipeline(
@@ -963,9 +957,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_median_hist_absolute_deep": RegressionCandidate(
             estimator=Pipeline(
@@ -986,9 +978,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_median_hist_absolute_smooth": RegressionCandidate(
             estimator=Pipeline(
@@ -1009,9 +999,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_median_hist_absolute_mape_weighted": RegressionCandidate(
             estimator=Pipeline(
@@ -1032,9 +1020,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
             sample_weight_mode="inverse_target",
         ),
         "residual_median_hist_gradient": RegressionCandidate(
@@ -1055,9 +1041,7 @@ def _candidate_models() -> dict[str, CandidateModel]:
                 ]
             ),
             target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA,
-            prediction_mode=(
-                PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA
-            ),
+            prediction_mode=(PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MEDIAN_MULTI_DELTA),
         ),
         "residual_micro_hist_absolute_deep": RegressionCandidate(
             estimator=Pipeline(
@@ -1077,10 +1061,8 @@ def _candidate_models() -> dict[str, CandidateModel]:
                     ),
                 ]
             ),
-            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
-            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
         ),
         "residual_micro_hist_absolute_smooth": RegressionCandidate(
             estimator=Pipeline(
@@ -1100,10 +1082,8 @@ def _candidate_models() -> dict[str, CandidateModel]:
                     ),
                 ]
             ),
-            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
-            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
         ),
         "residual_micro_hist_absolute_mape_weighted": RegressionCandidate(
             estimator=Pipeline(
@@ -1123,10 +1103,8 @@ def _candidate_models() -> dict[str, CandidateModel]:
                     ),
                 ]
             ),
-            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
-            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX
-            + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            target_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
+            prediction_mode=PREDICTION_MODE_RESIDUAL_PREFIX + RUNTIME_POLICY_MICRO_MEDIAN_DELTA_3,
             sample_weight_mode="inverse_target",
         ),
         "hurdle_hist_gradient_delta_ratio": HurdleCandidate(
@@ -1203,10 +1181,7 @@ def _training_targets(
             for sample in samples
         ]
     if target_mode == PREDICTION_MODE_DELTA_QUANTITY:
-        return [
-            float(sample.target_quantity - sample.previous_quantity)
-            for sample in samples
-        ]
+        return [float(sample.target_quantity - sample.previous_quantity) for sample in samples]
     if target_mode == PREDICTION_MODE_TARGET_QUANTITY:
         return [float(sample.target_quantity) for sample in samples]
     if target_mode == PREDICTION_MODE_LOG_DELTA_RATIO:
@@ -1227,15 +1202,9 @@ def _training_sample_weights(
         raise ValueError(f"Unsupported sample weight mode: {sample_weight_mode}")
 
     # MAPE는 작은 수량 종목의 상대오차가 크게 작용하므로 역수 가중치를 둔다.
-    raw_weights = [
-        1.0 / max(1.0, float(sample.target_quantity))
-        for sample in samples
-    ]
+    raw_weights = [1.0 / max(1.0, float(sample.target_quantity)) for sample in samples]
     mean_weight = sum(raw_weights) / max(1, len(raw_weights))
-    return [
-        min(20.0, max(0.05, weight / mean_weight))
-        for weight in raw_weights
-    ]
+    return [min(20.0, max(0.05, weight / mean_weight)) for weight in raw_weights]
 
 
 def _candidate_prediction_mode(model: CandidateModel) -> str:
@@ -1267,9 +1236,7 @@ def _fit_hurdle_model(
         candidate.classifier.fit(classifier_features, classifier_targets)
         classifier = candidate.classifier
 
-    changed_train_samples = [
-        sample for sample in train_samples if _changed_target(sample) == 1
-    ]
+    changed_train_samples = [sample for sample in train_samples if _changed_target(sample) == 1]
     regressor_samples = changed_train_samples or train_samples
     candidate.regressor.fit(
         [sample.features for sample in regressor_samples],
@@ -1349,10 +1316,10 @@ def _walk_forward_folds(
     test_window = max(10, len(unique_dates) // 12)
     first_test_index = max(30, int(len(unique_dates) * 0.55))
     starts = list(range(first_test_index, len(unique_dates) - test_window + 1, test_window))
-    starts = starts[-max(MIN_WALK_FORWARD_FOLDS, min(6, len(starts))):]
+    starts = starts[-max(MIN_WALK_FORWARD_FOLDS, min(6, len(starts))) :]
     folds: list[WalkForwardFold] = []
     for start in starts:
-        test_dates = set(unique_dates[start:start + test_window])
+        test_dates = set(unique_dates[start : start + test_window])
         train_cutoff = unique_dates[start]
         train_samples = [sample for sample in samples if sample.sample_date < train_cutoff]
         test_samples = [sample for sample in samples if sample.sample_date in test_dates]
@@ -1401,9 +1368,7 @@ def _model_metrics_from_fold_predictions(
             strict=True,
         ):
             actual.append(sample.target_quantity)
-            predicted.append(
-                blended_model_prediction(sample, predicted_delta_ratio, blend_alpha)
-            )
+            predicted.append(blended_model_prediction(sample, predicted_delta_ratio, blend_alpha))
     return regression_metrics(actual, predicted)
 
 
@@ -1427,8 +1392,7 @@ def _quantity_prediction(
         return _clip_quantity(sample.previous_quantity + blend_alpha * raw_prediction)
     if prediction_mode == PREDICTION_MODE_TARGET_QUANTITY:
         return _clip_quantity(
-            sample.previous_quantity
-            + blend_alpha * (raw_prediction - sample.previous_quantity)
+            sample.previous_quantity + blend_alpha * (raw_prediction - sample.previous_quantity)
         )
     if prediction_mode == PREDICTION_MODE_LOG_DELTA_RATIO:
         return _clip_quantity(
@@ -1463,9 +1427,7 @@ def _stock_routed_model_metrics(
                 sample.stock_code,
                 fallback_blend_alpha,
             )
-            raw_prediction = fold_predictions_by_model[(model_name, fold_index)][
-                sample_index
-            ]
+            raw_prediction = fold_predictions_by_model[(model_name, fold_index)][sample_index]
             actual.append(sample.target_quantity)
             predicted.append(
                 _quantity_prediction(
@@ -1600,9 +1562,7 @@ def _guarded_runtime_metrics(
                 sample.stock_code,
                 fallback_blend_alpha,
             )
-            raw_prediction = fold_predictions_by_model[(model_name, fold_index)][
-                sample_index
-            ]
+            raw_prediction = fold_predictions_by_model[(model_name, fold_index)][sample_index]
             predicted.append(
                 _quantity_prediction(
                     sample,
@@ -1623,17 +1583,20 @@ def _per_stock_validation(
     model_prediction_modes: dict[str, str],
 ) -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = {}
-    candidate_model_names = sorted(
-        {model_name for model_name, _ in fold_predictions_by_model}
-    )
+    candidate_model_names = sorted({model_name for model_name, _ in fold_predictions_by_model})
     for fold_index, (_, test_samples) in enumerate(folds, start=1):
         for sample_index, sample in enumerate(test_samples):
-            default_bucket: dict[str, Any] = {"actual": [], "model_predictions": {}}
+            default_bucket: dict[str, Any] = {
+                "actual": [],
+                "previous": [],
+                "model_predictions": {},
+            }
             default_bucket.update(
                 {policy: [] for policy in RUNTIME_POLICIES if policy != RUNTIME_POLICY_ML}
             )
             bucket = grouped.setdefault(sample.stock_code, default_bucket)
             bucket["actual"].append(sample.target_quantity)
+            bucket["previous"].append(sample.previous_quantity)
             for policy in RUNTIME_POLICIES:
                 if policy == RUNTIME_POLICY_ML:
                     continue
@@ -1646,9 +1609,7 @@ def _per_stock_validation(
                 )
             model_predictions = bucket["model_predictions"]
             for model_name in candidate_model_names:
-                raw_prediction = fold_predictions_by_model[(model_name, fold_index)][
-                    sample_index
-                ]
+                raw_prediction = fold_predictions_by_model[(model_name, fold_index)][sample_index]
                 prediction_mode = model_prediction_modes.get(
                     model_name,
                     PREDICTION_MODE_DELTA_RATIO,
@@ -1689,6 +1650,28 @@ def _per_stock_validation(
             policy_metrics,
             baseline_metrics,
         )
+        recommended_predictions = (
+            values[recommended_runtime]
+            if recommended_runtime != RUNTIME_POLICY_ML
+            else values["model_predictions"][best_ml_key]
+        )
+        absolute_errors = sorted(
+            abs(actual_quantity - predicted_quantity)
+            for actual_quantity, predicted_quantity in zip(
+                actual,
+                recommended_predictions,
+                strict=True,
+            )
+        )
+        interval_index = min(
+            len(absolute_errors) - 1,
+            max(0, int(len(absolute_errors) * 0.9)),
+        )
+        prediction_interval = max(1, int(absolute_errors[interval_index]))
+        interval_coverage = sum(error <= prediction_interval for error in absolute_errors) / max(
+            1, len(absolute_errors)
+        )
+        median_previous = sorted(values["previous"])[len(values["previous"]) // 2]
         changed_transition_count = sum(
             1
             for actual_quantity, baseline_quantity in zip(actual, baseline, strict=True)
@@ -1708,15 +1691,15 @@ def _per_stock_validation(
                 "best_ml_model": best_ml_model,
                 "best_ml_blend_alpha": best_ml_blend_alpha,
                 "mae_improvement_over_baseline": (
-                    (
-                        baseline_metrics["mae"]
-                        - policy_metrics[recommended_runtime]["mae"]
-                    )
+                    (baseline_metrics["mae"] - policy_metrics[recommended_runtime]["mae"])
                     / baseline_metrics["mae"]
                     if baseline_metrics["mae"] > 0
                     else 0.0
                 ),
                 "recommended_runtime": recommended_runtime,
+                "prediction_interval_abs_p90_quantity": prediction_interval,
+                "prediction_interval_coverage": interval_coverage,
+                "prediction_interval_width_ratio": prediction_interval / max(1, median_previous),
             }
         )
     return sorted(
@@ -1760,9 +1743,7 @@ def _select_mape_guarded_runtime(
     policy_metrics: dict[str, dict[str, float]],
     baseline_metrics: dict[str, float],
 ) -> str:
-    candidate_policies = [
-        policy for policy in policy_metrics if policy != RUNTIME_POLICY_BASELINE
-    ]
+    candidate_policies = [policy for policy in policy_metrics if policy != RUNTIME_POLICY_BASELINE]
     mape_safe_policies = [
         policy
         for policy in candidate_policies

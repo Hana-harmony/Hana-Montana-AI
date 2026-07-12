@@ -117,9 +117,7 @@ def test_samsung_comparison_uses_familiar_companies_and_four_strengths() -> None
     assert len(response.comparisons) == 3
     assert len({item.peer.ticker for item in response.comparisons}) == 3
     assert all(item.peer.ticker in CURATED_GLOBAL_BRAND_TIERS for item in response.comparisons)
-    assert {"memory", "foundry", "ai"}.issubset(
-        {item.icon_key for item in response.key_strengths}
-    )
+    assert {"memory", "foundry", "ai"}.issubset({item.icon_key for item in response.key_strengths})
     assert len({item.title for item in response.key_strengths}) == 4
     assert all("both companies" not in item.description.lower() for item in response.comparisons)
     assert all("both companies" not in item.description.lower() for item in response.key_strengths)
@@ -160,10 +158,17 @@ def test_company_summary_drives_non_samsung_strengths_and_familiar_peers() -> No
         )
 
         assert len({strength.title for strength in response.key_strengths}) == 4
-        assert all(
-            comparison.peer.ticker in CURATED_GLOBAL_BRAND_TIERS
-            for comparison in response.comparisons
-        )
+        stock_profile = matcher._korea_profiles[code]
+        for comparison in response.comparisons:
+            peer_profile = matcher._eligible_us_profiles[
+                matcher._eligible_us_index_by_ticker[comparison.peer.ticker]
+            ]
+            assert matcher._comparison_domain_compatible(
+                stock_profile,
+                peer_profile,
+                "overall_business",
+                matcher._overall_business_fit(stock_profile, peer_profile),
+            )
         assert all("core operating area" not in item.description for item in response.key_strengths)
 
 
@@ -218,8 +223,80 @@ def test_business_summary_tagger_extracts_domain_without_noise() -> None:
         "동사는 전자상거래 플랫폼과 유통사업을 영위하며 화장품 브랜드를 판매한다."
     )
 
-    assert tags[:3] == ("retail", "consumer brands", "software platform")
+    assert tags[:2] == ("retail", "consumer brands")
+    assert "software platform" not in tags
     assert "semiconductors" not in tags
+
+
+def test_shipbuilding_summary_does_not_treat_offshore_platform_as_software() -> None:
+    tags = infer_business_tags_from_company_summary(
+        "LNG 운반선과 컨테이너선, FPSO, 해양플랫폼을 건조하고 해양플랜트를 수행한다."
+    )
+
+    assert tags[0] == "shipbuilding"
+    assert "software platform" not in tags
+
+
+def test_generic_formulation_and_auction_terms_do_not_create_narrow_domains() -> None:
+    formulation_tags = infer_business_tags_from_company_summary(
+        "유액제와 수화제 등 다양한 제형의 농약 및 비료를 생산한다."
+    )
+    auction_tags = infer_business_tags_from_company_summary(
+        "기업 소모성 자재 구매대행과 일반 경매사업을 운영한다."
+    )
+
+    assert "drug delivery" not in formulation_tags
+    assert "art auction" not in auction_tags
+
+
+@pytest.mark.parametrize(
+    ("stock_code", "expected_industry"),
+    [
+        ("007590", "Specialty Chemicals"),
+        ("007720", "Retail"),
+        ("039740", "Retail"),
+        ("044960", "Biotechnology"),
+        ("051160", "Retail"),
+        ("092130", "Software"),
+        ("092730", "Household and Personal Products"),
+    ],
+)
+def test_narrow_domain_false_positives_are_grounded_by_company_evidence(
+    stock_code: str,
+    expected_industry: str,
+) -> None:
+    payload = joblib.load(MODEL_PATH)
+
+    assert payload["korea_profiles"][stock_code]["industry"] == expected_industry
+
+
+@pytest.mark.parametrize(
+    ("stock_code", "stock_name", "stock_name_en"),
+    [
+        ("042660", "한화오션", "Hanwha Ocean"),
+        ("009540", "HD한국조선해양", "HD Korea Shipbuilding"),
+        ("329180", "HD현대중공업", "HD Hyundai Heavy Industries"),
+        ("010140", "삼성중공업", "Samsung Heavy Industries"),
+    ],
+)
+def test_shipbuilders_match_grounded_shipbuilding_peers(
+    stock_code: str,
+    stock_name: str,
+    stock_name_en: str,
+) -> None:
+    response = GlobalPeerMatcher(MODEL_PATH).match(
+        GlobalPeerMatchRequest(
+            stock_code=stock_code,
+            stock_name=stock_name,
+            stock_name_en=stock_name_en,
+            market="KOSPI",
+        )
+    )
+
+    assert response.primary_peer.industry == "Shipbuilding"
+    assert len(response.comparisons) == 3
+    assert all(item.peer.industry == "Shipbuilding" for item in response.comparisons)
+    assert {item.peer.ticker for item in response.comparisons} == {"HII", "GD", "BWXT"}
 
 
 def test_ksic_tags_cover_konex_business_domains_without_stock_overrides() -> None:
