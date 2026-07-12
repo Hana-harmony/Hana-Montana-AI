@@ -277,10 +277,10 @@
       },
       "sentiment": {
         "sample_count": 80,
-        "accuracy": 0.9,
+        "accuracy": 0.875,
         "average_top_confidence": 0.640054,
-        "top_confidence_ece": 0.259946,
-        "multiclass_brier_score": 0.273889,
+        "top_confidence_ece": 0.234946,
+        "multiclass_brier_score": 0.290147,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       },

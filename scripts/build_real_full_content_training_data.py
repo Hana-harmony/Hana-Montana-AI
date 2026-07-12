@@ -935,6 +935,8 @@ def to_labeled_row(
         "source_license_policy": policy,
         "source_url": source_url,
         "content_hash": content_hash,
+        "provider": alert.provider,
+        "published_at": alert.published_at,
     }
     row["text"] = alert.title
     return row

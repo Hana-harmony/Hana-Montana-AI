@@ -9,6 +9,12 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
+    market_impact_model_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
+    )
+    market_impact_training_report_path: Path = Path(
+        "reports/k-fnspid-impact-training-report.json"
+    )
     stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
     stock_linker_model_path: Path = Path("src/hannah_montana_ai/model_store/stock_linker_ml.joblib")
     global_peer_model_path: Path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
