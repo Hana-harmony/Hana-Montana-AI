@@ -10,8 +10,8 @@ from typing import Any, Protocol, cast
 
 import joblib
 
-MODEL_SCHEMA_VERSION = "foreign-ownership-owned-quantity/v1"
-MODEL_VERSION = "hannah-foreign-owned-quantity-ml-v1"
+MODEL_SCHEMA_VERSION = "foreign-ownership-owned-quantity/v2"
+MODEL_VERSION = "hannah-foreign-owned-quantity-ml-v2"
 MIN_HISTORY_OBSERVATIONS = 20
 RUNTIME_POLICY_ML = "ml"
 RUNTIME_POLICY_BASELINE = "baseline"
@@ -132,10 +132,7 @@ class ConstantChangeProbabilityClassifier:
 
     def predict_proba(self, features: list[dict[str, float | str]]) -> list[list[float]]:
         no_change_probability = 1.0 - self.change_probability
-        return [
-            [no_change_probability, self.change_probability]
-            for _ in features
-        ]
+        return [[no_change_probability, self.change_probability] for _ in features]
 
 
 @dataclass(frozen=True)
@@ -177,6 +174,10 @@ class ForeignOwnershipQuantityModel:
         self._model = cast(_Predictor, payload["model"])
         self._blend_alpha = float(payload["blend_alpha"])
         self._residual_abs_p90_ratio = float(payload["residual_abs_p90_ratio"])
+        self._prediction_interval_abs_p90_by_stock = {
+            str(stock_code): max(1, int(round(float(value))))
+            for stock_code, value in dict(payload["prediction_interval_abs_p90_by_stock"]).items()
+        }
         self._model_version = str(payload["model_version"])
         self._minimum_history_observations = int(payload["minimum_history_observations"])
         self._release_status = str(payload["release_status"])
@@ -186,8 +187,7 @@ class ForeignOwnershipQuantityModel:
         }
         models_by_name = dict(payload.get("models_by_name", {}))
         self._models_by_name = {
-            str(model_name): cast(_Predictor, model)
-            for model_name, model in models_by_name.items()
+            str(model_name): cast(_Predictor, model) for model_name, model in models_by_name.items()
         }
         self._fallback_model_name = str(
             payload.get("fallback_model") or payload.get("selected_model") or ""
@@ -200,9 +200,7 @@ class ForeignOwnershipQuantityModel:
         }
         self._blend_alpha_by_stock = {
             str(stock_code): float(blend_alpha)
-            for stock_code, blend_alpha in dict(
-                payload.get("blend_alpha_by_stock", {})
-            ).items()
+            for stock_code, blend_alpha in dict(payload.get("blend_alpha_by_stock", {})).items()
         }
         self._model_prediction_modes = {
             str(model_name): str(prediction_mode)
@@ -234,7 +232,7 @@ class ForeignOwnershipQuantityModel:
                 self._model_version,
                 _runtime_policy_confidence_level(runtime_policy),
                 _runtime_policy_source(runtime_policy),
-                self._residual_abs_p90_ratio,
+                self._prediction_band(stock_code, previous_quantity, points),
             )
         features = build_prediction_features(points)
         model = self._model_for_stock(stock_code)
@@ -251,10 +249,7 @@ class ForeignOwnershipQuantityModel:
                 PREDICTION_MODE_DELTA_RATIO,
             ),
         )
-        band = max(
-            1,
-            _clip_quantity(previous_quantity * self._residual_abs_p90_ratio),
-        )
+        band = self._prediction_band(stock_code, previous_quantity, points)
         confidence_score = 0.86 if self._release_status == "promoted" else 0.72
         return ForeignOwnershipQuantityPrediction(
             predicted_quantity=predicted_quantity,
@@ -275,15 +270,27 @@ class ForeignOwnershipQuantityModel:
     def _model_name_for_stock(self, stock_code: str) -> str:
         return self._model_by_stock.get(stock_code, self._fallback_model_name)
 
+    def _prediction_band(
+        self,
+        stock_code: str,
+        previous_quantity: int,
+        points: list[ForeignOwnershipQuantityPoint],
+    ) -> int:
+        calibrated_band = self._prediction_interval_abs_p90_by_stock.get(stock_code)
+        if calibrated_band is not None:
+            # 과거 검증오차를 상한으로 두고 최신 변동성 국면의 실제 90분위수를 반영한다.
+            return min(calibrated_band, _recent_abs_delta_p90_quantity(points))
+        return max(1, _clip_quantity(previous_quantity * self._residual_abs_p90_ratio))
+
 
 def _baseline_prediction_response(
     previous_quantity: int,
     model_version: str,
     confidence_level: str,
     source: str,
-    residual_abs_p90_ratio: float,
+    prediction_band: int,
 ) -> ForeignOwnershipQuantityPrediction:
-    band = max(1, _clip_quantity(previous_quantity * residual_abs_p90_ratio))
+    band = max(1, prediction_band)
     return ForeignOwnershipQuantityPrediction(
         predicted_quantity=previous_quantity,
         lower_quantity=max(0, previous_quantity - band),
@@ -350,9 +357,7 @@ def build_training_samples(
                         )
                     )
                     if previous_change_date is not None:
-                        change_interval_day_sum += (
-                            current.base_date - previous_change_date
-                        ).days
+                        change_interval_day_sum += (current.base_date - previous_change_date).days
                         change_interval_count += 1
                     previous_change_date = current.base_date
 
@@ -421,14 +426,14 @@ def _build_training_features(
     for window in (3, 5, 10, 20):
         window_values = [
             float(point.foreign_owned_quantity)
-            for point in points[latest_index - window + 1:latest_index + 1]
+            for point in points[latest_index - window + 1 : latest_index + 1]
         ]
         features[f"mean_{window}"] = mean(window_values)
         if window in (5, 20):
             features[f"std_{window}"] = pstdev(window_values)
     last_20 = [
         float(point.foreign_owned_quantity)
-        for point in points[latest_index - 19:latest_index + 1]
+        for point in points[latest_index - 19 : latest_index + 1]
     ]
     features["min_20"] = min(last_20)
     features["max_20"] = max(last_20)
@@ -436,7 +441,7 @@ def _build_training_features(
     feature_window_start = max(0, latest_index - max(LONG_HORIZON_WINDOWS) + 1)
     recent_values = [
         float(point.foreign_owned_quantity)
-        for point in points[feature_window_start:latest_index + 1]
+        for point in points[feature_window_start : latest_index + 1]
     ]
     features.update(_long_horizon_features(recent_values))
     features.update(_daily_delta_distribution_features(recent_values))
@@ -484,9 +489,7 @@ def _rolling_change_interval_features(
         "prior_change_count": float(len(change_indices)),
         "prior_change_rate": len(change_indices) / max(1.0, latest_index),
         "mean_days_between_changes": (
-            change_interval_day_sum / change_interval_count
-            if change_interval_count
-            else 0.0
+            change_interval_day_sum / change_interval_count if change_interval_count else 0.0
         ),
         "last_change_delta_ratio": change_delta_ratios[-1],
         "change_count_20": float(len(change_indices) - first_recent_change_index),
@@ -560,10 +563,7 @@ def _daily_delta_distribution_features(values: list[float]) -> dict[str, float]:
     if len(values) < 2:
         return _empty_daily_delta_distribution_features()
 
-    deltas = [
-        current - previous
-        for previous, current in zip(values, values[1:], strict=False)
-    ]
+    deltas = [current - previous for previous, current in zip(values, values[1:], strict=False)]
     features: dict[str, float] = {}
     for lag in range(1, 6):
         features[f"daily_delta_lag_{lag}"] = deltas[-lag] if len(deltas) >= lag else 0.0
@@ -661,26 +661,15 @@ def runtime_policy_quantity(
     if policy == RUNTIME_POLICY_STALE_GUARDED_MEAN_DELTA_20:
         if _feature_float(features, "observations_since_last_change") > 5.0:
             return previous_quantity
-        return _clip_quantity(
-            previous_quantity + 0.25 * _mean_delta(features, 20)
-        )
+        return _clip_quantity(previous_quantity + 0.25 * _mean_delta(features, 20))
     if policy == RUNTIME_POLICY_MEAN_DELTA_20:
         return _clip_quantity(previous_quantity + _mean_delta(features, 20))
     if policy == RUNTIME_POLICY_MEDIAN_MULTI_DELTA:
         deltas = [
             _feature_float(features, "lag_1") - _feature_float(features, "lag_2"),
-            (
-                _feature_float(features, "lag_1")
-                - _feature_float(features, "lag_3")
-            ) / 2.0,
-            (
-                _feature_float(features, "lag_1")
-                - _feature_float(features, "lag_5")
-            ) / 4.0,
-            (
-                _feature_float(features, "lag_1")
-                - _feature_float(features, "lag_10")
-            ) / 9.0,
+            (_feature_float(features, "lag_1") - _feature_float(features, "lag_3")) / 2.0,
+            (_feature_float(features, "lag_1") - _feature_float(features, "lag_5")) / 4.0,
+            (_feature_float(features, "lag_1") - _feature_float(features, "lag_10")) / 9.0,
             _mean_delta(features, 20),
         ]
         return _clip_quantity(previous_quantity + median(deltas))
@@ -720,12 +709,23 @@ def regression_metrics(actual: list[int], predicted: list[int]) -> dict[str, flo
 def residual_abs_p90_ratio(actual: list[int], predicted: list[int]) -> float:
     if not actual:
         return 0.001
-    ratios = sorted(
-        abs(a - p) / max(1, a)
-        for a, p in zip(actual, predicted, strict=True)
-    )
+    ratios = sorted(abs(a - p) / max(1, a) for a, p in zip(actual, predicted, strict=True))
     index = min(len(ratios) - 1, int(len(ratios) * 0.9))
     return max(0.0001, ratios[index])
+
+
+def _recent_abs_delta_p90_quantity(
+    points: list[ForeignOwnershipQuantityPoint],
+) -> int:
+    recent_points = points[-60:]
+    absolute_deltas = sorted(
+        abs(current.foreign_owned_quantity - previous.foreign_owned_quantity)
+        for previous, current in zip(recent_points, recent_points[1:], strict=False)
+    )
+    if not absolute_deltas:
+        return 1
+    index = min(len(absolute_deltas) - 1, int(len(absolute_deltas) * 0.9))
+    return max(1, absolute_deltas[index])
 
 
 def _sorted_valid_points(
@@ -749,6 +749,7 @@ def _validate_payload(payload: dict[str, Any], model_path: Path) -> None:
         "model",
         "blend_alpha",
         "residual_abs_p90_ratio",
+        "prediction_interval_abs_p90_by_stock",
         "minimum_history_observations",
         "release_status",
     }
@@ -770,9 +771,9 @@ def _delta_ratio(current: float, previous: float) -> float:
 
 
 def _mean_delta(features: dict[str, float | str], window: int) -> float:
-    return (
-        _feature_float(features, "lag_1") - _feature_float(features, f"lag_{window}")
-    ) / max(1, window - 1)
+    return (_feature_float(features, "lag_1") - _feature_float(features, f"lag_{window}")) / max(
+        1, window - 1
+    )
 
 
 def _feature_float(features: dict[str, float | str], name: str) -> float:

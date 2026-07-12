@@ -367,6 +367,18 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         scale_bucket="LARGE_CAP",
         positioning_title="Biotechnology Company",
     ),
+    "BWXT": PeerAnchor(
+        profile_text=(
+            "BWX Technologies naval nuclear reactors propulsion components submarines "
+            "aircraft carriers defense manufacturing"
+        ),
+        business_tags=("shipbuilding", "aerospace"),
+        sector="Industrials",
+        industry="Shipbuilding",
+        business_model="Naval nuclear propulsion equipment manufacturing and services",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Naval Propulsion Systems Company",
+    ),
     "C": PeerAnchor(
         profile_text="Citigroup global bank financial holding commercial banking capital markets",
         business_tags=("banking", "financials"),
@@ -594,6 +606,30 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         business_model="Automobile manufacturing and mobility supply chain",
         scale_bucket="LARGE_CAP",
         positioning_title="Global Automobile Manufacturer",
+    ),
+    "GD": PeerAnchor(
+        profile_text=(
+            "General Dynamics defense shipbuilding nuclear submarines surface ships "
+            "marine systems aerospace combat systems"
+        ),
+        business_tags=("shipbuilding", "aerospace"),
+        sector="Industrials",
+        industry="Shipbuilding",
+        business_model="Defense shipbuilding, marine systems, and aerospace manufacturing",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Defense Shipbuilding Group",
+    ),
+    "HII": PeerAnchor(
+        profile_text=(
+            "Huntington Ingalls Industries naval shipbuilding aircraft carriers "
+            "amphibious ships national security technology services"
+        ),
+        business_tags=("shipbuilding", "aerospace"),
+        sector="Industrials",
+        industry="Shipbuilding",
+        business_model="Naval shipbuilding and defense technology services",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Naval Shipbuilder",
     ),
     "LLY": PeerAnchor(
         profile_text="Eli Lilly global pharmaceutical biotechnology medicines drug development",
@@ -1337,6 +1373,10 @@ def train_korea_business_profile_classifier(
     min_confidence: float = 0.55,
     summary_aligned_min_confidence: float = 0.35,
 ) -> KoreaBusinessProfileClassifierResult:
+    industry_profiles = _ground_industry_profiles_with_company_summaries(
+        industry_profiles,
+        company_profiles,
+    )
     stocks_by_code = {stock.stock_code: stock for stock in korea_universe}
     labeled_profiles = [
         profile
@@ -1485,6 +1525,7 @@ def train_korea_business_profile_classifier(
         )
         if not accepted:
             continue
+        # 회사 설명에서 확인된 사업 근거를 분류기 추정값보다 우선한다.
         tags = _merge_business_tags((predicted_tag,), inferred_tags)
         base_profile = current_profile or KoreaIndustryProfile(
             stock_code=stock.stock_code,
@@ -1580,6 +1621,53 @@ def train_korea_business_profile_classifier(
         classifier=classifier,
         report=report,
     )
+
+
+def _ground_industry_profiles_with_company_summaries(
+    industry_profiles: dict[str, KoreaIndustryProfile],
+    company_profiles: dict[str, KoreaCompanyProfile],
+) -> dict[str, KoreaIndustryProfile]:
+    grounded = dict(industry_profiles)
+    for stock_code, profile in industry_profiles.items():
+        company_profile = company_profiles.get(stock_code)
+        summary_tags = infer_business_tags_from_company_summary(
+            company_profile.business_summary_text if company_profile else ""
+        )
+        ksic_tags = infer_business_tags_from_ksic(
+            company_profile.induty_code if company_profile else ""
+        )
+        grounded_tags = _merge_business_tags(ksic_tags, summary_tags)
+        unsupported_narrow_tags = {
+            tag
+            for tag in profile.business_tags
+            if tag in {"art auction", "drug delivery"} and tag not in grounded_tags
+        }
+        if not grounded_tags or (
+            grounded_tags[0] in profile.business_tags[:1] and not unsupported_narrow_tags
+        ):
+            continue
+        # 실제 회사 설명의 구체적인 사업 근거가 비교업종 추정값과 충돌하면 설명을 우선한다.
+        grounded_sector = infer_sector(grounded_tags)
+        compatible_existing_tags = tuple(
+            tag
+            for tag in profile.business_tags
+            if tag not in unsupported_narrow_tags
+            if infer_sector((tag,)) == grounded_sector
+        )
+        tags = _merge_business_tags(compatible_existing_tags, grounded_tags)
+        grounded[stock_code] = KoreaIndustryProfile(
+            stock_code=profile.stock_code,
+            stock_name=profile.stock_name,
+            industry_code=profile.industry_code,
+            peer_stock_codes=profile.peer_stock_codes,
+            peer_stock_names=profile.peer_stock_names,
+            business_tags=tags,
+            sector=infer_sector(tags),
+            industry=infer_industry(tags),
+            business_model=infer_business_model(tags),
+            source=f"{profile.source}+COMPANY_SUMMARY_GROUNDED",
+        )
+    return grounded
 
 
 def _evaluate_korea_business_profile_classifier(
@@ -1879,7 +1967,7 @@ def train_global_peer_model(
         "eligible_us_semantic_matrix": eligible_us_semantic_matrix,
         "eligible_us_financial_matrix": eligible_us_financial_matrix,
         "eligible_us_profiles": [
-            _runtime_profile_payload(profile, include_business_summary=False)
+            _runtime_profile_payload(profile, include_business_summary=True)
             for profile in eligible_us_profiles
         ],
         "korea_profiles": {
@@ -2118,9 +2206,7 @@ def _with_us_profile_quality_scores(
             profile.market_cap_reliability_score,
         )
         curated_tier = CURATED_GLOBAL_BRAND_TIERS.get(profile.identifier, 0.0)
-        observed_familiarity = (
-            (0.65 * cap_percentile) + (0.35 * profile.profile_completeness_score)
-        )
+        observed_familiarity = (0.65 * cap_percentile) + (0.35 * profile.profile_completeness_score)
         # 잘못된 시가총액이 글로벌 인지도까지 삭감하지 않도록 큐레이션 하한을 독립 적용한다.
         familiarity = max(observed_familiarity, 0.90 * curated_tier)
         enriched.append(
@@ -2144,9 +2230,7 @@ def build_korea_profile(
     stock_name_en = stock.stock_name_en or _english_name_fallback(stock)
     inferred_tags = _merge_business_tags(
         tuple(infer_business_tags(stock.stock_name, stock_name_en)),
-        infer_business_tags_from_ksic(
-            company_profile.induty_code if company_profile else ""
-        ),
+        infer_business_tags_from_ksic(company_profile.induty_code if company_profile else ""),
     )
     if industry_profile and _is_specific_korea_industry_profile(industry_profile):
         tags = industry_profile.business_tags
@@ -2217,10 +2301,7 @@ def build_korea_profile(
             fundamental=fundamental,
             has_business_evidence=bool(
                 business_summary
-                or (
-                    industry_profile
-                    and _is_specific_korea_industry_profile(industry_profile)
-                )
+                or (industry_profile and _is_specific_korea_industry_profile(industry_profile))
             ),
             market_cap_reliability=market_cap_reliability,
         ),
@@ -2636,7 +2717,7 @@ def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
             "biotech",
             ("바이오", "제약", "의약", "치료제", "신약", "항암", "면역", "진단", "의료기기"),
         ),
-        ("drug delivery", ("약물전달", "drug delivery", "피하주사", "제형")),
+        ("drug delivery", ("약물전달", "drug delivery", "피하주사")),
         ("consumer brands", ("화장품", "코스메틱", "뷰티", "향수", "색조", "패션", "의류", "리빙")),
         ("food and beverage", ("식품", "음료", "콤부차", "주류", "제과", "외식")),
         (
@@ -2645,17 +2726,44 @@ def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
         ),
         (
             "software platform",
-            ("소프트웨어", "sw개발", "it서비스", "시스템", "플랫폼", "iot", "디지털트윈", "모바일"),
+            (
+                "소프트웨어",
+                "sw개발",
+                "it서비스",
+                "시스템 통합",
+                "온라인 플랫폼",
+                "디지털 플랫폼",
+                "플랫폼 서비스",
+                "iot",
+                "디지털트윈",
+                "모바일 서비스",
+            ),
         ),
         ("media entertainment", ("영상콘텐츠", "콘텐츠", "미디어", "방송", "엔터테인먼트", "광고")),
         ("materials", ("철강", "철스크랩", "강관", "소재", "원료", "비철", "금속")),
         ("industrial machinery", ("장비", "설비", "기계", "자동화", "로봇", "모듈")),
+        (
+            "shipbuilding",
+            (
+                "조선",
+                "선박",
+                "lng선",
+                "lng 운반선",
+                "원유 운반선",
+                "컨테이너선",
+                "fpso",
+                "해양플랜트",
+                "해양 플랫폼",
+                "해양플랫폼",
+                "함정",
+            ),
+        ),
         ("financials", ("기업금융", "회사채", "대출", "금융서비스")),
         ("telecommunications", ("통신장비", "정보통신", "유무선", "네트워크")),
         ("semiconductors", ("반도체", "hbm", "dram", "nand", "파운드리", "웨이퍼")),
         ("consumer electronics", ("가전", "전자제품", "oa기기")),
         ("leisure", ("호텔", "리조트", "레저", "호스피탈리티")),
-        ("art auction", ("미술품 경매", "경매사업", "작품 경매")),
+        ("art auction", ("미술품 경매", "작품 경매")),
         ("construction", ("건설", "플랜트", "토목", "시공")),
         ("energy", ("석유", "가스", "태양광", "발전", "전력", "에너지")),
         ("logistics", ("물류", "운송", "해운", "배송")),
@@ -2773,6 +2881,8 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Chemical and advanced materials manufacturing"
     if "materials" in tags:
         return "Metals, materials, and industrial inputs"
+    if "shipbuilding" in tags:
+        return "Shipbuilding, marine engineering, and offshore plant construction"
     if "software platform" in tags:
         return "Platform software and recurring services"
     if "construction" in tags:

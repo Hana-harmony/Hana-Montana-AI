@@ -69,6 +69,10 @@ def test_foreign_owned_quantity_training_builds_walk_forward_artifact(tmp_path: 
     )
     assert report.selected_model_metrics["mae"] <= report.baseline_metrics["mae"] * 1.2
     assert report.residual_abs_p90_ratio > 0
+    assert set(report.prediction_interval_abs_p90_by_stock) == set(report.runtime_by_stock)
+    assert all(
+        coverage >= 0.9 for coverage in report.prediction_interval_coverage_by_stock.values()
+    )
 
 
 def test_foreign_owned_quantity_service_uses_trained_ml_artifact(tmp_path: Path) -> None:
@@ -116,12 +120,15 @@ def test_foreign_owned_quantity_service_uses_trained_ml_artifact(tmp_path: Path)
     assert response.min_foreign_owned_quantity <= response.predicted_foreign_owned_quantity
     assert response.predicted_foreign_owned_quantity <= response.max_foreign_owned_quantity
     assert (
-        abs(response.predicted_foreign_owned_quantity - history[-1].foreign_owned_quantity)
-        < 20_000
+        response.max_foreign_owned_quantity - response.min_foreign_owned_quantity
+        < history[-1].foreign_owned_quantity * 0.05
+    )
+    assert (
+        abs(response.predicted_foreign_owned_quantity - history[-1].foreign_owned_quantity) < 20_000
     )
     assert response.order_impact_rate == 0.0
     assert response.observed_intraday_volume == 0
-    assert response.model_version == "hannah-foreign-owned-quantity-ml-v1"
+    assert response.model_version == "hannah-foreign-owned-quantity-ml-v2"
     assert response.confidence_level in {
         "AI_FOREIGN_OWNED_QUANTITY_ML",
         "AI_FOREIGN_OWNED_QUANTITY_STOCK_GUARDED_BASELINE",
@@ -178,9 +185,7 @@ def test_foreign_owned_quantity_benchmark_report_includes_policy_baselines(
         include_neural_sota=False,
     )
 
-    full_universe_models = {
-        row["model"] for row in benchmark["full_universe_walk_forward"]
-    }
+    full_universe_models = {row["model"] for row in benchmark["full_universe_walk_forward"]}
     assert "baseline" in full_universe_models
     assert "stale_guarded_mean_delta_20" in full_universe_models
     assert benchmark["published_sota_diagnostics"][0]["status"] == "not_run"
@@ -256,9 +261,7 @@ def _write_synthetic_foreign_ownership_quantity_history(path: Path) -> None:
                         "stock_code": stock_code,
                         "base_date": start + timedelta(days=day_index),
                         "foreign_owned_quantity": (
-                            base_quantity
-                            + day_index * (800 + stock_index * 25)
-                            + weekly_wave
+                            base_quantity + day_index * (800 + stock_index * 25) + weekly_wave
                         ),
                         "foreign_limit_quantity": base_quantity * 2,
                     }
