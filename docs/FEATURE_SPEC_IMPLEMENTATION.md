@@ -76,6 +76,7 @@
   - 입력: 서류 유형, 파일명, 원본 파일 또는 OCR 추출 텍스트, OCR 신뢰도, 위변조 signal, 기대 거주지 국가.
   - 처리: OCR confidence와 fraud signal score, 필수 field 누락 여부로 `VERIFIED`, `PENDING`, `REJECTED`를 산출한다.
   - 출력: `verification_status`, `fraud_risk_score`, `risk_level`, `manual_review_required`, `missing_required_fields`, `rejection_reasons`, `document_model_version`.
+  - 제한세율 적용신청서는 이름·주소·납세자번호·생년월일·거주지국·국가코드·전화번호·신청일을 영역 OCR과 정규식 parser로 추출해 경정청구서 공통 필드로 반환한다.
 - endpoint: `POST /api/v1/tax/refund-status`
 - 입력: 투자자 ID, 거주지 국가, 과세연도, OCR/위변조 검증 완료 서류, 배당·매도 거래 원장.
 - 파서:
