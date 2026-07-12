@@ -1,0 +1,51 @@
+{
+  "schema_version": "k-fnspid-quality/v1",
+  "status": "pass",
+  "document_count": 81689,
+  "entity_count": 124491,
+  "impact_count": 50972,
+  "provider_count": {
+    "naver-news": 55723,
+    "open-dart": 25966
+  },
+  "primary_entity_coverage": 0.622605,
+  "market_impact_coverage": 0.596205,
+  "errors": [],
+  "dataset_version": "k-fnspid-v1",
+  "generated_at": "2026-07-13T06:05:42.034503+09:00",
+  "validation_start": "2026-01-01",
+  "test_start": "2026-06-01",
+  "gold_annotation_count": 80,
+  "files": [
+    {
+      "path": "annotations.parquet",
+      "bytes": 8890,
+      "sha256": "4ab9166d247d02ae0453ecb79d8abd68d4e01cc798580a3b00305a2ab9de79e7"
+    },
+    {
+      "path": "document_entities.parquet",
+      "bytes": 2463519,
+      "sha256": "71bff04d28dad62bcb30e5a6e6bd24c07fb4190d5e46f8d64e14277bad9ab971"
+    },
+    {
+      "path": "documents.parquet",
+      "bytes": 50551334,
+      "sha256": "2b3abe19fdff2fbff2536effad22ba979316a7340991dbadc276922cffb949d6"
+    },
+    {
+      "path": "market_impacts.parquet",
+      "bytes": 2873187,
+      "sha256": "fa8eb1c0face8997b4bb6b9f3773222cb0a9f255369408e321f40212f28abf3a"
+    },
+    {
+      "path": "prices_daily.parquet",
+      "bytes": 22038742,
+      "sha256": "72ea0f45fbb8d322273e068e22aa20549c864bfb0ea572b5848eb352a1ba3005"
+    },
+    {
+      "path": "splits.parquet",
+      "bytes": 5286342,
+      "sha256": "7510f0d4033fe78371f59c72ef89c885122b4365d38c3c820d11bb1796d60c11"
+    }
+  ]
+}

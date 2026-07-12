@@ -11,5 +11,9 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+data/external/
+data/market/*.parquet
+data/market/*.csv
+data/k_fnspid/*/*.parquet
 .idea/
 .vscode/

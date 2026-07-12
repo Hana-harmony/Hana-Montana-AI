@@ -1,0 +1,51 @@
+{
+  "schema_version": "financial-alert-sota-benchmark/v1",
+  "gold_path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+  "gold_sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae",
+  "reviewer": "codex-financial-review-v1",
+  "sample_count": 60,
+  "excluded_training_overlap_count": 20,
+  "current_model": {
+    "name": "hannah-financial-nlp-ml",
+    "sentiment_accuracy": 0.9333333333333333,
+    "sentiment_macro_f1": 0.9092796092796093,
+    "sentiment_confusion_matrix": {
+      "NEGATIVE": {
+        "NEGATIVE": 12,
+        "NEUTRAL": 2
+      },
+      "NEUTRAL": {
+        "NEUTRAL": 10
+      },
+      "POSITIVE": {
+        "NEUTRAL": 2,
+        "POSITIVE": 34
+      }
+    },
+    "elapsed_seconds": 0.459772
+  },
+  "sota_reference": {
+    "name": "snunlp/KR-FinBERT-SC",
+    "sentiment_accuracy": 0.7,
+    "sentiment_macro_f1": 0.649333044920326,
+    "sentiment_confusion_matrix": {
+      "NEGATIVE": {
+        "NEGATIVE": 7,
+        "NEUTRAL": 4,
+        "POSITIVE": 3
+      },
+      "NEUTRAL": {
+        "NEGATIVE": 1,
+        "NEUTRAL": 8,
+        "POSITIVE": 1
+      },
+      "POSITIVE": {
+        "NEGATIVE": 1,
+        "NEUTRAL": 8,
+        "POSITIVE": 27
+      }
+    },
+    "elapsed_seconds": 4.869886
+  },
+  "decision": "KEEP_CURRENT_SENTIMENT_MODEL"
+}
