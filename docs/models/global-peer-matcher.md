@@ -16,6 +16,7 @@
 - ranker: bounded TF-IDF retrieval, SVD semantic embedding, profile/재무 feature, 사업 도메인, 프로필 충실도, 글로벌 인지도 신호의 동적 점수
 - 모델 prefix: `global-peer-dynamic-similarity`
 - 출력: headline, summary, primary peer, 3개 비교 차원, 4개 핵심 강점, matched factors, confidence
+- 종목 표시명은 검증된 영문명을 우선하고, 비었거나 한글명으로 오염된 경우 AI 계약 경계에서 영문 표시명을 생성해 `stock_name_en`, headline, summary에 동일하게 적용한다.
 - 한국 종목별 정답 peer, 서빙 anchor, pairwise 정답 라벨은 사용하지 않는다.
 - 후보 인지도와 시가총액 신뢰도를 반영해 소규모·저인지도 후보의 노출을 억제한다.
 - WiseReport 기업 사업 설명에서 확인된 구체 사업 태그를 비교업종 분류기보다 우선한다. `해양플랫폼`처럼 업종 문맥이 있는 표현은 소프트웨어 플랫폼으로 분류하지 않는다.
