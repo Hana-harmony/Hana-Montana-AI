@@ -1,29 +1,29 @@
 {
   "schema_version": "k-fnspid-impact-training/v1",
-  "version": "k-fnspid-impact-tfidf-logreg-20260712210703",
-  "dataset_dir": "data/k_fnspid/v1",
+  "version": "k-fnspid-impact-tfidf-logreg-20260713085712",
+  "dataset_dir": "data/k_fnspid/v2",
   "partition_count": {
-    "TRAIN": 8819,
-    "VALIDATION": 10233,
-    "TEST": 9220
+    "TRAIN": 106975,
+    "VALIDATION": 6956,
+    "TEST": 10728
   },
-  "final_training_count": 19052,
+  "final_training_count": 113931,
   "label_distribution": {
-    "LOW": 15322,
-    "MEDIUM": 11002,
-    "CRITICAL": 651,
-    "HIGH": 3414
+    "LOW": 76747,
+    "MEDIUM": 32648,
+    "HIGH": 11000,
+    "CRITICAL": 5506
   },
   "validation": {
-    "sample_count": 10233,
-    "accuracy": 0.42597478745236,
-    "macro_f1": 0.271138264272583,
-    "quadratic_kappa": 0.11039506764648988
+    "sample_count": 6956,
+    "accuracy": 0.4637722829212191,
+    "macro_f1": 0.3477928213292463,
+    "quadratic_kappa": 0.3286224333848754
   },
   "test": {
-    "sample_count": 9220,
-    "accuracy": 0.4306941431670282,
-    "macro_f1": 0.30143961345175246,
-    "quadratic_kappa": 0.21443839570902967
+    "sample_count": 10728,
+    "accuracy": 0.45423191648023864,
+    "macro_f1": 0.36131736558509486,
+    "quadratic_kappa": 0.35148457958853574
   }
 }

@@ -2,6 +2,12 @@ import json
 from pathlib import Path
 
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.korean_translation_generator import (
+    STATUS_SOURCE_LANGUAGE_FALLBACK,
+    KoreanTranslationContext,
+    KoreanTranslationGenerator,
+    KoreanTranslationResult,
+)
 from hannah_montana_ai.training.dataset import load_labeled_alerts
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
 
@@ -17,8 +23,24 @@ STOCK_REVIEW_GOLD_DATA = (
 REPORT_PATH = PROJECT_ROOT / "reports/ml-model-evaluation.json"
 
 
+class EvaluationTranslationGenerator(KoreanTranslationGenerator):
+    def __init__(self) -> None:
+        pass
+
+    def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+        # 분류 평가는 외부 번역 서버 상태와 분리한다.
+        return KoreanTranslationResult(
+            translated_text=context.text,
+            provider="evaluation-source-language-fallback",
+            model_version="evaluation-no-translation",
+            status=STATUS_SOURCE_LANGUAGE_FALLBACK,
+            prompt_version="",
+            quality_flags=[],
+        )
+
+
 def main() -> None:
-    analyzer = AlertAnalyzer()
+    analyzer = AlertAnalyzer(translation_generator=EvaluationTranslationGenerator())
     result = evaluate_alert_analyzer(load_labeled_alerts(EVALUATION_DATA), analyzer)
     real_disclosure_result = evaluate_alert_analyzer(
         load_labeled_alerts(REAL_DISCLOSURE_GOLD_DATA),

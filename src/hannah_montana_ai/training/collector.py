@@ -14,6 +14,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from hannah_montana_ai.training.dataset import resolve_jsonl_paths
 from hannah_montana_ai.training.weak_labeler import RawCollectedAlert, normalize_text
 
 NAVER_QUERIES = (
@@ -310,24 +311,62 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     )
 
 
+def write_sharded_jsonl(
+    manifest_path: Path,
+    rows: list[dict[str, Any]],
+    *,
+    rows_per_shard: int = 50_000,
+) -> None:
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    shard_paths: list[Path] = []
+    for index, start in enumerate(range(0, len(rows), rows_per_shard), start=1):
+        shard_path = manifest_path.with_name(
+            f"{manifest_path.stem}.part-{index:05d}{manifest_path.suffix}"
+        )
+        write_jsonl(shard_path, rows[start : start + rows_per_shard])
+        shard_paths.append(shard_path)
+    active_names = {path.name for path in shard_paths}
+    for stale_path in manifest_path.parent.glob(
+        f"{manifest_path.stem}.part-*{manifest_path.suffix}"
+    ):
+        if stale_path.name not in active_names:
+            stale_path.unlink()
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "jsonl-shard-manifest/v1",
+                "row_count": len(rows),
+                "rows_per_shard": rows_per_shard,
+                "dataset_shards": [path.name for path in shard_paths],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def read_raw_alerts(path: Path) -> list[RawCollectedAlert]:
     if not path.exists():
         return []
     alerts: list[RawCollectedAlert] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        payload = json.loads(line)
-        alerts.append(
-            RawCollectedAlert(
-                source_type=payload["source_type"],
-                title=payload["title"],
-                snippet=payload["snippet"],
-                original_url=payload["original_url"],
-                published_at=payload["published_at"],
-                provider=payload["provider"],
-            )
-        )
+    for jsonl_path in resolve_jsonl_paths(path):
+        with jsonl_path.open(encoding="utf-8") as file:
+            for line in file:
+                if not line.strip():
+                    continue
+                payload = json.loads(line)
+                alerts.append(
+                    RawCollectedAlert(
+                        source_type=payload["source_type"],
+                        title=payload["title"],
+                        snippet=payload["snippet"],
+                        original_url=payload["original_url"],
+                        published_at=payload["published_at"],
+                        provider=payload["provider"],
+                    )
+                )
     return alerts
 
 

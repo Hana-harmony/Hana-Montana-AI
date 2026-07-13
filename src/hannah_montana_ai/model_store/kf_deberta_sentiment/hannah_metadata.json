@@ -1,0 +1,31 @@
+{
+  "schema_version": "kf-deberta-sentiment-artifact/v1",
+  "version": "kf-deberta-finance-sentiment-lora-20260713102924",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-13T10:29:24.760181+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1142,
+      "sha256": "a00767f8947c8ced54cd07db3612b8d08311efc240627f38d40b55f50a54603a"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5921612,
+      "sha256": "506a4290af390f9ebd3a3cabc8ae592e6c4c53837d44f1fb821c86819dd81c88"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  }
+}

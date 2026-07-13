@@ -37,7 +37,14 @@ from hannah_montana_ai.services.news_summary_generator import (
     NewsSummaryGenerator,
 )
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
+from hannah_montana_ai.services.sentiment_policy import apply_financial_sentiment_policy
 from hannah_montana_ai.services.stock_linker import MachineLearningStockLinker
+from hannah_montana_ai.services.transformer_impact_model import (
+    load_kf_deberta_impact_model,
+)
+from hannah_montana_ai.services.transformer_sentiment_model import (
+    load_kf_deberta_sentiment_model,
+)
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseEntry,
     load_stock_universe,
@@ -306,6 +313,17 @@ class AlertAnalyzer:
             settings.market_impact_model_path,
             settings.market_impact_training_report_path,
         )
+        self.sentiment_transformer = load_kf_deberta_sentiment_model(
+            settings.sentiment_transformer_path,
+            settings.sentiment_transformer_training_report_path,
+            settings.sentiment_transformer_benchmark_report_path,
+            settings.transformer_base_model_path,
+        )
+        self.market_impact_transformer = load_kf_deberta_impact_model(
+            settings.market_impact_transformer_path,
+            settings.market_impact_transformer_report_path,
+            settings.transformer_base_model_path,
+        )
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
         self.summary_generator = summary_generator or NewsSummaryGenerator()
         self.translation_generator = (
@@ -338,7 +356,7 @@ class AlertAnalyzer:
             request.source_type,
             self.model.predict_event_tags(text, request.source_type),
         )
-        sentiment_probabilities = self.model.sentiment_probabilities(text)
+        sentiment_probabilities = self._sentiment_probabilities(text)
         sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
         sentiment = self._augment_sentiment(text, sentiment)
         importance_probabilities = self.model.importance_probabilities(text, request.source_type)
@@ -347,7 +365,11 @@ class AlertAnalyzer:
             self._top_label(importance_probabilities, fallback="MEDIUM"),
         )
         importance = self._augment_importance(text, request.source_type, importance)
-        market_impact_prediction = self.market_impact_model.predict(text)
+        market_impact_prediction = (
+            self.market_impact_transformer.predict(text)
+            if self.market_impact_transformer.enabled
+            else self.market_impact_model.predict(text)
+        )
         related_stocks = self._match_related_stocks_from_request_or_internal(
             text,
             request.stock_universe,
@@ -473,16 +495,39 @@ class AlertAnalyzer:
             translation_status=translation_status,
             duplicate_key=duplicate_key,
             cluster_key=self._cluster_key(request, stock_code, duplicate_key),
-            model_version=(
-                f"{self.model.version}|impact:{self.market_impact_model.version}"
-                if self.market_impact_model.enabled
-                else self.model.version
-            ),
+            model_version=self._analysis_model_version(),
             event_confidence=round(event_confidence, 6),
             sentiment_confidence=round(sentiment_confidence, 6),
             importance_confidence=round(importance_confidence, 6),
             stock_match_confidence=round(primary_stock_match.confidence, 6),
         )
+
+    def _analysis_model_version(self) -> str:
+        versions = [self.model.version]
+        if self.sentiment_transformer.enabled:
+            versions.append(f"sentiment:{self.sentiment_transformer.version}")
+        if self.market_impact_transformer.enabled:
+            versions.append(f"impact:{self.market_impact_transformer.version}")
+        elif self.market_impact_model.enabled:
+            versions.append(f"impact:{self.market_impact_model.version}")
+        return "|".join(versions)
+
+    def _sentiment_probabilities(self, text: str) -> dict[str, float]:
+        baseline = self.model.sentiment_probabilities(text)
+        transformer = (
+            self.sentiment_transformer.probabilities(text)
+            if self.sentiment_transformer.enabled
+            else None
+        )
+        if transformer is None:
+            return baseline
+        # 실제 금융 문장의 Transformer 성능을 유지하면서 기존 회귀 분포를 보정한다.
+        transformer_weight = 0.8
+        return {
+            label: transformer_weight * transformer[label]
+            + (1.0 - transformer_weight) * baseline[label]
+            for label in transformer
+        }
 
     def _translate_analysis_text(
         self,
@@ -1112,21 +1157,7 @@ class AlertAnalyzer:
         return sorted(tag_set)
 
     def _augment_sentiment(self, text: str, sentiment: Sentiment) -> Sentiment:
-        negative_score = sum(1 for term in self._NEGATIVE_SENTIMENT_CONTEXT_TERMS if term in text)
-        positive_score = sum(1 for term in self._POSITIVE_SENTIMENT_CONTEXT_TERMS if term in text)
-        has_severe_negative = any(
-            term in text for term in self._SEVERE_NEGATIVE_SENTIMENT_CONTEXT_TERMS
-        )
-        if self._has_mixed_market_sentiment(text):
-            return "NEUTRAL"
-        if negative_score > positive_score and (has_severe_negative or negative_score >= 2):
-            return "NEGATIVE"
-        has_neutral_context = any(term in text for term in self._NEUTRAL_SENTIMENT_CONTEXT_TERMS)
-        if sentiment == "POSITIVE" and has_neutral_context and not has_severe_negative:
-            return "NEUTRAL"
-        if positive_score > negative_score and sentiment != "NEGATIVE":
-            return "POSITIVE"
-        return sentiment
+        return apply_financial_sentiment_policy(text, sentiment)
 
     def _has_mixed_market_sentiment(self, text: str) -> bool:
         if not ("코스피" in text and "코스닥" in text):

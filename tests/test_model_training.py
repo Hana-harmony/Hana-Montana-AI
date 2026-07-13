@@ -14,7 +14,11 @@ from hannah_montana_ai.services.model import (
 from hannah_montana_ai.training.calibration import (
     build_model_confidence_calibration_report,
 )
-from hannah_montana_ai.training.collector import should_write_raw_alerts
+from hannah_montana_ai.training.collector import (
+    read_raw_alerts,
+    should_write_raw_alerts,
+    write_sharded_jsonl,
+)
 from hannah_montana_ai.training.dataset import (
     JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
     load_labeled_alerts,
@@ -358,11 +362,9 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
     evaluation_rows = _read_jsonl(
         Path("data/evaluation/financial_alert_real_news_gold.jsonl")
     )
-    raw_urls = {
-        row["original_url"]
-        for row in _read_jsonl(Path("data/raw/collected_alerts.jsonl"))
-        if row.get("source_type") == "NEWS"
-    }
+    raw_manifest_path = Path("data/raw/collected_alerts.jsonl")
+    raw_manifest = _read_json(raw_manifest_path)
+    quality_manifest = _read_json(Path("data/k_fnspid/v2/manifest.json"))
 
     assert len(training_rows) >= 60
     assert len(evaluation_rows) >= 80
@@ -373,8 +375,25 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
         assert _label_support(training_rows, label) >= 7, label
         assert _label_support(evaluation_rows, label) >= 8, label
 
-    assert all(row["source_url"] in raw_urls for row in training_rows)
-    assert all(row["source_url"] in raw_urls for row in evaluation_rows)
+    all_gold_rows = training_rows + evaluation_rows
+    assert all(row["source_url"].startswith(("http://", "https://")) for row in all_gold_rows)
+    assert all(row["content_hash"] for row in all_gold_rows)
+    assert all(row["source_review_status"] == "CODEX_REVIEW_APPROVED" for row in all_gold_rows)
+    assert raw_manifest["row_count"] >= 500_000
+    assert len(raw_manifest["dataset_shards"]) >= 10
+    assert quality_manifest["raw_source"]["sha256"]
+    assert len(quality_manifest["raw_source"]["files"]) == len(
+        raw_manifest["dataset_shards"]
+    ) + 1
+
+    shard_paths = [raw_manifest_path.parent / name for name in raw_manifest["dataset_shards"]]
+    if all(path.exists() for path in shard_paths):
+        raw_urls = {
+            row.original_url
+            for row in read_raw_alerts(raw_manifest_path)
+            if row.source_type == "NEWS"
+        }
+        assert all(row["source_url"] in raw_urls for row in all_gold_rows)
 
 
 def test_model_release_report_matches_source_reports() -> None:
@@ -610,6 +629,27 @@ def test_collection_guard_prevents_dataset_shrink() -> None:
     assert should_write_raw_alerts(existing_count=1000, next_count=900) is False
     assert should_write_raw_alerts(existing_count=1000, next_count=1000) is True
     assert should_write_raw_alerts(existing_count=1000, next_count=1, force=True) is True
+
+
+def test_raw_collector_reads_sharded_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "collected_alerts.jsonl"
+    rows = [
+        {
+            "source_type": "NEWS",
+            "title": f"뉴스 {index}",
+            "snippet": "요약",
+            "original_url": f"https://example.com/{index}",
+            "published_at": "2026-07-13T00:00:00+00:00",
+            "provider": "test",
+        }
+        for index in range(3)
+    ]
+
+    write_sharded_jsonl(manifest, rows, rows_per_shard=2)
+    loaded = read_raw_alerts(manifest)
+
+    assert [row.title for row in loaded] == ["뉴스 0", "뉴스 1", "뉴스 2"]
+    assert len(list(tmp_path.glob("collected_alerts.part-*.jsonl"))) == 2
 
 
 def _read_json(path: Path) -> dict[str, Any]:

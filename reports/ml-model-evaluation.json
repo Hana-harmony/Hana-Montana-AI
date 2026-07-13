@@ -2,7 +2,7 @@
   "benchmark": {
     "sample_count": 768,
     "event_tag_recall": 1.0,
-    "sentiment_accuracy": 0.96875,
+    "sentiment_accuracy": 0.94921875,
     "importance_accuracy": 0.9583333333333334,
     "stock_accuracy": 1.0,
     "event_macro_f1": 0.984375,
@@ -58,7 +58,8 @@
     },
     "sentiment_confusion_matrix": {
       "NEGATIVE": {
-        "NEGATIVE": 264
+        "NEGATIVE": 249,
+        "POSITIVE": 15
       },
       "NEUTRAL": {
         "NEUTRAL": 240,
@@ -149,7 +150,7 @@
   "real_news_gold": {
     "sample_count": 80,
     "event_tag_recall": 0.9875,
-    "sentiment_accuracy": 0.975,
+    "sentiment_accuracy": 0.9,
     "importance_accuracy": 0.9625,
     "stock_accuracy": 1.0,
     "event_macro_f1": 0.9220769444986373,
@@ -199,13 +200,16 @@
     },
     "sentiment_confusion_matrix": {
       "NEGATIVE": {
-        "NEGATIVE": 20
+        "NEGATIVE": 19,
+        "NEUTRAL": 1
       },
       "NEUTRAL": {
-        "NEUTRAL": 16,
-        "POSITIVE": 2
+        "NEGATIVE": 3,
+        "NEUTRAL": 11,
+        "POSITIVE": 3
       },
       "POSITIVE": {
+        "NEUTRAL": 1,
         "POSITIVE": 42
       }
     },
@@ -228,9 +232,9 @@
   "stock_review_gold": {
     "sample_count": 500,
     "event_tag_recall": 0.932,
-    "sentiment_accuracy": 0.918,
+    "sentiment_accuracy": 0.788,
     "importance_accuracy": 0.848,
-    "stock_accuracy": 0.994,
+    "stock_accuracy": 0.99,
     "event_macro_f1": 0.7307006096364907,
     "event_label_metrics": {
       "CAPITAL_ACTION": {
@@ -284,18 +288,19 @@
     },
     "sentiment_confusion_matrix": {
       "NEGATIVE": {
-        "NEGATIVE": 137,
-        "NEUTRAL": 1
+        "NEGATIVE": 126,
+        "NEUTRAL": 4,
+        "POSITIVE": 8
       },
       "NEUTRAL": {
-        "NEGATIVE": 9,
-        "NEUTRAL": 132,
-        "POSITIVE": 22
+        "NEGATIVE": 21,
+        "NEUTRAL": 115,
+        "POSITIVE": 27
       },
       "POSITIVE": {
-        "NEGATIVE": 6,
-        "NEUTRAL": 3,
-        "POSITIVE": 190
+        "NEGATIVE": 13,
+        "NEUTRAL": 33,
+        "POSITIVE": 153
       }
     },
     "importance_confusion_matrix": {

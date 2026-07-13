@@ -8,8 +8,9 @@
 
 | 기능 | 모델 | 최신 성능 | 상태 |
 | --- | --- | --- | --- |
-| 뉴스·공시 분석 | TF-IDF + supervised LogisticRegression | benchmark event macro F1 0.9844, sentiment accuracy 0.9688, real news event macro F1 0.9221 | pass |
-| K-FNSPID 시장영향 | 파일 기반 뉴스·공시–시세 결합 + TF-IDF OVR | Test accuracy 0.4307, macro F1 0.3014, quadratic kappa 0.2144 | research gate pass |
+| 뉴스·공시 이벤트 | TF-IDF + supervised LogisticRegression | benchmark event macro F1 0.9844, real news event macro F1 0.9221 | pass |
+| 한국 금융 감성 | KF-DeBERTa LoRA + TF-IDF 확률 앙상블 | 공개 Test 933건 macro F1 0.8840, 실제 뉴스 Gold accuracy 0.9000 | pass |
+| K-FNSPID 시장영향 | 55만 문서·1069만 시세 파일 + KF-DeBERTa LoRA | Test 10,728건 accuracy 0.5006, macro F1 0.3664, quadratic kappa 0.4186 | promoted |
 | 종목 링커 | TF-IDF nearest-neighbor entity linker | 전체 종목코드 template accuracy 1.0, 종목명 template accuracy 0.9921 | pass |
 | 외국인 보유수량 예측 | stock-routed panel time-series ML ensemble | MAE 51,539.19, RMSE 147,477.74, MAPE 0.044908, persistence 대비 MAPE 4.4167% 개선 | promoted |
 | 글로벌 피어 매칭 | Business profile ML classifier + TF-IDF + SVD semantic + 재무·업종·인지도 동적 유사도 | KIS 활성 일반주식 2,752/2,752 추론 성공, 종목별 정답·anchor 없음, LOW confidence 0.5451% | pass |
@@ -18,10 +19,12 @@
 - 외국인 보유수량 예측은 같은 제한 종목 universe와 같은 walk-forward sample에서 persistence baseline, N-HiTS, PatchTST와 비교한다.
 - 현재 모델 MAPE 0.044908은 persistence 0.046983, N-HiTS 0.046955, PatchTST 0.049739보다 낮다.
 - 글로벌 피어 매칭은 공개 표준 SOTA leaderboard가 없어 KIS 활성 universe 전체 coverage와 도메인·표시 계약 gate를 운영 기준으로 둔다.
-- 실제 뉴스 감성 독립 Gold 60건에서 Hannah accuracy 0.9333, macro F1 0.9093으로 KR-FinBERT-SC accuracy 0.7000, macro F1 0.6493보다 높았다. 학습 URL 중복 20건은 제외했으며 결과는 `reports/financial-alert-sota-benchmark.json`에 고정한다.
-- 시장영향은 공개 SOTA leaderboard가 없어 2026년 6월 이후 시간 외삽 Test의 macro F1·quadratic kappa로 승격을 제한한다.
+- 공개 금융 감성 균형 Test 933건에서 KF-DeBERTa LoRA 앙상블 macro F1 0.8840, KF-DeBERTa 단독 0.8850, KR-FinBERT-SC 0.7272, 기존 Hannah TF-IDF 0.4423이다. 실제 공시 Gold accuracy 1.0000과 실제 뉴스 Gold accuracy 0.9000도 동일 보고서의 배포 gate에 고정한다.
+- K-FNSPID 시간 외삽 Test에서 KF-DeBERTa LoRA는 TF-IDF 기준선 대비 accuracy +0.0463, macro F1 +0.0051, quadratic kappa +0.0671을 기록해 승격했다.
+- 시장영향은 같은 라벨 정의의 공개 SOTA leaderboard가 없어 2026년 4월 이후 시간 외삽 Test 10,728건의 macro F1·quadratic kappa와 TF-IDF 기준선 동시 상회로 Transformer 승격을 제한한다.
 
 ## 남은 개선
 - 활성 2,752종목 전체가 specific profile로 서빙되며 LOW confidence는 15개, 0.5451%다.
 - Naver 동일업종·OpenDART·WiseReport·KSIC를 결합하고, business profile ML classifier는 holdout macro F1 0.995282를 기록한다.
-- 뉴스·공시 분석 모델은 stock review gold에서 희소 이벤트 라벨 macro F1이 낮아, 운영 로그 기반 gold 확장이 필요하다.
+- 뉴스·공시 이벤트 모델은 stock review gold에서 희소 이벤트 라벨 macro F1이 낮아, 운영 로그 기반 gold 확장이 필요하다.
+- 시장영향은 동일 다중 사건을 제외했어도 거시경제·업종 교란이 남으므로 단독 투자 신호로 사용하지 않는다.

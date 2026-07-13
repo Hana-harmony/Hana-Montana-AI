@@ -1,0 +1,32 @@
+{
+  "schema_version": "k-fnspid-transformer-artifact/v1",
+  "version": "k-fnspid-impact-kf-deberta-lora-20260713094908",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-13T09:49:08.856226+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1111,
+      "sha256": "8cd12292fc4ce22b5af53e0a8be06cc76af5b6a8abe4b2d827c5709d47842a8c"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "fbd177e29234c4646c5da5530aaf2246cbd689daa7b16d376e5a3bd2e7ae8461"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  }
+}

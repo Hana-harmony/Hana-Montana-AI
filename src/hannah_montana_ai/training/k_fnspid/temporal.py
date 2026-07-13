@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from bisect import bisect_left, bisect_right
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 from zoneinfo import ZoneInfo
@@ -54,12 +55,14 @@ def normalize_publication_time(value: str, trading_dates: set[date]) -> Normaliz
 
 def effective_trade_date(publication: NormalizedPublicationTime, trading_dates: list[date]) -> str:
     local_date = datetime.fromisoformat(publication.published_at_kst).date()
+    if not trading_dates or local_date < trading_dates[0]:
+        return ""
+    current_index = bisect_left(trading_dates, local_date)
     if (
         publication.market_session in {"PRE_MARKET", "REGULAR", "UNKNOWN"}
-        and local_date in trading_dates
+        and current_index < len(trading_dates)
+        and trading_dates[current_index] == local_date
     ):
         return local_date.isoformat()
-    for candidate in trading_dates:
-        if candidate > local_date:
-            return candidate.isoformat()
-    return ""
+    next_index = bisect_right(trading_dates, local_date)
+    return trading_dates[next_index].isoformat() if next_index < len(trading_dates) else ""

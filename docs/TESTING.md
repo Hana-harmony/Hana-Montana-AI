@@ -44,8 +44,8 @@ uv run python scripts/evaluate_korean_financial_term_explainer.py
 ## 현재 기준선
 
 - 뉴스·공시 release: `financial-ml-tfidf-logreg-20260622090407`, `reports/model-release-report.json`의 `overall_status=pass`
-- benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9688, 중요도 accuracy 0.9583, 종목 accuracy 1.0
-- 실제 뉴스 gold 80건: 이벤트 macro F1 0.9221, recall 0.9875, 감성 accuracy 0.9750, 중요도 accuracy 0.9625, 종목 accuracy 1.0
+- benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9492, 중요도 accuracy 0.9583, 종목 accuracy 1.0
+- 실제 뉴스 gold 80건: 이벤트 macro F1 0.9221, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9625, 종목 accuracy 1.0
 - 글로벌 피어: KIS 활성 일반주식 2,752건 중 2,752건 성공, 구조 계약 실패 0건
 - 외국인 보유 예측: 32종목 52,693개 샘플, persistence 대비 MAE 4.40% 개선, release `promoted`
 
