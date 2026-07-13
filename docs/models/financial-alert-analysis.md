@@ -38,6 +38,23 @@
 - [공개 금융 감성 데이터](https://huggingface.co/datasets/mssongit/finance-task) `mssongit/finance-task:fnsentiment`의 고정 리비전을 Train 7,464 / Validation 933 / Test 933으로 사용한다.
 - 공개·운영형 14,443건의 1차 다중 도메인 학습 뒤 실제 뉴스 63건 반복 노출, 공개 1,866건과 기타 운영형 1,200건 replay로 3,696건의 2차 도메인 적응을 수행한다. 누적 학습 노출은 18,139건이며 모든 운영 평가 문장과 공개 Validation/Test 중복은 제외한다.
 
+## K-FNSPID 도입 전후 로직
+
+비교 기준은 K-FNSPID 도입 직전 `main` commit `076e97f8`과 현재 모델이다.
+
+| 단계 | 도입 전 | 현재 |
+| --- | --- | --- |
+| 이벤트 | TF-IDF char/word n-gram + One-vs-Rest Logistic Regression + 라벨별 규칙 보강 | 변경 없음 |
+| 감성 | TF-IDF Logistic Regression 확률 + 금융 규칙 보강 | artifact·외부 Test·운영 Gold gate를 통과한 KF-DeBERTa LoRA 80%와 기존 모델 20% 확률 앙상블. gate 실패 시 기존 모델로 fallback |
+| 중요도 | `source_type`·TF-IDF·금융 token 기반 Logistic Regression + 규칙 보강 | 기존 의미 기반 중요도를 먼저 계산한 뒤 K-FNSPID 시장영향 확률을 보수적으로 결합. 시장영향 모델은 보조 신호이며 단독 판정을 하지 않음 |
+| 시장 데이터 | 사용하지 않음 | DB가 아닌 일별 시세 Parquet 10,691,998행과 뉴스·공시 550,662건으로 1·3·5거래일 초과수익·거래량·변동성 라벨 생성 |
+| 시간 처리 | 기사 텍스트 평가만 수행 | 장전·장중·장후·비거래일 세션별 유효 거래일, 7일 embargo, 시간 외삽 Test 적용 |
+| 교란 억제 | 없음 | 동일 종목·거래일 다중 사건 제외, 사건 cluster 대표 기사 선택, 시장 평균 수익률 차감 |
+| 배포 안전성 | 단일 joblib 모델 version | 고정 base revision, `safetensors`, artifact SHA-256·크기·독립 보고서 검증, 실패 시 기존 모델로 fail closed |
+| model version | `financial_nlp_ml` 단일 version | 기존 version + 실제 활성 sentiment·impact version을 합성해 반환 |
+
+도입 전후 상세 수치와 연구 주장 범위는 [K-FNSPID 도입 전후·연구 준비도](k-fnspid-research-readiness.md)를 단일 비교 문서로 사용한다.
+
 ## 학습/추론 구성
 - 학습 스크립트: `scripts/train_ml_model.py`
 - 모델 trainer: `src/hannah_montana_ai/training/ml_trainer.py`
@@ -56,6 +73,8 @@
 
 KF-DeBERTa 80% + 기존 모델 20% 확률 앙상블은 균형 공개 Test 933건에서 accuracy 0.8842, macro F1 0.8840이다. KF-DeBERTa 단독은 0.8850, 기존 Hannah TF-IDF는 0.4423, `snunlp/KR-FinBERT-SC`는 0.7272이다. 운영 분포를 별도로 검증해 실제 공시 Gold accuracy 1.0000, 실제 뉴스 Gold accuracy 0.9000을 동시에 요구한다.
 
+도입 전 동일 운영 평가와 비교하면 중요도 정확도는 네 평가셋 모두 동일하다. 감성 정확도는 Benchmark `0.9688→0.9492`, 실제 뉴스 Gold `0.9750→0.9000`, Stock review Gold `0.9180→0.7880`으로 하락했고 실제 공시 Gold만 `1.0000`으로 동일하다. 공개 균형 Test의 큰 개선과 기존 운영 분포의 회귀가 동시에 존재하므로 현재 모델을 모든 분포에서 우월하다고 주장하지 않는다.
+
 ## 산출물
 - Artifact: `src/hannah_montana_ai/model_store/financial_nlp_ml.joblib`
 - Stock linker artifact: `src/hannah_montana_ai/model_store/stock_linker_ml.joblib`
@@ -71,5 +90,7 @@ KF-DeBERTa 80% + 기존 모델 20% 확률 앙상블은 균형 공개 Test 933건
 
 ## 한계
 - Stock review gold에서 희소 이벤트 라벨 macro F1이 낮다.
+- 감성은 공개 균형 Test에서 기존 모델을 크게 상회하지만 기존 실제 뉴스·Stock review Gold에서는 도입 전보다 하락했다.
+- 운영 Gold가 뉴스 80건·공시 30건이고 단일 Codex 검수이므로 독립 다중 평가자 합의와 표본 확대가 필요하다.
 - 운영 로그 기반 gold 확장과 라벨별 calibration 보강이 필요하다.
 - K-FNSPID 시장영향은 텍스트로 미래 가격 충격을 예측하는 불확실성이 크므로 의미 기반 중요도를 대체하지 않고 보조 신호로만 사용한다.
