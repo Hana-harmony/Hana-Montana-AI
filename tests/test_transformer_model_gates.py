@@ -1,11 +1,20 @@
+import sys
 from pathlib import Path
+
+import pytest
 
 from hannah_montana_ai.services.model_artifact_integrity import (
     build_artifact_manifest,
     verify_artifact_manifest,
 )
 from hannah_montana_ai.services.transformer_impact_model import (
+    KfDebertaImpactModel,
+)
+from hannah_montana_ai.services.transformer_impact_model import (
     _deployment_gate_passed as impact_gate_passed,
+)
+from hannah_montana_ai.services.transformer_sentiment_model import (
+    KfDebertaSentimentModel,
 )
 from hannah_montana_ai.services.transformer_sentiment_model import (
     _deployment_gate_passed as sentiment_gate_passed,
@@ -64,3 +73,24 @@ def test_artifact_manifest_rejects_tampered_file(tmp_path: Path) -> None:
 
     artifact.write_bytes(b"tampered")
     assert not verify_artifact_manifest(tmp_path, manifest)
+
+
+def test_transformers_fall_back_when_optional_runtime_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setitem(sys.modules, "torch", None)
+
+    sentiment = KfDebertaSentimentModel(
+        Path("src/hannah_montana_ai/model_store/kf_deberta_sentiment"),
+        Path("reports/kf-deberta-sentiment-training-report.json"),
+        Path("reports/korean-finance-sentiment-benchmark.json"),
+        Path("/missing/base-model"),
+    )
+    impact = KfDebertaImpactModel(
+        Path("src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"),
+        Path("reports/k-fnspid-transformer-training-report.json"),
+        Path("/missing/base-model"),
+    )
+
+    assert sentiment.enabled is False
+    assert impact.enabled is False

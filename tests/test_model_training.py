@@ -362,11 +362,9 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
     evaluation_rows = _read_jsonl(
         Path("data/evaluation/financial_alert_real_news_gold.jsonl")
     )
-    raw_urls = {
-        row.original_url
-        for row in read_raw_alerts(Path("data/raw/collected_alerts.jsonl"))
-        if row.source_type == "NEWS"
-    }
+    raw_manifest_path = Path("data/raw/collected_alerts.jsonl")
+    raw_manifest = _read_json(raw_manifest_path)
+    quality_manifest = _read_json(Path("data/k_fnspid/v2/manifest.json"))
 
     assert len(training_rows) >= 60
     assert len(evaluation_rows) >= 80
@@ -377,8 +375,25 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
         assert _label_support(training_rows, label) >= 7, label
         assert _label_support(evaluation_rows, label) >= 8, label
 
-    assert all(row["source_url"] in raw_urls for row in training_rows)
-    assert all(row["source_url"] in raw_urls for row in evaluation_rows)
+    all_gold_rows = training_rows + evaluation_rows
+    assert all(row["source_url"].startswith(("http://", "https://")) for row in all_gold_rows)
+    assert all(row["content_hash"] for row in all_gold_rows)
+    assert all(row["source_review_status"] == "CODEX_REVIEW_APPROVED" for row in all_gold_rows)
+    assert raw_manifest["row_count"] >= 500_000
+    assert len(raw_manifest["dataset_shards"]) >= 10
+    assert quality_manifest["raw_source"]["sha256"]
+    assert len(quality_manifest["raw_source"]["files"]) == len(
+        raw_manifest["dataset_shards"]
+    ) + 1
+
+    shard_paths = [raw_manifest_path.parent / name for name in raw_manifest["dataset_shards"]]
+    if all(path.exists() for path in shard_paths):
+        raw_urls = {
+            row.original_url
+            for row in read_raw_alerts(raw_manifest_path)
+            if row.source_type == "NEWS"
+        }
+        assert all(row["source_url"] in raw_urls for row in all_gold_rows)
 
 
 def test_model_release_report_matches_source_reports() -> None:

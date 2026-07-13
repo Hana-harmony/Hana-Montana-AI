@@ -37,10 +37,15 @@ class KfDebertaImpactModel:
         ):
             return
 
-        # 서빙에서는 검증된 LoRA safetensors와 고정된 베이스 리비전만 사용한다.
-        import torch
-        from peft import PeftModel
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        # 기본 설치에서는 선택 의존성이 없으므로 기존 모델로 안전하게 축소 운용한다.
+        try:
+            import torch
+            from peft import PeftModel
+            from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        except ModuleNotFoundError as exception:
+            if exception.name not in {"torch", "peft", "transformers"}:
+                raise
+            return
 
         local_base = local_base_model_path.is_dir()
         base_reference = str(local_base_model_path) if local_base else BASE_MODEL
