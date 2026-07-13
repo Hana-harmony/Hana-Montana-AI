@@ -18,7 +18,7 @@
 - 시세 정본: `data/market/market_daily_price.parquet`, 236,508,054 bytes
 - 원천·정규화 파일은 DB와 독립적으로 생성하며 manifest에 크기·SHA-256·고정 원천 리비전을 남긴다.
 
-Git에는 대용량 Parquet·JSONL shard 본문을 직접 넣지 않고 manifest와 재생성 스크립트를 관리한다. 로컬 학습·Docker 검증은 manifest의 SHA-256과 일치하는 파일 스냅샷을 사용한다.
+Git에는 대용량 Parquet·JSONL shard 본문을 직접 넣지 않고 manifest와 재생성 스크립트를 관리한다. 실제 Parquet 6개와 동일 manifest는 [K-FNSPID v2.0.0 공개 Release](https://github.com/Hana-harmony/Hana-Montana-AI/releases/tag/k-fnspid-v2.0.0)에 버전 자산으로 게시한다. 로컬 학습·Docker 검증은 Release manifest의 파일별 크기와 SHA-256이 일치하는 스냅샷을 사용한다.
 
 ## 시간 정규화·누수 방지
 
@@ -70,6 +70,7 @@ Git에는 대용량 Parquet·JSONL shard 본문을 직접 넣지 않고 manifest
 
 ## 산출물
 
+- 공개 데이터셋: [K-FNSPID v2.0.0 Release](https://github.com/Hana-harmony/Hana-Montana-AI/releases/tag/k-fnspid-v2.0.0)
 - 데이터 manifest: `data/k_fnspid/v2/manifest.json`
 - 시세 manifest: `data/market/manifest.json`
 - 기준선 artifact: `src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib`
