@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from dataclasses import replace
 from statistics import fmean, pstdev
 
 from hannah_montana_ai.training.k_fnspid.schema import DailyPrice, MarketImpact
@@ -12,11 +13,14 @@ def build_market_impacts(
     prices: list[DailyPrice],
 ) -> list[MarketImpact]:
     by_stock: dict[str, list[DailyPrice]] = defaultdict(list)
+    index_by_stock_date: dict[tuple[str, str], int] = {}
     by_market_date: dict[tuple[str, str], list[float]] = defaultdict(list)
     for price in prices:
         by_stock[price.stock_code].append(price)
     for rows in by_stock.values():
         rows.sort(key=lambda row: row.trade_date)
+        for index, row in enumerate(rows):
+            index_by_stock_date[(row.stock_code, row.trade_date)] = index
         for previous, current in zip(rows, rows[1:], strict=False):
             if previous.adjusted_close > 0:
                 by_market_date[(current.market, current.trade_date)].append(
@@ -25,11 +29,19 @@ def build_market_impacts(
 
     market_returns = {key: fmean(values) for key, values in by_market_date.items() if values}
     impacts: list[MarketImpact] = []
+    impact_by_stock_date: dict[tuple[str, str], MarketImpact] = {}
     for document_id, stock_code, effective_date in document_entities:
+        cache_key = (stock_code, effective_date)
+        cached = impact_by_stock_date.get(cache_key)
+        if cached is not None:
+            impacts.append(replace(cached, document_id=document_id))
+            continue
         rows = by_stock.get(stock_code, [])
-        index = next((i for i, row in enumerate(rows) if row.trade_date == effective_date), -1)
+        index = index_by_stock_date.get((stock_code, effective_date), -1)
         if index < 1:
-            impacts.append(_missing_impact(document_id, stock_code, effective_date))
+            impact = _missing_impact(document_id, stock_code, effective_date)
+            impacts.append(impact)
+            impact_by_stock_date[cache_key] = impact
             continue
         abnormal = {
             horizon: _abnormal_return(rows, index, horizon, market_returns) for horizon in (1, 3, 5)
@@ -46,23 +58,23 @@ def build_market_impacts(
             else None
         )
         score = _materiality(abnormal[1], abnormal[3], volume_z, volatility)
-        impacts.append(
-            MarketImpact(
-                document_id=document_id,
-                stock_code=stock_code,
-                effective_trade_date=effective_date,
-                abnormal_return_1d=abnormal[1],
-                abnormal_return_3d=abnormal[3],
-                abnormal_return_5d=abnormal[5],
-                abnormal_volume_z=volume_z,
-                volatility_shock=volatility,
-                materiality_score=score,
-                market_direction_1d=_direction(abnormal[1]),
-                importance=_importance(score),
-                label_confidence=0.9 if abnormal[5] is not None else 0.72,
-                confounded=False,
-            )
+        impact = MarketImpact(
+            document_id=document_id,
+            stock_code=stock_code,
+            effective_trade_date=effective_date,
+            abnormal_return_1d=abnormal[1],
+            abnormal_return_3d=abnormal[3],
+            abnormal_return_5d=abnormal[5],
+            abnormal_volume_z=volume_z,
+            volatility_shock=volatility,
+            materiality_score=score,
+            market_direction_1d=_direction(abnormal[1]),
+            importance=_importance(score),
+            label_confidence=0.9 if abnormal[5] is not None else 0.72,
+            confounded=False,
         )
+        impacts.append(impact)
+        impact_by_stock_date[cache_key] = impact
     return impacts
 
 
@@ -72,11 +84,12 @@ def _abnormal_return(
     horizon: int,
     market_returns: dict[tuple[str, str], float],
 ) -> float | None:
-    if index + horizon >= len(rows) or rows[index].adjusted_close <= 0:
+    end_index = index + horizon - 1
+    if index < 1 or end_index >= len(rows) or rows[index - 1].adjusted_close <= 0:
         return None
-    stock_return = rows[index + horizon].adjusted_close / rows[index].adjusted_close - 1
+    stock_return = rows[end_index].adjusted_close / rows[index - 1].adjusted_close - 1
     benchmark = 1.0
-    for offset in range(1, horizon + 1):
+    for offset in range(horizon):
         benchmark *= 1 + market_returns.get(
             (rows[index].market, rows[index + offset].trade_date), 0.0
         )

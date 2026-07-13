@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+import ahocorasick
 from defusedxml import ElementTree
 
 from hannah_montana_ai.training.dataset import LabeledAlert, load_labeled_alerts
@@ -284,24 +285,29 @@ def attach_stock_metadata(
 
 class StockUniverseMatcher:
     def __init__(self, stock_universe: Sequence[StockUniverseEntry]) -> None:
-        terms: list[tuple[str, StockUniverseEntry]] = []
+        stocks_by_term: dict[str, list[StockUniverseEntry]] = {}
         for stock in stock_universe:
             for term in stock.terms():
                 normalized = normalize_stock_term(term)
                 if _is_usable_match_term(normalized):
-                    terms.append((normalized, stock))
-        self._terms = tuple(sorted(terms, key=lambda item: (-len(item[0]), item[0])))
+                    stocks_by_term.setdefault(normalized, []).append(stock)
+        self._automaton = ahocorasick.Automaton()
+        for term, stocks in sorted(stocks_by_term.items()):
+            self._automaton.add_word(
+                term,
+                (term, tuple(sorted(stocks, key=lambda stock: stock.stock_code))),
+            )
+        self._automaton.make_automaton()
 
     def match(self, text: str) -> StockUniverseEntry | None:
         normalized_text = normalize_stock_term(text)
-        matches: list[tuple[int, StockUniverseEntry]] = []
-        for term, stock in self._terms:
-            position = normalized_text.find(term)
-            if position >= 0:
-                matches.append((position, stock))
+        matches: list[tuple[int, int, StockUniverseEntry]] = []
+        for end_index, (term, stocks) in self._automaton.iter(normalized_text):
+            start_index = end_index - len(term) + 1
+            matches.extend((start_index, -len(term), stock) for stock in stocks)
         if not matches:
             return None
-        return min(matches, key=lambda item: item[0])[1]
+        return min(matches, key=lambda item: (item[0], item[1], item[2].stock_code))[2]
 
     def match_raw_alert(self, alert: RawCollectedAlert) -> StockUniverseEntry | None:
         return self.match(alert.text)

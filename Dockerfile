@@ -23,15 +23,24 @@ COPY pyproject.toml uv.lock ./
 COPY src ./src
 COPY data/reference ./data/reference
 COPY reports/k-fnspid-impact-training-report.json ./reports/k-fnspid-impact-training-report.json
+COPY reports/kf-deberta-sentiment-training-report.json ./reports/kf-deberta-sentiment-training-report.json
+COPY reports/korean-finance-sentiment-benchmark.json ./reports/korean-finance-sentiment-benchmark.json
+COPY reports/k-fnspid-transformer-training-report.json ./reports/k-fnspid-transformer-training-report.json
 
-RUN find /app/src -type f -name '*.joblib' -exec chmod 0444 {} + \
+RUN find /app/src -type f \( -name '*.joblib' -o -name '*.safetensors' \) \
+        -exec chmod 0444 {} + \
+    && find /app/reports -type f -exec chmod 0444 {} + \
     && chmod 0444 /app/reports/k-fnspid-impact-training-report.json
 
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --extra transformer
+RUN python -c "from transformers import AutoModel; from transformers import AutoTokenizer; model=AutoModel.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); tokenizer=AutoTokenizer.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); model.save_pretrained('/app/models/kf-deberta-base', safe_serialization=True); tokenizer.save_pretrained('/app/models/kf-deberta-base')"
 RUN mkdir -p /app/.cache/.tesseract \
-    && chown -R 65532:65532 /app/.cache
+    && chown -R 65532:65532 /app/.cache \
+    && chmod -R a+rX,go-w /app/models
 
 ENV HOME=/app/.cache
+ENV HF_HUB_OFFLINE=1
+ENV TRANSFORMERS_OFFLINE=1
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 USER 65532:65532

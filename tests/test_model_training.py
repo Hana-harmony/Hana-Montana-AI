@@ -14,7 +14,11 @@ from hannah_montana_ai.services.model import (
 from hannah_montana_ai.training.calibration import (
     build_model_confidence_calibration_report,
 )
-from hannah_montana_ai.training.collector import should_write_raw_alerts
+from hannah_montana_ai.training.collector import (
+    read_raw_alerts,
+    should_write_raw_alerts,
+    write_sharded_jsonl,
+)
 from hannah_montana_ai.training.dataset import (
     JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
     load_labeled_alerts,
@@ -359,9 +363,9 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
         Path("data/evaluation/financial_alert_real_news_gold.jsonl")
     )
     raw_urls = {
-        row["original_url"]
-        for row in _read_jsonl(Path("data/raw/collected_alerts.jsonl"))
-        if row.get("source_type") == "NEWS"
+        row.original_url
+        for row in read_raw_alerts(Path("data/raw/collected_alerts.jsonl"))
+        if row.source_type == "NEWS"
     }
 
     assert len(training_rows) >= 60
@@ -610,6 +614,27 @@ def test_collection_guard_prevents_dataset_shrink() -> None:
     assert should_write_raw_alerts(existing_count=1000, next_count=900) is False
     assert should_write_raw_alerts(existing_count=1000, next_count=1000) is True
     assert should_write_raw_alerts(existing_count=1000, next_count=1, force=True) is True
+
+
+def test_raw_collector_reads_sharded_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "collected_alerts.jsonl"
+    rows = [
+        {
+            "source_type": "NEWS",
+            "title": f"뉴스 {index}",
+            "snippet": "요약",
+            "original_url": f"https://example.com/{index}",
+            "published_at": "2026-07-13T00:00:00+00:00",
+            "provider": "test",
+        }
+        for index in range(3)
+    ]
+
+    write_sharded_jsonl(manifest, rows, rows_per_shard=2)
+    loaded = read_raw_alerts(manifest)
+
+    assert [row.title for row in loaded] == ["뉴스 0", "뉴스 1", "뉴스 2"]
+    assert len(list(tmp_path.glob("collected_alerts.part-*.jsonl"))) == 2
 
 
 def _read_json(path: Path) -> dict[str, Any]:

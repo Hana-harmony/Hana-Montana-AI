@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime
 from hashlib import sha256
@@ -24,8 +25,9 @@ DEFAULT_MANIFEST = PROJECT_ROOT / "data/market/manifest.json"
 DEFAULT_STOCKS = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 HF_KOSPI_URL = (
     "https://huggingface.co/datasets/podongchip/kospi-daily-stock-features-2021-2026/"
-    "resolve/main/kospi_data_v1.parquet"
+    "resolve/f0d0bc05fbbcd60b103920cd444a9d226f9caf59/kospi_data_v1.parquet"
 )
+HF_KOSPI_REVISION = "f0d0bc05fbbcd60b103920cd444a9d226f9caf59"
 PUBLIC_DATA_URL = (
     "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
 )
@@ -74,7 +76,6 @@ def main() -> None:
             from_date=args.yahoo_from,
             to_date=args.yahoo_to,
             workers=args.yahoo_workers,
-            allowed_stock_codes={stock_code for stock_code, _ in rows},
         )
         rows.update({(row["stock_code"], row["trade_date"]): row for row in imported})
         sources.append({"source": "yahoo-finance-chart-daily", "row_count": len(imported)})
@@ -82,6 +83,13 @@ def main() -> None:
     normalized = sorted(rows.values(), key=lambda row: (row["stock_code"], row["trade_date"]))
     if not normalized:
         raise SystemExit("no market price source was provided")
+    stock_markets = {(str(row["stock_code"]), str(row["market"])) for row in normalized}
+    stock_count_by_market = Counter(market for _, market in stock_markets)
+    if args.yahoo_from and (
+        len({stock_code for stock_code, _ in stock_markets}) < 2_000
+        or stock_count_by_market.get("KOSDAQ", 0) < 1_000
+    ):
+        raise SystemExit("전체 시장 시세 품질 gate를 통과하지 못했다.")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(pa.Table.from_pylist(normalized), args.output, compression="zstd")
     manifest = {
@@ -89,13 +97,15 @@ def main() -> None:
         "generated_at": datetime.now().astimezone().isoformat(),
         "row_count": len(normalized),
         "stock_count": len({row["stock_code"] for row in normalized}),
+        "stock_count_by_market": dict(sorted(stock_count_by_market.items())),
+        "market_count": dict(sorted(Counter(str(row["market"]) for row in normalized).items())),
         "min_trade_date": min(row["trade_date"] for row in normalized),
         "max_trade_date": max(row["trade_date"] for row in normalized),
         "sources": sources,
         "output": {
             "path": str(args.output.relative_to(PROJECT_ROOT)),
             "bytes": args.output.stat().st_size,
-            "sha256": sha256(args.output.read_bytes()).hexdigest(),
+            "sha256": file_sha256(args.output),
         },
     }
     args.manifest.write_text(
@@ -197,13 +207,8 @@ def collect_yahoo_prices(
     from_date: date,
     to_date: date,
     workers: int,
-    allowed_stock_codes: set[str],
 ) -> list[dict[str, Any]]:
-    stocks = [
-        stock
-        for stock in load_stock_universe(stock_universe_path)
-        if stock.stock_code in allowed_stock_codes
-    ]
+    stocks = load_stock_universe(stock_universe_path)
     rows: list[dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=max(1, min(workers, 16))) as executor:
         futures = {
@@ -236,8 +241,18 @@ def fetch_yahoo_stock(
         f"https://query1.finance.yahoo.com/v8/finance/chart/{stock_code}.{suffix}?{params}",
         headers={"User-Agent": "Mozilla/5.0 Hannah-Montana-AI K-FNSPID"},
     )
-    with urlopen(request, timeout=5) as response:  # noqa: S310
-        payload = json.loads(response.read())
+    payload: dict[str, Any] | None = None
+    last_error: Exception | None = None
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=10) as response:  # noqa: S310
+                payload = json.loads(response.read())
+            break
+        except (OSError, json.JSONDecodeError) as error:
+            last_error = error
+            time.sleep(0.4 * (2**attempt))
+    if payload is None:
+        raise OSError(f"Yahoo 시세 수집 실패: {stock_code}") from last_error
     result = payload["chart"]["result"][0]
     timestamps = result.get("timestamp", [])
     quote = result["indicators"]["quote"][0]
@@ -269,10 +284,19 @@ def fetch_yahoo_stock(
 def source_manifest(source: str, path: Path, row_count: int) -> dict[str, Any]:
     return {
         "source": source,
+        "revision": HF_KOSPI_REVISION,
         "path": str(path.relative_to(PROJECT_ROOT)),
         "row_count": row_count,
-        "sha256": sha256(path.read_bytes()).hexdigest(),
+        "sha256": file_sha256(path),
     }
+
+
+def file_sha256(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as file:
+        while chunk := file.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _public_date(value: str) -> str:

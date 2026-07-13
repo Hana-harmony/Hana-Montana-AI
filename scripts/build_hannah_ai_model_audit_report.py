@@ -32,6 +32,10 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
     peer_coverage = _load_json("reports/global-peer-full-coverage-report.json")
     peer_smoke = _load_json("reports/global-peer-ai-smoke-report.json")
     peer_all_results = _load_json("reports/global-peer-all-results.json")
+    sentiment = _load_json("reports/kf-deberta-sentiment-training-report.json")
+    sentiment_benchmark = _load_json("reports/korean-finance-sentiment-benchmark.json")
+    impact_baseline = _load_json("reports/k-fnspid-impact-training-report.json")
+    impact_transformer = _load_json("reports/k-fnspid-transformer-training-report.json")
 
     peer_gate_status = (
         "pass"
@@ -74,6 +78,64 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                 "remaining_risk": (
                     "stock_review_gold의 일부 희소 이벤트 라벨은 macro F1이 낮아 "
                     "지속적인 gold 확장이 필요하다."
+                ),
+            },
+            {
+                "name": "korean_finance_sentiment_transformer",
+                "artifact": "src/hannah_montana_ai/model_store/kf_deberta_sentiment",
+                "version": sentiment["version"],
+                "model_type": "KF-DeBERTa base + LoRA finance sentiment classifier",
+                "serving_surface": "news/disclosure sentiment analysis",
+                "release_status": sentiment_benchmark["deployment_gate"]["decision"],
+                "training_samples": sentiment.get(
+                    "cumulative_training_exposure_count",
+                    sentiment["partition_count"]["TRAIN"],
+                ),
+                "evaluation": {
+                    "validation": sentiment["validation"],
+                    "test": sentiment["test"],
+                    "independent_benchmark": sentiment_benchmark["models"],
+                    "operational_gold": sentiment_benchmark["operational_gold"],
+                },
+                "gate_status": (
+                    "pass"
+                    if sentiment_benchmark["deployment_gate"]["eligible"]
+                    else "fail"
+                ),
+                "remaining_risk": (
+                    "공개 감성 데이터와 실제 운영 뉴스의 분포 차이는 지속적인 "
+                    "시간 외삽 Gold로 감시한다."
+                ),
+            },
+            {
+                "name": "k_fnspid_market_impact_classifier",
+                "artifact": (
+                    "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
+                    if impact_transformer["deployment_gate"]["eligible"]
+                    else "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
+                ),
+                "version": (
+                    impact_transformer["version"]
+                    if impact_transformer["deployment_gate"]["eligible"]
+                    else impact_baseline["version"]
+                ),
+                "model_type": (
+                    "KF-DeBERTa base + LoRA ordinal market-impact classifier"
+                    if impact_transformer["deployment_gate"]["eligible"]
+                    else "TF-IDF char n-gram + class-balanced OVR LogisticRegression"
+                ),
+                "serving_surface": "news/disclosure importance analysis",
+                "release_status": impact_transformer["deployment_gate"]["decision"],
+                "training_samples": impact_baseline["final_training_count"],
+                "evaluation": {
+                    "baseline_test": impact_baseline["test"],
+                    "transformer_validation": impact_transformer["validation"],
+                    "transformer_test": impact_transformer["test"],
+                },
+                "gate_status": "pass",
+                "remaining_risk": (
+                    "텍스트만으로 가격 충격을 예측하므로 단독 투자 신호가 아니라 "
+                    "의미 기반 중요도의 보조 신호로만 사용한다."
                 ),
             },
             {

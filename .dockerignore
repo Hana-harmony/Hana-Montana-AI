@@ -10,3 +10,9 @@ __pycache__
 
 secrets.local.env
 *.local.env
+data/external
+data/k_fnspid
+data/market
+data/processed
+data/raw
+src/hannah_montana_ai/model_store/.*-checkpoints

@@ -1,5 +1,16 @@
 # 구현 기록
 
+## 2026-07-13 18:30 KST · K-FNSPID v2 대규모·KF-DeBERTa 승격 파이프라인
+
+- Naver 뉴스 528,520건과 OpenDART 25,966건을 12개 JSONL shard로 수집하고, K-FNSPID v2 정본 550,662건을 생성했다.
+- KOSPI·KOSDAQ·KONEX 2,800종목의 2000-01-04~2026-07-13 일별 시세 10,691,998행을 DB가 아닌 236.5MB Parquet 파일로 고정했다.
+- 시세 이전 기사의 첫 거래일 오연결, 장 마감 후 오라벨, 다른 날의 반복 제목 cluster 합침, 동일 다중 사건 혼입을 차단했다.
+- 비혼입 시장영향 130,311건에서 중복 사건 대표를 고르고 7일 embargo 시간 분할을 생성했다.
+- `mssongit/finance-task` 고정 리비전과 운영형 학습 자료로 KF-DeBERTa LoRA 금융 감성을 다중 도메인 학습하고 공개 replay 기반 2차 적응을 수행했다. 누적 학습 노출 18,139건이며, 80:20 확률 앙상블은 공개 Test 933건 macro F1 0.8840, 실제 공시 Gold accuracy 1.0000, 실제 뉴스 Gold accuracy 0.9000으로 KR-FinBERT-SC 0.7272와 기존 TF-IDF 0.4423을 상회했다.
+- K-FNSPID 영향도 KF-DeBERTa LoRA는 시간순 Test 10,728건에서 macro F1 0.3664, quadratic kappa 0.4186으로 TF-IDF 기준선 0.3613, 0.3515를 모두 상회해 서빙으로 승격했다.
+- 모델 리비전, `safetensors`, artifact SHA-256, 독립 벤치마크 gate를 모두 통과해야 Transformer를 서빙하고 실패 시 기존 모델로 fail closed하게 했다.
+- Docker는 non-root, read-only root filesystem, capability 전체 제거, no-new-privileges, PID 제한, noexec tmpfs, runtime offline model 로딩으로 강화했다.
+
 ## 2026-07-13 06:30 KST · K-FNSPID Docker 품질 gate 패키징
 
 - Docker 이미지에 시장영향 모델뿐 아니라 독립 Test 품질 gate 보고서를 읽기 전용으로 함께 포함한다.
