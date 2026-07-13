@@ -6,16 +6,22 @@ services:
     container_name: hannah-montana-ai
     cpus: "1.50"
     mem_limit: 6g
+    pids_limit: 256
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT: ${HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT:-http://host.docker.internal:18081}
       HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS: ${HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS:-300}
       HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS: ${HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS:-2048}
       HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY: ${HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY:-4}
-      HF_HOME: /app/.cache/huggingface
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    volumes:
-      - ${HOME}/.cache/huggingface:/app/.cache/huggingface:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+      - /app/.cache:rw,noexec,nosuid,size=128m,uid=65532,gid=65532
     ports:
       - "8000:8000"
     healthcheck:

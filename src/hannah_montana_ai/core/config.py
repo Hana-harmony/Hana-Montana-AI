@@ -15,6 +15,22 @@ class Settings(BaseModel):
     market_impact_training_report_path: Path = Path(
         "reports/k-fnspid-impact-training-report.json"
     )
+    transformer_base_model_path: Path = Path("/app/models/kf-deberta-base")
+    sentiment_transformer_path: Path = Path(
+        "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
+    )
+    sentiment_transformer_training_report_path: Path = Path(
+        "reports/kf-deberta-sentiment-training-report.json"
+    )
+    sentiment_transformer_benchmark_report_path: Path = Path(
+        "reports/korean-finance-sentiment-benchmark.json"
+    )
+    market_impact_transformer_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
+    )
+    market_impact_transformer_report_path: Path = Path(
+        "reports/k-fnspid-transformer-training-report.json"
+    )
     stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
     stock_linker_model_path: Path = Path("src/hannah_montana_ai/model_store/stock_linker_ml.joblib")
     global_peer_model_path: Path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")

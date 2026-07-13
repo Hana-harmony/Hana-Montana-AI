@@ -13,7 +13,8 @@ _TOKEN = re.compile(r"[0-9A-Za-z가-힣]+")
 def assign_event_clusters(documents: list[CanonicalDocument]) -> dict[str, str]:
     buckets: dict[str, list[CanonicalDocument]] = defaultdict(list)
     for document in documents:
-        buckets[_fingerprint(document.title)].append(document)
+        bucket_key = f"{document.effective_trade_date}:{_fingerprint(document.title)}"
+        buckets[bucket_key].append(document)
     assignments: dict[str, str] = {}
     for fingerprint, rows in buckets.items():
         cluster_id = sha256(fingerprint.encode()).hexdigest()

@@ -17,6 +17,7 @@ def build_quality_report(
 ) -> dict[str, Any]:
     document_ids = {row.document_id for row in documents}
     primary_ids = {row.document_id for row in entities if row.relation == "PRIMARY"}
+    primary_entities = [row for row in entities if row.relation == "PRIMARY"]
     impact_ids = {row.document_id for row in impacts if row.materiality_score is not None}
     errors: list[str] = []
     if len(document_ids) != len(documents):
@@ -33,6 +34,14 @@ def build_quality_report(
         "entity_count": len(entities),
         "impact_count": len(impacts),
         "provider_count": dict(sorted(provider_count.items())),
+        "primary_stock_count": len({row.stock_code for row in primary_entities}),
+        "primary_market_count": dict(
+            sorted(Counter(row.market for row in primary_entities).items())
+        ),
+        "effective_trade_date_range": {
+            "minimum": min((row.effective_trade_date for row in documents), default=""),
+            "maximum": max((row.effective_trade_date for row in documents), default=""),
+        },
         "primary_entity_coverage": round(len(primary_ids) / len(documents), 6)
         if documents
         else 0.0,

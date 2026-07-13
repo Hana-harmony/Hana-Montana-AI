@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 
 from hannah_montana_ai.training.k_fnspid.entity_linker import ExactContextEntityLinker
+from hannah_montana_ai.training.k_fnspid.event_clusterer import assign_event_clusters
 from hannah_montana_ai.training.k_fnspid.impact_labeler import build_market_impacts
-from hannah_montana_ai.training.k_fnspid.schema import DailyPrice
+from hannah_montana_ai.training.k_fnspid.sampling import (
+    select_unconfounded_representatives,
+)
+from hannah_montana_ai.training.k_fnspid.schema import CanonicalDocument, DailyPrice
 from hannah_montana_ai.training.k_fnspid.splitter import temporal_split
 from hannah_montana_ai.training.k_fnspid.temporal import (
     effective_trade_date,
@@ -27,6 +32,13 @@ def test_date_only_disclosure_keeps_precision() -> None:
 
     assert publication.precision == "DATE"
     assert publication.market_session == "UNKNOWN"
+
+
+def test_publication_before_price_history_has_no_effective_trade_date() -> None:
+    trading_dates = [date(2021, 1, 4), date(2021, 1, 5)]
+    publication = normalize_publication_time("20200102", set(trading_dates))
+
+    assert effective_trade_date(publication, trading_dates) == ""
 
 
 def test_entity_linker_rejects_english_partial_match() -> None:
@@ -102,6 +114,45 @@ def test_market_impact_uses_market_adjusted_return() -> None:
     assert result.materiality_score is not None
 
 
+def test_market_impact_one_day_window_starts_at_pre_event_close() -> None:
+    prices: list[DailyPrice] = []
+    for index in range(30):
+        trade_date = date.fromordinal(date(2025, 1, 1).toordinal() + index).isoformat()
+        event_close = 120.0 if index >= 21 else 100.0
+        prices.extend(
+            [
+                DailyPrice(
+                    "005930",
+                    trade_date,
+                    "KOSPI",
+                    event_close,
+                    event_close,
+                    event_close,
+                    event_close,
+                    event_close,
+                    1_000,
+                    100_000,
+                ),
+                DailyPrice(
+                    "000660",
+                    trade_date,
+                    "KOSPI",
+                    100.0,
+                    100.0,
+                    100.0,
+                    100.0,
+                    100.0,
+                    1_000,
+                    100_000,
+                ),
+            ]
+        )
+
+    result = build_market_impacts([("doc", "005930", "2025-01-22")], prices)[0]
+
+    assert result.abnormal_return_1d == 0.1
+
+
 def test_temporal_split_applies_embargo() -> None:
     assert (
         temporal_split(
@@ -110,4 +161,60 @@ def test_temporal_split_applies_embargo() -> None:
             test_start=date(2026, 1, 1),
         )
         == "EMBARGO"
+    )
+
+
+def test_event_cluster_does_not_merge_recurring_title_across_trade_dates() -> None:
+    first = _document("first", "2026-01-02", "A사 잠정실적 공시")
+    second = replace(first, document_id="second", effective_trade_date="2026-04-02")
+
+    clusters = assign_event_clusters([first, second])
+
+    assert clusters["first"] != clusters["second"]
+
+
+def test_sampling_excludes_multi_event_stock_days_and_keeps_one_cluster_row() -> None:
+    rows = [
+        _candidate("a", "cluster-1", "005930", "2026-01-02", "짧은 기사"),
+        _candidate("b", "cluster-1", "005930", "2026-01-02", "더 긴 동일 이벤트 기사"),
+        _candidate("c", "cluster-2", "000660", "2026-01-02", "첫 번째 이벤트"),
+        _candidate("d", "cluster-3", "000660", "2026-01-02", "두 번째 이벤트"),
+    ]
+
+    selected = select_unconfounded_representatives(rows)
+
+    assert [row["document_id"] for row in selected] == ["b"]
+
+
+def _candidate(
+    document_id: str,
+    cluster_id: str,
+    stock_code: str,
+    trade_date: str,
+    text: str,
+) -> dict[str, str]:
+    return {
+        "document_id": document_id,
+        "event_cluster_id": cluster_id,
+        "stock_code": stock_code,
+        "effective_trade_date": trade_date,
+        "text": text,
+    }
+
+
+def _document(document_id: str, trade_date: str, title: str) -> CanonicalDocument:
+    return CanonicalDocument(
+        document_id=document_id,
+        provider="naver-news",
+        source_type="NEWS",
+        title=title,
+        snippet="",
+        full_text="",
+        source_url=f"https://example.com/{document_id}",
+        content_hash=document_id,
+        published_at_utc=f"{trade_date}T00:00:00+00:00",
+        published_at_kst=f"{trade_date}T09:00:00+09:00",
+        published_precision="MINUTE",
+        market_session="PRE_MARKET",
+        effective_trade_date=trade_date,
     )

@@ -15,8 +15,12 @@ from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 
+from hannah_montana_ai.training.k_fnspid.sampling import (
+    select_unconfounded_representatives,
+)
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v1"
+DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v2"
 DEFAULT_MODEL = PROJECT_ROOT / "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/k-fnspid-impact-training-report.json"
 LABEL_ORDER = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
@@ -118,7 +122,7 @@ def load_rows(dataset_dir: Path) -> list[dict[str, Any]]:
         for row in pq.read_table(dataset_dir / "document_entities.parquet").to_pylist()
         if row["relation"] == "PRIMARY"
     }
-    rows: list[dict[str, Any]] = []
+    candidates: list[dict[str, Any]] = []
     for impact in pq.read_table(dataset_dir / "market_impacts.parquet").to_pylist():
         document = documents.get(impact["document_id"])
         entity = primary.get(impact["document_id"])
@@ -129,9 +133,12 @@ def load_rows(dataset_dir: Path) -> list[dict[str, Any]]:
             or impact["confounded"]
         ):
             continue
-        rows.append(
+        candidates.append(
             {
                 "document_id": impact["document_id"],
+                "event_cluster_id": document["event_cluster_id"],
+                "stock_code": entity["stock_code"],
+                "effective_trade_date": impact["effective_trade_date"],
                 "text": " ".join(
                     part
                     for part in (
@@ -146,7 +153,7 @@ def load_rows(dataset_dir: Path) -> list[dict[str, Any]]:
                 "split": splits.get(impact["document_id"], "EMBARGO"),
             }
         )
-    return rows
+    return select_unconfounded_representatives(candidates)
 
 
 def evaluate(model: Pipeline, rows: list[dict[str, Any]]) -> dict[str, float | int]:

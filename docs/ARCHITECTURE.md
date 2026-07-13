@@ -27,10 +27,10 @@
 - 종목 매핑은 요청 `stock_universe`를 우선 사용하고, 누락된 종목은 내부 `data/reference/korea_stock_universe.csv` master에서 종목코드, 한글명, 영문명, alias 포함 여부로 판단한다.
 - 내부 master fallback은 `stock_linker_ml.joblib`의 TF-IDF stock linker 예측을 먼저 확인하고, 대표 종목 오탐 방지를 위해 실제 선두 term 매칭 여부를 함께 검증한다.
 - 이벤트 태그는 `financial_nlp_ml.joblib`의 source type과 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
-- 감성은 TF-IDF char n-gram, 한국어 금융 token feature, Logistic Regression 모델로 분류한다.
+- 감성은 고정 리비전 `kakaobank/kf-deberta-base` + LoRA 모델을 artifact SHA·독립 benchmark gate 뒤에서 서빙한다. gate 실패 시 기존 TF-IDF Logistic Regression으로 fallback한다.
 - 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.
-- `data/k_fnspid/v1`은 뉴스·공시, 종목 관계, 사건 군집, 파일 기반 일별 시세, 시장반응 라벨을 Parquet 스냅샷으로 보관한다. 데이터셋 빌드는 운영 DB를 읽지 않는다.
-- `k_fnspid_impact_ml.joblib`은 시간 분할 Test 품질 gate를 통과했을 때만 의미 기반 중요도와 결합하며, 불일치 시 confidence를 낮춘다.
+- `data/k_fnspid/v2`는 550,662건 뉴스·공시, 814,205건 종목 관계, 397,863건 시장반응, 10,691,998행 일별 시세를 Parquet 스냅샷으로 보관한다. 데이터셋 빌드는 운영 DB를 읽지 않는다.
+- 시장영향은 KF-DeBERTa LoRA와 TF-IDF OVR을 같은 시간 외삽 Test에서 비교한다. Transformer가 macro F1·quadratic kappa gate와 기준선을 모두 넘을 때만 승격하고, 아니면 검증된 TF-IDF artifact를 계속 서빙한다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 canonical title을 SHA-256으로 해시한다.
 - 주문 상태 계약은 외부 KIS/PredictEngine 입력값을 받아 외국인 보유율, 한도소진율, 예측 지분율 구간, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.
 - 인텔리전스 이벤트 계약은 기존 분석 결과에 번역 제목·요약, 금융 용어집 정규화 결과, 번역 품질 플래그를 붙여 현지 MTS WebSocket 패킷 형태로 패킹한다.

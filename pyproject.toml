@@ -20,8 +20,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+transformer = [
+    "accelerate>=1.9,<2.0",
+    "peft>=0.16,<1.0",
+    "torch>=2.6,<3.0",
+    "transformers>=4.53,<6.0",
+]
 sota = [
+    "accelerate>=1.9,<2.0",
     "neuralforecast>=3.1.9",
+    "peft>=0.16,<1.0",
     "torch>=2.6,<3.0",
     "transformers>=4.53,<6.0",
 ]
@@ -57,7 +65,7 @@ strict = true
 packages = ["hannah_montana_ai"]
 
 [[tool.mypy.overrides]]
-module = ["ahocorasick", "joblib", "neuralforecast", "neuralforecast.*", "pandas", "pyarrow", "pyarrow.*", "sklearn.*", "torch", "transformers", "transformers.*"]
+module = ["accelerate", "ahocorasick", "joblib", "neuralforecast", "neuralforecast.*", "pandas", "peft", "peft.*", "pyarrow", "pyarrow.*", "sklearn.*", "torch", "transformers", "transformers.*"]
 ignore_missing_imports = true
 
 [tool.bandit]

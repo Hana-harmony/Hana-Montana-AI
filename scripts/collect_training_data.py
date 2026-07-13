@@ -13,7 +13,7 @@ from hannah_montana_ai.training.collector import (
     raw_alert_to_dict,
     read_raw_alerts,
     should_write_raw_alerts,
-    write_jsonl,
+    write_sharded_jsonl,
 )
 from hannah_montana_ai.training.stock_collection_plan import (
     load_stock_collection_plan_queries,
@@ -118,8 +118,10 @@ def main() -> None:
     )
 
     if should_write:
-        write_jsonl(RAW_ALERTS_PATH, [raw_alert_to_dict(alert) for alert in raw_alerts])
-        write_jsonl(
+        write_sharded_jsonl(
+            RAW_ALERTS_PATH, [raw_alert_to_dict(alert) for alert in raw_alerts]
+        )
+        write_sharded_jsonl(
             WEAK_LABELED_PATH,
             [
                 {

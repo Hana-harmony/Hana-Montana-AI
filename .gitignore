@@ -15,5 +15,8 @@ data/external/
 data/market/*.parquet
 data/market/*.csv
 data/k_fnspid/*/*.parquet
+data/raw/*.part-*.jsonl
+data/processed/*.part-*.jsonl
+src/hannah_montana_ai/model_store/.*-checkpoints/
 .idea/
 .vscode/

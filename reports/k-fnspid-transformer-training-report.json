@@ -1,0 +1,94 @@
+{
+  "schema_version": "k-fnspid-transformer-training/v1",
+  "version": "k-fnspid-impact-kf-deberta-lora-20260713094908",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-13T09:49:08.856226+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1111,
+      "sha256": "8cd12292fc4ce22b5af53e0a8be06cc76af5b6a8abe4b2d827c5709d47842a8c"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "fbd177e29234c4646c5da5530aaf2246cbd689daa7b16d376e5a3bd2e7ae8461"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "dataset_dir": "data/k_fnspid/v2",
+  "partition_count": {
+    "TRAIN": 20000,
+    "VALIDATION": 6956,
+    "TEST": 10728
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "MEDIUM": 5001,
+      "LOW": 12569,
+      "HIGH": 1619,
+      "CRITICAL": 811
+    },
+    "VALIDATION": {
+      "LOW": 3452,
+      "CRITICAL": 508,
+      "MEDIUM": 2103,
+      "HIGH": 893
+    },
+    "TEST": {
+      "MEDIUM": 3488,
+      "HIGH": 1344,
+      "CRITICAL": 602,
+      "LOW": 5294
+    }
+  },
+  "trainable_parameter_count": 1478404,
+  "total_parameter_count": 187362824,
+  "validation": {
+    "loss": 1.4019187688827515,
+    "accuracy": 0.4777170787809086,
+    "macro_f1": 0.3487051103931755,
+    "quadratic_kappa": 0.3996777393358003,
+    "runtime": 124.8597,
+    "samples_per_second": 55.711,
+    "steps_per_second": 1.746,
+    "sample_count": 6956
+  },
+  "test": {
+    "loss": 1.3608275651931763,
+    "accuracy": 0.5005592841163311,
+    "macro_f1": 0.36643678011439446,
+    "quadratic_kappa": 0.41857498868384246,
+    "runtime": 188.1156,
+    "samples_per_second": 57.029,
+    "steps_per_second": 1.786,
+    "sample_count": 10728
+  },
+  "baseline_test": {
+    "sample_count": 10728,
+    "accuracy": 0.45423191648023864,
+    "macro_f1": 0.36131736558509486,
+    "quadratic_kappa": 0.35148457958853574
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 1000,
+    "minimum_macro_f1": 0.35,
+    "minimum_quadratic_kappa": 0.2,
+    "must_match_or_exceed_baseline": "k-fnspid-impact-tfidf-logreg",
+    "eligible": true,
+    "decision": "DEPLOY_KF_DEBERTA_IMPACT"
+  }
+}
