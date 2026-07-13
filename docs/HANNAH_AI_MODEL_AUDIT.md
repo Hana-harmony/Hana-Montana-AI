@@ -23,8 +23,28 @@
 - K-FNSPID 시간 외삽 Test에서 KF-DeBERTa LoRA는 TF-IDF 기준선 대비 accuracy +0.0463, macro F1 +0.0051, quadratic kappa +0.0671을 기록해 승격했다.
 - 시장영향은 같은 라벨 정의의 공개 SOTA leaderboard가 없어 2026년 4월 이후 시간 외삽 Test 10,728건의 macro F1·quadratic kappa와 TF-IDF 기준선 동시 상회로 Transformer 승격을 제한한다.
 
+## K-FNSPID 도입 전후 감사
+
+| 평가셋 | 지표 | 도입 전 | 현재 | 변화 |
+| --- | --- | ---: | ---: | ---: |
+| Benchmark 768 | 감성 accuracy | 0.9688 | 0.9492 | -0.0195 |
+| 실제 공시 Gold 30 | 감성 accuracy | 1.0000 | 1.0000 | 0.0000 |
+| 실제 뉴스 Gold 80 | 감성 accuracy | 0.9750 | 0.9000 | -0.0750 |
+| Stock review Gold 500 | 감성 accuracy | 0.9180 | 0.7880 | -0.1300 |
+| 네 기존 평가셋 | 중요도 accuracy | 0.9583/1.0000/0.9625/0.8480 | 동일 | 0.0000 |
+| K-FNSPID Test 10,728 | 시장영향 accuracy | 0.4542 | 0.5006 | +0.0463 |
+| K-FNSPID Test 10,728 | 시장영향 macro F1 | 0.3613 | 0.3664 | +0.0051 |
+| K-FNSPID Test 10,728 | quadratic kappa | 0.3515 | 0.4186 | +0.0671 |
+
+- 도입 전 기준은 `main` commit `076e97f8`의 `reports/ml-model-evaluation.json`이다.
+- K-FNSPID는 중요도에 실제 가격 반응 근거를 추가했지만 기존 중요도 Gold 정확도를 개선하지는 않았다.
+- 감성은 공개 균형 Test에서 기존 TF-IDF macro F1 `0.4423→0.8840`으로 개선됐으나 기존 운영형 평가셋에서는 회귀했다. 두 결과는 평가 분포가 달라 직접 상쇄할 수 없다.
+- 현재 `pass/promoted`는 정의된 배포 gate 통과를 뜻하며 SOTA 또는 논문 준비 완료를 뜻하지 않는다.
+- 전체 근거와 후속 연구 gate는 [K-FNSPID 도입 전후·연구 준비도](models/k-fnspid-research-readiness.md)에 기록한다.
+
 ## 남은 개선
 - 활성 2,752종목 전체가 specific profile로 서빙되며 LOW confidence는 15개, 0.5451%다.
 - Naver 동일업종·OpenDART·WiseReport·KSIC를 결합하고, business profile ML classifier는 holdout macro F1 0.995282를 기록한다.
 - 뉴스·공시 이벤트 모델은 stock review gold에서 희소 이벤트 라벨 macro F1이 낮아, 운영 로그 기반 gold 확장이 필요하다.
 - 시장영향은 동일 다중 사건을 제외했어도 거시경제·업종 교란이 남으므로 단독 투자 신호로 사용하지 않는다.
+- 뉴스 감성의 운영 회귀를 해소하고 독립 다중 평가자 Gold에서 재검증하기 전에는 전 분포 SOTA를 주장하지 않는다.

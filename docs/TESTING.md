@@ -46,7 +46,11 @@ uv run python scripts/evaluate_korean_financial_term_explainer.py
 - 뉴스·공시 release: `financial-ml-tfidf-logreg-20260622090407`, `reports/model-release-report.json`의 `overall_status=pass`
 - benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9492, 중요도 accuracy 0.9583, 종목 accuracy 1.0
 - 실제 뉴스 gold 80건: 이벤트 macro F1 0.9221, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9625, 종목 accuracy 1.0
+- 공개 금융 감성 Test 933건: 앙상블 accuracy 0.8842, macro F1 0.8840. 기존 Hannah TF-IDF macro F1 0.4423, KR-FinBERT-SC 0.7272
+- K-FNSPID 시간 Test 10,728건: KF-DeBERTa accuracy 0.5006, macro F1 0.3664, quadratic kappa 0.4186. TF-IDF 기준선은 0.4542, 0.3613, 0.3515
 - 글로벌 피어: KIS 활성 일반주식 2,752건 중 2,752건 성공, 구조 계약 실패 0건
 - 외국인 보유 예측: 32종목 52,693개 샘플, persistence 대비 MAE 4.40% 개선, release `promoted`
 
-평가 수치는 해당 JSON report가 단일 원천이다. 수치나 dataset lineage가 바뀌면 기능별 모델 문서와 구현 기록을 함께 갱신한다.
+도입 전 운영 수치와 비교하면 감성 accuracy는 Benchmark -0.0195, 실제 뉴스 Gold -0.0750, Stock review Gold -0.1300이며 실제 공시는 동일하다. 중요도 accuracy는 네 기존 평가셋에서 모두 동일하다. 공개 Test 개선만으로 운영 회귀를 통과 처리하지 않는다.
+
+평가 수치는 해당 JSON report가 단일 원천이다. 수치나 dataset lineage가 바뀌면 기능별 모델 문서, [도입 전후·연구 준비도](models/k-fnspid-research-readiness.md), 구현 기록을 함께 갱신한다.
