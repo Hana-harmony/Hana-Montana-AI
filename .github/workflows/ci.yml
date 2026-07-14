@@ -8,18 +8,19 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081
       - name: 의존성 동기화
         run: uv sync --all-groups
       - name: 메시지 컨벤션 검사
@@ -40,3 +41,77 @@ jobs:
         run: uv run python scripts/verify_secret_hygiene.py
       - name: 테스트
         run: uv run pytest
+
+  deploy-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: hannah-montana-ai-production
+      cancel-in-progress: false
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: 운영 secret 확인
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          TRANSLATION_ENDPOINT: ${{ secrets.HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT }}
+          MAINTENANCE_TOKEN: ${{ secrets.HANNAH_AI_MAINTENANCE_TOKEN }}
+        run: |
+          : "${PROD_HOST:?}"
+          : "${PROD_USER:?}"
+          : "${PROD_SSH_KEY:?}"
+          : "${PROD_HOST_KEY:?}"
+          : "${GHCR_TOKEN:?}"
+          : "${TRANSLATION_ENDPOINT:?}"
+          : "${MAINTENANCE_TOKEN:?}"
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - name: 이미지 이름 설정
+        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: ARM64 운영 이미지 빌드
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: SSH 설정
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' '${{ secrets.PROD_SSH_KEY }}' > ~/.ssh/prod_key
+          printf '%s\n' '${{ secrets.PROD_HOST_KEY }}' > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/prod_key ~/.ssh/known_hosts
+      - name: 운영 설정 생성
+        env:
+          TRANSLATION_ENDPOINT: ${{ secrets.HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT }}
+          MAINTENANCE_TOKEN: ${{ secrets.HANNAH_AI_MAINTENANCE_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          printf '%s\n' \
+            "HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT=${TRANSLATION_ENDPOINT}" \
+            'HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS=300' \
+            'HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS=2048' \
+            'HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY=4' \
+            "HANNAH_AI_MAINTENANCE_TOKEN=${MAINTENANCE_TOKEN}" \
+            > application.env
+          printf '%s\n' \
+            "IMAGE=${IMAGE_NAME}:${GITHUB_SHA}" \
+            "GHCR_TOKEN=${GHCR_TOKEN}" \
+            > deploy.env
+          chmod 600 application.env deploy.env
+      - name: OCI 무중단 배포
+        run: |
+          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 700 /opt/hannah-montana-ai'
+          scp -i ~/.ssh/prod_key application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
+          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
+          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
