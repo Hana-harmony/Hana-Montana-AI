@@ -23,7 +23,8 @@ curl http://localhost:8000/ready
 
 - 뉴스·공시 분류와 stock linker는 versioned joblib artifact를 startup에 로드한다. 누락·손상 시 503으로 종료한다.
 - What/Why/Impact는 검증 규칙으로 생성한다.
-- 한국어→영어 번역은 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`의 로컬 Qwen3-4B GGUF 서버를 사용한다.
+- 한국어→영어 번역은 같은 Docker 내부망의 `http://hannah-qwen:8080` Qwen3-4B GGUF 서버를 사용한다.
+- Qwen 모델은 공식 revision과 SHA-256을 고정해 최초 배포 시 내려받고, 6GB 메모리 한도와 8K context로 운영한다.
 - 글로벌 피어는 동적 similarity artifact와 `grounded-template-structured-rag-v3` 설명 템플릿을 사용한다.
 - 한국 금융 용어는 `data/reference/korean_financial_terms_seed.json` 단일 사전을 사용한다.
 - 외국인 보유 예측은 제한 종목 allowlist와 보유수량 시계열 artifact를 사용한다.
@@ -66,6 +67,6 @@ curl http://localhost:8000/ready
 
 ## 배포와 rollback
 
-CI의 ruff, mypy, bandit, secret hygiene와 pytest가 모두 통과한 이미지를 배포한다. container는 non-root 사용자로 실행하고 artifact는 read-only로 제공한다.
+CI의 ruff, mypy, bandit, secret hygiene와 pytest가 모두 통과한 이미지를 배포한다. container는 non-root 사용자로 실행하고 artifact는 read-only로 제공한다. 운영 앱은 단일 컨테이너로 교체하며 readiness 실패 시 직전 이미지를 자동 복구한다. Nginx는 Ubuntu 호스트의 systemd 서비스로 운영한다.
 
 rollback은 이전에 검증을 통과한 이미지와 그 이미지에 포함된 model artifact·report를 함께 복원한다. 코드와 artifact version을 따로 되돌리지 않는다.

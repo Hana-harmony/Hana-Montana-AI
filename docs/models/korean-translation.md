@@ -6,7 +6,9 @@
 
 ## 구현
 
-- 모델: 로컬 `Qwen3-4B-GGUF-Q4`
+- 모델: 로컬 `Qwen3-4B-GGUF-Q4`(`Qwen/Qwen3-4B-GGUF`, `Qwen3-4B-Q4_K_M.gguf`)
+- artifact: 공식 revision `bc640142c66e1fdd12af0bd68f40445458f3869b`과 SHA-256 `7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5` 고정
+- serving: llama.cpp ARM64 image digest 고정, 8K context, 병렬 요청 2개, reasoning 비활성화
 - provider: `local-llm`
 - 입력: 원문, `NEWS`/`DISCLOSURE` 유형, 제목, 검증 glossary
 - 출력: 번역문, provider, model version, 상태, prompt version, 품질 플래그

@@ -59,7 +59,7 @@ uv run python scripts/restore_k_fnspid_release.py
 uv run python scripts/verify_k_fnspid_dataset.py
 ```
 
-번역 endpoint는 `HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT`로 주입하며 기본값은 `http://127.0.0.1:18081`이다. 모델 파일 위치는 설정 기본값 또는 배포 볼륨으로 관리하고 사용자별 절대 경로를 문서 계약으로 두지 않는다.
+로컬과 운영 모두 Docker 내부망의 `http://hannah-qwen:8080`을 사용한다. 로컬 실행 전 `./scripts/download-qwen-model.sh ./models`로 hash 검증된 모델을 준비하고 공용 Docker network `hana-omnilens-internal`을 생성한다.
 
 ## 문서
 
