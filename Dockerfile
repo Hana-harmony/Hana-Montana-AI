@@ -32,7 +32,8 @@ COPY reports/k-fnspid-transformer-training-report.json ./reports/k-fnspid-transf
 RUN find /app/src -type f \( -name '*.joblib' -o -name '*.safetensors' \) \
         -exec chmod 0444 {} + \
     && find /app/reports -type f -exec chmod 0444 {} + \
-    && chmod 0444 /app/reports/k-fnspid-impact-training-report.json
+    && chmod 0444 /app/reports/k-fnspid-impact-training-report.json \
+    && chmod -R a+rX,go-w /app/src /app/reports /app/data/reference
 
 RUN uv sync --frozen --no-dev --extra transformer
 RUN python -c "from transformers import AutoModel; from transformers import AutoTokenizer; model=AutoModel.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); tokenizer=AutoTokenizer.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); model.save_pretrained('/app/models/kf-deberta-base', safe_serialization=True); tokenizer.save_pretrained('/app/models/kf-deberta-base')"
