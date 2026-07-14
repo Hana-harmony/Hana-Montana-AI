@@ -20,3 +20,4 @@ data/processed/*.part-*.jsonl
 src/hannah_montana_ai/model_store/.*-checkpoints/
 .idea/
 .vscode/
+/tmp/
