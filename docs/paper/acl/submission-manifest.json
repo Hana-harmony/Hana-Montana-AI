@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "paper": "K-FNSPID v3",
+  "system_name": "Hana Montana AI(KF-DeBERTa + K-FNSPID)",
+  "format": "ACL Rolling Review long-paper anonymous review",
+  "acl_style_commit": "d5adc823ff0f80f98c80405ca0ab66c68e684409",
+  "source_date_epoch": 1784041200,
+  "abstract_word_count": 177,
+  "main_content_pages": 5,
+  "total_pages": 7,
+  "page_size": "A4",
+  "embedded_font_count": 13,
+  "all_fonts_embedded": true,
+  "rendered_pages_reviewed": 7,
+  "metric_report_verification": "passed",
+  "unresolved_citations": 0,
+  "overfull_boxes": 0,
+  "pdf_path": "output/pdf/k-fnspid-v3-arr-review.pdf",
+  "pdf_sha256": "96465b257c19f047b1070dccd75563ac128e44d4d4f4eeb4ba685015c33e4be3",
+  "known_scientific_blockers": [
+    "No independent multi-expert annotation or inter-annotator agreement",
+    "Disclosure market-impact macro-F1 regresses from 0.3006 to 0.2211",
+    "No DOI-backed anonymous dataset archive yet"
+  ]
+}
