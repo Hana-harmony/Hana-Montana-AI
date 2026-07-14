@@ -1,206 +1,50 @@
 ---
 base_model: kakaobank/kf-deberta-base
 library_name: peft
+language:
+- ko
 tags:
-- base_model:adapter:kakaobank/kf-deberta-base
+- finance
+- text-classification
 - lora
-- transformers
+- k-fnspid
 ---
 
-# Model Card for Model ID
+# Hana Montana AI(KF-DeBERTa + K-FNSPID) 시장영향 분류기
 
-<!-- Provide a quick summary of what the model is/does. -->
+한국 금융 뉴스와 DART 공시를 입력받아 다음 거래일의 절대수익률·초과수익률 기반 시장영향을 `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` 네 단계로 분류하는 KF-DeBERTa LoRA 어댑터다. 감성 및 공시 중요도 모델과는 독립된 연구 신호이며 투자 판단을 자동화하는 용도로 사용하지 않는다.
 
+## 아티팩트
 
+- 기반 모델: `kakaobank/kf-deberta-base`
+- 고정 revision: `363b171d71443b0874b0bf9cea053eb5b1650633`
+- 선택 seed: `73`
+- 입력 규격: `k-fnspid-text-v2`, 최대 256 token
+- 학습 방식: LoRA(r=16, alpha=32, dropout=0.1), focal loss와 ordinal CDF 보조 손실
+- 후처리: Validation에서만 선택한 log-prior correction strength `0.15`
+- 버전: `k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15`
 
-## Model Details
+`hannah_metadata.json`에 기반 모델 revision, 라벨 순서, 아티팩트별 SHA-256와 byte 크기를 저장한다. 런타임은 로드 전에 이 값을 검증한다.
 
-### Model Description
+## 데이터와 평가
 
-<!-- Provide a longer summary of what this model is. -->
+K-FNSPID v3는 문서 550,662건, 종목 연결 819,772건, 시장영향 398,942건, 일별 시세 10,691,998건으로 구성된다. 시장영향 학습 split은 Train 107,175건, Validation 6,975건, 시간 외삽 Test 10,750건이다. 동일 Test에서 선택 모델과 기존 TF-IDF 기준선은 다음과 같다.
 
+| 모델 | Accuracy | Macro-F1 | Quadratic Kappa |
+| --- | ---: | ---: | ---: |
+| TF-IDF 기준선 | 0.4643 | 0.3429 | 0.3141 |
+| KF-DeBERTa LoRA seed 73 | 0.5095 | 0.3820 | 0.4694 |
 
+3개 seed의 Test 평균±표준편차는 Accuracy `0.5105±0.0080`, Macro-F1 `0.3824±0.0102`, QWK `0.4675±0.0042`다. 거래일 단위 클러스터 부트스트랩 95% 신뢰구간 기준 개선폭은 Accuracy `[0.0351, 0.0557]`, Macro-F1 `[0.0256, 0.0536]`, QWK `[0.1331, 0.1776]`이며 McNemar exact p-value는 `1.70e-20`이다.
 
-- **Developed by:** [More Information Needed]
-- **Funded by [optional]:** [More Information Needed]
-- **Shared by [optional]:** [More Information Needed]
-- **Model type:** [More Information Needed]
-- **Language(s) (NLP):** [More Information Needed]
-- **License:** [More Information Needed]
-- **Finetuned from model [optional]:** [More Information Needed]
+공시 590건 부분집합에서는 Accuracy가 증가했지만 Macro-F1과 QWK가 하락했다. 이 결과를 이용해 Test 사후 라우팅을 만들지 않았으며, 공시 운영 중요도는 별도 모델이 담당한다.
 
-### Model Sources [optional]
+## 사용 범위와 한계
 
-<!-- Provide the basic links for the model. -->
+- 한국 금융 문서의 후행 시장 반응 연구와 OmniLens 보조 신호에만 사용한다.
+- 외부 동일 라벨·동일 시간 split 리더보드가 없어 외부 SOTA를 주장하지 않는다.
+- 수익 또는 가격 방향을 예측하지 않으며 매수·매도 신호가 아니다.
+- 중복 제거, 종목 연결, 시간 split, 데이터 manifest를 유지하지 않은 재평가는 비교할 수 없다.
+- 새 시기·새 출처에는 분포 변화와 calibration을 다시 검증해야 한다.
 
-- **Repository:** [More Information Needed]
-- **Paper [optional]:** [More Information Needed]
-- **Demo [optional]:** [More Information Needed]
-
-## Uses
-
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
-
-### Direct Use
-
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
-[More Information Needed]
-
-### Downstream Use [optional]
-
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
-
-[More Information Needed]
-
-### Out-of-Scope Use
-
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
-
-[More Information Needed]
-
-## Bias, Risks, and Limitations
-
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
-
-[More Information Needed]
-
-### Recommendations
-
-<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
-
-Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
-
-## How to Get Started with the Model
-
-Use the code below to get started with the model.
-
-[More Information Needed]
-
-## Training Details
-
-### Training Data
-
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
-
-[More Information Needed]
-
-### Training Procedure
-
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
-
-#### Preprocessing [optional]
-
-[More Information Needed]
-
-
-#### Training Hyperparameters
-
-- **Training regime:** [More Information Needed] <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
-
-#### Speeds, Sizes, Times [optional]
-
-<!-- This section provides information about throughput, start/end time, checkpoint size if relevant, etc. -->
-
-[More Information Needed]
-
-## Evaluation
-
-<!-- This section describes the evaluation protocols and provides the results. -->
-
-### Testing Data, Factors & Metrics
-
-#### Testing Data
-
-<!-- This should link to a Dataset Card if possible. -->
-
-[More Information Needed]
-
-#### Factors
-
-<!-- These are the things the evaluation is disaggregating by, e.g., subpopulations or domains. -->
-
-[More Information Needed]
-
-#### Metrics
-
-<!-- These are the evaluation metrics being used, ideally with a description of why. -->
-
-[More Information Needed]
-
-### Results
-
-[More Information Needed]
-
-#### Summary
-
-
-
-## Model Examination [optional]
-
-<!-- Relevant interpretability work for the model goes here -->
-
-[More Information Needed]
-
-## Environmental Impact
-
-<!-- Total emissions (in grams of CO2eq) and additional considerations, such as electricity usage, go here. Edit the suggested text below accordingly -->
-
-Carbon emissions can be estimated using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700).
-
-- **Hardware Type:** [More Information Needed]
-- **Hours used:** [More Information Needed]
-- **Cloud Provider:** [More Information Needed]
-- **Compute Region:** [More Information Needed]
-- **Carbon Emitted:** [More Information Needed]
-
-## Technical Specifications [optional]
-
-### Model Architecture and Objective
-
-[More Information Needed]
-
-### Compute Infrastructure
-
-[More Information Needed]
-
-#### Hardware
-
-[More Information Needed]
-
-#### Software
-
-[More Information Needed]
-
-## Citation [optional]
-
-<!-- If there is a paper or blog post introducing the model, the APA and Bibtex information for that should go in this section. -->
-
-**BibTeX:**
-
-[More Information Needed]
-
-**APA:**
-
-[More Information Needed]
-
-## Glossary [optional]
-
-<!-- If relevant, include terms and calculations in this section that can help readers understand the model or model card. -->
-
-[More Information Needed]
-
-## More Information [optional]
-
-[More Information Needed]
-
-## Model Card Authors [optional]
-
-[More Information Needed]
-
-## Model Card Contact
-
-[More Information Needed]
-### Framework versions
-
-- PEFT 0.19.1
+상세 재현 절차, ablation, 통계 검정과 출처별 결과는 `docs/models/k-fnspid-market-impact.md` 및 `reports/k-fnspid-research-evaluation.json`을 따른다.

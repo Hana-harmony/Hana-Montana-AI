@@ -27,6 +27,8 @@ def build_quality_report(
     if any(row.document_id not in document_ids for row in entities):
         errors.append("orphan document entity")
     provider_count = Counter(row.provider for row in documents)
+    source_type_count = Counter(row.source_type for row in documents)
+    full_text_count = Counter(row.source_type for row in documents if row.full_text.strip())
     return {
         "schema_version": "k-fnspid-quality/v1",
         "status": "pass" if not errors else "fail",
@@ -34,6 +36,12 @@ def build_quality_report(
         "entity_count": len(entities),
         "impact_count": len(impacts),
         "provider_count": dict(sorted(provider_count.items())),
+        "source_type_count": dict(sorted(source_type_count.items())),
+        "full_text_source_type_count": dict(sorted(full_text_count.items())),
+        "full_text_coverage": {
+            source_type: round(full_text_count[source_type] / count, 6)
+            for source_type, count in sorted(source_type_count.items())
+        },
         "primary_stock_count": len({row.stock_code for row in primary_entities}),
         "primary_market_count": dict(
             sorted(Counter(row.market for row in primary_entities).items())

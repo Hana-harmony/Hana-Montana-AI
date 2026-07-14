@@ -30,7 +30,27 @@
           "POSITIVE": 278
         }
       },
-      "elapsed_seconds": 1.251433
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.8666666666666667,
+          "recall": 0.2508038585209003,
+          "f1": 0.38902743142144636,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.5084745762711864,
+          "recall": 0.28938906752411575,
+          "f1": 0.36885245901639346,
+          "support": 311
+        },
+        "POSITIVE": {
+          "precision": 0.4174174174174174,
+          "recall": 0.8938906752411575,
+          "f1": 0.5690890481064483,
+          "support": 311
+        }
+      },
+      "elapsed_seconds": 1.395144
     },
     "kr_finbert_sc": {
       "accuracy": 0.7363344051446945,
@@ -52,7 +72,27 @@
           "POSITIVE": 274
         }
       },
-      "elapsed_seconds": 7.578813
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.8966666666666666,
+          "recall": 0.864951768488746,
+          "f1": 0.8805237315875614,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.7422680412371134,
+          "recall": 0.4630225080385852,
+          "f1": 0.5702970297029702,
+          "support": 311
+        },
+        "POSITIVE": {
+          "precision": 0.6241457858769932,
+          "recall": 0.8810289389067524,
+          "f1": 0.7306666666666667,
+          "support": 311
+        }
+      },
+      "elapsed_seconds": 9.497956
     },
     "kf_deberta_lora": {
       "accuracy": 0.8853161843515541,
@@ -74,7 +114,27 @@
           "POSITIVE": 252
         }
       },
-      "elapsed_seconds": 11.242333
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.9371069182389937,
+          "recall": 0.9581993569131833,
+          "f1": 0.9475357710651828,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.8189910979228486,
+          "recall": 0.887459807073955,
+          "f1": 0.8518518518518519,
+          "support": 311
+        },
+        "POSITIVE": {
+          "precision": 0.9064748201438849,
+          "recall": 0.8102893890675241,
+          "f1": 0.8556876061120543,
+          "support": 311
+        }
+      },
+      "elapsed_seconds": 15.046832
     },
     "kf_deberta_lora_ensemble": {
       "accuracy": 0.8842443729903537,
@@ -96,34 +156,116 @@
           "POSITIVE": 252
         }
       },
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.9369085173501577,
+          "recall": 0.954983922829582,
+          "f1": 0.945859872611465,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.8189910979228486,
+          "recall": 0.887459807073955,
+          "f1": 0.8518518518518519,
+          "support": 311
+        },
+        "POSITIVE": {
+          "precision": 0.9032258064516129,
+          "recall": 0.8102893890675241,
+          "f1": 0.8542372881355932,
+          "support": 311
+        }
+      },
       "transformer_weight": 0.8,
       "baseline_weight": 0.2
+    },
+    "kf_deberta_lora_stacker": {
+      "accuracy": 0.8821007502679529,
+      "macro_f1": 0.8820262420757777,
+      "confusion_matrix": {
+        "NEGATIVE": {
+          "NEGATIVE": 295,
+          "NEUTRAL": 11,
+          "POSITIVE": 5
+        },
+        "NEUTRAL": {
+          "NEGATIVE": 12,
+          "NEUTRAL": 274,
+          "POSITIVE": 25
+        },
+        "POSITIVE": {
+          "NEGATIVE": 7,
+          "NEUTRAL": 50,
+          "POSITIVE": 254
+        }
+      },
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.9394904458598726,
+          "recall": 0.9485530546623794,
+          "f1": 0.944,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.817910447761194,
+          "recall": 0.8810289389067524,
+          "f1": 0.848297213622291,
+          "support": 311
+        },
+        "POSITIVE": {
+          "precision": 0.8943661971830986,
+          "recall": 0.8167202572347267,
+          "f1": 0.853781512605042,
+          "support": 311
+        }
+      },
+      "artifact": "src/hannah_montana_ai/model_store/sentiment_stacker.joblib"
     }
   },
   "operational_gold": {
     "real_disclosure_gold": {
-      "accuracy": 1.0,
-      "macro_f1": 1.0,
+      "accuracy": 0.9233333333333333,
+      "macro_f1": 0.8343921853959096,
       "confusion_matrix": {
         "NEGATIVE": {
-          "NEGATIVE": 7,
-          "NEUTRAL": 0,
+          "NEGATIVE": 51,
+          "NEUTRAL": 4,
           "POSITIVE": 0
         },
         "NEUTRAL": {
-          "NEGATIVE": 0,
-          "NEUTRAL": 19,
+          "NEGATIVE": 3,
+          "NEUTRAL": 472,
           "POSITIVE": 0
         },
         "POSITIVE": {
           "NEGATIVE": 0,
-          "NEUTRAL": 0,
-          "POSITIVE": 4
+          "NEUTRAL": 39,
+          "POSITIVE": 31
         }
       },
-      "sample_count": 30,
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.9444444444444444,
+          "recall": 0.9272727272727272,
+          "f1": 0.9357798165137615,
+          "support": 55
+        },
+        "NEUTRAL": {
+          "precision": 0.916504854368932,
+          "recall": 0.9936842105263158,
+          "f1": 0.9535353535353536,
+          "support": 475
+        },
+        "POSITIVE": {
+          "precision": 1.0,
+          "recall": 0.44285714285714284,
+          "f1": 0.6138613861386139,
+          "support": 70
+        }
+      },
+      "sample_count": 600,
       "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
-      "sha256": "a7a50d1f80b2d352696b67a20b6d498007da9a8926fd6fc265234508ea2d74e0"
+      "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
     },
     "real_news_gold": {
       "accuracy": 0.9,
@@ -145,9 +287,342 @@
           "POSITIVE": 42
         }
       },
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.8636363636363636,
+          "recall": 0.95,
+          "f1": 0.9047619047619048,
+          "support": 20
+        },
+        "NEUTRAL": {
+          "precision": 0.8461538461538461,
+          "recall": 0.6470588235294118,
+          "f1": 0.7333333333333333,
+          "support": 17
+        },
+        "POSITIVE": {
+          "precision": 0.9333333333333333,
+          "recall": 0.9767441860465116,
+          "f1": 0.9545454545454546,
+          "support": 43
+        }
+      },
       "sample_count": 80,
       "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
       "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+    }
+  },
+  "operational_gold_by_model": {
+    "real_disclosure_gold": {
+      "kf_deberta_lora": {
+        "accuracy": 0.9133333333333333,
+        "macro_f1": 0.8051279190837423,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 50,
+            "NEUTRAL": 5,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 472,
+            "POSITIVE": 0
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 44,
+            "POSITIVE": 26
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.9433962264150944,
+            "recall": 0.9090909090909091,
+            "f1": 0.9259259259259259,
+            "support": 55
+          },
+          "NEUTRAL": {
+            "precision": 0.9059500959692899,
+            "recall": 0.9936842105263158,
+            "f1": 0.9477911646586346,
+            "support": 475
+          },
+          "POSITIVE": {
+            "precision": 1.0,
+            "recall": 0.37142857142857144,
+            "f1": 0.5416666666666666,
+            "support": 70
+          }
+        },
+        "sample_count": 600,
+        "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+        "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+      },
+      "kf_deberta_lora_ensemble": {
+        "accuracy": 0.9233333333333333,
+        "macro_f1": 0.8343921853959096,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 51,
+            "NEUTRAL": 4,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 472,
+            "POSITIVE": 0
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 39,
+            "POSITIVE": 31
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.9444444444444444,
+            "recall": 0.9272727272727272,
+            "f1": 0.9357798165137615,
+            "support": 55
+          },
+          "NEUTRAL": {
+            "precision": 0.916504854368932,
+            "recall": 0.9936842105263158,
+            "f1": 0.9535353535353536,
+            "support": 475
+          },
+          "POSITIVE": {
+            "precision": 1.0,
+            "recall": 0.44285714285714284,
+            "f1": 0.6138613861386139,
+            "support": 70
+          }
+        },
+        "sample_count": 600,
+        "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+        "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+      },
+      "kf_deberta_lora_stacker": {
+        "accuracy": 0.9116666666666666,
+        "macro_f1": 0.8030673099503399,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 48,
+            "NEUTRAL": 7,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 472,
+            "POSITIVE": 0
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 43,
+            "POSITIVE": 27
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.9411764705882353,
+            "recall": 0.8727272727272727,
+            "f1": 0.9056603773584906,
+            "support": 55
+          },
+          "NEUTRAL": {
+            "precision": 0.9042145593869731,
+            "recall": 0.9936842105263158,
+            "f1": 0.9468405215646941,
+            "support": 475
+          },
+          "POSITIVE": {
+            "precision": 1.0,
+            "recall": 0.38571428571428573,
+            "f1": 0.5567010309278351,
+            "support": 70
+          }
+        },
+        "sample_count": 600,
+        "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+        "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+      }
+    },
+    "real_news_gold": {
+      "kf_deberta_lora": {
+        "accuracy": 0.8875,
+        "macro_f1": 0.8460791006315996,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 19,
+            "NEUTRAL": 1,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 10,
+            "POSITIVE": 4
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 1,
+            "POSITIVE": 42
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.8636363636363636,
+            "recall": 0.95,
+            "f1": 0.9047619047619048,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.8333333333333334,
+            "recall": 0.5882352941176471,
+            "f1": 0.6896551724137931,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.9130434782608695,
+            "recall": 0.9767441860465116,
+            "f1": 0.9438202247191011,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      },
+      "kf_deberta_lora_ensemble": {
+        "accuracy": 0.9,
+        "macro_f1": 0.8642135642135642,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 19,
+            "NEUTRAL": 1,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 11,
+            "POSITIVE": 3
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 1,
+            "POSITIVE": 42
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.8636363636363636,
+            "recall": 0.95,
+            "f1": 0.9047619047619048,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.8461538461538461,
+            "recall": 0.6470588235294118,
+            "f1": 0.7333333333333333,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.9333333333333333,
+            "recall": 0.9767441860465116,
+            "f1": 0.9545454545454546,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      },
+      "kf_deberta_lora_stacker": {
+        "accuracy": 0.8625,
+        "macro_f1": 0.8106905896645173,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 18,
+            "NEUTRAL": 2,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 9,
+            "POSITIVE": 5
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 1,
+            "POSITIVE": 42
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.8571428571428571,
+            "recall": 0.9,
+            "f1": 0.8780487804878049,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.75,
+            "recall": 0.5294117647058824,
+            "f1": 0.6206896551724138,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.8936170212765957,
+            "recall": 0.9767441860465116,
+            "f1": 0.9333333333333333,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      }
+    }
+  },
+  "statistical_comparison": {
+    "protocol": {
+      "paired_bootstrap_samples": 2000,
+      "seed": 20260713,
+      "mcnemar": "exact two-sided"
+    },
+    "candidate_vs_kr_finbert_sc": {
+      "accuracy_difference_95_ci": {
+        "mean": 0.1475573419078242,
+        "low": 0.11682743837084664,
+        "high": 0.17899249732047162
+      },
+      "macro_f1_difference_95_ci": {
+        "mean": 0.1566153543625085,
+        "low": 0.12619772599421208,
+        "high": 0.187702085132051
+      },
+      "mcnemar_exact": {
+        "reference_only_correct": 59,
+        "candidate_only_correct": 197,
+        "p_value": 1.5148606060610167e-18
+      },
+      "statistically_significant_macro_f1_gain": true
+    },
+    "candidate_vs_hana_tfidf_logistic": {
+      "accuracy_difference_95_ci": {
+        "mean": 0.40618703108252946,
+        "low": 0.367631296891747,
+        "high": 0.4437299035369775
+      },
+      "macro_f1_difference_95_ci": {
+        "mean": 0.4420252159830909,
+        "low": 0.4033067515493129,
+        "high": 0.48023394209159037
+      },
+      "mcnemar_exact": {
+        "reference_only_correct": 57,
+        "candidate_only_correct": 436,
+        "p_value": 2.3730753867631607e-73
+      },
+      "statistically_significant_macro_f1_gain": true
     }
   },
   "deployment_gate": {
@@ -155,7 +630,9 @@
     "minimum_macro_f1": 0.85,
     "must_match_or_exceed_reference": "snunlp/KR-FinBERT-SC",
     "minimum_operational_gold_accuracy": 0.9,
+    "minimum_operational_gold_macro_f1": 0.8,
+    "candidate_model": "kf_deberta_lora_ensemble",
     "eligible": true,
-    "decision": "DEPLOY_KF_DEBERTA_ENSEMBLE"
+    "decision": "DEPLOY_HANA_MONTANA_AI"
   }
 }

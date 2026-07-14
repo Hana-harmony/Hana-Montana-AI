@@ -34,6 +34,18 @@ CI는 Python 3.12와 uv를 사용한다. PR에서는 `verify_message_conventions
 uv run python scripts/train_ml_model.py
 uv run python scripts/evaluate_ml_model.py
 uv run python scripts/build_model_release_report.py
+uv run python scripts/build_weak_labeled_data.py
+uv run python scripts/restore_k_fnspid_release.py
+uv run python scripts/verify_k_fnspid_dataset.py
+uv run python scripts/train_k_fnspid_impact_model.py
+uv run python scripts/train_k_fnspid_transformer.py --seed 42
+uv run python scripts/aggregate_k_fnspid_runs.py
+uv run python scripts/promote_k_fnspid_transformer.py
+uv run python scripts/evaluate_k_fnspid_research.py
+uv run python scripts/ablate_k_fnspid_baseline.py
+uv run python scripts/train_disclosure_importance_model.py
+uv run python scripts/ablate_disclosure_importance.py
+uv run python scripts/evaluate_disclosure_importance_research.py
 uv run python scripts/train_stock_linker_model.py
 uv run python scripts/train_global_peer_model.py
 uv run python scripts/build_global_peer_full_coverage_report.py
@@ -41,13 +53,30 @@ uv run python scripts/train_foreign_ownership_quantity_model.py
 uv run python scripts/evaluate_korean_financial_term_explainer.py
 ```
 
+장시간 Transformer 학습이 중단된 경우에는 동일한 데이터·seed·학습 인자와 마지막 `checkpoint-*`를 지정한다. CLI 상대경로는 프로젝트 루트 기준으로 정규화되며 저장된 optimizer·scheduler·RNG 상태에서 재개한다.
+
+약지도 shard는 Git에 추적된 12개 raw shard와 종목 universe에서 `build_weak_labeled_data.py`로 오프라인 재생성한다. 파생 shard는 Git 중복 저장을 피하고 manifest·release report에 재현 정책을 기록한다.
+
+```bash
+uv run python scripts/train_k_fnspid_transformer.py \
+  --seed 42 \
+  --resume-from-checkpoint src/hannah_montana_ai/model_store/.k_fnspid_impact_transformer-checkpoints/checkpoint-10050
+```
+
 ## 현재 기준선
 
-- 뉴스·공시 release: `financial-ml-tfidf-logreg-20260622090407`, `reports/model-release-report.json`의 `overall_status=pass`
-- benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9492, 중요도 accuracy 0.9583, 종목 accuracy 1.0
-- 실제 뉴스 gold 80건: 이벤트 macro F1 0.9221, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9625, 종목 accuracy 1.0
-- 공개 금융 감성 Test 933건: 앙상블 accuracy 0.8842, macro F1 0.8840. 기존 Hannah TF-IDF macro F1 0.4423, KR-FinBERT-SC 0.7272
-- K-FNSPID 시간 Test 10,728건: KF-DeBERTa accuracy 0.5006, macro F1 0.3664, quadratic kappa 0.4186. TF-IDF 기준선은 0.4542, 0.3613, 0.3515
+- 뉴스·공시 release: `financial-ml-tfidf-logreg-20260714023257`, `reports/model-release-report.json`의 `overall_status=pass`
+- benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9492, v3 중요도 accuracy 0.9323 / macro F1 0.9193, 종목 accuracy 1.0
+- 실제 공시 Gold 600건: 이벤트 macro F1 0.9979, recall 0.9967, 감성 accuracy 0.9233, 중요도 accuracy 1.0, 종목 accuracy 1.0
+- 실제 뉴스 Gold 80건: 이벤트 macro F1 0.9184, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9500, 종목 accuracy 1.0
+- 공개 금융 감성 Test 933건: 앙상블 accuracy 0.8842, macro F1 0.8840. 기존 Hana TF-IDF macro F1 0.4423, KR-FinBERT-SC 0.7272
+- K-FNSPID v3: 문서 550,662건, 문서–종목 819,772건, 시장영향 398,942건, 파일 기반 시세 10,691,998행
+- Git 추적 raw·전문 JSONL shard: 최대 48MB, Parquet와 모든 raw/full-content/종목/시세/Gold 원천의 byte·개별/복합 SHA-256 검증, 경로 탈출·symlink·변조 fail-closed
+- K-FNSPID v3 시간 Test 10,750건: Train-only TF-IDF 기준선 accuracy 0.4643, macro F1 0.3429, quadratic kappa 0.3141. Validation 선택 seed 73 Transformer는 0.5095 / 0.3820 / 0.4694이며 다중 seed·연구 평가 보고서가 단일 원천이다.
+- 시장영향 우월성: 행 단위 paired bootstrap과 70개 거래일 cluster bootstrap을 각각 2,000회 계산하고, 보수적인 거래일 cluster macro F1 차이 구간이 0을 넘을 때만 주장한다.
+- 기본 공시 Codex Gold 600건: 모델 학습 전에 겹치는 원천 URL 401건을 제외해 post-filter 중복 0, 감성·중요도 accuracy와 macro F1 및 클래스별 지표를 함께 검증한다.
+- 보조 스트레스 Gold 310건: 기본 Gold·전문 원천과 URL 중복 0, 기본 Gold와 합친 910건에서 paired bootstrap 2,000회·exact McNemar·ECE·Brier를 검증한다.
+- 공시 중요도 입력 선택: 2026 Validation만 사용해 제목·제목+요약·전문 포함 뷰를 선택한다. 선택 모델 단독 기본 Gold는 accuracy 0.9850 / macro F1 0.9470, 코드북 floor 포함 910건은 0.9989 / 0.9962다.
 - 글로벌 피어: KIS 활성 일반주식 2,752건 중 2,752건 성공, 구조 계약 실패 0건
 - 외국인 보유 예측: 32종목 52,693개 샘플, persistence 대비 MAE 4.40% 개선, release `promoted`
 

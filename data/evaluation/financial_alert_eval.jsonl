@@ -40,9 +40,9 @@
 {"text": "삼성전자 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
@@ -79,9 +79,9 @@
 {"text": "반도체 투자 확대 정책으로 삼성전자 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "반도체 투자 확대 정책으로 삼성전자 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "반도체 투자 확대 정책으로 삼성전자 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
-{"text": "삼성전자 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
+{"text": "삼성전자 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
 {"text": "삼성전자 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005930", "stock_name": "삼성전자"}
@@ -136,9 +136,9 @@
 {"text": "SK하이닉스 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
@@ -175,9 +175,9 @@
 {"text": "메모리 투자 확대 정책으로 SK하이닉스 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "메모리 투자 확대 정책으로 SK하이닉스 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "메모리 투자 확대 정책으로 SK하이닉스 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
-{"text": "SK하이닉스 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
+{"text": "SK하이닉스 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
 {"text": "SK하이닉스 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "000660", "stock_name": "SK하이닉스"}
@@ -232,9 +232,9 @@
 {"text": "현대차 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
@@ -271,9 +271,9 @@
 {"text": "자동차 투자 확대 정책으로 현대차 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "자동차 투자 확대 정책으로 현대차 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "자동차 투자 확대 정책으로 현대차 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
-{"text": "현대차 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
+{"text": "현대차 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
 {"text": "현대차 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "005380", "stock_name": "현대차"}
@@ -328,9 +328,9 @@
 {"text": "NAVER 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
@@ -367,9 +367,9 @@
 {"text": "플랫폼 투자 확대 정책으로 NAVER 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "플랫폼 투자 확대 정책으로 NAVER 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "플랫폼 투자 확대 정책으로 NAVER 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
-{"text": "NAVER 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
+{"text": "NAVER 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
 {"text": "NAVER 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035420", "stock_name": "NAVER"}
@@ -424,9 +424,9 @@
 {"text": "카카오 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
@@ -463,9 +463,9 @@
 {"text": "인터넷 투자 확대 정책으로 카카오 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "인터넷 투자 확대 정책으로 카카오 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "인터넷 투자 확대 정책으로 카카오 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
-{"text": "카카오 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
+{"text": "카카오 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
 {"text": "카카오 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "035720", "stock_name": "카카오"}
@@ -520,9 +520,9 @@
 {"text": "삼성바이오로직스 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
@@ -559,9 +559,9 @@
 {"text": "바이오 투자 확대 정책으로 삼성바이오로직스 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "바이오 투자 확대 정책으로 삼성바이오로직스 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "바이오 투자 확대 정책으로 삼성바이오로직스 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
-{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
+{"text": "삼성바이오로직스 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
 {"text": "삼성바이오로직스 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "207940", "stock_name": "삼성바이오로직스"}
@@ -616,9 +616,9 @@
 {"text": "셀트리온 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
@@ -655,9 +655,9 @@
 {"text": "제약 투자 확대 정책으로 셀트리온 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "제약 투자 확대 정책으로 셀트리온 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "제약 투자 확대 정책으로 셀트리온 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
-{"text": "셀트리온 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
+{"text": "셀트리온 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
 {"text": "셀트리온 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "068270", "stock_name": "셀트리온"}
@@ -712,9 +712,9 @@
 {"text": "KB금융 감사의견 비적정 가능성으로 상장폐지 우려. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 감사의견 비적정 가능성으로 상장폐지 우려. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 감사의견 비적정 가능성으로 상장폐지 우려. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 거래정지 사유 발생 안내. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 거래정지 사유 발생 안내. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 거래정지 사유 발생 안내. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 사업보고서 제출 완료. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 사업보고서 제출 완료. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 사업보고서 제출 완료. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["DISCLOSURE"], "sentiment": "NEUTRAL", "importance": "LOW", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
@@ -751,9 +751,9 @@
 {"text": "금융 투자 확대 정책으로 KB금융 성장 기대. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "금융 투자 확대 정책으로 KB금융 성장 기대. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "금융 투자 확대 정책으로 KB금융 성장 기대. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["MACRO"], "sentiment": "POSITIVE", "importance": "MEDIUM", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
-{"text": "KB금융 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "CRITICAL", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 불성실공시법인 지정 예고. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 불성실공시법인 지정 예고. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
+{"text": "KB금융 불성실공시법인 지정 예고. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK", "DISCLOSURE"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "DISCLOSURE", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 주요 소송 패소로 충당부채 증가 가능성. 알림 대상은 보유자와 watchlist 등록자다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 주요 소송 패소로 충당부채 증가 가능성. 현지 투자자는 번역 제목과 요약으로 먼저 확인한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}
 {"text": "KB금융 주요 소송 패소로 충당부채 증가 가능성. 원문 링크와 제출 시각을 함께 제공한다.", "tags": ["RISK"], "sentiment": "NEGATIVE", "importance": "HIGH", "source_type": "NEWS", "stock_code": "105560", "stock_name": "KB금융"}

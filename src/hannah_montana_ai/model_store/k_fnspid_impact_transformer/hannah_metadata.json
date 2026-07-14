@@ -1,6 +1,6 @@
 {
   "schema_version": "k-fnspid-transformer-artifact/v1",
-  "version": "k-fnspid-impact-kf-deberta-lora-20260713094908",
+  "version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
   "base_model": "kakaobank/kf-deberta-base",
   "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
   "label_order": [
@@ -9,24 +9,48 @@
     "HIGH",
     "CRITICAL"
   ],
-  "max_length": 128,
-  "trained_at": "2026-07-13T09:49:08.856226+00:00",
+  "max_length": 256,
+  "trained_at": "2026-07-14T01:30:51.446089+00:00",
   "artifact_files": {
     "adapter_config.json": {
       "bytes": 1111,
-      "sha256": "8cd12292fc4ce22b5af53e0a8be06cc76af5b6a8abe4b2d827c5709d47842a8c"
+      "sha256": "89cac3091a1990a3a7c013875c945066cdc43fb584a8d2e3232704ee06ba2f10"
     },
     "adapter_model.safetensors": {
       "bytes": 5924696,
-      "sha256": "fbd177e29234c4646c5da5530aaf2246cbd689daa7b16d376e5a3bd2e7ae8461"
+      "sha256": "b04789a6112615a876842d5423ad0bd2a79671d7aaf95ab8e686470d5f08e2f5"
     },
     "tokenizer.json": {
       "bytes": 3192018,
-      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+      "sha256": "e1be54e29a04d7e61ed1435af0506f425dcc639d066d44ccb2b7c454c59ae957"
     },
     "tokenizer_config.json": {
-      "bytes": 452,
-      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 73,
+  "postprocessing": {
+    "method": "validation-selected-log-prior-correction/v1",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower strength",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.15000000000000002,
+    "training_class_priors": {
+      "LOW": 0.6287100536505715,
+      "MEDIUM": 0.2499276883601586,
+      "HIGH": 0.08087707021226966,
+      "CRITICAL": 0.040485187777000234
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.5052329749103943,
+      "macro_f1": 0.37879763042762105,
+      "quadratic_kappa": 0.45262179146090276
     }
   }
 }

@@ -34,8 +34,12 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
     peer_all_results = _load_json("reports/global-peer-all-results.json")
     sentiment = _load_json("reports/kf-deberta-sentiment-training-report.json")
     sentiment_benchmark = _load_json("reports/korean-finance-sentiment-benchmark.json")
+    disclosure_importance = _load_json("reports/disclosure-importance-training-report.json")
+    disclosure_research = _load_json("reports/disclosure-importance-research-evaluation.json")
     impact_baseline = _load_json("reports/k-fnspid-impact-training-report.json")
     impact_transformer = _load_json("reports/k-fnspid-transformer-training-report.json")
+    impact_multiseed = _load_json("reports/k-fnspid-transformer-multiseed-report.json")
+    impact_research = _load_json("reports/k-fnspid-research-evaluation.json")
 
     peer_gate_status = (
         "pass"
@@ -44,10 +48,19 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
         and peer_coverage["confidence_monitoring"]["status"] == "pass"
         else "conditional_pass"
     )
+    core_model_gates_passed = (
+        sentiment_benchmark["deployment_gate"]["eligible"]
+        and disclosure_importance["deployment_gate"]["eligible"]
+        and disclosure_research["research_gate"]["eligible_for_superiority_claim"]
+        and impact_transformer["deployment_gate"]["eligible"]
+        and impact_research["research_gate"]["eligible_for_superiority_claim"]
+    )
     audit = {
-        "schema_version": "hannah-ai-model-audit/v1",
+        "schema_version": "hannah-ai-model-audit/v2",
         "generated_at": datetime.now(UTC).isoformat(),
-        "overall_status": "pass" if peer_gate_status == "pass" else "conditional_pass",
+        "overall_status": (
+            "pass" if peer_gate_status == "pass" and core_model_gates_passed else "conditional_pass"
+        ),
         "models": [
             {
                 "name": "financial_news_disclosure_classifier",
@@ -58,9 +71,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                 "release_status": release["overall_status"],
                 "training_samples": release["training"]["supervised_sample_count"],
                 "evaluation": {
-                    "benchmark_event_macro_f1": _metric(
-                        release, "benchmark", "event_macro_f1"
-                    ),
+                    "benchmark_event_macro_f1": _metric(release, "benchmark", "event_macro_f1"),
                     "benchmark_sentiment_accuracy": _metric(
                         release, "benchmark", "sentiment_accuracy"
                     ),
@@ -70,9 +81,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "real_news_event_macro_f1": _metric(
                         release, "real_news_gold", "event_macro_f1"
                     ),
-                    "stock_review_event_macro_f1": ml_eval["stock_review_gold"][
-                        "event_macro_f1"
-                    ],
+                    "stock_review_event_macro_f1": ml_eval["stock_review_gold"]["event_macro_f1"],
                 },
                 "gate_status": "pass",
                 "remaining_risk": (
@@ -98,13 +107,41 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "operational_gold": sentiment_benchmark["operational_gold"],
                 },
                 "gate_status": (
-                    "pass"
-                    if sentiment_benchmark["deployment_gate"]["eligible"]
-                    else "fail"
+                    "pass" if sentiment_benchmark["deployment_gate"]["eligible"] else "fail"
                 ),
                 "remaining_risk": (
                     "공개 감성 데이터와 실제 운영 뉴스의 분포 차이는 지속적인 "
                     "시간 외삽 Gold로 감시한다."
+                ),
+            },
+            {
+                "name": "disclosure_semantic_importance_classifier",
+                "artifact": "src/hannah_montana_ai/model_store/disclosure_importance_ml.joblib",
+                "version": disclosure_importance["version"],
+                "model_type": (
+                    "Validation-selected title+snippet TF-IDF LogisticRegression "
+                    "+ terminal-risk policy"
+                ),
+                "serving_surface": "disclosure semantic importance analysis",
+                "release_status": disclosure_importance["deployment_gate"]["decision"],
+                "training_samples": disclosure_importance["partition_count"]["FINAL_TRAIN"],
+                "evaluation": {
+                    "feature_selection": disclosure_importance["feature_selection"],
+                    "model_only_gold": disclosure_importance["gold_test"],
+                    "operational_gold": disclosure_research["candidate"],
+                    "baseline_operational_gold": disclosure_research["baseline"],
+                    "paired_bootstrap": disclosure_research["paired_bootstrap"],
+                    "mcnemar_exact": disclosure_research["mcnemar_exact"],
+                },
+                "gate_status": (
+                    "pass"
+                    if disclosure_importance["deployment_gate"]["eligible"]
+                    and disclosure_research["research_gate"]["eligible_for_superiority_claim"]
+                    else "fail"
+                ),
+                "remaining_risk": (
+                    "Gold는 동일 코드북의 Codex 단일 검수이므로 독립 금융 전문가 "
+                    "평가자 간 일치도를 대신하지 않는다."
                 ),
             },
             {
@@ -124,15 +161,22 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     if impact_transformer["deployment_gate"]["eligible"]
                     else "TF-IDF char n-gram + class-balanced OVR LogisticRegression"
                 ),
-                "serving_surface": "news/disclosure importance analysis",
+                "serving_surface": "separate news/disclosure market-impact fields",
                 "release_status": impact_transformer["deployment_gate"]["decision"],
                 "training_samples": impact_baseline["final_training_count"],
                 "evaluation": {
                     "baseline_test": impact_baseline["test"],
                     "transformer_validation": impact_transformer["validation"],
                     "transformer_test": impact_transformer["test"],
+                    "multiseed": impact_multiseed,
+                    "research": impact_research,
                 },
-                "gate_status": "pass",
+                "gate_status": (
+                    "pass"
+                    if impact_transformer["deployment_gate"]["eligible"]
+                    and impact_research["research_gate"]["eligible_for_superiority_claim"]
+                    else "fail"
+                ),
                 "remaining_risk": (
                     "텍스트만으로 가격 충격을 예측하므로 단독 투자 신호가 아니라 "
                     "의미 기반 중요도의 보조 신호로만 사용한다."
@@ -153,8 +197,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
             {
                 "name": "foreign_owned_quantity_forecaster",
                 "artifact": (
-                    "src/hannah_montana_ai/model_store/"
-                    "foreign_ownership_quantity_ml.joblib"
+                    "src/hannah_montana_ai/model_store/foreign_ownership_quantity_ml.joblib"
                 ),
                 "version": foreign["model_version"],
                 "model_type": "stock-routed panel time-series ML ensemble",
@@ -193,9 +236,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                         "actual_success_ratio"
                     ],
                     "full_coverage_quality_gate": peer_coverage["quality_gate"]["status"],
-                    "all_results_quality_status": peer_all_results["performance"][
-                        "quality_status"
-                    ],
+                    "all_results_quality_status": peer_all_results["performance"]["quality_status"],
                     "confidence_monitoring": peer_coverage["confidence_monitoring"],
                     "smoke_sample_count": peer_smoke["sample_count"],
                 },
@@ -206,7 +247,11 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                 ),
             },
         ],
-        "required_next_improvements": [],
+        "required_next_improvements": [
+            "공시 의미 중요도 Gold를 독립 금융 전문가 2인 이상으로 재주석하고 합의도를 보고한다.",
+            "장중 시세와 과거 가격 문맥을 분리된 후속 실험에 추가해 "
+            "텍스트 단독 시장영향 한계를 검증한다.",
+        ],
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n")

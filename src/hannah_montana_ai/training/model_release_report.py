@@ -67,7 +67,9 @@ def build_model_release_report(
         "data_lineage": {
             "training_sources": training_report["training_sources"],
             "weak_label_source": distillation_report.get("source_path"),
-            "committed_data_policy": "raw_and_processed_training_data_are_tracked",
+            "committed_data_policy": (
+                "raw_training_data_is_tracked_and_processed_weak_labels_are_reproducible"
+            ),
             "full_content_training": training_report.get("full_content_training", {}),
             "sentiment_importance_training": training_report.get(
                 "sentiment_importance_training",

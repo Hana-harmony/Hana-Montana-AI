@@ -5,6 +5,52 @@ from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 
 
+def test_disclosure_importance_follows_v3_codebook() -> None:
+    engine = FinancialRuleEngine()
+
+    assert engine.classify_importance("회생절차개시신청", "DISCLOSURE") == "CRITICAL"
+    assert engine.classify_importance("출자법인 부도발생", "DISCLOSURE") == "CRITICAL"
+    assert engine.classify_importance("채권자 파산신청", "DISCLOSURE") == "CRITICAL"
+    assert engine.classify_importance("불성실공시법인 지정 예고", "DISCLOSURE") == "HIGH"
+    assert engine.classify_importance("주권매매거래정지", "DISCLOSURE") == "HIGH"
+    assert (
+        engine.classify_importance("상장폐지 사유로 주권매매거래정지", "DISCLOSURE")
+        == "CRITICAL"
+    )
+
+
+def test_disclosure_event_tags_follow_v3_codebook() -> None:
+    analyzer = AlertAnalyzer()
+
+    assert analyzer._augment_event_tags(
+        "매출액또는손익구조30%이상변동",
+        "DISCLOSURE",
+        ["RISK"],
+    ) == ["DISCLOSURE", "EARNINGS"]
+    assert analyzer._augment_event_tags(
+        "주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경)",
+        "DISCLOSURE",
+        ["GENERAL_MARKET"],
+    ) == ["DISCLOSURE", "RISK"]
+
+
+def test_stock_name_containing_research_is_not_treated_as_attribution() -> None:
+    analyzer = AlertAnalyzer()
+    stock = StockCandidate(
+        stock_code="359090",
+        stock_name="씨엔알리서치",
+        stock_name_en="C&R Research",
+    )
+
+    match = analyzer._match_primary_stock_from_request_or_internal(
+        "씨엔알리서치 주권매매거래정지",
+        "씨엔알리서치 주권매매거래정지",
+        [stock],
+    )
+
+    assert match.stock == stock
+
+
 def test_summary_ignores_news_site_navigation_noise() -> None:
     engine = FinancialRuleEngine()
     content = (

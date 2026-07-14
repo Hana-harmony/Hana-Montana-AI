@@ -1,0 +1,113 @@
+{
+  "schema_version": "k-fnspid-baseline-ablation/v1",
+  "dataset_dir": "data/k_fnspid/v3",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v3/manifest.json",
+    "dataset_version": "k-fnspid-v3",
+    "bytes": 9280,
+    "sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df"
+  },
+  "protocol": "same TRAIN fit and frozen time TEST; no Test-based selection",
+  "runs": {
+    "full_context_with_source": {
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.4626523297491039,
+        "macro_f1": 0.3490499797688153,
+        "quadratic_kappa": 0.3331793571739069
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.4642790697674419,
+        "macro_f1": 0.34289600363077616,
+        "quadratic_kappa": 0.31405511670470976
+      },
+      "reused_report": "reports/k-fnspid-impact-training-report.json"
+    },
+    "full_context_without_source": {
+      "options": {
+        "include_full_text": true,
+        "include_source_prefix": false
+      },
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.46236559139784944,
+        "macro_f1": 0.3482877481158212,
+        "quadratic_kappa": 0.33073798403411103
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.4631627906976744,
+        "macro_f1": 0.34274874015301854,
+        "quadratic_kappa": 0.31269821350031146
+      },
+      "elapsed_seconds": 86.119269
+    },
+    "title_snippet_with_source": {
+      "options": {
+        "include_full_text": false,
+        "include_source_prefix": true
+      },
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.46810035842293907,
+        "macro_f1": 0.352650605799109,
+        "quadratic_kappa": 0.33202022567310396
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.46893023255813954,
+        "macro_f1": 0.3505443859090849,
+        "quadratic_kappa": 0.3271212775392617
+      },
+      "elapsed_seconds": 57.640943
+    }
+  },
+  "learning_curve": {
+    "20000": {
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.4754121863799283,
+        "macro_f1": 0.33859307799564525,
+        "quadratic_kappa": 0.30982429763331
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.4801860465116279,
+        "macro_f1": 0.32601226652958193,
+        "quadratic_kappa": 0.28904042033520094
+      },
+      "elapsed_seconds": 21.861414
+    },
+    "50000": {
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.465663082437276,
+        "macro_f1": 0.33975838026285915,
+        "quadratic_kappa": 0.3095809668794035
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.4756279069767442,
+        "macro_f1": 0.3445626521555556,
+        "quadratic_kappa": 0.3225160661539449
+      },
+      "elapsed_seconds": 41.957164
+    },
+    "107175": {
+      "validation": {
+        "sample_count": 6975,
+        "accuracy": 0.4626523297491039,
+        "macro_f1": 0.3490499797688153,
+        "quadratic_kappa": 0.3331793571739069
+      },
+      "test": {
+        "sample_count": 10750,
+        "accuracy": 0.4642790697674419,
+        "macro_f1": 0.34289600363077616,
+        "quadratic_kappa": 0.31405511670470976
+      },
+      "reused_report": "reports/k-fnspid-impact-training-report.json"
+    }
+  }
+}

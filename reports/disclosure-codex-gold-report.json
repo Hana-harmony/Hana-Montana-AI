@@ -1,0 +1,49 @@
+{
+  "schema_version": "disclosure-codex-gold/v2",
+  "dataset_path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+  "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c",
+  "reviewer_id": "codex-financial-review-v2",
+  "annotation_protocol": "disclosure-title-codebook-v2",
+  "sample_count": 600,
+  "quota": {
+    "LOW": 250,
+    "MEDIUM": 34,
+    "HIGH": 287,
+    "CRITICAL": 29
+  },
+  "importance_distribution": {
+    "CRITICAL": 29,
+    "HIGH": 287,
+    "LOW": 250,
+    "MEDIUM": 34
+  },
+  "sentiment_distribution": {
+    "NEGATIVE": 55,
+    "NEUTRAL": 475,
+    "POSITIVE": 70
+  },
+  "event_distribution": {
+    "CAPITAL_ACTION": 150,
+    "CORPORATE_ACTION": 71,
+    "EARNINGS": 40,
+    "RISK": 55
+  },
+  "year_distribution": {
+    "2023": 130,
+    "2024": 157,
+    "2025": 147,
+    "2026": 166
+  },
+  "market_distribution": {
+    "KONEX": 17,
+    "KOSDAQ": 361,
+    "KOSPI": 222
+  },
+  "stock_count": 480,
+  "training_url_overlap_count": 0,
+  "status": "pass",
+  "limitations": [
+    "엄격한 제목 코드북으로 판정 가능한 공시만 포함한다.",
+    "단일 Codex 검수이므로 독립 인간 평가자 간 합의도를 대신하지 않는다."
+  ]
+}

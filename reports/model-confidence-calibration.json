@@ -1,6 +1,6 @@
 {
   "schema_version": "model-confidence-calibration/v1",
-  "model_version": "financial-ml-tfidf-logreg-20260622090407",
+  "model_version": "financial-ml-tfidf-logreg-20260714023257",
   "model_path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
   "bin_count": 10,
   "high_confidence_threshold": 0.85,
@@ -9,70 +9,70 @@
       "sample_count": 768,
       "event_tags": {
         "decision_count": 6144,
-        "brier_score": 0.01309,
-        "expected_calibration_error": 0.074827,
+        "brier_score": 0.012986,
+        "expected_calibration_error": 0.075846,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.005744,
-            "expected_calibration_error": 0.06645,
+            "brier_score": 0.005111,
+            "expected_calibration_error": 0.064826,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CONTRACT": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.009213,
-            "expected_calibration_error": 0.079671,
+            "brier_score": 0.009339,
+            "expected_calibration_error": 0.079661,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 768,
             "positive_count": 96,
-            "brier_score": 0.026693,
-            "expected_calibration_error": 0.097076,
+            "brier_score": 0.025496,
+            "expected_calibration_error": 0.099028,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 768,
             "positive_count": 312,
-            "brier_score": 0.004112,
-            "expected_calibration_error": 0.044622,
+            "brier_score": 0.00393,
+            "expected_calibration_error": 0.04323,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
             "decision_count": 768,
             "positive_count": 120,
-            "brier_score": 0.01997,
-            "expected_calibration_error": 0.093539,
+            "brier_score": 0.019731,
+            "expected_calibration_error": 0.095889,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "GENERAL_MARKET": {
             "decision_count": 768,
             "positive_count": 72,
-            "brier_score": 0.004688,
-            "expected_calibration_error": 0.048462,
+            "brier_score": 0.004701,
+            "expected_calibration_error": 0.048355,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 768,
             "positive_count": 144,
-            "brier_score": 0.010199,
-            "expected_calibration_error": 0.057123,
+            "brier_score": 0.011486,
+            "expected_calibration_error": 0.05793,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
             "decision_count": 768,
             "positive_count": 168,
-            "brier_score": 0.024104,
-            "expected_calibration_error": 0.121185,
+            "brier_score": 0.024096,
+            "expected_calibration_error": 0.120992,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           }
@@ -90,113 +90,564 @@
       },
       "importance": {
         "sample_count": 768,
-        "accuracy": 0.9375,
-        "average_top_confidence": 0.808565,
-        "top_confidence_ece": 0.129593,
-        "multiclass_brier_score": 0.115381,
+        "accuracy": 0.938802,
+        "average_top_confidence": 0.799447,
+        "top_confidence_ece": 0.14637,
+        "multiclass_brier_score": 0.124755,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       }
     },
     "real_disclosure_gold": {
-      "sample_count": 30,
+      "sample_count": 600,
       "event_tags": {
-        "decision_count": 240,
-        "brier_score": 0.004454,
-        "expected_calibration_error": 0.040905,
+        "decision_count": 4800,
+        "brier_score": 0.029674,
+        "expected_calibration_error": 0.053809,
         "labels": {
           "CAPITAL_ACTION": {
-            "decision_count": 30,
-            "positive_count": 8,
-            "brier_score": 0.003505,
-            "expected_calibration_error": 0.048375,
-            "high_confidence_false_positive_count": 0,
-            "high_confidence_false_negative_count": 0
+            "decision_count": 600,
+            "positive_count": 150,
+            "brier_score": 0.073312,
+            "expected_calibration_error": 0.118026,
+            "high_confidence_false_positive_count": 2,
+            "high_confidence_false_negative_count": 9
           },
           "CONTRACT": {
-            "decision_count": 30,
-            "positive_count": 3,
-            "brier_score": 0.003535,
-            "expected_calibration_error": 0.050668,
+            "decision_count": 600,
+            "positive_count": 0,
+            "brier_score": 0.007227,
+            "expected_calibration_error": 0.078181,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
-            "decision_count": 30,
-            "positive_count": 6,
-            "brier_score": 0.005491,
-            "expected_calibration_error": 0.057539,
+            "decision_count": 600,
+            "positive_count": 71,
+            "brier_score": 0.012322,
+            "expected_calibration_error": 0.091688,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
-            "decision_count": 30,
-            "positive_count": 30,
-            "brier_score": 0.001137,
-            "expected_calibration_error": 0.020507,
+            "decision_count": 600,
+            "positive_count": 600,
+            "brier_score": 0.004198,
+            "expected_calibration_error": 0.039156,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
-            "decision_count": 30,
-            "positive_count": 0,
-            "brier_score": 0.001043,
-            "expected_calibration_error": 0.027143,
+            "decision_count": 600,
+            "positive_count": 40,
+            "brier_score": 0.054339,
+            "expected_calibration_error": 0.059574,
             "high_confidence_false_positive_count": 0,
-            "high_confidence_false_negative_count": 0
+            "high_confidence_false_negative_count": 40
           },
           "GENERAL_MARKET": {
-            "decision_count": 30,
+            "decision_count": 600,
             "positive_count": 0,
-            "brier_score": 0.000404,
-            "expected_calibration_error": 0.017751,
+            "brier_score": 0.000694,
+            "expected_calibration_error": 0.024112,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
-            "decision_count": 30,
+            "decision_count": 600,
             "positive_count": 0,
-            "brier_score": 0.000171,
-            "expected_calibration_error": 0.011626,
+            "brier_score": 0.000312,
+            "expected_calibration_error": 0.015626,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
-            "decision_count": 30,
-            "positive_count": 7,
-            "brier_score": 0.020347,
-            "expected_calibration_error": 0.093633,
-            "high_confidence_false_positive_count": 0,
-            "high_confidence_false_negative_count": 0
+            "decision_count": 600,
+            "positive_count": 55,
+            "brier_score": 0.084984,
+            "expected_calibration_error": 0.147179,
+            "high_confidence_false_positive_count": 11,
+            "high_confidence_false_negative_count": 3
           }
         },
-        "high_confidence_errors": []
+        "high_confidence_errors": [
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "RISK",
+            "probability": 0.024759,
+            "expected_tags": [
+              "RISK",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "000300",
+            "stock_name": "DH오토넥스",
+            "text": "DH오토넥스 [기재정정]주요사항보고서(부도발생)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "RISK",
+            "probability": 0.026869,
+            "expected_tags": [
+              "RISK",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "000300",
+            "stock_name": "DH오토넥스",
+            "text": "DH오토넥스 주요사항보고서(부도발생)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.085845,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "039020",
+            "stock_name": "이건홀딩스",
+            "text": "이건홀딩스 매출액또는손익구조30%(대규모법인은15%)이상변동(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.913302,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "138930",
+            "stock_name": "BNK금융지주",
+            "text": "BNK금융지주 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.088611,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "034810",
+            "stock_name": "해성산업",
+            "text": "해성산업 매출액또는손익구조30%(대규모법인은15%)이상변경(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.910399,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "006120",
+            "stock_name": "SK디스커버리",
+            "text": "SK디스커버리 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.091491,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "037760",
+            "stock_name": "쎄니트",
+            "text": "쎄니트 [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변동"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.092006,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "476060",
+            "stock_name": "온코닉테라퓨틱스",
+            "text": "온코닉테라퓨틱스 [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변동"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.092664,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "010770",
+            "stock_name": "평화홀딩스",
+            "text": "평화홀딩스 매출액또는손익구조30%(대규모법인은15%)이상변경(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.093162,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "195500",
+            "stock_name": "마니커에프앤지",
+            "text": "마니커에프앤지 [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변동"
+          },
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.90564,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "107590",
+            "stock_name": "미원홀딩스",
+            "text": "미원홀딩스 현금ㆍ현물배당을위한주주명부폐쇄(기준일)결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.094371,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "068790",
+            "stock_name": "DMS",
+            "text": "DMS [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변동"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.094589,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "004770",
+            "stock_name": "써니전자",
+            "text": "써니전자 [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변경"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.094754,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "011170",
+            "stock_name": "롯데케미칼",
+            "text": "롯데케미칼 [기재정정]매출액또는손익구조30%(대규모법인은15%)이상변경"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.095936,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "096770",
+            "stock_name": "SK이노베이션",
+            "text": "SK이노베이션 매출액또는손익구조30%(대규모법인은15%)이상변경(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "EARNINGS",
+            "probability": 0.096059,
+            "expected_tags": [
+              "EARNINGS",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "096760",
+            "stock_name": "JW홀딩스",
+            "text": "JW홀딩스 매출액또는손익구조30%(대규모법인은15%)이상변경(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.901607,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "006040",
+            "stock_name": "동원산업",
+            "text": "동원산업 현금ㆍ현물배당을위한주주명부폐쇄(기준일)결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "CAPITAL_ACTION",
+            "probability": 0.101353,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "006120",
+            "stock_name": "SK디스커버리",
+            "text": "SK디스커버리 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_positive",
+            "label": "RISK",
+            "probability": 0.898513,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "004990",
+            "stock_name": "롯데지주",
+            "text": "롯데지주 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
+            "label": "CAPITAL_ACTION",
+            "probability": 0.104963,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "044820",
+            "stock_name": "코스맥스비티아이",
+            "text": "코스맥스비티아이 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          }
+        ]
       },
       "sentiment": {
-        "sample_count": 30,
-        "accuracy": 1.0,
-        "average_top_confidence": 0.908769,
-        "top_confidence_ece": 0.091231,
-        "multiclass_brier_score": 0.031461,
-        "high_confidence_error_count": 0,
-        "high_confidence_errors": []
+        "sample_count": 600,
+        "accuracy": 0.918333,
+        "average_top_confidence": 0.808314,
+        "top_confidence_ece": 0.120943,
+        "multiclass_brier_score": 0.161246,
+        "high_confidence_error_count": 2,
+        "high_confidence_errors": [
+          {
+            "expected_label": "NEGATIVE",
+            "predicted_label": "NEUTRAL",
+            "confidence": 0.952764,
+            "source_type": "DISCLOSURE",
+            "stock_code": "000300",
+            "stock_name": "DH오토넥스",
+            "text": "DH오토넥스 주요사항보고서(부도발생)"
+          },
+          {
+            "expected_label": "NEGATIVE",
+            "predicted_label": "NEUTRAL",
+            "confidence": 0.921649,
+            "source_type": "DISCLOSURE",
+            "stock_code": "000300",
+            "stock_name": "DH오토넥스",
+            "text": "DH오토넥스 [기재정정]주요사항보고서(부도발생)"
+          }
+        ]
       },
       "importance": {
-        "sample_count": 30,
-        "accuracy": 0.966667,
-        "average_top_confidence": 0.911684,
-        "top_confidence_ece": 0.054982,
-        "multiclass_brier_score": 0.09103,
-        "high_confidence_error_count": 1,
+        "sample_count": 600,
+        "accuracy": 0.725,
+        "average_top_confidence": 0.855613,
+        "top_confidence_ece": 0.130613,
+        "multiclass_brier_score": 0.366655,
+        "high_confidence_error_count": 27,
         "high_confidence_errors": [
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.99379,
+            "source_type": "DISCLOSURE",
+            "stock_code": "243870",
+            "stock_name": "아이티센코어",
+            "text": "아이티센코어 임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.993682,
+            "source_type": "DISCLOSURE",
+            "stock_code": "036690",
+            "stock_name": "코맥스",
+            "text": "코맥스 임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.993636,
+            "source_type": "DISCLOSURE",
+            "stock_code": "148250",
+            "stock_name": "알엔투테크놀로지",
+            "text": "알엔투테크놀로지 임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.991821,
+            "source_type": "DISCLOSURE",
+            "stock_code": "090710",
+            "stock_name": "휴림로봇",
+            "text": "휴림로봇 임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.989397,
+            "source_type": "DISCLOSURE",
+            "stock_code": "066790",
+            "stock_name": "씨씨에스",
+            "text": "씨씨에스 [기재정정]임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.989021,
+            "source_type": "DISCLOSURE",
+            "stock_code": "110020",
+            "stock_name": "전진바이오팜",
+            "text": "전진바이오팜 [기재정정]임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.988819,
+            "source_type": "DISCLOSURE",
+            "stock_code": "069540",
+            "stock_name": "빛과전자",
+            "text": "빛과전자 [기재정정]임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.98757,
+            "source_type": "DISCLOSURE",
+            "stock_code": "036120",
+            "stock_name": "서울평가정보",
+            "text": "서울평가정보 [기재정정]임시주주총회결과"
+          },
+          {
+            "expected_label": "MEDIUM",
+            "predicted_label": "LOW",
+            "confidence": 0.985037,
+            "source_type": "DISCLOSURE",
+            "stock_code": "419530",
+            "stock_name": "SAMG엔터",
+            "text": "SAMG엔터 [기재정정]정기주주총회결과"
+          },
           {
             "expected_label": "HIGH",
             "predicted_label": "CRITICAL",
-            "confidence": 0.91287,
+            "confidence": 0.90725,
             "source_type": "DISCLOSURE",
-            "stock_code": "005680",
-            "stock_name": "삼영전자공업",
-            "text": "삼영전자공업 소송등의제기ㆍ신청(경영권분쟁소송)"
+            "stock_code": "093510",
+            "stock_name": "엔지브이아이",
+            "text": "엔지브이아이 주권매매거래정지해제"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.87471,
+            "source_type": "DISCLOSURE",
+            "stock_code": "356890",
+            "stock_name": "싸이버원",
+            "text": "싸이버원 주권매매거래정지해제 (액면분할 주권 변경상장)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.860694,
+            "source_type": "DISCLOSURE",
+            "stock_code": "049120",
+            "stock_name": "파인디앤씨",
+            "text": "파인디앤씨 주권매매거래정지해제 (액면병합 주권 변경상장)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.856305,
+            "source_type": "DISCLOSURE",
+            "stock_code": "331520",
+            "stock_name": "밸로프",
+            "text": "밸로프 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
+          },
+          {
+            "expected_label": "CRITICAL",
+            "predicted_label": "LOW",
+            "confidence": 0.85597,
+            "source_type": "DISCLOSURE",
+            "stock_code": "269620",
+            "stock_name": "시스웍",
+            "text": "시스웍 회생절차폐지신청"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.855725,
+            "source_type": "DISCLOSURE",
+            "stock_code": "196490",
+            "stock_name": "디에이테크놀로지",
+            "text": "디에이테크놀로지 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.855247,
+            "source_type": "DISCLOSURE",
+            "stock_code": "096630",
+            "stock_name": "에스코넥",
+            "text": "에스코넥 주권매매거래정지해제 (액면병합 주권 변경상장)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.855158,
+            "source_type": "DISCLOSURE",
+            "stock_code": "044480",
+            "stock_name": "빌리언스",
+            "text": "빌리언스 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.855052,
+            "source_type": "DISCLOSURE",
+            "stock_code": "290690",
+            "stock_name": "소룩스",
+            "text": "소룩스 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.853728,
+            "source_type": "DISCLOSURE",
+            "stock_code": "021880",
+            "stock_name": "메이슨캐피탈",
+            "text": "메이슨캐피탈 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
+          },
+          {
+            "expected_label": "HIGH",
+            "predicted_label": "CRITICAL",
+            "confidence": 0.852752,
+            "source_type": "DISCLOSURE",
+            "stock_code": "359090",
+            "stock_name": "씨엔알리서치",
+            "text": "씨엔알리서치 주권매매거래정지 (주식의 병합, 분할 등 전자등록 변경, 말소)"
           }
         ]
       }
@@ -205,70 +656,70 @@
       "sample_count": 80,
       "event_tags": {
         "decision_count": 640,
-        "brier_score": 0.041011,
-        "expected_calibration_error": 0.117664,
+        "brier_score": 0.041496,
+        "expected_calibration_error": 0.115492,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 80,
             "positive_count": 15,
-            "brier_score": 0.02011,
-            "expected_calibration_error": 0.114771,
+            "brier_score": 0.018334,
+            "expected_calibration_error": 0.114663,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CONTRACT": {
             "decision_count": 80,
             "positive_count": 8,
-            "brier_score": 0.035866,
-            "expected_calibration_error": 0.174375,
+            "brier_score": 0.040342,
+            "expected_calibration_error": 0.184202,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 80,
             "positive_count": 10,
-            "brier_score": 0.041107,
-            "expected_calibration_error": 0.113649,
+            "brier_score": 0.04333,
+            "expected_calibration_error": 0.125209,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 80,
             "positive_count": 0,
-            "brier_score": 0.001125,
-            "expected_calibration_error": 0.03237,
+            "brier_score": 0.001001,
+            "expected_calibration_error": 0.030652,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "EARNINGS": {
             "decision_count": 80,
             "positive_count": 20,
-            "brier_score": 0.067437,
-            "expected_calibration_error": 0.144325,
+            "brier_score": 0.066634,
+            "expected_calibration_error": 0.152629,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "GENERAL_MARKET": {
             "decision_count": 80,
             "positive_count": 17,
-            "brier_score": 0.039021,
-            "expected_calibration_error": 0.119622,
+            "brier_score": 0.039184,
+            "expected_calibration_error": 0.116658,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 80,
             "positive_count": 13,
-            "brier_score": 0.043529,
-            "expected_calibration_error": 0.101481,
+            "brier_score": 0.043196,
+            "expected_calibration_error": 0.109481,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "RISK": {
             "decision_count": 80,
             "positive_count": 24,
-            "brier_score": 0.079892,
-            "expected_calibration_error": 0.20957,
+            "brier_score": 0.079946,
+            "expected_calibration_error": 0.206889,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           }
@@ -286,10 +737,10 @@
       },
       "importance": {
         "sample_count": 80,
-        "accuracy": 0.925,
-        "average_top_confidence": 0.705532,
-        "top_confidence_ece": 0.219468,
-        "multiclass_brier_score": 0.21479,
+        "accuracy": 0.9125,
+        "average_top_confidence": 0.706677,
+        "top_confidence_ece": 0.205823,
+        "multiclass_brier_score": 0.213747,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       }
@@ -298,70 +749,70 @@
       "sample_count": 500,
       "event_tags": {
         "decision_count": 4000,
-        "brier_score": 0.042473,
-        "expected_calibration_error": 0.08775,
+        "brier_score": 0.041749,
+        "expected_calibration_error": 0.085579,
         "labels": {
           "CAPITAL_ACTION": {
             "decision_count": 500,
             "positive_count": 181,
-            "brier_score": 0.064586,
-            "expected_calibration_error": 0.157999,
+            "brier_score": 0.05756,
+            "expected_calibration_error": 0.137769,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 1
           },
           "CONTRACT": {
             "decision_count": 500,
             "positive_count": 181,
-            "brier_score": 0.060505,
-            "expected_calibration_error": 0.164805,
+            "brier_score": 0.064818,
+            "expected_calibration_error": 0.170778,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "CORPORATE_ACTION": {
             "decision_count": 500,
             "positive_count": 61,
-            "brier_score": 0.056232,
-            "expected_calibration_error": 0.099415,
+            "brier_score": 0.052878,
+            "expected_calibration_error": 0.113968,
             "high_confidence_false_positive_count": 0,
-            "high_confidence_false_negative_count": 2
+            "high_confidence_false_negative_count": 0
           },
           "DISCLOSURE": {
             "decision_count": 500,
             "positive_count": 103,
-            "brier_score": 0.004238,
-            "expected_calibration_error": 0.036427,
+            "brier_score": 0.00446,
+            "expected_calibration_error": 0.035146,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 1
           },
           "EARNINGS": {
             "decision_count": 500,
             "positive_count": 30,
-            "brier_score": 0.023415,
-            "expected_calibration_error": 0.083268,
+            "brier_score": 0.02288,
+            "expected_calibration_error": 0.078135,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 1
           },
           "GENERAL_MARKET": {
             "decision_count": 500,
             "positive_count": 19,
-            "brier_score": 0.018318,
-            "expected_calibration_error": 0.079186,
+            "brier_score": 0.018665,
+            "expected_calibration_error": 0.075757,
             "high_confidence_false_positive_count": 0,
             "high_confidence_false_negative_count": 0
           },
           "MACRO": {
             "decision_count": 500,
             "positive_count": 23,
-            "brier_score": 0.022728,
-            "expected_calibration_error": 0.068782,
+            "brier_score": 0.023842,
+            "expected_calibration_error": 0.060897,
             "high_confidence_false_positive_count": 0,
-            "high_confidence_false_negative_count": 2
+            "high_confidence_false_negative_count": 3
           },
           "RISK": {
             "decision_count": 500,
             "positive_count": 197,
-            "brier_score": 0.089761,
-            "expected_calibration_error": 0.180116,
+            "brier_score": 0.088889,
+            "expected_calibration_error": 0.204818,
             "high_confidence_false_positive_count": 1,
             "high_confidence_false_negative_count": 0
           }
@@ -370,7 +821,7 @@
           {
             "error_type": "high_confidence_false_positive",
             "label": "RISK",
-            "probability": 0.954245,
+            "probability": 0.940025,
             "expected_tags": [
               "CAPITAL_ACTION",
               "DISCLOSURE"
@@ -383,7 +834,7 @@
           {
             "error_type": "high_confidence_false_negative",
             "label": "DISCLOSURE",
-            "probability": 0.077927,
+            "probability": 0.064676,
             "expected_tags": [
               "CAPITAL_ACTION",
               "DISCLOSURE"
@@ -395,21 +846,8 @@
           },
           {
             "error_type": "high_confidence_false_negative",
-            "label": "CAPITAL_ACTION",
-            "probability": 0.091178,
-            "expected_tags": [
-              "CAPITAL_ACTION",
-              "DISCLOSURE"
-            ],
-            "source_type": "DISCLOSURE",
-            "stock_code": "000070",
-            "stock_name": "삼양홀딩스",
-            "text": "삼양홀딩스 현금ㆍ현물배당결정(자회사의 주요경영사항) 현금ㆍ현물배당결정(자회사의 주요경영사항)"
-          },
-          {
-            "error_type": "high_confidence_false_negative",
             "label": "MACRO",
-            "probability": 0.096926,
+            "probability": 0.081698,
             "expected_tags": [
               "CAPITAL_ACTION",
               "MACRO"
@@ -421,8 +859,21 @@
           },
           {
             "error_type": "high_confidence_false_negative",
+            "label": "CAPITAL_ACTION",
+            "probability": 0.088155,
+            "expected_tags": [
+              "CAPITAL_ACTION",
+              "DISCLOSURE"
+            ],
+            "source_type": "DISCLOSURE",
+            "stock_code": "000070",
+            "stock_name": "삼양홀딩스",
+            "text": "삼양홀딩스 현금ㆍ현물배당결정(자회사의 주요경영사항) 현금ㆍ현물배당결정(자회사의 주요경영사항)"
+          },
+          {
+            "error_type": "high_confidence_false_negative",
             "label": "EARNINGS",
-            "probability": 0.10251,
+            "probability": 0.106315,
             "expected_tags": [
               "EARNINGS",
               "RISK"
@@ -434,21 +885,8 @@
           },
           {
             "error_type": "high_confidence_false_negative",
-            "label": "CORPORATE_ACTION",
-            "probability": 0.127745,
-            "expected_tags": [
-              "CAPITAL_ACTION",
-              "CORPORATE_ACTION"
-            ],
-            "source_type": "NEWS",
-            "stock_code": "052510",
-            "stock_name": "에코솔루션",
-            "text": "사모펀드 한앤컴퍼니, 10년 보유한 ‘쌍용C&amp;E’ 언제쯤 엑시트 할까 이후 유상증자 참여와 추가 지분 매입 등을 통해 총 약 1조4000억원을 투입하며 지분을 확보했다. 쌍용C&amp;E는... 그린 에코솔루션 등을 통해 폐기물 처리 사업을 확대하며 업계 1위를 유지해 왔다. 올해로 인수 10년째를..."
-          },
-          {
-            "error_type": "high_confidence_false_negative",
             "label": "MACRO",
-            "probability": 0.137239,
+            "probability": 0.126704,
             "expected_tags": [
               "CONTRACT",
               "GENERAL_MARKET",
@@ -461,16 +899,17 @@
           },
           {
             "error_type": "high_confidence_false_negative",
-            "label": "CORPORATE_ACTION",
-            "probability": 0.146009,
+            "label": "MACRO",
+            "probability": 0.142875,
             "expected_tags": [
-              "CAPITAL_ACTION",
-              "CORPORATE_ACTION"
+              "CONTRACT",
+              "GENERAL_MARKET",
+              "MACRO"
             ],
             "source_type": "NEWS",
-            "stock_code": "079440",
-            "stock_name": "오렌지라이프생명보험",
-            "text": "KDB 생명 차기 대표에 김병철 수석부사장 내정 채널전략부문장-상무, 오렌지라이프생명보험 부문장-전무, AIA 생명보험 대면채널본부 본부장... 누적된 재무구조 악화로 최대주주인 산업은행은 지난해 12월 KDB 생명 을 대상으로 5000억원 규모 유상증자 에 나서기도..."
+            "stock_code": "030960",
+            "stock_name": "양지사",
+            "text": "양지사 ·NXT 장중 급등…개별 호재 없이 거래량 폭증하며 단기 수급 장세 특히 양지사 와 NXT 모두 최근 수주 ·실적 관련 공시는 없는 상태여서 외부 요인보다는 단기 모멘텀 중심의 강한 수급 영향이 주가를 끌어올린 것으로 분석된다. 시장에서는 &quot;특정 세력의 단기 매수 혹은 테마성 순환매가..."
           }
         ]
       },
@@ -485,10 +924,10 @@
       },
       "importance": {
         "sample_count": 500,
-        "accuracy": 0.982,
-        "average_top_confidence": 0.71478,
-        "top_confidence_ece": 0.26722,
-        "multiclass_brier_score": 0.175647,
+        "accuracy": 0.958,
+        "average_top_confidence": 0.708086,
+        "top_confidence_ece": 0.249914,
+        "multiclass_brier_score": 0.194802,
         "high_confidence_error_count": 0,
         "high_confidence_errors": []
       }

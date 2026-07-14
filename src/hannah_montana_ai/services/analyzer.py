@@ -17,6 +17,7 @@ from hannah_montana_ai.domain.schemas import (
     StockCandidate,
     TranslationStatus,
 )
+from hannah_montana_ai.services.disclosure_importance_model import DisclosureImportanceModel
 from hannah_montana_ai.services.korean_financial_terms import (
     load_financial_term_entries,
 )
@@ -38,6 +39,7 @@ from hannah_montana_ai.services.news_summary_generator import (
 )
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 from hannah_montana_ai.services.sentiment_policy import apply_financial_sentiment_policy
+from hannah_montana_ai.services.sentiment_stacker import load_sentiment_stacker
 from hannah_montana_ai.services.stock_linker import MachineLearningStockLinker
 from hannah_montana_ai.services.transformer_impact_model import (
     load_kf_deberta_impact_model,
@@ -164,6 +166,59 @@ class AlertAnalyzer:
         "턴어라운드",
         "호황",
         "흑자",
+    )
+    _DISCLOSURE_EVENT_CODEBOOK = (
+        (
+            "RISK",
+            (
+                "상장폐지",
+                "횡령",
+                "배임",
+                "감사의견거절",
+                "부도",
+                "회생절차",
+                "파산",
+                "소송등의제기",
+                "소송등의판결",
+                "거래정지",
+                "불성실공시",
+            ),
+        ),
+        (
+            "CONTRACT",
+            ("단일판매ㆍ공급계약", "단일판매·공급계약", "공급계약체결", "공급계약"),
+        ),
+        (
+            "CAPITAL_ACTION",
+            (
+                "자기주식취득",
+                "현금ㆍ현물배당",
+                "현금·현물배당",
+                "유상증자",
+                "무상증자",
+                "감자결정",
+                "전환사채",
+                "신주인수권부사채",
+                "자기주식처분",
+            ),
+        ),
+        (
+            "CORPORATE_ACTION",
+            (
+                "회사합병",
+                "회사분할",
+                "합병",
+                "분할",
+                "영업양수",
+                "영업양도",
+                "타법인주식",
+                "최대주주 변경을 수반",
+            ),
+        ),
+        (
+            "EARNINGS",
+            ("영업실적", "실적", "매출액또는손익구조", "매출액 또는 손익구조"),
+        ),
     )
     _NEGATIVE_SENTIMENT_CONTEXT_TERMS = (
         "감소",
@@ -319,6 +374,15 @@ class AlertAnalyzer:
             settings.sentiment_transformer_benchmark_report_path,
             settings.transformer_base_model_path,
         )
+        self.sentiment_stacker = load_sentiment_stacker(
+            settings.sentiment_stacker_path,
+            settings.sentiment_stacker_report_path,
+            settings.sentiment_transformer_benchmark_report_path,
+        )
+        self.disclosure_importance_model = DisclosureImportanceModel(
+            settings.disclosure_importance_model_path,
+            settings.disclosure_importance_report_path,
+        )
         self.market_impact_transformer = load_kf_deberta_impact_model(
             settings.market_impact_transformer_path,
             settings.market_impact_transformer_report_path,
@@ -341,7 +405,8 @@ class AlertAnalyzer:
         has_full_content = bool(request.content.strip())
         body_source_text = request.content if has_full_content else request.snippet
         analysis_content = self.rule_engine.clean_article_text(body_source_text, request.title)
-        text = f"{request.title} {request.snippet} {analysis_content}".strip()
+        model_content = analysis_content if has_full_content else ""
+        text = f"{request.title} {request.snippet} {model_content}".strip()
         primary_stock_match = self._match_primary_stock_from_request_or_internal(
             request.title,
             text,
@@ -356,19 +421,42 @@ class AlertAnalyzer:
             request.source_type,
             self.model.predict_event_tags(text, request.source_type),
         )
-        sentiment_probabilities = self._sentiment_probabilities(text)
+        sentiment_probabilities = self._sentiment_probabilities(text, request.source_type)
         sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
         sentiment = self._augment_sentiment(text, sentiment)
-        importance_probabilities = self.model.importance_probabilities(text, request.source_type)
-        importance = cast(
-            Importance,
-            self._top_label(importance_probabilities, fallback="MEDIUM"),
+        disclosure_importance = (
+            self.disclosure_importance_model.predict(
+                request.title,
+                request.snippet,
+                model_content,
+            )
+            if request.source_type == "DISCLOSURE"
+            else None
         )
-        importance = self._augment_importance(text, request.source_type, importance)
+        if disclosure_importance is None:
+            importance_probabilities = self.model.importance_probabilities(
+                text, request.source_type
+            )
+            importance = cast(
+                Importance,
+                self._top_label(importance_probabilities, fallback="MEDIUM"),
+            )
+            importance = self._augment_importance(text, request.source_type, importance)
+        else:
+            importance_probabilities = disclosure_importance.probabilities
+            importance = disclosure_importance.importance
+        if self._rule_importance_floor(text, request.source_type) == "CRITICAL":
+            importance = "CRITICAL"
+            importance_probabilities = self._apply_probability_floor(
+                importance_probabilities,
+                "CRITICAL",
+                0.90,
+            )
+        market_impact_text = self._market_impact_input(text, primary_stock)
         market_impact_prediction = (
-            self.market_impact_transformer.predict(text)
+            self.market_impact_transformer.predict(market_impact_text, request.source_type)
             if self.market_impact_transformer.enabled
-            else self.market_impact_model.predict(text)
+            else self.market_impact_model.predict(market_impact_text, request.source_type)
         )
         related_stocks = self._match_related_stocks_from_request_or_internal(
             text,
@@ -485,6 +573,15 @@ class AlertAnalyzer:
             event_tags=event_tags,
             sentiment=sentiment,
             importance=importance,
+            market_impact_importance=(
+                market_impact_prediction.importance if market_impact_prediction else None
+            ),
+            market_impact_score=(
+                market_impact_prediction.materiality_score if market_impact_prediction else None
+            ),
+            market_impact_confidence=(
+                round(market_impact_prediction.confidence, 6) if market_impact_prediction else None
+            ),
             related_stocks=related_stocks,
             holder_target=self.rule_engine.holder_target(importance),
             watchlist_target=self.rule_engine.watchlist_target(importance),
@@ -506,13 +603,17 @@ class AlertAnalyzer:
         versions = [self.model.version]
         if self.sentiment_transformer.enabled:
             versions.append(f"sentiment:{self.sentiment_transformer.version}")
+        if self.sentiment_stacker.enabled:
+            versions.append(f"sentiment-stack:{self.sentiment_stacker.version}")
+        if self.disclosure_importance_model.enabled:
+            versions.append(f"disclosure-importance:{self.disclosure_importance_model.version}")
         if self.market_impact_transformer.enabled:
             versions.append(f"impact:{self.market_impact_transformer.version}")
         elif self.market_impact_model.enabled:
             versions.append(f"impact:{self.market_impact_model.version}")
         return "|".join(versions)
 
-    def _sentiment_probabilities(self, text: str) -> dict[str, float]:
+    def _sentiment_probabilities(self, text: str, source_type: str = "NEWS") -> dict[str, float]:
         baseline = self.model.sentiment_probabilities(text)
         transformer = (
             self.sentiment_transformer.probabilities(text)
@@ -521,8 +622,16 @@ class AlertAnalyzer:
         )
         if transformer is None:
             return baseline
+        stacked = self.sentiment_stacker.probabilities(
+            transformer=transformer,
+            baseline=baseline,
+            text=text,
+            source_type=source_type,
+        )
+        if stacked is not None:
+            return stacked
         # 실제 금융 문장의 Transformer 성능을 유지하면서 기존 회귀 분포를 보정한다.
-        transformer_weight = 0.8
+        transformer_weight = self.sentiment_transformer.transformer_weight
         return {
             label: transformer_weight * transformer[label]
             + (1.0 - transformer_weight) * baseline[label]
@@ -989,7 +1098,11 @@ class AlertAnalyzer:
         length: int,
         normalized_candidate: str,
     ) -> bool:
-        context = normalized_text[max(0, position - 24) : position + length + 24]
+        # 회사명 자체의 '리서치'를 증권사 인용 문맥으로 오인하지 않는다.
+        context = (
+            normalized_text[max(0, position - 24) : position]
+            + normalized_text[position + length : position + length + 24]
+        )
         if any(term in context for term in self._STOCK_ATTRIBUTION_CONTEXT_TERMS):
             return True
         return (
@@ -1139,6 +1252,15 @@ class AlertAnalyzer:
         source_type: str,
         event_tags: list[str],
     ) -> list[str]:
+        if source_type == "DISCLOSURE":
+            # 구조화된 DART 제목은 v3 코드북으로 제한해 출처 외 이벤트 오탐을 막는다.
+            tag_set = {"DISCLOSURE"}
+            for label, patterns in self._DISCLOSURE_EVENT_CODEBOOK:
+                if any(pattern in text for pattern in patterns):
+                    tag_set.add(label)
+                    break
+            return sorted(tag_set)
+
         tag_set = set(event_tags)
         if source_type == "NEWS":
             tag_set.discard("DISCLOSURE")
@@ -1186,6 +1308,22 @@ class AlertAnalyzer:
     def _rule_importance_floor(self, text: str, source_type: str) -> Importance:
         if self.rule_engine._contains_any(text, self.rule_engine.critical_keywords):
             return "CRITICAL"
+        if source_type == "DISCLOSURE" and any(
+            term in text
+            for term in (
+                "사업보고서",
+                "분기보고서",
+                "반기보고서",
+                "감사보고서제출",
+                "주주총회소집공고",
+                "주주총회소집결의",
+                "기업설명회개최",
+                "임원ㆍ주요주주특정증권",
+                "임원·주요주주특정증권",
+                "주식등의대량보유상황보고서",
+            )
+        ):
+            return "LOW"
         high_signal_terms = (
             "공급계약",
             "거래정지",
@@ -1196,14 +1334,59 @@ class AlertAnalyzer:
             "자사주",
             "주식교환",
             "합병",
+            "영업양수",
+            "영업양도",
+            "전환사채",
+            "신주인수권부사채",
+            "현금ㆍ현물배당",
+            "현금·현물배당",
+            "매출액또는손익구조",
+            "영업실적",
             "횡령",
             "배임",
         )
         if any(term in text for term in high_signal_terms):
             return "HIGH"
+        if source_type == "DISCLOSURE" and any(
+            term in text
+            for term in (
+                "최대주주등소유주식변동",
+                "대표이사변경",
+                "조회공시",
+                "주주총회결과",
+            )
+        ):
+            return "MEDIUM"
         if len(text) > 80:
             return "MEDIUM"
         return "LOW"
+
+    @staticmethod
+    def _apply_probability_floor(
+        probabilities: dict[str, float],
+        label: str,
+        floor: float,
+    ) -> dict[str, float]:
+        current = float(probabilities.get(label, 0.0))
+        if current >= floor:
+            return probabilities
+        other_total = sum(float(value) for name, value in probabilities.items() if name != label)
+        if other_total <= 0.0:
+            return {name: float(name == label) for name in probabilities}
+        remaining = 1.0 - floor
+        return {
+            name: floor if name == label else remaining * float(value) / other_total
+            for name, value in probabilities.items()
+        }
+
+    @staticmethod
+    def _market_impact_input(
+        text: str,
+        primary_stock: StockCandidate | StockUniverseEntry | None,
+    ) -> str:
+        if primary_stock is None:
+            return text
+        return f"{text} {primary_stock.stock_name}".strip()
 
     def _cap_importance(self, text: str, importance: Importance) -> Importance:
         if importance != "CRITICAL":
