@@ -25,6 +25,7 @@ class KfDebertaSentimentModel:
         self.enabled = False
         self.version = "kf-deberta-sentiment-unavailable"
         self.max_length = 192
+        self.transformer_weight = 0.8
         self._torch: Any = None
         self._tokenizer: Any = None
         self._model: Any = None
@@ -36,9 +37,7 @@ class KfDebertaSentimentModel:
         benchmark_report = json.loads(benchmark_report_path.read_text(encoding="utf-8"))
         if not _deployment_gate_passed(
             training_report, benchmark_report
-        ) or not verify_artifact_manifest(
-            adapter_path, training_report.get("artifact_files")
-        ):
+        ) or not verify_artifact_manifest(adapter_path, training_report.get("artifact_files")):
             return
 
         # 기본 설치에서는 선택 의존성이 없으므로 기존 모델로 안전하게 축소 운용한다.
@@ -84,6 +83,8 @@ class KfDebertaSentimentModel:
         self._tokenizer = tokenizer
         self._model = model
         self.max_length = int(training_report.get("max_length", 192))
+        candidate_name = str(benchmark_report.get("deployment_gate", {}).get("candidate_model", ""))
+        self.transformer_weight = 1.0 if candidate_name == "kf_deberta_lora" else 0.8
         self.version = str(training_report["version"])
         self.enabled = True
 
@@ -111,9 +112,13 @@ def _deployment_gate_passed(
 ) -> bool:
     test = training_report.get("test", {})
     gate = benchmark_report.get("deployment_gate", {})
-    benchmark = benchmark_report.get("models", {}).get(
-        "kf_deberta_lora_ensemble",
-        benchmark_report.get("models", {}).get("kf_deberta_lora", {}),
+    models = benchmark_report.get("models", {})
+    candidate_name = benchmark_report.get("deployment_gate", {}).get(
+        "candidate_model", "kf_deberta_lora_ensemble"
+    )
+    benchmark = models.get(
+        candidate_name,
+        models.get("kf_deberta_lora_ensemble", models.get("kf_deberta_lora", {})),
     )
     return (
         int(test.get("sample_count", 0)) >= 900

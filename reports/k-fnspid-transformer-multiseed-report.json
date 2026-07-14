@@ -1,0 +1,103 @@
+{
+  "schema_version": "k-fnspid-transformer-multiseed/v1",
+  "run_count": 3,
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
+  "selected_seed_by_validation": 73,
+  "selected_version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
+  "selected_artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer_seed73",
+  "selected_predictions_path": "reports/k-fnspid-transformer-test-predictions-seed73.jsonl",
+  "report_paths": [
+    "reports/k-fnspid-transformer-training-report-seed17.json",
+    "reports/k-fnspid-transformer-training-report.json",
+    "reports/k-fnspid-transformer-training-report-seed73.json"
+  ],
+  "validation": {
+    "accuracy": {
+      "mean": 0.49839904420549586,
+      "sample_std": 0.019213787552518773,
+      "minimum": 0.4767025089605735,
+      "maximum": 0.5132616487455197
+    },
+    "macro_f1": {
+      "mean": 0.37315199452374137,
+      "sample_std": 0.004889541537784151,
+      "minimum": 0.3702770912539538,
+      "maximum": 0.37879763042762105
+    },
+    "quadratic_kappa": {
+      "mean": 0.44654973955903093,
+      "sample_std": 0.009137383705936695,
+      "minimum": 0.4360411357219002,
+      "maximum": 0.45262179146090276
+    }
+  },
+  "test": {
+    "accuracy": {
+      "mean": 0.5104806201550388,
+      "sample_std": 0.008046018715018647,
+      "minimum": 0.5029767441860465,
+      "maximum": 0.5189767441860466
+    },
+    "macro_f1": {
+      "mean": 0.38238425984579544,
+      "sample_std": 0.010156976797915754,
+      "minimum": 0.3724349425039323,
+      "maximum": 0.39273688197853807
+    },
+    "quadratic_kappa": {
+      "mean": 0.46750048324007704,
+      "sample_std": 0.004157622249024205,
+      "minimum": 0.462729918800836,
+      "maximum": 0.4703517149890114
+    }
+  },
+  "runs": [
+    {
+      "seed": 17,
+      "version": "k-fnspid-impact-kf-deberta-lora-20260713220919-prior0.25",
+      "validation": {
+        "accuracy": 0.5132616487455197,
+        "macro_f1": 0.3702770912539538,
+        "quadratic_kappa": 0.4509862914942899
+      },
+      "test": {
+        "accuracy": 0.5189767441860466,
+        "macro_f1": 0.3724349425039323,
+        "quadratic_kappa": 0.4703517149890114
+      }
+    },
+    {
+      "seed": 42,
+      "version": "k-fnspid-impact-kf-deberta-lora-20260713180600-prior0.10",
+      "validation": {
+        "accuracy": 0.4767025089605735,
+        "macro_f1": 0.3703812618896493,
+        "quadratic_kappa": 0.4360411357219002
+      },
+      "test": {
+        "accuracy": 0.5029767441860465,
+        "macro_f1": 0.39273688197853807,
+        "quadratic_kappa": 0.462729918800836
+      }
+    },
+    {
+      "seed": 73,
+      "version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
+      "validation": {
+        "accuracy": 0.5052329749103943,
+        "macro_f1": 0.37879763042762105,
+        "quadratic_kappa": 0.45262179146090276
+      },
+      "test": {
+        "accuracy": 0.5094883720930232,
+        "macro_f1": 0.3819809550549159,
+        "quadratic_kappa": 0.46941981593038373
+      }
+    }
+  ]
+}

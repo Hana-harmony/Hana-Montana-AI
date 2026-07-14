@@ -1,0 +1,446 @@
+{
+  "schema_version": "disclosure-importance-training/v1",
+  "version": "disclosure-importance-tfidf-logreg-20260713190852",
+  "input_feature_version": "disclosure-validation-selected-view-v3",
+  "feature_selection": {
+    "partition": "VALIDATION",
+    "criterion": "macro_f1, multiclass_brier_score, richer-context tie-break",
+    "selected": "title_and_snippet",
+    "selected_fields": [
+      "title",
+      "snippet"
+    ],
+    "candidates": {
+      "title_only": {
+        "fields": [
+          "title"
+        ],
+        "probability_temperature": 0.4,
+        "validation": {
+          "sample_count": 2411,
+          "accuracy": 0.9991704686851929,
+          "macro_f1": 0.9894056439693557,
+          "confusion_matrix": {
+            "LOW": {
+              "LOW": 1305,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 1
+            },
+            "MEDIUM": {
+              "LOW": 0,
+              "MEDIUM": 703,
+              "HIGH": 1,
+              "CRITICAL": 0
+            },
+            "HIGH": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 389,
+              "CRITICAL": 0
+            },
+            "CRITICAL": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 12
+            }
+          },
+          "label_metrics": {
+            "LOW": {
+              "precision": 1.0,
+              "recall": 0.9992343032159265,
+              "f1": 0.9996170049789352,
+              "support": 1306
+            },
+            "MEDIUM": {
+              "precision": 1.0,
+              "recall": 0.9985795454545454,
+              "f1": 0.9992892679459844,
+              "support": 704
+            },
+            "HIGH": {
+              "precision": 0.9974358974358974,
+              "recall": 1.0,
+              "f1": 0.9987163029525032,
+              "support": 389
+            },
+            "CRITICAL": {
+              "precision": 0.9230769230769231,
+              "recall": 1.0,
+              "f1": 0.96,
+              "support": 12
+            }
+          },
+          "expected_calibration_error_15_bin": 0.0011061058034142978,
+          "multiclass_brier_score": 0.0015610358689650257
+        }
+      },
+      "title_and_snippet": {
+        "fields": [
+          "title",
+          "snippet"
+        ],
+        "probability_temperature": 0.4,
+        "validation": {
+          "sample_count": 2411,
+          "accuracy": 0.9991704686851929,
+          "macro_f1": 0.9894056439693557,
+          "confusion_matrix": {
+            "LOW": {
+              "LOW": 1305,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 1
+            },
+            "MEDIUM": {
+              "LOW": 0,
+              "MEDIUM": 703,
+              "HIGH": 1,
+              "CRITICAL": 0
+            },
+            "HIGH": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 389,
+              "CRITICAL": 0
+            },
+            "CRITICAL": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 12
+            }
+          },
+          "label_metrics": {
+            "LOW": {
+              "precision": 1.0,
+              "recall": 0.9992343032159265,
+              "f1": 0.9996170049789352,
+              "support": 1306
+            },
+            "MEDIUM": {
+              "precision": 1.0,
+              "recall": 0.9985795454545454,
+              "f1": 0.9992892679459844,
+              "support": 704
+            },
+            "HIGH": {
+              "precision": 0.9974358974358974,
+              "recall": 1.0,
+              "f1": 0.9987163029525032,
+              "support": 389
+            },
+            "CRITICAL": {
+              "precision": 0.9230769230769231,
+              "recall": 1.0,
+              "f1": 0.96,
+              "support": 12
+            }
+          },
+          "expected_calibration_error_15_bin": 0.0011990479832335492,
+          "multiclass_brier_score": 0.0013423869941468606
+        }
+      },
+      "title_snippet_full_content": {
+        "fields": [
+          "title",
+          "snippet",
+          "full_content"
+        ],
+        "probability_temperature": 0.6,
+        "validation": {
+          "sample_count": 2411,
+          "accuracy": 0.9879717959352966,
+          "macro_f1": 0.9814827738299206,
+          "confusion_matrix": {
+            "LOW": {
+              "LOW": 1281,
+              "MEDIUM": 24,
+              "HIGH": 1,
+              "CRITICAL": 0
+            },
+            "MEDIUM": {
+              "LOW": 1,
+              "MEDIUM": 701,
+              "HIGH": 2,
+              "CRITICAL": 0
+            },
+            "HIGH": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 388,
+              "CRITICAL": 1
+            },
+            "CRITICAL": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 12
+            }
+          },
+          "label_metrics": {
+            "LOW": {
+              "precision": 0.999219968798752,
+              "recall": 0.9808575803981623,
+              "f1": 0.9899536321483772,
+              "support": 1306
+            },
+            "MEDIUM": {
+              "precision": 0.9668965517241379,
+              "recall": 0.9957386363636364,
+              "f1": 0.9811056682995102,
+              "support": 704
+            },
+            "HIGH": {
+              "precision": 0.9923273657289002,
+              "recall": 0.9974293059125964,
+              "f1": 0.9948717948717949,
+              "support": 389
+            },
+            "CRITICAL": {
+              "precision": 0.9230769230769231,
+              "recall": 1.0,
+              "f1": 0.96,
+              "support": 12
+            }
+          },
+          "expected_calibration_error_15_bin": 0.0061714484044312,
+          "multiclass_brier_score": 0.020441080325186302
+        }
+      }
+    },
+    "gold_used_for_selection": false
+  },
+  "training_source": {
+    "path": "data/training/financial_alert_full_content_gold.jsonl",
+    "bytes": 310191435,
+    "sha256": "32bad0c041445dd021b09bfe52fc0e63b6ba6652386b20d58794d10afd24abd1",
+    "files": [
+      {
+        "path": "data/training/financial_alert_full_content_gold.jsonl",
+        "bytes": 1928,
+        "sha256": "541d574f366c158eeb6fa21a49fc22c086b9ca636c291a874d1f31e2646a7984"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0001.jsonl",
+        "bytes": 47993712,
+        "sha256": "e7a11a33cda4b3e049728ac30d51b4e8485e4f1117382f0e3143f331ba1d34ce"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0002.jsonl",
+        "bytes": 47967902,
+        "sha256": "39b571741e740dba451aa5740f29bae6e23715765024586b298bb625850fb6e9"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0003.jsonl",
+        "bytes": 47963288,
+        "sha256": "a1c6178fdc92ce2f4a5d3191284841c964683e7dad9e1bf5fe5d5876d422e3cf"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0004.jsonl",
+        "bytes": 47980116,
+        "sha256": "8036418754b4a04919d8e319c95573487dd487be98979ee262bafd63a7bb3bf3"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0005.jsonl",
+        "bytes": 47988608,
+        "sha256": "1bc478fcdf9ed44ed19b82d4e572f3496759c5b9847b845a3cb35e2a47c32a46"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0006.jsonl",
+        "bytes": 47999683,
+        "sha256": "98eba85c88844f2dc0039f831e274c97e2d716b0c1501564f9d30c23ae325089"
+      },
+      {
+        "path": "data/training/financial_alert_full_content_gold_shards/part-0007.jsonl",
+        "bytes": 22296198,
+        "sha256": "8fde133a107dd3b693a9583ed48f663893e933a68585ebb287477d52e889dddb"
+      }
+    ]
+  },
+  "gold_source": {
+    "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+    "bytes": 489358,
+    "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c",
+    "files": [
+      {
+        "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+        "bytes": 489358,
+        "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+      }
+    ]
+  },
+  "gold_url_overlap_count": 0,
+  "gold_url_excluded_count": 401,
+  "augmentation": {
+    "method": "terminal-risk lexical template augmentation",
+    "synthetic_count": 400,
+    "gold_rows_used": 0
+  },
+  "calibration": {
+    "method": "temperature-scaling",
+    "selection_partition": "VALIDATION",
+    "temperature": 0.4
+  },
+  "partition_count": {
+    "TRAIN": 6291,
+    "VALIDATION": 2411,
+    "FINAL_TRAIN": 8702,
+    "GOLD_TEST": 600
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "HIGH": 1349,
+      "LOW": 3347,
+      "MEDIUM": 1158,
+      "CRITICAL": 437
+    },
+    "VALIDATION": {
+      "MEDIUM": 704,
+      "LOW": 1306,
+      "HIGH": 389,
+      "CRITICAL": 12
+    },
+    "GOLD_TEST": {
+      "HIGH": 287,
+      "LOW": 250,
+      "MEDIUM": 34,
+      "CRITICAL": 29
+    }
+  },
+  "validation": {
+    "sample_count": 2411,
+    "accuracy": 0.9991704686851929,
+    "macro_f1": 0.9894056439693557,
+    "confusion_matrix": {
+      "LOW": {
+        "LOW": 1305,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 1
+      },
+      "MEDIUM": {
+        "LOW": 0,
+        "MEDIUM": 703,
+        "HIGH": 1,
+        "CRITICAL": 0
+      },
+      "HIGH": {
+        "LOW": 0,
+        "MEDIUM": 0,
+        "HIGH": 389,
+        "CRITICAL": 0
+      },
+      "CRITICAL": {
+        "LOW": 0,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 12
+      }
+    },
+    "label_metrics": {
+      "LOW": {
+        "precision": 1.0,
+        "recall": 0.9992343032159265,
+        "f1": 0.9996170049789352,
+        "support": 1306
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 0.9985795454545454,
+        "f1": 0.9992892679459844,
+        "support": 704
+      },
+      "HIGH": {
+        "precision": 0.9974358974358974,
+        "recall": 1.0,
+        "f1": 0.9987163029525032,
+        "support": 389
+      },
+      "CRITICAL": {
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "support": 12
+      }
+    },
+    "expected_calibration_error_15_bin": 0.0011990479832335492,
+    "multiclass_brier_score": 0.0013423869941468606
+  },
+  "gold_test": {
+    "sample_count": 600,
+    "accuracy": 0.985,
+    "macro_f1": 0.9470220181304256,
+    "confusion_matrix": {
+      "LOW": {
+        "LOW": 250,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "MEDIUM": {
+        "LOW": 0,
+        "MEDIUM": 34,
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "HIGH": {
+        "LOW": 0,
+        "MEDIUM": 0,
+        "HIGH": 287,
+        "CRITICAL": 0
+      },
+      "CRITICAL": {
+        "LOW": 0,
+        "MEDIUM": 1,
+        "HIGH": 8,
+        "CRITICAL": 20
+      }
+    },
+    "label_metrics": {
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 250
+      },
+      "MEDIUM": {
+        "precision": 0.9714285714285714,
+        "recall": 1.0,
+        "f1": 0.9855072463768116,
+        "support": 34
+      },
+      "HIGH": {
+        "precision": 0.9728813559322034,
+        "recall": 1.0,
+        "f1": 0.9862542955326461,
+        "support": 287
+      },
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 0.6896551724137931,
+        "f1": 0.8163265306122449,
+        "support": 29
+      }
+    },
+    "expected_calibration_error_15_bin": 0.012164915821303805,
+    "multiclass_brier_score": 0.03045451435155372
+  },
+  "baseline_gold_test": {
+    "accuracy": 0.9133333333333333,
+    "macro_f1": 0.8355282585486008
+  },
+  "artifact": {
+    "bytes": 2125133,
+    "sha256": "b60302e4bff5904389df99c4ab641ccafa3d9e18bec63e5fdaebd0affecb4d2e"
+  },
+  "deployment_gate": {
+    "minimum_gold_accuracy": 0.8,
+    "minimum_gold_macro_f1": 0.7,
+    "minimum_gold_label_f1": 0.7,
+    "must_be_accuracy_noninferior_and_exceed_macro_f1": true,
+    "eligible": true,
+    "decision": "DEPLOY_DISCLOSURE_IMPORTANCE"
+  }
+}

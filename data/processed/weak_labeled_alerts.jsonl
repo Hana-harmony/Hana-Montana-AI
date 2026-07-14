@@ -15,5 +15,67 @@
     "weak_labeled_alerts.part-00010.jsonl",
     "weak_labeled_alerts.part-00011.jsonl",
     "weak_labeled_alerts.part-00012.jsonl"
+  ],
+  "files": [
+    {
+      "path": "weak_labeled_alerts.part-00001.jsonl",
+      "bytes": 29277497,
+      "sha256": "16c8e2a5d79a57b14f789fdddb4802e7c83ae3a8bdab89f0b2da5e2b049caef7"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00002.jsonl",
+      "bytes": 33643468,
+      "sha256": "9dc452191d9ed0a11cc3d6d1ecedfeb4cf0d15d16b7c2c44667d0ab0c132c6d8"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00003.jsonl",
+      "bytes": 34022173,
+      "sha256": "206afc4df84c9f27b4284d0a4fe4fde9a1d9d85689bcb3a2c863593cd945e659"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00004.jsonl",
+      "bytes": 34207633,
+      "sha256": "39d8ade754c86e5b9fc22204747dc16bd179a8e44610ad640da72981a89b2935"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00005.jsonl",
+      "bytes": 33945465,
+      "sha256": "6fdd2dd32e36f4250433efd9dc5882c32c4d9a793e6e86e3ece05063361a8d1a"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00006.jsonl",
+      "bytes": 33958986,
+      "sha256": "8815a19e96d6dbbf5730fb04ef7329e0e99ce2e7b941b3f0460b341b7ea21e09"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00007.jsonl",
+      "bytes": 34119372,
+      "sha256": "3ecd907c0ba0883920cac6e544c380bfe9470fb367635fadb2c58c8f54dd659a"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00008.jsonl",
+      "bytes": 33840878,
+      "sha256": "4a956aab073611cd48b922f2b280505d2160a8e2ffdf00d9d8f9ce9cfa3e76e8"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00009.jsonl",
+      "bytes": 34189814,
+      "sha256": "41f53e1d000253a2f6b62993bdf3d97bee2ab717c02e27dad92333ab05fd3598"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00010.jsonl",
+      "bytes": 34442932,
+      "sha256": "3ebe9916072d76277451e41e70446f2d6f9a56f8111108139aab3b0254f28560"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00011.jsonl",
+      "bytes": 34218324,
+      "sha256": "5c591ae670fa4c0015304be8d9d1a7a894648768a0295100f419e977ca26252f"
+    },
+    {
+      "path": "weak_labeled_alerts.part-00012.jsonl",
+      "bytes": 2842018,
+      "sha256": "0eecb32e269503c4b20bf48c403d399a9008477c7803301bfcb393a6576c7d2d"
+    }
   ]
 }

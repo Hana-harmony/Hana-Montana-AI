@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 SourceType = Literal["NEWS", "DISCLOSURE"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
@@ -275,6 +275,9 @@ class AlertAnalysisResponse(BaseModel):
     event_tags: list[str]
     sentiment: Sentiment
     importance: Importance
+    market_impact_importance: Importance | None = None
+    market_impact_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    market_impact_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     related_stocks: list[str]
     holder_target: bool
     watchlist_target: bool
@@ -285,11 +288,23 @@ class AlertAnalysisResponse(BaseModel):
     translation_status: TranslationStatus = "SOURCE_LANGUAGE_FALLBACK"
     duplicate_key: str
     cluster_key: str = ""
-    model_version: str
+    model_version: str = Field(min_length=1, max_length=240)
     event_confidence: float = Field(ge=0.0, le=1.0)
     sentiment_confidence: float = Field(ge=0.0, le=1.0)
     importance_confidence: float = Field(ge=0.0, le=1.0)
     stock_match_confidence: float = Field(ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_market_impact_payload(self) -> "AlertAnalysisResponse":
+        values = (
+            self.market_impact_importance,
+            self.market_impact_score,
+            self.market_impact_confidence,
+        )
+        present = sum(value is not None for value in values)
+        if present not in {0, 3}:
+            raise ValueError("시장영향 필드는 모두 제공하거나 모두 생략해야 합니다.")
+        return self
 
 
 class StockOrderStatusRequest(BaseModel):

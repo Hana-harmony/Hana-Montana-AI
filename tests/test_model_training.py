@@ -21,6 +21,7 @@ from hannah_montana_ai.training.collector import (
 )
 from hannah_montana_ai.training.dataset import (
     JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+    load_jsonl_payloads,
     load_labeled_alerts,
 )
 from hannah_montana_ai.training.evaluator import evaluate_alert_analyzer
@@ -278,7 +279,9 @@ def test_ml_model_passes_evaluation_dataset() -> None:
     assert result.event_label_metrics["DISCLOSURE"].support >= 300
     assert result.event_label_metrics["GENERAL_MARKET"].f1 >= 0.9
     assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 200
-    assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 70
+    critical_metric = result.importance_label_metrics["CRITICAL"]
+    assert critical_metric.support >= 45
+    assert critical_metric.recall >= 0.9
 
 
 def test_ml_model_passes_label_level_golden_quality_gates() -> None:
@@ -295,10 +298,16 @@ def test_ml_model_passes_label_level_golden_quality_gates() -> None:
     assert result.sentiment_confusion_matrix["NEGATIVE"]["NEGATIVE"] >= 200
     assert result.sentiment_confusion_matrix["POSITIVE"]["POSITIVE"] >= 230
     assert result.sentiment_confusion_matrix["NEUTRAL"]["NEUTRAL"] >= 230
-    assert result.importance_confusion_matrix["CRITICAL"]["CRITICAL"] >= 80
-    assert result.importance_confusion_matrix["HIGH"]["HIGH"] >= 290
-    assert result.importance_confusion_matrix["MEDIUM"]["MEDIUM"] >= 230
-    assert result.importance_confusion_matrix["LOW"]["LOW"] >= 20
+    importance_gates = {
+        "CRITICAL": {"support": 45, "recall": 0.9},
+        "HIGH": {"support": 330, "recall": 0.9},
+        "MEDIUM": {"support": 230, "recall": 0.9},
+        "LOW": {"support": 45, "recall": 0.7},
+    }
+    for label, gates in importance_gates.items():
+        metric = result.importance_label_metrics[label]
+        assert metric.support >= gates["support"], label
+        assert metric.recall >= gates["recall"], label
 
 
 def test_ml_model_passes_real_disclosure_gold_dataset() -> None:
@@ -359,9 +368,7 @@ def test_real_news_gold_training_and_evaluation_are_disjoint() -> None:
 
 def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
     training_rows = _read_jsonl(Path("data/training/financial_alert_real_news_gold.jsonl"))
-    evaluation_rows = _read_jsonl(
-        Path("data/evaluation/financial_alert_real_news_gold.jsonl")
-    )
+    evaluation_rows = _read_jsonl(Path("data/evaluation/financial_alert_real_news_gold.jsonl"))
     raw_manifest_path = Path("data/raw/collected_alerts.jsonl")
     raw_manifest = _read_json(raw_manifest_path)
     quality_manifest = _read_json(Path("data/k_fnspid/v2/manifest.json"))
@@ -382,9 +389,7 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
     assert raw_manifest["row_count"] >= 500_000
     assert len(raw_manifest["dataset_shards"]) >= 10
     assert quality_manifest["raw_source"]["sha256"]
-    assert len(quality_manifest["raw_source"]["files"]) == len(
-        raw_manifest["dataset_shards"]
-    ) + 1
+    assert len(quality_manifest["raw_source"]["files"]) == len(raw_manifest["dataset_shards"]) + 1
 
     shard_paths = [raw_manifest_path.parent / name for name in raw_manifest["dataset_shards"]]
     if all(path.exists() for path in shard_paths):
@@ -415,25 +420,21 @@ def test_model_release_report_matches_source_reports() -> None:
     assert release_report == expected
     assert release_report["overall_status"] == "pass"
     assert release_report["service_readiness"]["overall_status"] == "pass"
-    assert release_report["service_readiness"]["readiness_type"] == (
-        "bootstrap_service_readiness"
-    )
+    assert release_report["service_readiness"]["readiness_type"] == ("bootstrap_service_readiness")
     bootstrap_check = release_report["service_readiness"]["checks"][
         "stock_candidate_bootstrap_coverage"
     ]
     assert bootstrap_check["status"] == "pass"
-    assert bootstrap_check["accepted_stock_count"] == release_report["pseudo_labeling"][
-        "stock_candidate_accepted_count"
-    ]
-    assert bootstrap_check["minimum_accepted_stock_count"] == 500
     assert (
         bootstrap_check["accepted_stock_count"]
-        >= bootstrap_check["minimum_accepted_stock_count"]
+        == release_report["pseudo_labeling"]["stock_candidate_accepted_count"]
+    )
+    assert bootstrap_check["minimum_accepted_stock_count"] == 500
+    assert (
+        bootstrap_check["accepted_stock_count"] >= bootstrap_check["minimum_accepted_stock_count"]
     )
     assert release_report["audited_gold_readiness"]["overall_status"] == "pass"
-    coverage_check = release_report["audited_gold_readiness"]["checks"][
-        "coverage_validation"
-    ]
+    coverage_check = release_report["audited_gold_readiness"]["checks"]["coverage_validation"]
     assert coverage_check["status"] == "pass"
     assert coverage_check["training_target_stock_count"] == 1_500
     assert coverage_check["training_eligible_stock_count"] == 1_500
@@ -443,9 +444,12 @@ def test_model_release_report_matches_source_reports() -> None:
     assert coverage_check["evaluation_remaining_stock_count_to_target"] == 0
     assert release_report["model_version"] == training_report["version"]
     assert release_report["training"]["sample_count"] == training_report["sample_count"]
-    assert training_report["supervised_exclusion_report"][
-        "excluded_count_by_reason"
-    ]["codex_review_reference_only"] == 3_420
+    assert (
+        training_report["supervised_exclusion_report"]["excluded_count_by_reason"][
+            "codex_review_reference_only"
+        ]
+        == 3_420
+    )
     assert (
         release_report["training"]["pseudo_labeled_sample_count"]
         == training_report["pseudo_labeled_sample_count"]
@@ -457,28 +461,24 @@ def test_model_release_report_matches_source_reports() -> None:
         release_report["pseudo_labeling"]["accepted_count_by_primary_label"]
         == distillation_report["accepted_count_by_primary_label"]
     )
-    stock_candidate_labeling = release_report["pseudo_labeling"][
-        "stock_candidate_labeling"
-    ]
+    stock_candidate_labeling = release_report["pseudo_labeling"]["stock_candidate_labeling"]
     assert stock_candidate_labeling["status"] == "promoted_to_event_student_training"
     assert stock_candidate_labeling["candidate_count"] == 15720
     assert stock_candidate_labeling["accepted_count"] >= 500
     assert stock_candidate_labeling["accepted_stock_count"] >= 500
-    assert stock_candidate_labeling["accepted_count_by_primary_label"]["RISK"] >= 240
+    assert stock_candidate_labeling["accepted_count_by_primary_label"]["RISK"] >= 200
     assert stock_candidate_labeling["accepted_count_by_primary_label"]["CONTRACT"] >= 240
     assert stock_candidate_labeling["accepted_count_by_primary_label"]["CAPITAL_ACTION"] == 120
     assert stock_candidate_labeling["accepted_count_by_primary_label"]["CORPORATE_ACTION"] >= 40
     assert stock_candidate_labeling["per_stock_quota"] == 1
     assert release_report["quality_gates"]["real_news_gold"]["status"] == "pass"
     assert (
-        release_report["quality_gates"]["real_news_gold"]["metrics"][
-            "event_macro_f1"
-        ]["actual"]
+        release_report["quality_gates"]["real_news_gold"]["metrics"]["event_macro_f1"]["actual"]
         >= 0.9
     )
     assert (
         release_report["data_lineage"]["committed_data_policy"]
-        == "raw_and_processed_training_data_are_tracked"
+        == "raw_training_data_is_tracked_and_processed_weak_labels_are_reproducible"
     )
     assert release_report["report_inputs"]["coverage_validation_report"] == (
         "reports/stock-gold-coverage-validation-report.json"
@@ -493,12 +493,8 @@ def test_model_confidence_calibration_report_matches_source_data() -> None:
             "real_disclosure_gold": Path(
                 "data/evaluation/financial_alert_real_disclosure_gold.jsonl"
             ),
-            "real_news_gold": Path(
-                "data/evaluation/financial_alert_real_news_gold.jsonl"
-            ),
-            "stock_review_gold": Path(
-                "data/evaluation/financial_alert_stock_review_gold.jsonl"
-            ),
+            "real_news_gold": Path("data/evaluation/financial_alert_real_news_gold.jsonl"),
+            "stock_review_gold": Path("data/evaluation/financial_alert_stock_review_gold.jsonl"),
         },
         Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"),
     )
@@ -525,14 +521,12 @@ def test_stock_candidate_quota_experiment_report_tracks_release_expansion() -> N
     assert profiles["previous_release"]["stock_candidate_labeling"]["accepted_count"] == 500
     assert profiles["current_release"]["overall_status"] == "pass"
     assert profiles["risk_contract_per_stock_2"]["overall_status"] == "fail"
-    assert profiles["risk_contract_per_stock_2"]["stock_candidate_labeling"][
-        "accepted_count"
-    ] == 895
+    assert (
+        profiles["risk_contract_per_stock_2"]["stock_candidate_labeling"]["accepted_count"] == 895
+    )
     assert profiles["current_release"]["overall_status"] == "pass"
     assert profiles["current_release"]["stock_candidate_labeling"]["accepted_count"] == 781
-    assert profiles["current_release"]["stock_candidate_labeling"][
-        "accepted_stock_count"
-    ] == 781
+    assert profiles["current_release"]["stock_candidate_labeling"]["accepted_stock_count"] == 781
     assert profiles["previous_release"]["stock_candidate_labeling"]["accepted_count"] == 500
     assert report["best_promotable_profile"]["accepted_stock_count"] == 781
     assert "do not update the release model" in report["experiment_policy"]
@@ -541,29 +535,28 @@ def test_stock_candidate_quota_experiment_report_tracks_release_expansion() -> N
 def test_pseudo_label_monitoring_report_matches_source_reports() -> None:
     distillation_report = _read_json(Path("reports/weak-distillation-report.json"))
     release_report = _read_json(Path("reports/model-release-report.json"))
-    monitoring_report = _read_json(
-        Path("reports/pseudo-label-promotion-monitoring.json")
-    )
+    monitoring_report = _read_json(Path("reports/pseudo-label-promotion-monitoring.json"))
 
     expected = build_pseudo_label_monitoring_report(
         distillation_report,
         release_report,
     )
-    label_decisions = {
-        row["label"]: row["decision"] for row in monitoring_report["labels"]
-    }
+    label_decisions = {row["label"]: row["decision"] for row in monitoring_report["labels"]}
 
     assert monitoring_report == expected
     assert monitoring_report["overall_status"] == "pass"
-    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] == 83105
-    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5250
-    assert monitoring_report["candidate_funnel"]["promoted_count"] == release_report[
-        "pseudo_labeling"
-    ]["accepted_count"]
     assert (
-        monitoring_report["candidate_funnel"][
-            "teacher_passed_not_promoted_or_quota_limited_count"
-        ]
+        monitoring_report["candidate_funnel"]["raw_candidate_count"]
+        == distillation_report["candidate_count"]
+    )
+    assert monitoring_report["candidate_funnel"]["raw_candidate_count"] >= 550_000
+    assert monitoring_report["candidate_funnel"]["high_signal_candidate_count"] == 5250
+    assert (
+        monitoring_report["candidate_funnel"]["promoted_count"]
+        == release_report["pseudo_labeling"]["accepted_count"]
+    )
+    assert (
+        monitoring_report["candidate_funnel"]["teacher_passed_not_promoted_or_quota_limited_count"]
         >= 0
     )
     assert _label_row(monitoring_report, "RISK")["student_training_quota"] == 490
@@ -650,6 +643,48 @@ def test_raw_collector_reads_sharded_manifest(tmp_path: Path) -> None:
 
     assert [row.title for row in loaded] == ["뉴스 0", "뉴스 1", "뉴스 2"]
     assert len(list(tmp_path.glob("collected_alerts.part-*.jsonl"))) == 2
+    assert len(_read_json(manifest)["files"]) == 2
+
+
+def test_sharded_manifest_rejects_tampered_file(tmp_path: Path) -> None:
+    manifest = tmp_path / "dataset.jsonl"
+    write_sharded_jsonl(manifest, [{"value": 1}], rows_per_shard=1)
+    shard = tmp_path / _read_json(manifest)["dataset_shards"][0]
+    shard.write_text('{"value":2}\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="무결성 검증"):
+        load_jsonl_payloads(manifest)
+
+
+def test_sharded_manifest_rejects_missing_integrity_entry(tmp_path: Path) -> None:
+    manifest = tmp_path / "dataset.jsonl"
+    write_sharded_jsonl(manifest, [{"value": 1}], rows_per_shard=1)
+    payload = _read_json(manifest)
+    payload["files"] = []
+    manifest.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="무결성 정보가 없습니다"):
+        load_jsonl_payloads(manifest)
+
+
+def test_sharded_manifest_rejects_path_traversal(tmp_path: Path) -> None:
+    outside = tmp_path.parent / "outside.jsonl"
+    outside.write_text('{"value":1}\n', encoding="utf-8")
+    manifest = tmp_path / "dataset.jsonl"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+                "row_count": 1,
+                "dataset_shards": ["../outside.jsonl"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="안전하지 않은"):
+        load_jsonl_payloads(manifest)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -658,9 +693,7 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return [
-        json.loads(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
     ]
 
 

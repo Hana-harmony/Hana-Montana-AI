@@ -14,7 +14,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from hannah_montana_ai.training.dataset import resolve_jsonl_paths
+from hannah_montana_ai.training.dataset import build_jsonl_file_manifest, resolve_jsonl_paths
 from hannah_montana_ai.training.weak_labeler import RawCollectedAlert, normalize_text
 
 NAVER_QUERIES = (
@@ -147,7 +147,7 @@ def collect_naver_news_legacy(max_per_query: int = 200) -> list[RawCollectedAler
 
 def collect_open_dart(
     days: int = 30,
-    pages: int = 3,
+    pages: int | None = 3,
     end_date: date | None = None,
     window_days: int = 30,
     sleep_seconds: float = 0.1,
@@ -158,10 +158,17 @@ def collect_open_dart(
     collected: dict[str, RawCollectedAlert] = {}
     status = ProviderCollectionStatus(provider="open-dart")
 
+    if days < 1 or window_days < 1:
+        raise ValueError("days and window_days must be positive")
+    if pages is not None and pages < 1:
+        raise ValueError("pages must be positive or None")
+
     for offset in range(0, days, window_days):
         window_end = effective_end_date - timedelta(days=offset)
-        window_begin = window_end - timedelta(days=min(window_days, days - offset))
-        for page_no in range(1, pages + 1):
+        span_days = min(window_days, days - offset)
+        window_begin = window_end - timedelta(days=span_days - 1)
+        page_no = 1
+        while True:
             params = urlencode(
                 {
                     "crtfc_key": api_key,
@@ -182,8 +189,9 @@ def collect_open_dart(
                 status.record_error(
                     f"dart window stopped: begin={window_begin} end={window_end} page={page_no}"
                 )
-                continue
-            for item in payload.get("list", []):
+                break
+            items = payload.get("list", [])
+            for item in items:
                 receipt_number = str(item.get("rcept_no", ""))
                 report_name = normalize_text(str(item.get("report_nm", "")))
                 corp_name = normalize_text(str(item.get("corp_name", "")))
@@ -201,6 +209,17 @@ def collect_open_dart(
             if sleep_seconds > 0:
                 time.sleep(sleep_seconds)
 
+            total_pages = _positive_int(payload.get("total_page"))
+            reached_configured_limit = pages is not None and page_no >= pages
+            reached_provider_end = (
+                (total_pages is not None and page_no >= total_pages)
+                or not items
+                or (total_pages is None and len(items) < 100)
+            )
+            if reached_configured_limit or reached_provider_end:
+                break
+            page_no += 1
+
     status.collected_count = len(collected)
     return RawCollectionResult(alerts=list(collected.values()), status=status)
 
@@ -217,6 +236,14 @@ def collect_open_dart_legacy(
         end_date=end_date,
         window_days=window_days,
     ).alerts
+
+
+def _positive_int(value: object) -> int | None:
+    try:
+        parsed = int(str(value))
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
 
 
 def merge_raw_alerts(alerts: list[RawCollectedAlert]) -> list[RawCollectedAlert]:
@@ -279,8 +306,7 @@ def _json_request_with_retry(
                 time.sleep(_retry_sleep(base_sleep_seconds, attempt))
                 continue
             status.record_error(
-                "transient network error exceeded retry budget: "
-                f"{exception.__class__.__name__}"
+                f"transient network error exceeded retry budget: {exception.__class__.__name__}"
             )
             return None
 
@@ -338,6 +364,7 @@ def write_sharded_jsonl(
                 "row_count": len(rows),
                 "rows_per_shard": rows_per_shard,
                 "dataset_shards": [path.name for path in shard_paths],
+                "files": [build_jsonl_file_manifest(path, path.name) for path in shard_paths],
             },
             ensure_ascii=False,
             indent=2,

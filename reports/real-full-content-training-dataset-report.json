@@ -2,24 +2,86 @@
   "schema_version": "real-full-content-training-dataset/v1",
   "dataset_path": "data/training/financial_alert_full_content_gold.jsonl",
   "status": "pass",
-  "row_count": 20000,
+  "row_count": 28703,
   "source_type_count": {
-    "DISCLOSURE": 273,
+    "DISCLOSURE": 8976,
     "NEWS": 19727
   },
   "source_license_policy_count": {
     "internal_rights_safe_disclosure_text_v1": 4,
     "internal_rights_safe_full_article_v1": 10,
     "licensed_naver_original_full_text_v1": 19717,
-    "opendart_public_disclosure_text_v1": 269
+    "opendart_public_disclosure_text_v1": 8972
+  },
+  "label_provenance_count": {
+    "": 20000,
+    "RULE_WEAK_SUPERVISION_V2": 8703
+  },
+  "importance_distribution_by_source": {
+    "DISCLOSURE": {
+      "CRITICAL": 68,
+      "HIGH": 2110,
+      "LOW": 4903,
+      "MEDIUM": 1895
+    },
+    "NEWS": {
+      "CRITICAL": 1396,
+      "HIGH": 7734,
+      "LOW": 957,
+      "MEDIUM": 9640
+    }
+  },
+  "sentiment_distribution_by_source": {
+    "DISCLOSURE": {
+      "NEGATIVE": 81,
+      "NEUTRAL": 8139,
+      "POSITIVE": 756
+    },
+    "NEWS": {
+      "NEGATIVE": 1231,
+      "NEUTRAL": 10158,
+      "POSITIVE": 8338
+    }
+  },
+  "publication_year_count": {
+    "": 20000,
+    "2023": 1679,
+    "2024": 1977,
+    "2025": 2529,
+    "2026": 2518
+  },
+  "full_text_character_statistics": {
+    "ALL": {
+      "minimum": 180,
+      "median": 2266,
+      "p95": 20000,
+      "maximum": 20000,
+      "mean": 4300.4
+    },
+    "DISCLOSURE": {
+      "minimum": 183,
+      "median": 2428,
+      "p95": 20000,
+      "maximum": 20000,
+      "mean": 6659.04
+    },
+    "NEWS": {
+      "minimum": 180,
+      "median": 2260,
+      "p95": 9962,
+      "maximum": 20000,
+      "mean": 3227.2
+    }
   },
   "minimum_full_text_characters": 180,
   "collection_status": {
-    "news_added": 16042,
-    "news_attempted": 40000,
-    "news_failed": 6159,
-    "news_reused_existing_url": 3547,
-    "target_row_count_reached": 3
+    "disclosure_added": 4976,
+    "disclosure_attempted": 5065,
+    "disclosure_failed": 89,
+    "disclosure_failed_content_too_short": 51,
+    "disclosure_failed_dart_status_013": 1,
+    "disclosure_failed_dart_status_014": 37,
+    "disclosure_reused_existing_url": 3996
   },
   "errors": []
 }

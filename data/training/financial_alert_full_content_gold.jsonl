@@ -1,8 +1,50 @@
 {
   "schema_version": "jsonl-shard-manifest/v1",
-  "row_count": 20000,
+  "row_count": 28703,
   "dataset_shards": [
     "financial_alert_full_content_gold_shards/part-0001.jsonl",
-    "financial_alert_full_content_gold_shards/part-0002.jsonl"
+    "financial_alert_full_content_gold_shards/part-0002.jsonl",
+    "financial_alert_full_content_gold_shards/part-0003.jsonl",
+    "financial_alert_full_content_gold_shards/part-0004.jsonl",
+    "financial_alert_full_content_gold_shards/part-0005.jsonl",
+    "financial_alert_full_content_gold_shards/part-0006.jsonl",
+    "financial_alert_full_content_gold_shards/part-0007.jsonl"
+  ],
+  "files": [
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0001.jsonl",
+      "bytes": 47993712,
+      "sha256": "e7a11a33cda4b3e049728ac30d51b4e8485e4f1117382f0e3143f331ba1d34ce"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0002.jsonl",
+      "bytes": 47967902,
+      "sha256": "39b571741e740dba451aa5740f29bae6e23715765024586b298bb625850fb6e9"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0003.jsonl",
+      "bytes": 47963288,
+      "sha256": "a1c6178fdc92ce2f4a5d3191284841c964683e7dad9e1bf5fe5d5876d422e3cf"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0004.jsonl",
+      "bytes": 47980116,
+      "sha256": "8036418754b4a04919d8e319c95573487dd487be98979ee262bafd63a7bb3bf3"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0005.jsonl",
+      "bytes": 47988608,
+      "sha256": "1bc478fcdf9ed44ed19b82d4e572f3496759c5b9847b845a3cb35e2a47c32a46"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0006.jsonl",
+      "bytes": 47999683,
+      "sha256": "98eba85c88844f2dc0039f831e274c97e2d716b0c1501564f9d30c23ae325089"
+    },
+    {
+      "path": "financial_alert_full_content_gold_shards/part-0007.jsonl",
+      "bytes": 22296198,
+      "sha256": "8fde133a107dd3b693a9583ed48f663893e933a68585ebb287477d52e889dddb"
+    }
   ]
 }

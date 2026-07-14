@@ -1,22 +1,22 @@
 {
-  "schema_version": "hannah-ai-model-audit/v1",
-  "generated_at": "2026-07-13T10:41:09.087610+00:00",
+  "schema_version": "hannah-ai-model-audit/v2",
+  "generated_at": "2026-07-14T02:36:53.955678+00:00",
   "overall_status": "pass",
   "models": [
     {
       "name": "financial_news_disclosure_classifier",
       "artifact": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
-      "version": "financial-ml-tfidf-logreg-20260622090407",
+      "version": "financial-ml-tfidf-logreg-20260714023257",
       "model_type": "TF-IDF feature pipeline + supervised LogisticRegression classifiers",
       "serving_surface": "watchlist/news/disclosure alert analysis",
       "release_status": "pass",
-      "training_samples": 23568,
+      "training_samples": 32266,
       "evaluation": {
         "benchmark_event_macro_f1": 0.984375,
         "benchmark_sentiment_accuracy": 0.94921875,
-        "benchmark_importance_accuracy": 0.9583333333333334,
-        "real_news_event_macro_f1": 0.9220769444986373,
-        "stock_review_event_macro_f1": 0.7307006096364907
+        "benchmark_importance_accuracy": 0.9322916666666666,
+        "real_news_event_macro_f1": 0.9184304408521337,
+        "stock_review_event_macro_f1": 0.6937339339542434
       },
       "gate_status": "pass",
       "remaining_risk": "stock_review_gold의 일부 희소 이벤트 라벨은 macro F1이 낮아 지속적인 gold 확장이 필요하다."
@@ -27,7 +27,7 @@
       "version": "kf-deberta-finance-sentiment-lora-20260713102924",
       "model_type": "KF-DeBERTa base + LoRA finance sentiment classifier",
       "serving_surface": "news/disclosure sentiment analysis",
-      "release_status": "DEPLOY_KF_DEBERTA_ENSEMBLE",
+      "release_status": "DEPLOY_HANA_MONTANA_AI",
       "training_samples": 18139,
       "evaluation": {
         "validation": {
@@ -69,7 +69,27 @@
                 "POSITIVE": 278
               }
             },
-            "elapsed_seconds": 1.251433
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.8666666666666667,
+                "recall": 0.2508038585209003,
+                "f1": 0.38902743142144636,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.5084745762711864,
+                "recall": 0.28938906752411575,
+                "f1": 0.36885245901639346,
+                "support": 311
+              },
+              "POSITIVE": {
+                "precision": 0.4174174174174174,
+                "recall": 0.8938906752411575,
+                "f1": 0.5690890481064483,
+                "support": 311
+              }
+            },
+            "elapsed_seconds": 1.233104
           },
           "kr_finbert_sc": {
             "accuracy": 0.7363344051446945,
@@ -91,7 +111,27 @@
                 "POSITIVE": 274
               }
             },
-            "elapsed_seconds": 7.578813
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.8966666666666666,
+                "recall": 0.864951768488746,
+                "f1": 0.8805237315875614,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.7422680412371134,
+                "recall": 0.4630225080385852,
+                "f1": 0.5702970297029702,
+                "support": 311
+              },
+              "POSITIVE": {
+                "precision": 0.6241457858769932,
+                "recall": 0.8810289389067524,
+                "f1": 0.7306666666666667,
+                "support": 311
+              }
+            },
+            "elapsed_seconds": 8.204671
           },
           "kf_deberta_lora": {
             "accuracy": 0.8853161843515541,
@@ -113,7 +153,27 @@
                 "POSITIVE": 252
               }
             },
-            "elapsed_seconds": 11.242333
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.9371069182389937,
+                "recall": 0.9581993569131833,
+                "f1": 0.9475357710651828,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.8189910979228486,
+                "recall": 0.887459807073955,
+                "f1": 0.8518518518518519,
+                "support": 311
+              },
+              "POSITIVE": {
+                "precision": 0.9064748201438849,
+                "recall": 0.8102893890675241,
+                "f1": 0.8556876061120543,
+                "support": 311
+              }
+            },
+            "elapsed_seconds": 13.89462
           },
           "kf_deberta_lora_ensemble": {
             "accuracy": 0.8842443729903537,
@@ -135,34 +195,116 @@
                 "POSITIVE": 252
               }
             },
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.9369085173501577,
+                "recall": 0.954983922829582,
+                "f1": 0.945859872611465,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.8189910979228486,
+                "recall": 0.887459807073955,
+                "f1": 0.8518518518518519,
+                "support": 311
+              },
+              "POSITIVE": {
+                "precision": 0.9032258064516129,
+                "recall": 0.8102893890675241,
+                "f1": 0.8542372881355932,
+                "support": 311
+              }
+            },
             "transformer_weight": 0.8,
             "baseline_weight": 0.2
+          },
+          "kf_deberta_lora_stacker": {
+            "accuracy": 0.8821007502679529,
+            "macro_f1": 0.8820262420757777,
+            "confusion_matrix": {
+              "NEGATIVE": {
+                "NEGATIVE": 295,
+                "NEUTRAL": 11,
+                "POSITIVE": 5
+              },
+              "NEUTRAL": {
+                "NEGATIVE": 12,
+                "NEUTRAL": 274,
+                "POSITIVE": 25
+              },
+              "POSITIVE": {
+                "NEGATIVE": 7,
+                "NEUTRAL": 50,
+                "POSITIVE": 254
+              }
+            },
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.9394904458598726,
+                "recall": 0.9485530546623794,
+                "f1": 0.944,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.817910447761194,
+                "recall": 0.8810289389067524,
+                "f1": 0.848297213622291,
+                "support": 311
+              },
+              "POSITIVE": {
+                "precision": 0.8943661971830986,
+                "recall": 0.8167202572347267,
+                "f1": 0.853781512605042,
+                "support": 311
+              }
+            },
+            "artifact": "src/hannah_montana_ai/model_store/sentiment_stacker.joblib"
           }
         },
         "operational_gold": {
           "real_disclosure_gold": {
-            "accuracy": 1.0,
-            "macro_f1": 1.0,
+            "accuracy": 0.9233333333333333,
+            "macro_f1": 0.8343921853959096,
             "confusion_matrix": {
               "NEGATIVE": {
-                "NEGATIVE": 7,
-                "NEUTRAL": 0,
+                "NEGATIVE": 51,
+                "NEUTRAL": 4,
                 "POSITIVE": 0
               },
               "NEUTRAL": {
-                "NEGATIVE": 0,
-                "NEUTRAL": 19,
+                "NEGATIVE": 3,
+                "NEUTRAL": 472,
                 "POSITIVE": 0
               },
               "POSITIVE": {
                 "NEGATIVE": 0,
-                "NEUTRAL": 0,
-                "POSITIVE": 4
+                "NEUTRAL": 39,
+                "POSITIVE": 31
               }
             },
-            "sample_count": 30,
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.9444444444444444,
+                "recall": 0.9272727272727272,
+                "f1": 0.9357798165137615,
+                "support": 55
+              },
+              "NEUTRAL": {
+                "precision": 0.916504854368932,
+                "recall": 0.9936842105263158,
+                "f1": 0.9535353535353536,
+                "support": 475
+              },
+              "POSITIVE": {
+                "precision": 1.0,
+                "recall": 0.44285714285714284,
+                "f1": 0.6138613861386139,
+                "support": 70
+              }
+            },
+            "sample_count": 600,
             "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
-            "sha256": "a7a50d1f80b2d352696b67a20b6d498007da9a8926fd6fc265234508ea2d74e0"
+            "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
           },
           "real_news_gold": {
             "accuracy": 0.9,
@@ -184,6 +326,26 @@
                 "POSITIVE": 42
               }
             },
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.8636363636363636,
+                "recall": 0.95,
+                "f1": 0.9047619047619048,
+                "support": 20
+              },
+              "NEUTRAL": {
+                "precision": 0.8461538461538461,
+                "recall": 0.6470588235294118,
+                "f1": 0.7333333333333333,
+                "support": 17
+              },
+              "POSITIVE": {
+                "precision": 0.9333333333333333,
+                "recall": 0.9767441860465116,
+                "f1": 0.9545454545454546,
+                "support": 43
+              }
+            },
             "sample_count": 80,
             "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
             "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
@@ -194,39 +356,1029 @@
       "remaining_risk": "공개 감성 데이터와 실제 운영 뉴스의 분포 차이는 지속적인 시간 외삽 Gold로 감시한다."
     },
     {
+      "name": "disclosure_semantic_importance_classifier",
+      "artifact": "src/hannah_montana_ai/model_store/disclosure_importance_ml.joblib",
+      "version": "disclosure-importance-tfidf-logreg-20260713190852",
+      "model_type": "Validation-selected title+snippet TF-IDF LogisticRegression + terminal-risk policy",
+      "serving_surface": "disclosure semantic importance analysis",
+      "release_status": "DEPLOY_DISCLOSURE_IMPORTANCE",
+      "training_samples": 8702,
+      "evaluation": {
+        "feature_selection": {
+          "partition": "VALIDATION",
+          "criterion": "macro_f1, multiclass_brier_score, richer-context tie-break",
+          "selected": "title_and_snippet",
+          "selected_fields": [
+            "title",
+            "snippet"
+          ],
+          "candidates": {
+            "title_only": {
+              "fields": [
+                "title"
+              ],
+              "probability_temperature": 0.4,
+              "validation": {
+                "sample_count": 2411,
+                "accuracy": 0.9991704686851929,
+                "macro_f1": 0.9894056439693557,
+                "confusion_matrix": {
+                  "LOW": {
+                    "LOW": 1305,
+                    "MEDIUM": 0,
+                    "HIGH": 0,
+                    "CRITICAL": 1
+                  },
+                  "MEDIUM": {
+                    "LOW": 0,
+                    "MEDIUM": 703,
+                    "HIGH": 1,
+                    "CRITICAL": 0
+                  },
+                  "HIGH": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 389,
+                    "CRITICAL": 0
+                  },
+                  "CRITICAL": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 0,
+                    "CRITICAL": 12
+                  }
+                },
+                "label_metrics": {
+                  "LOW": {
+                    "precision": 1.0,
+                    "recall": 0.9992343032159265,
+                    "f1": 0.9996170049789352,
+                    "support": 1306
+                  },
+                  "MEDIUM": {
+                    "precision": 1.0,
+                    "recall": 0.9985795454545454,
+                    "f1": 0.9992892679459844,
+                    "support": 704
+                  },
+                  "HIGH": {
+                    "precision": 0.9974358974358974,
+                    "recall": 1.0,
+                    "f1": 0.9987163029525032,
+                    "support": 389
+                  },
+                  "CRITICAL": {
+                    "precision": 0.9230769230769231,
+                    "recall": 1.0,
+                    "f1": 0.96,
+                    "support": 12
+                  }
+                },
+                "expected_calibration_error_15_bin": 0.0011061058034142978,
+                "multiclass_brier_score": 0.0015610358689650257
+              }
+            },
+            "title_and_snippet": {
+              "fields": [
+                "title",
+                "snippet"
+              ],
+              "probability_temperature": 0.4,
+              "validation": {
+                "sample_count": 2411,
+                "accuracy": 0.9991704686851929,
+                "macro_f1": 0.9894056439693557,
+                "confusion_matrix": {
+                  "LOW": {
+                    "LOW": 1305,
+                    "MEDIUM": 0,
+                    "HIGH": 0,
+                    "CRITICAL": 1
+                  },
+                  "MEDIUM": {
+                    "LOW": 0,
+                    "MEDIUM": 703,
+                    "HIGH": 1,
+                    "CRITICAL": 0
+                  },
+                  "HIGH": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 389,
+                    "CRITICAL": 0
+                  },
+                  "CRITICAL": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 0,
+                    "CRITICAL": 12
+                  }
+                },
+                "label_metrics": {
+                  "LOW": {
+                    "precision": 1.0,
+                    "recall": 0.9992343032159265,
+                    "f1": 0.9996170049789352,
+                    "support": 1306
+                  },
+                  "MEDIUM": {
+                    "precision": 1.0,
+                    "recall": 0.9985795454545454,
+                    "f1": 0.9992892679459844,
+                    "support": 704
+                  },
+                  "HIGH": {
+                    "precision": 0.9974358974358974,
+                    "recall": 1.0,
+                    "f1": 0.9987163029525032,
+                    "support": 389
+                  },
+                  "CRITICAL": {
+                    "precision": 0.9230769230769231,
+                    "recall": 1.0,
+                    "f1": 0.96,
+                    "support": 12
+                  }
+                },
+                "expected_calibration_error_15_bin": 0.0011990479832335492,
+                "multiclass_brier_score": 0.0013423869941468606
+              }
+            },
+            "title_snippet_full_content": {
+              "fields": [
+                "title",
+                "snippet",
+                "full_content"
+              ],
+              "probability_temperature": 0.6,
+              "validation": {
+                "sample_count": 2411,
+                "accuracy": 0.9879717959352966,
+                "macro_f1": 0.9814827738299206,
+                "confusion_matrix": {
+                  "LOW": {
+                    "LOW": 1281,
+                    "MEDIUM": 24,
+                    "HIGH": 1,
+                    "CRITICAL": 0
+                  },
+                  "MEDIUM": {
+                    "LOW": 1,
+                    "MEDIUM": 701,
+                    "HIGH": 2,
+                    "CRITICAL": 0
+                  },
+                  "HIGH": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 388,
+                    "CRITICAL": 1
+                  },
+                  "CRITICAL": {
+                    "LOW": 0,
+                    "MEDIUM": 0,
+                    "HIGH": 0,
+                    "CRITICAL": 12
+                  }
+                },
+                "label_metrics": {
+                  "LOW": {
+                    "precision": 0.999219968798752,
+                    "recall": 0.9808575803981623,
+                    "f1": 0.9899536321483772,
+                    "support": 1306
+                  },
+                  "MEDIUM": {
+                    "precision": 0.9668965517241379,
+                    "recall": 0.9957386363636364,
+                    "f1": 0.9811056682995102,
+                    "support": 704
+                  },
+                  "HIGH": {
+                    "precision": 0.9923273657289002,
+                    "recall": 0.9974293059125964,
+                    "f1": 0.9948717948717949,
+                    "support": 389
+                  },
+                  "CRITICAL": {
+                    "precision": 0.9230769230769231,
+                    "recall": 1.0,
+                    "f1": 0.96,
+                    "support": 12
+                  }
+                },
+                "expected_calibration_error_15_bin": 0.0061714484044312,
+                "multiclass_brier_score": 0.020441080325186302
+              }
+            }
+          },
+          "gold_used_for_selection": false
+        },
+        "model_only_gold": {
+          "sample_count": 600,
+          "accuracy": 0.985,
+          "macro_f1": 0.9470220181304256,
+          "confusion_matrix": {
+            "LOW": {
+              "LOW": 250,
+              "MEDIUM": 0,
+              "HIGH": 0,
+              "CRITICAL": 0
+            },
+            "MEDIUM": {
+              "LOW": 0,
+              "MEDIUM": 34,
+              "HIGH": 0,
+              "CRITICAL": 0
+            },
+            "HIGH": {
+              "LOW": 0,
+              "MEDIUM": 0,
+              "HIGH": 287,
+              "CRITICAL": 0
+            },
+            "CRITICAL": {
+              "LOW": 0,
+              "MEDIUM": 1,
+              "HIGH": 8,
+              "CRITICAL": 20
+            }
+          },
+          "label_metrics": {
+            "LOW": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 250
+            },
+            "MEDIUM": {
+              "precision": 0.9714285714285714,
+              "recall": 1.0,
+              "f1": 0.9855072463768116,
+              "support": 34
+            },
+            "HIGH": {
+              "precision": 0.9728813559322034,
+              "recall": 1.0,
+              "f1": 0.9862542955326461,
+              "support": 287
+            },
+            "CRITICAL": {
+              "precision": 1.0,
+              "recall": 0.6896551724137931,
+              "f1": 0.8163265306122449,
+              "support": 29
+            }
+          },
+          "expected_calibration_error_15_bin": 0.012164915821303805,
+          "multiclass_brier_score": 0.03045451435155372
+        },
+        "operational_gold": {
+          "accuracy": 0.9989010989010989,
+          "macro_f1": 0.9961636828644501,
+          "quadratic_kappa": 0.9993763560828582,
+          "ordinal_mean_absolute_error": 0.001098901098901099,
+          "per_class": {
+            "LOW": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 256
+            },
+            "MEDIUM": {
+              "precision": 0.9714285714285714,
+              "recall": 1.0,
+              "f1": 0.9855072463768116,
+              "support": 34
+            },
+            "HIGH": {
+              "precision": 1.0,
+              "recall": 0.9982964224872232,
+              "f1": 0.9991474850809889,
+              "support": 587
+            },
+            "CRITICAL": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 33
+            }
+          },
+          "confusion_matrix": [
+            [
+              256,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              586,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              33
+            ]
+          ],
+          "confusion_matrix_label_order": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ],
+          "expected_calibration_error_15_bin": 0.022520433127825118,
+          "multiclass_brier_score": 0.006313201620288498
+        },
+        "baseline_operational_gold": {
+          "accuracy": 0.9054945054945055,
+          "macro_f1": 0.8205962155312753,
+          "quadratic_kappa": 0.9396980007506011,
+          "ordinal_mean_absolute_error": 0.1021978021978022,
+          "per_class": {
+            "LOW": {
+              "precision": 0.9770992366412213,
+              "recall": 1.0,
+              "f1": 0.9884169884169884,
+              "support": 256
+            },
+            "MEDIUM": {
+              "precision": 1.0,
+              "recall": 0.8235294117647058,
+              "f1": 0.9032258064516129,
+              "support": 34
+            },
+            "HIGH": {
+              "precision": 0.990234375,
+              "recall": 0.8637137989778535,
+              "f1": 0.9226569608735213,
+              "support": 587
+            },
+            "CRITICAL": {
+              "precision": 0.3055555555555556,
+              "recall": 1.0,
+              "f1": 0.46808510638297873,
+              "support": 33
+            }
+          },
+          "confusion_matrix": [
+            [
+              256,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              28,
+              5,
+              1
+            ],
+            [
+              6,
+              0,
+              507,
+              74
+            ],
+            [
+              0,
+              0,
+              0,
+              33
+            ]
+          ],
+          "confusion_matrix_label_order": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "paired_bootstrap": {
+          "samples": 2000,
+          "seed": 20260713,
+          "accuracy_difference": {
+            "mean": 0.09352252747252747,
+            "low": 0.07472527472527468,
+            "high": 0.11318681318681323
+          },
+          "macro_f1_difference": {
+            "mean": 0.17636288397653452,
+            "low": 0.14195040806593995,
+            "high": 0.21315514898464205
+          },
+          "quadratic_kappa_difference": {
+            "mean": 0.059902128882288484,
+            "low": 0.04630711780303787,
+            "high": 0.07562898229531312
+          }
+        },
+        "mcnemar_exact": {
+          "baseline_only_correct": 1,
+          "candidate_only_correct": 86,
+          "p_value": 1.137373342260413e-24
+        }
+      },
+      "gate_status": "pass",
+      "remaining_risk": "Gold는 동일 코드북의 Codex 단일 검수이므로 독립 금융 전문가 평가자 간 일치도를 대신하지 않는다."
+    },
+    {
       "name": "k_fnspid_market_impact_classifier",
       "artifact": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer",
-      "version": "k-fnspid-impact-kf-deberta-lora-20260713094908",
+      "version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
       "model_type": "KF-DeBERTa base + LoRA ordinal market-impact classifier",
-      "serving_surface": "news/disclosure importance analysis",
+      "serving_surface": "separate news/disclosure market-impact fields",
       "release_status": "DEPLOY_KF_DEBERTA_IMPACT",
-      "training_samples": 113931,
+      "training_samples": 114150,
       "evaluation": {
         "baseline_test": {
-          "sample_count": 10728,
-          "accuracy": 0.45423191648023864,
-          "macro_f1": 0.36131736558509486,
-          "quadratic_kappa": 0.35148457958853574
+          "sample_count": 10750,
+          "accuracy": 0.4642790697674419,
+          "macro_f1": 0.34289600363077616,
+          "quadratic_kappa": 0.31405511670470976
         },
         "transformer_validation": {
-          "loss": 1.4019187688827515,
-          "accuracy": 0.4777170787809086,
-          "macro_f1": 0.3487051103931755,
-          "quadratic_kappa": 0.3996777393358003,
-          "runtime": 124.8597,
-          "samples_per_second": 55.711,
-          "steps_per_second": 1.746,
-          "sample_count": 6956
+          "accuracy": 0.5052329749103943,
+          "macro_f1": 0.37879763042762105,
+          "quadratic_kappa": 0.45262179146090276,
+          "sample_count": 6975
         },
         "transformer_test": {
-          "loss": 1.3608275651931763,
-          "accuracy": 0.5005592841163311,
-          "macro_f1": 0.36643678011439446,
-          "quadratic_kappa": 0.41857498868384246,
-          "runtime": 188.1156,
-          "samples_per_second": 57.029,
-          "steps_per_second": 1.786,
-          "sample_count": 10728
+          "accuracy": 0.5094883720930232,
+          "macro_f1": 0.3819809550549159,
+          "quadratic_kappa": 0.46941981593038373,
+          "sample_count": 10750
+        },
+        "multiseed": {
+          "schema_version": "k-fnspid-transformer-multiseed/v1",
+          "run_count": 3,
+          "seeds": [
+            17,
+            42,
+            73
+          ],
+          "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
+          "selected_seed_by_validation": 73,
+          "selected_version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
+          "selected_artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer_seed73",
+          "selected_predictions_path": "reports/k-fnspid-transformer-test-predictions-seed73.jsonl",
+          "report_paths": [
+            "reports/k-fnspid-transformer-training-report-seed17.json",
+            "reports/k-fnspid-transformer-training-report.json",
+            "reports/k-fnspid-transformer-training-report-seed73.json"
+          ],
+          "validation": {
+            "accuracy": {
+              "mean": 0.49839904420549586,
+              "sample_std": 0.019213787552518773,
+              "minimum": 0.4767025089605735,
+              "maximum": 0.5132616487455197
+            },
+            "macro_f1": {
+              "mean": 0.37315199452374137,
+              "sample_std": 0.004889541537784151,
+              "minimum": 0.3702770912539538,
+              "maximum": 0.37879763042762105
+            },
+            "quadratic_kappa": {
+              "mean": 0.44654973955903093,
+              "sample_std": 0.009137383705936695,
+              "minimum": 0.4360411357219002,
+              "maximum": 0.45262179146090276
+            }
+          },
+          "test": {
+            "accuracy": {
+              "mean": 0.5104806201550388,
+              "sample_std": 0.008046018715018647,
+              "minimum": 0.5029767441860465,
+              "maximum": 0.5189767441860466
+            },
+            "macro_f1": {
+              "mean": 0.38238425984579544,
+              "sample_std": 0.010156976797915754,
+              "minimum": 0.3724349425039323,
+              "maximum": 0.39273688197853807
+            },
+            "quadratic_kappa": {
+              "mean": 0.46750048324007704,
+              "sample_std": 0.004157622249024205,
+              "minimum": 0.462729918800836,
+              "maximum": 0.4703517149890114
+            }
+          },
+          "runs": [
+            {
+              "seed": 17,
+              "version": "k-fnspid-impact-kf-deberta-lora-20260713220919-prior0.25",
+              "validation": {
+                "accuracy": 0.5132616487455197,
+                "macro_f1": 0.3702770912539538,
+                "quadratic_kappa": 0.4509862914942899
+              },
+              "test": {
+                "accuracy": 0.5189767441860466,
+                "macro_f1": 0.3724349425039323,
+                "quadratic_kappa": 0.4703517149890114
+              }
+            },
+            {
+              "seed": 42,
+              "version": "k-fnspid-impact-kf-deberta-lora-20260713180600-prior0.10",
+              "validation": {
+                "accuracy": 0.4767025089605735,
+                "macro_f1": 0.3703812618896493,
+                "quadratic_kappa": 0.4360411357219002
+              },
+              "test": {
+                "accuracy": 0.5029767441860465,
+                "macro_f1": 0.39273688197853807,
+                "quadratic_kappa": 0.462729918800836
+              }
+            },
+            {
+              "seed": 73,
+              "version": "k-fnspid-impact-kf-deberta-lora-20260714013051-prior0.15",
+              "validation": {
+                "accuracy": 0.5052329749103943,
+                "macro_f1": 0.37879763042762105,
+                "quadratic_kappa": 0.45262179146090276
+              },
+              "test": {
+                "accuracy": 0.5094883720930232,
+                "macro_f1": 0.3819809550549159,
+                "quadratic_kappa": 0.46941981593038373
+              }
+            }
+          ]
+        },
+        "research": {
+          "schema_version": "k-fnspid-research-evaluation/v1",
+          "sample_count": 10750,
+          "label_distribution": {
+            "CRITICAL": 602,
+            "HIGH": 1341,
+            "LOW": 5321,
+            "MEDIUM": 3486
+          },
+          "baseline": {
+            "accuracy": 0.4642790697674419,
+            "macro_f1": 0.34289600363077616,
+            "quadratic_kappa": 0.31405511670470976,
+            "ordinal_mean_absolute_error": 0.7310697674418605,
+            "per_class": {
+              "LOW": {
+                "precision": 0.585358206615457,
+                "recall": 0.7017477917684646,
+                "f1": 0.6382905982905983,
+                "support": 5321
+              },
+              "MEDIUM": {
+                "precision": 0.36413540713632203,
+                "recall": 0.22834193918531268,
+                "f1": 0.28067700987306066,
+                "support": 3486
+              },
+              "HIGH": {
+                "precision": 0.22213375796178345,
+                "recall": 0.2080536912751678,
+                "f1": 0.21486330381209087,
+                "support": 1341
+              },
+              "CRITICAL": {
+                "precision": 0.19590958019375673,
+                "recall": 0.3023255813953488,
+                "f1": 0.23775310254735468,
+                "support": 602
+              }
+            },
+            "confusion_matrix": [
+              [
+                3734,
+                937,
+                416,
+                234
+              ],
+              [
+                1989,
+                796,
+                434,
+                267
+              ],
+              [
+                494,
+                322,
+                279,
+                246
+              ],
+              [
+                162,
+                131,
+                127,
+                182
+              ]
+            ],
+            "confusion_matrix_label_order": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ],
+            "expected_calibration_error_15_bin": 0.049107208974883715,
+            "multiclass_brier_score": 0.6450044206085973
+          },
+          "transformer": {
+            "accuracy": 0.5094883720930232,
+            "macro_f1": 0.3819809550549159,
+            "quadratic_kappa": 0.46941981593038373,
+            "ordinal_mean_absolute_error": 0.6346046511627907,
+            "per_class": {
+              "LOW": {
+                "precision": 0.6020308805118931,
+                "recall": 0.8133809434316858,
+                "f1": 0.6919264588329337,
+                "support": 5321
+              },
+              "MEDIUM": {
+                "precision": 0.39127324749642345,
+                "recall": 0.15691336775674125,
+                "f1": 0.223996723996724,
+                "support": 3486
+              },
+              "HIGH": {
+                "precision": 0.2643573381950775,
+                "recall": 0.2162565249813572,
+                "f1": 0.23789991796554552,
+                "support": 1341
+              },
+              "CRITICAL": {
+                "precision": 0.2926829268292683,
+                "recall": 0.5182724252491694,
+                "f1": 0.37410071942446044,
+                "support": 602
+              }
+            },
+            "confusion_matrix": [
+              [
+                4328,
+                560,
+                299,
+                134
+              ],
+              [
+                2300,
+                547,
+                384,
+                255
+              ],
+              [
+                462,
+                224,
+                290,
+                365
+              ],
+              [
+                99,
+                67,
+                124,
+                312
+              ]
+            ],
+            "confusion_matrix_label_order": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ],
+            "expected_calibration_error_15_bin": 0.06617709453395348,
+            "multiclass_brier_score": 0.6128793422962073
+          },
+          "paired_bootstrap": {
+            "samples": 2000,
+            "seed": 20260713,
+            "accuracy_difference": {
+              "mean": 0.04527497674418605,
+              "low": 0.03599999999999992,
+              "high": 0.05479069767441863
+            },
+            "macro_f1_difference": {
+              "mean": 0.039209847234817886,
+              "low": 0.026205994140607536,
+              "high": 0.05245435520548214
+            },
+            "quadratic_kappa_difference": {
+              "mean": 0.15550380779913342,
+              "low": 0.13739402102564346,
+              "high": 0.17337859850545545
+            }
+          },
+          "clustered_bootstrap": {
+            "cluster_key": "effective_trade_date",
+            "cluster_count": 70,
+            "samples": 2000,
+            "seed": 20260713,
+            "accuracy_difference": {
+              "mean": 0.045141060265520075,
+              "low": 0.03514376996805113,
+              "high": 0.055735880552721884
+            },
+            "macro_f1_difference": {
+              "mean": 0.03898829051891026,
+              "low": 0.025614470182823146,
+              "high": 0.05355552180347628
+            },
+            "quadratic_kappa_difference": {
+              "mean": 0.15530115607242428,
+              "low": 0.1331430300140536,
+              "high": 0.17756565012671666
+            }
+          },
+          "mcnemar_exact": {
+            "baseline_only_correct": 1130,
+            "transformer_only_correct": 1616,
+            "p_value": 1.7048232813369784e-20
+          },
+          "source_type": {
+            "DISCLOSURE": {
+              "sample_count": 590,
+              "baseline": {
+                "accuracy": 0.5016949152542373,
+                "macro_f1": 0.3006354680966368,
+                "quadratic_kappa": 0.061087713225254414,
+                "ordinal_mean_absolute_error": 0.688135593220339,
+                "per_class": {
+                  "LOW": {
+                    "precision": 0.6098765432098765,
+                    "recall": 0.7118155619596542,
+                    "f1": 0.6569148936170213,
+                    "support": 347
+                  },
+                  "MEDIUM": {
+                    "precision": 0.38202247191011235,
+                    "recall": 0.18888888888888888,
+                    "f1": 0.2527881040892193,
+                    "support": 180
+                  },
+                  "HIGH": {
+                    "precision": 0.1686746987951807,
+                    "recall": 0.2641509433962264,
+                    "f1": 0.20588235294117646,
+                    "support": 53
+                  },
+                  "CRITICAL": {
+                    "precision": 0.07692307692307693,
+                    "recall": 0.1,
+                    "f1": 0.08695652173913043,
+                    "support": 10
+                  }
+                },
+                "confusion_matrix": [
+                  [
+                    247,
+                    46,
+                    45,
+                    9
+                  ],
+                  [
+                    120,
+                    34,
+                    24,
+                    2
+                  ],
+                  [
+                    31,
+                    7,
+                    14,
+                    1
+                  ],
+                  [
+                    7,
+                    2,
+                    0,
+                    1
+                  ]
+                ],
+                "confusion_matrix_label_order": [
+                  "LOW",
+                  "MEDIUM",
+                  "HIGH",
+                  "CRITICAL"
+                ]
+              },
+              "transformer": {
+                "accuracy": 0.5661016949152542,
+                "macro_f1": 0.22109903684252533,
+                "quadratic_kappa": 0.021932190456142142,
+                "ordinal_mean_absolute_error": 0.5661016949152542,
+                "per_class": {
+                  "LOW": {
+                    "precision": 0.5922509225092251,
+                    "recall": 0.9250720461095101,
+                    "f1": 0.7221597300337458,
+                    "support": 347
+                  },
+                  "MEDIUM": {
+                    "precision": 0.3548387096774194,
+                    "recall": 0.06111111111111111,
+                    "f1": 0.10426540284360189,
+                    "support": 180
+                  },
+                  "HIGH": {
+                    "precision": 0.125,
+                    "recall": 0.03773584905660377,
+                    "f1": 0.057971014492753624,
+                    "support": 53
+                  },
+                  "CRITICAL": {
+                    "precision": 0.0,
+                    "recall": 0.0,
+                    "f1": 0.0,
+                    "support": 10
+                  }
+                },
+                "confusion_matrix": [
+                  [
+                    321,
+                    15,
+                    11,
+                    0
+                  ],
+                  [
+                    165,
+                    11,
+                    3,
+                    1
+                  ],
+                  [
+                    49,
+                    2,
+                    2,
+                    0
+                  ],
+                  [
+                    7,
+                    3,
+                    0,
+                    0
+                  ]
+                ],
+                "confusion_matrix_label_order": [
+                  "LOW",
+                  "MEDIUM",
+                  "HIGH",
+                  "CRITICAL"
+                ]
+              }
+            },
+            "NEWS": {
+              "sample_count": 10160,
+              "baseline": {
+                "accuracy": 0.46210629921259844,
+                "macro_f1": 0.3436223764345524,
+                "quadratic_kappa": 0.3220314115639976,
+                "ordinal_mean_absolute_error": 0.7335629921259843,
+                "per_class": {
+                  "LOW": {
+                    "precision": 0.5836960160696351,
+                    "recall": 0.7010454362685967,
+                    "f1": 0.6370113262696383,
+                    "support": 4974
+                  },
+                  "MEDIUM": {
+                    "precision": 0.36337625178826893,
+                    "recall": 0.23049001814882034,
+                    "f1": 0.28206551915602446,
+                    "support": 3306
+                  },
+                  "HIGH": {
+                    "precision": 0.2259164535379369,
+                    "recall": 0.20574534161490685,
+                    "f1": 0.21535960991466882,
+                    "support": 1288
+                  },
+                  "CRITICAL": {
+                    "precision": 0.19759825327510916,
+                    "recall": 0.30574324324324326,
+                    "f1": 0.24005305039787797,
+                    "support": 592
+                  }
+                },
+                "confusion_matrix": [
+                  [
+                    3487,
+                    891,
+                    371,
+                    225
+                  ],
+                  [
+                    1869,
+                    762,
+                    410,
+                    265
+                  ],
+                  [
+                    463,
+                    315,
+                    265,
+                    245
+                  ],
+                  [
+                    155,
+                    129,
+                    127,
+                    181
+                  ]
+                ],
+                "confusion_matrix_label_order": [
+                  "LOW",
+                  "MEDIUM",
+                  "HIGH",
+                  "CRITICAL"
+                ]
+              },
+              "transformer": {
+                "accuracy": 0.5062007874015748,
+                "macro_f1": 0.3846853343907876,
+                "quadratic_kappa": 0.47785293190837186,
+                "ordinal_mean_absolute_error": 0.6385826771653543,
+                "per_class": {
+                  "LOW": {
+                    "precision": 0.6028283436136603,
+                    "recall": 0.805589063128267,
+                    "f1": 0.6896136304965149,
+                    "support": 4974
+                  },
+                  "MEDIUM": {
+                    "precision": 0.3920994879297732,
+                    "recall": 0.16212946158499697,
+                    "f1": 0.22940295313503103,
+                    "support": 3306
+                  },
+                  "HIGH": {
+                    "precision": 0.2664199814986124,
+                    "recall": 0.2236024844720497,
+                    "f1": 0.24314056563951034,
+                    "support": 1288
+                  },
+                  "CRITICAL": {
+                    "precision": 0.29295774647887324,
+                    "recall": 0.527027027027027,
+                    "f1": 0.37658418829209417,
+                    "support": 592
+                  }
+                },
+                "confusion_matrix": [
+                  [
+                    4007,
+                    545,
+                    288,
+                    134
+                  ],
+                  [
+                    2135,
+                    536,
+                    381,
+                    254
+                  ],
+                  [
+                    413,
+                    222,
+                    288,
+                    365
+                  ],
+                  [
+                    92,
+                    64,
+                    124,
+                    312
+                  ]
+                ],
+                "confusion_matrix_label_order": [
+                  "LOW",
+                  "MEDIUM",
+                  "HIGH",
+                  "CRITICAL"
+                ]
+              }
+            }
+          },
+          "research_gate": {
+            "minimum_test_samples": 10000,
+            "trade_date_clustered_accuracy_ci_excludes_zero": true,
+            "trade_date_clustered_macro_f1_ci_excludes_zero": true,
+            "trade_date_clustered_quadratic_kappa_ci_excludes_zero": true,
+            "mcnemar_exact_p_below_0_05": true,
+            "eligible_for_superiority_claim": true
+          }
         }
       },
       "gate_status": "pass",
@@ -350,5 +1502,8 @@
       "remaining_risk": "국내 업종 profile은 Naver 동일업종 비교 데이터로 보강했지만 미국 상장 universe 밖의 비미국 peer는 후보에 없다."
     }
   ],
-  "required_next_improvements": []
+  "required_next_improvements": [
+    "공시 의미 중요도 Gold를 독립 금융 전문가 2인 이상으로 재주석하고 합의도를 보고한다.",
+    "장중 시세와 과거 가격 문맥을 분리된 후속 실험에 추가해 텍스트 단독 시장영향 한계를 검증한다."
+  ]
 }

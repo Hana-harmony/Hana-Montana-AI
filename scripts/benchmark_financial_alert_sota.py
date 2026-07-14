@@ -19,6 +19,7 @@ DEFAULT_GOLD = PROJECT_ROOT / "data/evaluation/financial_alert_real_news_gold.js
 TRAINING_GOLD = PROJECT_ROOT / "data/training/financial_alert_real_news_gold.jsonl"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/financial-alert-sota-benchmark.json"
 DEFAULT_MODEL = "snunlp/KR-FinBERT-SC"
+DEFAULT_MODEL_REVISION = "f8586286cc3161fb648e9fee09a456069fd846d0"
 CURRENT_MODEL_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"
 
 
@@ -27,6 +28,7 @@ def main() -> None:
     parser.add_argument("--gold", type=Path, default=DEFAULT_GOLD)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--sota-model", default=DEFAULT_MODEL)
+    parser.add_argument("--sota-model-revision", default=DEFAULT_MODEL_REVISION)
     args = parser.parse_args()
 
     all_samples = load_labeled_alerts(args.gold)
@@ -44,7 +46,7 @@ def main() -> None:
     current_seconds = time.perf_counter() - started
 
     started = time.perf_counter()
-    sota_predictions = predict_sota(samples, args.sota_model)
+    sota_predictions = predict_sota(samples, args.sota_model, args.sota_model_revision)
     sota_seconds = time.perf_counter() - started
     sota_metrics = classification_metrics(
         [row.sentiment for row in samples],
@@ -64,6 +66,7 @@ def main() -> None:
         },
         "sota_reference": {
             "name": args.sota_model,
+            "revision": args.sota_model_revision,
             **sota_metrics,
             "elapsed_seconds": round(sota_seconds, 6),
         },
@@ -79,9 +82,23 @@ def main() -> None:
     print(json.dumps(report, ensure_ascii=False))
 
 
-def predict_sota(samples: list[LabeledAlert], model_name: str) -> list[str]:
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+def predict_sota(
+    samples: list[LabeledAlert],
+    model_name: str,
+    revision: str,
+) -> list[str]:
+    if len(revision) != 40 or any(character not in "0123456789abcdef" for character in revision):
+        raise ValueError("SOTA 모델 revision은 40자리 Git commit SHA여야 합니다.")
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name,
+        revision=revision,
+        trust_remote_code=False,
+    )
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_name,
+        revision=revision,
+        trust_remote_code=False,
+    )
     model.eval()
     predictions: list[str] = []
     texts = [row.model_text for row in samples]

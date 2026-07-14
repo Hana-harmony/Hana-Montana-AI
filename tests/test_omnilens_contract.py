@@ -2,7 +2,9 @@ import re
 from base64 import b64encode
 from typing import Any
 
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from hannah_montana_ai.api.routes import get_analyzer
 from hannah_montana_ai.core.config import get_settings
@@ -60,6 +62,9 @@ EXPECTED_RESPONSE_FIELDS = {
     "translation_status",
     "sentiment",
     "importance",
+    "market_impact_importance",
+    "market_impact_score",
+    "market_impact_confidence",
     "related_stocks",
     "holder_target",
     "watchlist_target",
@@ -192,6 +197,16 @@ def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> N
     assert data["stock_match_confidence"] == 1.0
     assert re.fullmatch(r"[0-9a-f]{64}", data["duplicate_key"])
     assert data["model_version"]
+
+    with pytest.raises(ValidationError, match="시장영향 필드"):
+        AlertAnalysisResponse.model_validate(
+            data
+            | {
+                "market_impact_importance": None,
+                "market_impact_score": 0.42,
+                "market_impact_confidence": None,
+            }
+        )
 
 
 def test_tax_document_verification_runs_embedded_ocr_review_contract() -> None:

@@ -1,0 +1,183 @@
+{
+  "schema_version": "k-fnspid-transformer-training/v1",
+  "version": "k-fnspid-impact-kf-deberta-lora-20260713220919-prior0.25",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 256,
+  "trained_at": "2026-07-13T22:09:19.305581+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1111,
+      "sha256": "8cd12292fc4ce22b5af53e0a8be06cc76af5b6a8abe4b2d827c5709d47842a8c"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "fbed1ae86382a43a9fabeafec6509a0058abfe927355f904ac0671f7db1d7e97"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "e1be54e29a04d7e61ed1435af0506f425dcc639d066d44ccb2b7c454c59ae957"
+    },
+    "tokenizer_config.json": {
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 17,
+  "postprocessing": {
+    "method": "validation-selected-log-prior-correction/v1",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower strength",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.25,
+    "training_class_priors": {
+      "LOW": 0.6287100536505715,
+      "MEDIUM": 0.2499276883601586,
+      "HIGH": 0.08087707021226966,
+      "CRITICAL": 0.040485187777000234
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.5132616487455197,
+      "macro_f1": 0.3702770912539538,
+      "quadratic_kappa": 0.4509862914942899
+    }
+  },
+  "dataset_dir": "data/k_fnspid/v3",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v3/manifest.json",
+    "dataset_version": "k-fnspid-v3",
+    "bytes": 9280,
+    "sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df"
+  },
+  "artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer_seed17",
+  "evaluation_protocol": "TRAIN fit; Validation selects checkpoint, log-prior correction, and seed; frozen TEST is evaluated once for final deployment and superiority gates",
+  "training_hyperparameters": {
+    "epochs_requested": 3.0,
+    "per_device_train_batch_size": 8,
+    "per_device_eval_batch_size": 16,
+    "gradient_accumulation_steps": 4,
+    "effective_batch_size": 32,
+    "learning_rate": 0.0002,
+    "lr_scheduler_type": "cosine",
+    "warmup_steps": 804,
+    "warmup_ratio_of_optimizer_steps": 0.08,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "early_stopping_patience_epochs": 1,
+    "gradient_checkpointing": false,
+    "mixed_precision": "none",
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.1,
+      "target_modules": [
+        "query_proj",
+        "key_proj",
+        "value_proj"
+      ],
+      "modules_to_save": [
+        "pooler",
+        "classifier"
+      ]
+    }
+  },
+  "training_state": {
+    "completed_epoch": 3.0,
+    "global_optimizer_steps": 10050,
+    "best_validation_macro_f1": 0.3702770912539538
+  },
+  "runtime": {
+    "device": "mps",
+    "python_packages": {
+      "torch": "2.6.0",
+      "transformers": "5.13.1",
+      "peft": "0.19.1"
+    }
+  },
+  "training_objective": {
+    "name": "class-balanced-focal-plus-ordinal-cdf",
+    "focal_gamma": 1.5,
+    "ordinal_loss_weight": 0.3,
+    "label_smoothing": 0.02
+  },
+  "partition_count": {
+    "TRAIN": 107175,
+    "VALIDATION": 6975,
+    "TEST": 10750
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "LOW": 67382,
+      "MEDIUM": 26786,
+      "HIGH": 8668,
+      "CRITICAL": 4339
+    },
+    "VALIDATION": {
+      "LOW": 3469,
+      "CRITICAL": 509,
+      "MEDIUM": 2104,
+      "HIGH": 893
+    },
+    "TEST": {
+      "MEDIUM": 3486,
+      "HIGH": 1341,
+      "CRITICAL": 602,
+      "LOW": 5321
+    }
+  },
+  "trainable_parameter_count": 1478404,
+  "total_parameter_count": 187362824,
+  "validation": {
+    "accuracy": 0.5132616487455197,
+    "macro_f1": 0.3702770912539538,
+    "quadratic_kappa": 0.4509862914942899,
+    "sample_count": 6975
+  },
+  "validation_raw": {
+    "accuracy": 0.47440860215053765,
+    "macro_f1": 0.36348972212305686,
+    "quadratic_kappa": 0.42848409400122733
+  },
+  "test": {
+    "accuracy": 0.5189767441860466,
+    "macro_f1": 0.3724349425039323,
+    "quadratic_kappa": 0.4703517149890114,
+    "sample_count": 10750
+  },
+  "test_raw": {
+    "accuracy": 0.47832558139534886,
+    "macro_f1": 0.3659691544508175,
+    "quadratic_kappa": 0.4343058808544442
+  },
+  "baseline_test": {
+    "sample_count": 10750,
+    "accuracy": 0.4642790697674419,
+    "macro_f1": 0.34289600363077616,
+    "quadratic_kappa": 0.31405511670470976
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 1000,
+    "minimum_macro_f1": 0.35,
+    "minimum_quadratic_kappa": 0.2,
+    "must_match_or_exceed_baseline": "k-fnspid-impact-tfidf-logreg",
+    "eligible": true,
+    "decision": "DEPLOY_KF_DEBERTA_IMPACT"
+  },
+  "test_predictions": {
+    "path": "reports/k-fnspid-transformer-test-predictions-seed17.jsonl",
+    "sample_count": 10750,
+    "bytes": 3377366,
+    "sha256": "08d6519859f62389ab63a5260f535711215e1167e60b15ffb119ea981e2858f2"
+  }
+}

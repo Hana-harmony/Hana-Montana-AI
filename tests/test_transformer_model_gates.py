@@ -9,6 +9,7 @@ from hannah_montana_ai.services.model_artifact_integrity import (
 )
 from hannah_montana_ai.services.transformer_impact_model import (
     KfDebertaImpactModel,
+    _log_prior_offsets,
 )
 from hannah_montana_ai.services.transformer_impact_model import (
     _deployment_gate_passed as impact_gate_passed,
@@ -52,6 +53,26 @@ def test_sentiment_gate_uses_serving_ensemble_result() -> None:
     assert sentiment_gate_passed(training, benchmark)
 
 
+def test_sentiment_gate_uses_declared_stacker_candidate() -> None:
+    training = {"test": {"sample_count": 933, "macro_f1": 0.91}}
+    benchmark = {
+        "sample_count": 933,
+        "models": {
+            "kf_deberta_lora_ensemble": {"macro_f1": 0.90},
+            "kf_deberta_lora_stacker": {"macro_f1": 0.84},
+        },
+        "deployment_gate": {
+            "eligible": True,
+            "candidate_model": "kf_deberta_lora_stacker",
+        },
+    }
+
+    assert not sentiment_gate_passed(training, benchmark)
+
+    benchmark["models"]["kf_deberta_lora_stacker"]["macro_f1"] = 0.90
+    assert sentiment_gate_passed(training, benchmark)
+
+
 def test_impact_gate_requires_large_temporal_test_and_ordinal_quality() -> None:
     report = {
         "test": {"sample_count": 999, "macro_f1": 0.5, "quadratic_kappa": 0.4},
@@ -62,6 +83,39 @@ def test_impact_gate_requires_large_temporal_test_and_ordinal_quality() -> None:
 
     report["test"]["sample_count"] = 1_000
     assert impact_gate_passed(report)
+
+
+def test_impact_log_prior_correction_requires_validation_provenance() -> None:
+    report = {
+        "postprocessing": {
+            "method": "validation-selected-log-prior-correction/v1",
+            "selection_partition": "VALIDATION",
+            "selected_strength": 0.5,
+            "training_class_priors": {
+                "LOW": 0.7,
+                "MEDIUM": 0.2,
+                "HIGH": 0.08,
+                "CRITICAL": 0.02,
+            },
+        }
+    }
+
+    offsets = _log_prior_offsets(report)
+    assert offsets is not None
+    assert offsets[0] > offsets[-1]
+
+    report["postprocessing"]["selection_partition"] = "TEST"
+    assert _log_prior_offsets(report) is None
+
+
+def test_current_impact_feature_requires_postprocessing() -> None:
+    assert _log_prior_offsets({"input_feature_version": "k-fnspid-text-v2"}) is None
+    assert _log_prior_offsets({"input_feature_version": "k-fnspid-text-v1"}) == [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    ]
 
 
 def test_artifact_manifest_rejects_tampered_file(tmp_path: Path) -> None:

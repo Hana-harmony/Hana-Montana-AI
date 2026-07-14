@@ -24,7 +24,11 @@ from urllib.request import Request, urlopen
 import certifi
 
 from hannah_montana_ai.training.collector import load_local_env, read_raw_alerts
-from hannah_montana_ai.training.dataset import JSONL_SHARD_MANIFEST_SCHEMA_VERSION
+from hannah_montana_ai.training.dataset import (
+    JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
+    build_jsonl_file_manifest,
+    resolve_jsonl_paths,
+)
 from hannah_montana_ai.training.stock_universe import (
     StockUniverseMatcher,
     attach_stock_metadata,
@@ -49,9 +53,10 @@ REUSABLE_FULL_CONTENT_POLICIES = {
 MIN_CONTENT_CHARS = 180
 MAX_CONTENT_CHARS = 20_000
 MAX_FETCH_BYTES = 1_500_000
+MAX_DART_FETCH_BYTES = 32_000_000
 REQUEST_TIMEOUT_SECONDS = 4.0
 FETCH_RETRY_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
-MAX_OUTPUT_SHARD_BYTES = 95_000_000
+MAX_OUTPUT_SHARD_BYTES = 48_000_000
 CONTENT_SELECTOR_PATTERN = re.compile(
     r"""(?is)<(?P<tag>article|section|div)\b(?P<attrs>[^>]*)>(?P<body>.*?)</(?P=tag)>"""
 )
@@ -220,8 +225,11 @@ def main() -> None:
     parser.add_argument("--max-disclosures", type=int, default=200)
     parser.add_argument("--per-label-limit", type=int, default=70)
     parser.add_argument("--target-row-count", type=int, default=0)
+    parser.add_argument("--target-disclosure-count", type=int, default=0)
     parser.add_argument("--news-worker-count", type=int, default=1)
     parser.add_argument("--news-batch-size", type=int, default=0)
+    parser.add_argument("--disclosure-worker-count", type=int, default=4)
+    parser.add_argument("--disclosure-batch-size", type=int, default=200)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -242,9 +250,7 @@ def main() -> None:
         and is_valid_full_content(str(row.get("full_content", "")))
     }
     existing_source_urls = {
-        str(row.get("source_url", ""))
-        for row in rows.values()
-        if row.get("source_url")
+        str(row.get("source_url", "")) for row in rows.values() if row.get("source_url")
     }
     status = Counter[str]()
     errors: list[str] = []
@@ -263,54 +269,29 @@ def main() -> None:
         batch_size=args.news_batch_size,
     )
 
-    dart_api_key = os.environ.get("OPEN_DART_API_KEY", "")
-    accepted_disclosure_labels: Counter[str] = Counter()
-    for alert in [
-        alert
-        for alert in raw_alerts
-        if alert.source_type == "DISCLOSURE" and is_training_disclosure_candidate(alert)
-    ]:
-        if target_reached(rows, args.target_row_count):
-            status["target_row_count_reached"] += 1
-            break
-        if status["disclosure_attempted"] >= args.max_disclosures:
-            break
-        if not dart_api_key:
-            status["disclosure_skipped_missing_key"] += 1
-            break
-        receipt_number = receipt_number_from_url(alert.original_url)
-        if not receipt_number:
-            status["disclosure_missing_receipt"] += 1
-            continue
-        if alert.original_url in existing_source_urls:
-            status["disclosure_reused_existing_url"] += 1
-            continue
-        label = pre_label(alert)
-        if label is None:
-            status["disclosure_unlabeled"] += 1
-            continue
-        if accepted_disclosure_labels[label] >= args.per_label_limit:
-            continue
-        status["disclosure_attempted"] += 1
-        content = fetch_dart_document(dart_api_key, receipt_number)
-        if not content:
-            status["disclosure_failed"] += 1
-            continue
-        row = to_labeled_row(alert, content, alert.original_url, DART_POLICY, matcher)
-        if row is None:
-            status["disclosure_unlabeled"] += 1
-            continue
-        rows[row["content_hash"]] = row
-        existing_source_urls.add(str(row["source_url"]))
-        accepted_disclosure_labels[label] += 1
-        status["disclosure_added"] += 1
-        sleep(args.sleep_seconds)
+    collect_disclosure_rows(
+        raw_alerts=raw_alerts,
+        rows=rows,
+        existing_source_urls=existing_source_urls,
+        matcher=matcher,
+        status=status,
+        max_disclosures=args.max_disclosures,
+        per_label_limit=args.per_label_limit,
+        target_row_count=args.target_row_count,
+        target_disclosure_count=args.target_disclosure_count,
+        sleep_seconds=args.sleep_seconds,
+        worker_count=args.disclosure_worker_count,
+        batch_size=args.disclosure_batch_size,
+    )
 
     sorted_rows = sorted(
         rows.values(),
         key=lambda row: (row["source_type"], row["content_hash"]),
     )
     write_sharded_jsonl(args.output_path, sorted_rows)
+    if not status and args.report_path.exists():
+        previous_report = json.loads(args.report_path.read_text(encoding="utf-8"))
+        status.update(previous_report.get("collection_status", {}))
     report = build_report(args.output_path, sorted_rows, status, errors)
     args.report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
@@ -327,28 +308,6 @@ def read_existing_rows(path: Path) -> list[dict[str, Any]]:
         with jsonl_path.open(encoding="utf-8") as file:
             rows.extend(json.loads(line) for line in file if line.strip())
     return rows
-
-
-def resolve_jsonl_paths(path: Path) -> list[Path]:
-    with path.open(encoding="utf-8") as file:
-        first_line = file.readline().strip()
-    if not first_line:
-        return [path]
-    try:
-        payload = json.loads(first_line)
-    except json.JSONDecodeError:
-        try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return [path]
-    shard_paths = payload.get("dataset_shards") if isinstance(payload, dict) else None
-    if not isinstance(shard_paths, list):
-        return [path]
-    return [
-        path.parent / shard_path
-        for shard_path in shard_paths
-        if isinstance(shard_path, str)
-    ]
 
 
 def write_sharded_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -381,6 +340,10 @@ def write_sharded_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
         "schema_version": JSONL_SHARD_MANIFEST_SCHEMA_VERSION,
         "row_count": len(rows),
         "dataset_shards": shard_paths,
+        "files": [
+            build_jsonl_file_manifest(path.parent / shard_path, shard_path)
+            for shard_path in shard_paths
+        ],
     }
     path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -506,10 +469,160 @@ def collect_news_rows(
                 sleep(sleep_seconds)
 
 
-def chunked(
-    values: list[tuple[RawCollectedAlert, str]],
+def collect_disclosure_rows(
+    *,
+    raw_alerts: list[RawCollectedAlert],
+    rows: dict[str, dict[str, Any]],
+    existing_source_urls: set[str],
+    matcher: StockUniverseMatcher,
+    status: Counter[str],
+    max_disclosures: int,
+    per_label_limit: int,
+    target_row_count: int,
+    target_disclosure_count: int,
+    sleep_seconds: float,
+    worker_count: int,
+    batch_size: int,
+) -> None:
+    if max_disclosures <= 0:
+        return
+    dart_api_key = os.environ.get("OPEN_DART_API_KEY", "")
+    if not dart_api_key:
+        status["disclosure_skipped_missing_key"] += 1
+        return
+
+    accepted_labels = Counter[str]()
+    disclosure_count = 0
+    for row in rows.values():
+        if row.get("source_type") != "DISCLOSURE":
+            continue
+        disclosure_count += 1
+        tags = {str(tag) for tag in row.get("tags", [])}
+        label = next((name for name in PRIMARY_LABEL_PRIORITY if name in tags), None)
+        if label:
+            accepted_labels[label] += 1
+
+    candidates = select_disclosure_candidates(
+        raw_alerts=raw_alerts,
+        existing_source_urls=existing_source_urls,
+        status=status,
+        max_disclosures=max_disclosures,
+    )
+    max_workers = min(max(worker_count, 1), 8)
+    actual_batch_size = max(batch_size, max_workers * 8)
+    for batch in chunked(candidates, actual_batch_size):
+        if target_reached(rows, target_row_count):
+            status["target_row_count_reached"] += 1
+            break
+        if target_disclosure_count > 0 and disclosure_count >= target_disclosure_count:
+            status["target_disclosure_count_reached"] += 1
+            break
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_map = {
+                executor.submit(
+                    fetch_dart_document_with_status,
+                    dart_api_key,
+                    receipt_number,
+                ): (
+                    alert,
+                    label,
+                )
+                for alert, label, receipt_number in batch
+                if accepted_labels[label] < per_label_limit
+            }
+            for future in as_completed(future_map):
+                alert, label = future_map[future]
+                if target_reached(rows, target_row_count) or (
+                    target_disclosure_count > 0 and disclosure_count >= target_disclosure_count
+                ):
+                    break
+                status["disclosure_attempted"] += 1
+                content, fetch_status = future.result()
+                if not content:
+                    status["disclosure_failed"] += 1
+                    status[f"disclosure_failed_{fetch_status}"] += 1
+                    continue
+                if accepted_labels[label] >= per_label_limit:
+                    status["disclosure_label_limit_after_fetch"] += 1
+                    continue
+                row = to_labeled_row(
+                    alert,
+                    content,
+                    alert.original_url,
+                    DART_POLICY,
+                    matcher,
+                )
+                if row is None:
+                    status["disclosure_unlabeled"] += 1
+                    continue
+                rows[row["content_hash"]] = row
+                existing_source_urls.add(str(row["source_url"]))
+                accepted_labels[label] += 1
+                disclosure_count += 1
+                status["disclosure_added"] += 1
+        print(
+            json.dumps(
+                {
+                    "stage": "open_dart_full_text",
+                    "attempted": status["disclosure_attempted"],
+                    "added": status["disclosure_added"],
+                    "failed": status["disclosure_failed"],
+                    "total_disclosure_rows": disclosure_count,
+                },
+                ensure_ascii=False,
+            ),
+            flush=True,
+        )
+        sleep(sleep_seconds)
+
+
+def select_disclosure_candidates(
+    *,
+    raw_alerts: list[RawCollectedAlert],
+    existing_source_urls: set[str],
+    status: Counter[str],
+    max_disclosures: int,
+) -> list[tuple[RawCollectedAlert, str, str]]:
+    buckets: dict[tuple[str, str], list[tuple[RawCollectedAlert, str, str]]] = {}
+    for alert in raw_alerts:
+        if alert.source_type != "DISCLOSURE" or not is_training_disclosure_candidate(alert):
+            continue
+        if alert.original_url in existing_source_urls:
+            status["disclosure_reused_existing_url"] += 1
+            continue
+        receipt_number = receipt_number_from_url(alert.original_url)
+        if not receipt_number:
+            status["disclosure_missing_receipt"] += 1
+            continue
+        label = pre_label(alert)
+        if label is None:
+            status["disclosure_unlabeled"] += 1
+            continue
+        year = re.sub(r"\D", "", alert.published_at)[:4] or "UNKNOWN"
+        buckets.setdefault((year, label), []).append((alert, label, receipt_number))
+
+    for values in buckets.values():
+        values.sort(key=lambda value: value[0].content_hash)
+    selected: list[tuple[RawCollectedAlert, str, str]] = []
+    bucket_keys = sorted(buckets)
+    while len(selected) < max_disclosures and bucket_keys:
+        next_keys: list[tuple[str, str]] = []
+        for key in bucket_keys:
+            values = buckets[key]
+            if values:
+                selected.append(values.pop())
+            if values:
+                next_keys.append(key)
+            if len(selected) >= max_disclosures:
+                break
+        bucket_keys = next_keys
+    return selected
+
+
+def chunked[T](
+    values: list[T],
     size: int,
-) -> list[list[tuple[RawCollectedAlert, str]]]:
+) -> list[list[T]]:
     return [values[index : index + size] for index in range(0, len(values), size)]
 
 
@@ -587,18 +700,53 @@ def select_news_candidates(
     return candidates
 
 
-def fetch_dart_document(api_key: str, receipt_number: str) -> str:
+def fetch_dart_document(api_key: str, receipt_number: str, max_attempts: int = 3) -> str:
+    return fetch_dart_document_with_status(api_key, receipt_number, max_attempts)[0]
+
+
+def fetch_dart_document_with_status(
+    api_key: str,
+    receipt_number: str,
+    max_attempts: int = 3,
+) -> tuple[str, str]:
     params = urlencode({"crtfc_key": api_key, "rcept_no": receipt_number})
-    try:
-        payload = fetch_bytes(f"{OPEN_DART_DOCUMENT_URL}?{params}")
-    except (HTTPError, OSError, TimeoutError, URLError):
-        return ""
+    payload = b""
+    failure_status = "transport_error"
+    for attempt in range(max_attempts):
+        try:
+            payload = fetch_bytes(
+                f"{OPEN_DART_DOCUMENT_URL}?{params}",
+                max_bytes=MAX_DART_FETCH_BYTES,
+            )
+            break
+        except HTTPError as exception:
+            failure_status = f"http_{exception.code}"
+            if exception.code not in FETCH_RETRY_HTTP_CODES or attempt == max_attempts - 1:
+                return "", failure_status
+        except ValueError:
+            failure_status = "oversize"
+            if attempt == max_attempts - 1:
+                return "", failure_status
+        except (IncompleteRead, OSError, TimeoutError, URLError):
+            if attempt == max_attempts - 1:
+                return "", failure_status
+        time.sleep(min(0.25 * (2**attempt), 1.0))
+    if not payload:
+        return "", failure_status
     if payload.startswith(b"PK"):
-        text = extract_zip_text(payload)
+        try:
+            text = extract_zip_text(payload)
+        except zipfile.BadZipFile:
+            return "", "malformed_zip"
     else:
         text = payload.decode("utf-8", errors="replace")
+        status_match = re.search(r"<status>([^<]+)</status>", text)
+        if status_match and status_match.group(1) != "000":
+            return "", f"dart_status_{status_match.group(1)}"
     content = extract_text(text)[:MAX_CONTENT_CHARS]
-    return content if is_valid_full_content(content) else ""
+    if not is_valid_full_content(content):
+        return "", "content_too_short"
+    return content, "accepted"
 
 
 def fetch_html_with_retry(url: str, max_attempts: int = 3) -> str:
@@ -617,25 +765,22 @@ def fetch_html_with_retry(url: str, max_attempts: int = 3) -> str:
     return ""
 
 
-def fetch_bytes(url: str) -> bytes:
+def fetch_bytes(url: str, max_bytes: int = MAX_FETCH_BYTES) -> bytes:
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:
         raise ValueError("unsupported URL scheme")
     context = (
-        ssl.create_default_context(cafile=certifi.where())
-        if parsed.scheme == "https"
-        else None
+        ssl.create_default_context(cafile=certifi.where()) if parsed.scheme == "https" else None
     )
     request = Request(  # noqa: S310
         url,
-        headers={
-            "User-Agent": (
-                "Hana-OmniLensTrainingBot/1.0 (+https://github.com/Hana-harmony)"
-            )
-        },
+        headers={"User-Agent": ("Hana-OmniLensTrainingBot/1.0 (+https://github.com/Hana-harmony)")},
     )
     with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS, context=context) as response:  # noqa: S310
-        return response.read(MAX_FETCH_BYTES + 1)[:MAX_FETCH_BYTES]
+        payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ValueError("response exceeds configured byte limit")
+    return payload
 
 
 def extract_zip_text(payload: bytes) -> str:
@@ -845,6 +990,15 @@ def target_reached(rows: dict[str, dict[str, Any]], target_row_count: int) -> bo
     return target_row_count > 0 and len(rows) >= target_row_count
 
 
+def disclosure_target_reached(
+    rows: dict[str, dict[str, Any]], target_disclosure_count: int
+) -> bool:
+    if target_disclosure_count <= 0:
+        return False
+    disclosure_count = sum(row.get("source_type") == "DISCLOSURE" for row in rows.values())
+    return disclosure_count >= target_disclosure_count
+
+
 def is_reusable_full_content_policy(policy: str) -> bool:
     return policy in REUSABLE_FULL_CONTENT_POLICIES
 
@@ -869,6 +1023,17 @@ def is_training_disclosure_candidate(alert: RawCollectedAlert) -> bool:
         "거래정지",
         "상장폐지",
         "소송",
+        "임원ㆍ주요주주",
+        "주식등의대량보유",
+        "주주총회",
+        "기업설명회",
+        "감사보고서",
+        "사업보고서",
+        "분기보고서",
+        "반기보고서",
+        "최대주주등소유주식변동",
+        "조회공시",
+        "대표이사변경",
     )
     return any(keyword in text for keyword in included)
 
@@ -937,6 +1102,10 @@ def to_labeled_row(
         "content_hash": content_hash,
         "provider": alert.provider,
         "published_at": alert.published_at,
+        "label_provenance": "RULE_WEAK_SUPERVISION_V2",
+        "source_review_status": "UNREVIEWED_WEAK_LABEL",
+        "reviewer_id": "",
+        "review_note": "학습 전용 약한 라벨이며 Gold 평가에는 사용하지 않는다.",
     }
     row["text"] = alert.title
     return row
@@ -974,6 +1143,7 @@ def build_report(
 ) -> dict[str, Any]:
     policy_count = Counter(str(row.get("source_license_policy", "")) for row in rows)
     source_count = Counter(str(row.get("source_type", "")) for row in rows)
+    source_types = sorted(source_count)
     return {
         "schema_version": "real-full-content-training-dataset/v1",
         "dataset_path": str(output_path.relative_to(PROJECT_ROOT)),
@@ -981,12 +1151,68 @@ def build_report(
         "row_count": len(rows),
         "source_type_count": dict(sorted(source_count.items())),
         "source_license_policy_count": dict(sorted(policy_count.items())),
+        "label_provenance_count": dict(
+            sorted(Counter(str(row.get("label_provenance", "")) for row in rows).items())
+        ),
+        "importance_distribution_by_source": {
+            source_type: dict(
+                sorted(
+                    Counter(
+                        str(row.get("importance", ""))
+                        for row in rows
+                        if row.get("source_type") == source_type
+                    ).items()
+                )
+            )
+            for source_type in source_types
+        },
+        "sentiment_distribution_by_source": {
+            source_type: dict(
+                sorted(
+                    Counter(
+                        str(row.get("sentiment", ""))
+                        for row in rows
+                        if row.get("source_type") == source_type
+                    ).items()
+                )
+            )
+            for source_type in source_types
+        },
+        "publication_year_count": dict(
+            sorted(Counter(str(row.get("published_at", ""))[:4] for row in rows).items())
+        ),
+        "full_text_character_statistics": {
+            "ALL": length_summary([len(str(row.get("full_content", ""))) for row in rows]),
+            **{
+                source_type: length_summary(
+                    [
+                        len(str(row.get("full_content", "")))
+                        for row in rows
+                        if row.get("source_type") == source_type
+                    ]
+                )
+                for source_type in source_types
+            },
+        },
         "minimum_full_text_characters": min(
             (len(row.get("full_content", "")) for row in rows),
             default=0,
         ),
         "collection_status": dict(sorted(status.items())),
         "errors": errors,
+    }
+
+
+def length_summary(values: list[int]) -> dict[str, int | float]:
+    if not values:
+        return {"minimum": 0, "median": 0, "p95": 0, "maximum": 0, "mean": 0.0}
+    ordered = sorted(values)
+    return {
+        "minimum": ordered[0],
+        "median": ordered[(len(ordered) - 1) // 2],
+        "p95": ordered[round((len(ordered) - 1) * 0.95)],
+        "maximum": ordered[-1],
+        "mean": round(sum(ordered) / len(ordered), 2),
     }
 
 

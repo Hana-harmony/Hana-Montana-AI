@@ -33,8 +33,11 @@ DEFAULT_RAW = PROJECT_ROOT / "data/raw/collected_alerts.jsonl"
 DEFAULT_FULL = PROJECT_ROOT / "data/training/financial_alert_full_content_gold.jsonl"
 DEFAULT_STOCKS = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 DEFAULT_PRICES = PROJECT_ROOT / "data/market/market_daily_price.parquet"
-DEFAULT_OUTPUT = PROJECT_ROOT / "data/k_fnspid/v2"
-DEFAULT_GOLD = PROJECT_ROOT / "data/evaluation/financial_alert_real_news_gold.jsonl"
+DEFAULT_OUTPUT = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_GOLD_PATHS = (
+    PROJECT_ROOT / "data/evaluation/financial_alert_real_news_gold.jsonl",
+    PROJECT_ROOT / "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+)
 
 
 def main() -> None:
@@ -44,14 +47,20 @@ def main() -> None:
     parser.add_argument("--stock-universe-path", type=Path, default=DEFAULT_STOCKS)
     parser.add_argument("--prices", type=Path, default=DEFAULT_PRICES)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--gold-path", type=Path, default=DEFAULT_GOLD)
-    parser.add_argument("--dataset-version", default="k-fnspid-v2")
+    parser.add_argument(
+        "--gold-path",
+        type=Path,
+        action="append",
+        default=None,
+    )
+    parser.add_argument("--dataset-version", default="k-fnspid-v3")
     parser.add_argument("--minimum-document-count", type=int, default=500_000)
     parser.add_argument("--minimum-price-row-count", type=int, default=3_000_000)
     parser.add_argument("--minimum-price-stock-count", type=int, default=2_000)
-    parser.add_argument("--validation-start", type=date.fromisoformat, default=date(2025, 1, 1))
-    parser.add_argument("--test-start", type=date.fromisoformat, default=date(2026, 1, 1))
+    parser.add_argument("--validation-start", type=date.fromisoformat, default=date(2026, 1, 1))
+    parser.add_argument("--test-start", type=date.fromisoformat, default=date(2026, 4, 1))
     args = parser.parse_args()
+    gold_paths = args.gold_path or list(DEFAULT_GOLD_PATHS)
 
     prices = load_prices(args.prices)
     trading_dates = sorted({date.fromisoformat(row.trade_date) for row in prices})
@@ -116,6 +125,7 @@ def main() -> None:
     documents = [replace(row, event_cluster_id=clusters[row.document_id]) for row in documents]
     document_dates = {row.document_id: row.effective_trade_date for row in documents}
     document_id_by_url = {row.source_url: row.document_id for row in documents}
+    gold_rows = [row for gold_path in gold_paths for row in load_jsonl_payloads(gold_path)]
     annotations = [
         {
             "document_id": document_id_by_url[str(row.get("source_url", ""))],
@@ -127,7 +137,7 @@ def main() -> None:
             "reviewer_id": row.get("reviewer_id", ""),
             "review_note": row.get("review_note", ""),
         }
-        for row in load_jsonl_payloads(args.gold_path)
+        for row in gold_rows
         if str(row.get("source_url", "")) in document_id_by_url
     ]
     primary_pairs = [
@@ -183,6 +193,10 @@ def main() -> None:
         "validation_start": args.validation_start.isoformat(),
         "test_start": args.test_start.isoformat(),
         "gold_annotation_count": len(annotations),
+        "gold_source_type_count": dict(
+            sorted(Counter(str(row.get("source_type", "")) for row in gold_rows).items())
+        ),
+        "gold_paths": [str(path.relative_to(PROJECT_ROOT)) for path in gold_paths],
         "scale_gate": {
             "minimum_document_count": args.minimum_document_count,
             "minimum_price_row_count": args.minimum_price_row_count,
@@ -197,7 +211,10 @@ def main() -> None:
             row.materiality_score is not None and not row.confounded for row in impacts
         ),
         "raw_source": _source_manifest(args.raw_path),
+        "full_content_source": _source_manifest(args.full_content_path),
+        "stock_universe_source": _source_manifest(args.stock_universe_path),
         "price_source": _source_manifest(args.prices),
+        "gold_sources": [_source_manifest(path) for path in gold_paths],
         "files": file_manifest(args.output_dir),
     }
     (args.output_dir / "manifest.json").write_text(
@@ -262,7 +279,7 @@ def _source_manifest(path: Path) -> dict[str, Any]:
     files = [path, *resolved] if resolved != [path] else [path]
     file_rows = [
         {
-            "path": str(file.relative_to(PROJECT_ROOT)),
+            "path": _source_display_path(file, path),
             "bytes": file.stat().st_size,
             "sha256": _file_sha256(file),
         }
@@ -271,15 +288,21 @@ def _source_manifest(path: Path) -> dict[str, Any]:
     composite = sha256()
     for row in file_rows:
         composite.update(f"{row['path']}:{row['sha256']}\n".encode())
-    source_sha256 = (
-        str(file_rows[0]["sha256"]) if len(file_rows) == 1 else composite.hexdigest()
-    )
+    source_sha256 = str(file_rows[0]["sha256"]) if len(file_rows) == 1 else composite.hexdigest()
     return {
         "path": str(path.relative_to(PROJECT_ROOT)),
         "bytes": sum(int(row["bytes"]) for row in file_rows),
         "sha256": source_sha256,
         "files": file_rows,
     }
+
+
+def _source_display_path(file: Path, source_path: Path) -> str:
+    try:
+        return str(file.relative_to(PROJECT_ROOT))
+    except ValueError:
+        # 작업트리 symlink의 실제 대상 대신 저장소 내부 논리 경로를 기록한다.
+        return str((source_path.parent / file.name).relative_to(PROJECT_ROOT))
 
 
 def _file_sha256(path: Path) -> str:

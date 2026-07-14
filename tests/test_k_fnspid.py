@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import importlib.util
+import sys
 from dataclasses import replace
 from datetime import date
+from pathlib import Path
+from types import ModuleType
 
 from hannah_montana_ai.training.k_fnspid.entity_linker import ExactContextEntityLinker
 from hannah_montana_ai.training.k_fnspid.event_clusterer import assign_event_clusters
@@ -218,3 +222,75 @@ def _document(document_id: str, trade_date: str, title: str) -> CanonicalDocumen
         market_session="PRE_MARKET",
         effective_trade_date=trade_date,
     )
+
+
+def test_source_manifest_uses_logical_path_for_external_symlink_target(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    build_k_fnspid = _load_build_script()
+    project_root = tmp_path / "worktree"
+    source_path = project_root / "data/raw/collected_alerts.jsonl"
+    external_file = tmp_path / "main/data/raw/collected_alerts.part-00001.jsonl"
+    monkeypatch.setattr(build_k_fnspid, "PROJECT_ROOT", project_root)
+
+    assert build_k_fnspid._source_display_path(external_file, source_path) == (
+        "data/raw/collected_alerts.part-00001.jsonl"
+    )
+
+
+def _load_build_script() -> ModuleType:
+    path = Path("scripts/build_k_fnspid.py")
+    spec = importlib.util.spec_from_file_location("build_k_fnspid_for_test", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_impact_text_ablation_removes_only_selected_features() -> None:
+    training = _load_impact_training_script()
+    document = {
+        "title": "삼성전자 실적",
+        "snippet": "영업이익 증가",
+        "full_text": "공시 전문",
+        "source_type": "DISCLOSURE",
+    }
+    entity = {"stock_name": "삼성전자"}
+
+    full = training._impact_text(
+        document,
+        entity,
+        include_full_text=True,
+        include_source_prefix=True,
+    )
+    title_only = training._impact_text(
+        document,
+        entity,
+        include_full_text=False,
+        include_source_prefix=True,
+    )
+    no_source = training._impact_text(
+        document,
+        entity,
+        include_full_text=True,
+        include_source_prefix=False,
+    )
+
+    assert full.startswith("[SOURCE=DISCLOSURE]")
+    assert "공시 전문" in full
+    assert "공시 전문" not in title_only
+    assert not no_source.startswith("[SOURCE=")
+
+
+def _load_impact_training_script() -> ModuleType:
+    path = Path("scripts/train_k_fnspid_impact_model.py")
+    spec = importlib.util.spec_from_file_location("train_k_fnspid_impact_model", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module

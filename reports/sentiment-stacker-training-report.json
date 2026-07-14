@@ -1,0 +1,31 @@
+{
+  "schema_version": "sentiment-stacker-training/v1",
+  "version": "sentiment-stacker-logreg-20260713125639",
+  "feature_version": "sentiment-stacker-v1",
+  "sample_count": 932,
+  "transformer_max_length": 128,
+  "calibration_protocol": "KF-DeBERTa 학습 문장을 제외한 공개 VALIDATION으로만 결합기를 학습하고 공개 TEST는 최종 평가까지 봉인한다.",
+  "source_distribution": {
+    "public_validation": 932
+  },
+  "label_distribution": {
+    "NEGATIVE": 310,
+    "NEUTRAL": 311,
+    "POSITIVE": 311
+  },
+  "excluded_evaluation_overlap_count": 1,
+  "cross_validation": {
+    "accuracy": 0.8873390557939914,
+    "macro_f1": 0.8875160256972129
+  },
+  "artifact": {
+    "path": "src/hannah_montana_ai/model_store/sentiment_stacker.joblib",
+    "bytes": 1424,
+    "sha256": "0dcad62a9b52cb38cb5d46e56357f7afd827feb4295784065caa3091181bc9ec"
+  },
+  "limitations": [
+    "스태커 교차검증은 결합기 보정 성능이며 독립 Test 성능을 대신하지 않는다.",
+    "기반 모델 조기종료에도 같은 공개 VALIDATION을 사용했으므로 최종 성능은 TEST만 판정한다.",
+    "최종 승격은 공개 Test와 운영 Gold를 함께 평가하는 별도 benchmark가 결정한다."
+  ]
+}
