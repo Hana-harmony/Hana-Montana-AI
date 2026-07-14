@@ -1,5 +1,49 @@
 # 구현 기록
 
+## 2026-07-14 11:20 KST · v3 코드북·공시 이벤트·종목 연결 일치화
+
+- 과거 합성 학습·평가의 거래정지·불성실공시 CRITICAL 라벨을 v3 코드북의 HIGH로 재생성하고 TF-IDF 기준 artifact를 실제 55만 건 약지도 원천에서 재학습했다.
+- 구조화 DART 제목의 이벤트는 v3 코드북 우선순위로 분리해 뉴스용 광범위 키워드 오탐을 차단했다. 공시 Gold 600건은 event macro F1 0.9979, stock accuracy 1.0이며 release gate를 통과한다.
+- 회사명에 포함된 `리서치`를 증권사 인용으로 오인하던 span 문맥 버그를 수정해 씨엔알리서치·파마리서치바이오 종목 연결 누락을 제거했다.
+- 기존 운영 평가 회귀를 숨기지 않고 실제 뉴스·Stock review 이벤트·중요도 하락과 v3 코드북 변경으로 직접 비교할 수 없는 지표를 모델 문서에 분리했다.
+- 약지도 파생 shard는 Git 추적 raw 12개와 종목 universe에서 오프라인 재생성하는 스크립트를 추가하고 release lineage의 잘못된 `processed tracked` 표현을 수정했다.
+
+## 2026-07-14 10:43 KST · 논문급 다중 seed·통계 평가 확정
+
+- 전체 Train 107,175건으로 seed 17/42/73 KF-DeBERTa LoRA를 동일 설정에서 학습하고 Validation macro F1로 seed 73을 선택했다. 시간 Test 10,750건은 accuracy 0.5095 / macro F1 0.3820 / QWK 0.4694다.
+- 거래일 cluster bootstrap 2,000회에서 TF-IDF 대비 accuracy·macro F1·QWK 차이 95% CI가 모두 0을 넘고 exact McNemar p=1.70e-20임을 확인했다. 공시 하위집합 macro F1 회귀와 ECE 악화도 함께 기록했다.
+- 통계 evaluator가 중복 document ID, paired 종목·출처·거래일 불일치, 잘못된 확률벡터를 거부하도록 강화하고 우월성 gate에 세 군집 지표와 McNemar를 모두 포함했다.
+- 장시간 학습 CLI 경로를 프로젝트 내부 절대경로로 정규화하고 checkpoint 재개를 지원해 마지막 report 기록 실패를 전체 재학습 없이 검증된 상태에서 복구했다.
+
+## 2026-07-14 03:30 KST · 논문 provenance·독립 신호·통계 gate 강화
+
+- 재샤딩 전 전문 4개 파일을 가리키던 K-FNSPID 최상위 manifest를 실제 raw 12개·전문 7개 shard로 재생성했다. 6개 Parquet SHA가 모두 동일함을 확인하고 Test 10,750건의 문서 ID·정답·예측 SHA를 대조한 provenance 정정 이력을 기준선과 seed 42 보고서에 남겼다.
+- dataset verifier가 Parquet뿐 아니라 raw/full-content/종목/시세/Gold 원천의 경로 탈출·symlink·byte·개별 및 복합 SHA를 검증하도록 강화했다. 작업트리 시세 symlink도 동일 SHA의 실제 226MB 파일로 교체했다.
+- 시장영향이 의미 중요도 라벨뿐 아니라 confidence도 변경하지 않도록 완전히 분리하고, 부도·파산·상장폐지 등 코드북상 치명위험 표현에만 CRITICAL 안전 floor를 적용해 기존 운영 평가 회귀를 차단했다.
+- 시장영향 학습 입력의 대표 종목명이 서빙에서 빠지고 summary-only snippet이 두 번 들어가던 feature skew를 제거해 제목·요약·전문·대표 종목명·source prefix 순서를 KF-DeBERTa와 TF-IDF 모두 동일하게 맞췄다.
+- 논문 우월성 gate를 행 단위 paired bootstrap에서 70개 거래일 cluster bootstrap으로 강화했다. seed 42 예비 200회 검정에서 macro F1 차이 95% CI는 [0.0365, 0.0639]였으며 최종 보고는 Validation 선택 다중 seed와 2,000회 검정을 사용한다.
+- 반복 seed 표준편차는 population이 아닌 sample 표준편차로 교정하고, 제목·요약·전문 입력별 공시 중요도 ablation을 독립 재현하는 스크립트를 추가했다.
+- 공시 입력 ablation에서 제목+요약이 기본 Gold accuracy 0.9850 / macro F1 0.9470으로 전문 포함 0.9433 / 0.8699보다 높았다. Gold는 선택에 쓰지 않고 2026 Validation macro F1 동률 뒤 Brier score가 낮은 제목+요약 뷰를 선택하는 v3 artifact로 재학습했다.
+- 거래정지·불성실공시 단독을 CRITICAL로 올리던 규칙을 코드북의 HIGH 정의에 맞췄다. 상장폐지·횡령/배임·감사의견거절·부도·회생·파산만 안전 floor로 유지한 운영 파이프라인은 비중복 기본·스트레스 Gold 910건에서 accuracy 0.9989 / macro F1 0.9962, 기존 분석기 대비 paired accuracy 차이 95% CI [0.0747, 0.1132], McNemar p=1.14e-24를 기록했다.
+- Release 복원기가 6개 Parquet의 byte·SHA-256을 검증하고 `prices_daily.parquet`을 DB가 아닌 `data/market/market_daily_price.parquet` 실제 파일로 원자 복원하도록 추가했다.
+- AI와 API 양쪽에서 시장영향 등급·점수·confidence가 모두 있거나 모두 없도록 계약을 강화하고, 기계 판독 모델 감사가 공시 중요도·다중 seed·날짜군집 연구 gate를 실제 report에서 집계하도록 v2로 확장했다.
+
+## 2026-07-14 02:05 KST · 논문 재현 데이터 공급망 강화
+
+- 28,703행 실제 전문 학습셋을 행 손실 없이 최대 48MB의 7개 JSONL shard로 재분할해 Git 추적과 PR 검토를 유지했다.
+- raw 12개·전문 7개 shard manifest에 파일 byte·SHA-256을 기록하고, 로더가 경로 탈출·symlink·중복 경로·누락된 무결성 항목·변조 파일을 fail closed하도록 강화했다.
+- FINKRX, FININ, 2026년 뉴스·가격 융합 연구를 최신 비교군에 추가하고 과제·시장·지표가 다른 결과를 직접 SOTA 순위로 사용하지 않도록 논문 주장 범위를 고정했다.
+
+## 2026-07-13 23:55 KST · K-FNSPID v3 공시 전문·의미 중요도 고도화
+
+- OpenDART 전문 추가 후보 5,065건을 병렬·재개 가능 수집해 4,976건을 추가했고, K-FNSPID 연결 공시 전문을 8,972건(34.55%)으로 확장했다.
+- K-FNSPID v3 정본은 문서 550,662건, 문서–종목 819,772건, 시장영향 398,942건, 비혼입 대표행 130,566건이며 manifest의 byte·SHA-256 gate를 통과했다.
+- 공시 의미 중요도 모델을 Gold URL을 제외한 약지도 실공시 8,302건과 치명위험 어휘 템플릿 400건으로 학습했다. 제목 전용 입력 결함을 제거하고 전문까지 연결한 v2는 기본 Gold 600건에서 accuracy 0.9433 / macro F1 0.8699를 기록했다. Validation temperature 0.6으로 Gold ECE를 0.1444까지 교정했다.
+- 학습 입력·기본 Gold와 겹치지 않는 실제 공시 스트레스 Gold 310건을 추가했다. 통합 910건 accuracy는 기존 0.9055 대비 0.9538이며 McNemar p=0.000125다.
+- 의미 중요도와 시세 기반 시장영향을 분리했다. 시장영향은 `market_impact_importance`, `market_impact_score`, `market_impact_confidence`로 독립 전달하며 의미 등급을 변경하지 않는다.
+- 감성 후보는 공개 Test에서 KR-FinBERT-SC 대비 macro F1 차이 0.1566, paired bootstrap 95% CI [0.1262, 0.1877], exact McNemar p=1.51e-18을 기록했다.
+- 아래 18:30 기록의 공시 Gold 1.0000과 이전 시장영향 Test 수치는 당시 소규모 평가·v2 스냅샷의 역사적 결과다. 현재 주장은 v3 Gold 600건 0.9233과 시간 Test 10,750건 보고서를 사용한다.
+
 ## 2026-07-13 20:42 KST · K-FNSPID 도입 전후·연구 주장 감사
 
 - K-FNSPID 도입 직전 `main` commit `076e97f8`을 비교 기준으로 고정하고 현재 평가 보고서와 동일 평가셋끼리 대조했다.

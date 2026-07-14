@@ -6,6 +6,9 @@ from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidat
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.training.dataset import LabeledAlert
 
+SENTIMENT_LABELS = ("NEGATIVE", "NEUTRAL", "POSITIVE")
+IMPORTANCE_LABELS = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
+
 
 @dataclass(frozen=True)
 class LabelMetric:
@@ -32,6 +35,10 @@ class EvaluationResult:
     stock_accuracy: float
     event_label_metrics: dict[str, LabelMetric] = field(default_factory=dict)
     event_macro_f1: float = 0.0
+    sentiment_label_metrics: dict[str, LabelMetric] = field(default_factory=dict)
+    sentiment_macro_f1: float = 0.0
+    importance_label_metrics: dict[str, LabelMetric] = field(default_factory=dict)
+    importance_macro_f1: float = 0.0
     sentiment_confusion_matrix: dict[str, dict[str, int]] = field(default_factory=dict)
     importance_confusion_matrix: dict[str, dict[str, int]] = field(default_factory=dict)
 
@@ -45,6 +52,14 @@ class EvaluationResult:
             "event_macro_f1": self.event_macro_f1,
             "event_label_metrics": {
                 label: metric.to_dict() for label, metric in self.event_label_metrics.items()
+            },
+            "sentiment_macro_f1": self.sentiment_macro_f1,
+            "sentiment_label_metrics": {
+                label: metric.to_dict() for label, metric in self.sentiment_label_metrics.items()
+            },
+            "importance_macro_f1": self.importance_macro_f1,
+            "importance_label_metrics": {
+                label: metric.to_dict() for label, metric in self.importance_label_metrics.items()
             },
             "sentiment_confusion_matrix": self.sentiment_confusion_matrix,
             "importance_confusion_matrix": self.importance_confusion_matrix,
@@ -84,6 +99,8 @@ def evaluate_alert_analyzer(
 
     total = len(samples)
     event_label_metrics = _event_label_metrics(expected_event_tags, predicted_event_tags)
+    sentiment_label_metrics = _single_label_metrics(sentiment_pairs, SENTIMENT_LABELS)
+    importance_label_metrics = _single_label_metrics(importance_pairs, IMPORTANCE_LABELS)
     return EvaluationResult(
         sample_count=total,
         event_tag_recall=event_hits / total,
@@ -92,6 +109,10 @@ def evaluate_alert_analyzer(
         stock_accuracy=stock_hits / total,
         event_label_metrics=event_label_metrics,
         event_macro_f1=_macro_f1(event_label_metrics),
+        sentiment_label_metrics=sentiment_label_metrics,
+        sentiment_macro_f1=_macro_f1(sentiment_label_metrics),
+        importance_label_metrics=importance_label_metrics,
+        importance_macro_f1=_macro_f1(importance_label_metrics),
         sentiment_confusion_matrix=_confusion_matrix(sentiment_pairs),
         importance_confusion_matrix=_confusion_matrix(importance_pairs),
     )
@@ -132,15 +153,18 @@ def _event_label_metrics(
     metrics: dict[str, LabelMetric] = {}
     for label in labels:
         true_positive = sum(
-            1 for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
+            1
+            for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
             if label in expected and label in predicted
         )
         false_positive = sum(
-            1 for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
+            1
+            for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
             if label not in expected and label in predicted
         )
         false_negative = sum(
-            1 for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
+            1
+            for expected, predicted in zip(expected_tags, predicted_tags, strict=True)
             if label in expected and label not in predicted
         )
         precision = _safe_divide(true_positive, true_positive + false_positive)
@@ -162,6 +186,34 @@ def _confusion_matrix(pairs: list[tuple[str, str]]) -> dict[str, dict[str, int]]
         expected: dict(sorted(predictions.items()))
         for expected, predictions in sorted(matrix.items())
     }
+
+
+def _single_label_metrics(
+    pairs: list[tuple[str, str]],
+    label_order: tuple[str, ...] = (),
+) -> dict[str, LabelMetric]:
+    observed = {label for pair in pairs for label in pair}
+    labels = [*label_order, *sorted(observed.difference(label_order))]
+    metrics: dict[str, LabelMetric] = {}
+    for label in labels:
+        true_positive = sum(
+            expected == label and predicted == label for expected, predicted in pairs
+        )
+        false_positive = sum(
+            expected != label and predicted == label for expected, predicted in pairs
+        )
+        false_negative = sum(
+            expected == label and predicted != label for expected, predicted in pairs
+        )
+        precision = _safe_divide(true_positive, true_positive + false_positive)
+        recall = _safe_divide(true_positive, true_positive + false_negative)
+        metrics[label] = LabelMetric(
+            precision=precision,
+            recall=recall,
+            f1=_f1(precision, recall),
+            support=sum(expected == label for expected, _ in pairs),
+        )
+    return metrics
 
 
 def _macro_f1(metrics: dict[str, LabelMetric]) -> float:

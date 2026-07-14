@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass, field
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -98,6 +99,8 @@ def load_jsonl_payloads(path: Path) -> list[dict[str, Any]]:
 def resolve_jsonl_paths(path: Path) -> list[Path]:
     if not path.exists():
         return []
+    if path.is_symlink():
+        raise ValueError(f"JSONL manifest symlink는 허용하지 않습니다: {path}")
     first_line = ""
     with path.open(encoding="utf-8") as file:
         first_line = file.readline().strip()
@@ -113,8 +116,71 @@ def resolve_jsonl_paths(path: Path) -> list[Path]:
     shard_paths = payload.get("dataset_shards") if isinstance(payload, dict) else None
     if not isinstance(shard_paths, list):
         return [path]
-    return [
-        (path.parent / shard_path).resolve()
-        for shard_path in shard_paths
-        if isinstance(shard_path, str)
-    ]
+    integrity_configured = "files" in payload
+    file_manifests = _file_manifests(payload)
+    parent = path.parent.resolve()
+    resolved_paths: list[Path] = []
+    normalized_shard_paths: list[str] = []
+    for shard_path in shard_paths:
+        if not isinstance(shard_path, str):
+            raise ValueError("JSONL shard 경로는 문자열이어야 합니다.")
+        if shard_path in normalized_shard_paths:
+            raise ValueError(f"JSONL shard 경로가 중복되었습니다: {shard_path}")
+        normalized_shard_paths.append(shard_path)
+        unresolved = path.parent / shard_path
+        resolved = unresolved.resolve()
+        if (
+            Path(shard_path).is_absolute()
+            or not resolved.is_relative_to(parent)
+            or unresolved.is_symlink()
+            or not resolved.is_file()
+        ):
+            raise ValueError(f"안전하지 않은 JSONL shard 경로입니다: {shard_path}")
+        manifest = file_manifests.get(shard_path)
+        if integrity_configured and manifest is None:
+            raise ValueError(f"JSONL shard 무결성 정보가 없습니다: {shard_path}")
+        if manifest is not None and not _matches_manifest(resolved, manifest):
+            raise ValueError(f"JSONL shard 무결성 검증에 실패했습니다: {shard_path}")
+        resolved_paths.append(resolved)
+    if integrity_configured and set(file_manifests) != set(normalized_shard_paths):
+        raise ValueError("JSONL shard 목록과 무결성 목록이 일치하지 않습니다.")
+    return resolved_paths
+
+
+def build_jsonl_file_manifest(path: Path, display_path: str) -> dict[str, str | int]:
+    return {
+        "path": display_path,
+        "bytes": path.stat().st_size,
+        "sha256": _sha256_file(path),
+    }
+
+
+def _file_manifests(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    configured = payload.get("files")
+    if configured is None:
+        return {}
+    if not isinstance(configured, list):
+        raise ValueError("JSONL shard files는 배열이어야 합니다.")
+    manifests: dict[str, dict[str, Any]] = {}
+    for item in configured:
+        if not isinstance(item, dict) or not isinstance(item.get("path"), str):
+            raise ValueError("JSONL shard 무결성 항목이 올바르지 않습니다.")
+        display_path = str(item["path"])
+        if display_path in manifests:
+            raise ValueError(f"JSONL shard 무결성 경로가 중복되었습니다: {display_path}")
+        manifests[display_path] = item
+    return manifests
+
+
+def _matches_manifest(path: Path, manifest: dict[str, Any]) -> bool:
+    return path.stat().st_size == int(manifest.get("bytes", -1)) and _sha256_file(path) == str(
+        manifest.get("sha256", "")
+    )
+
+
+def _sha256_file(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as file:
+        while chunk := file.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()

@@ -40,6 +40,11 @@ def main() -> None:
     parser.add_argument("--news-max-retries", type=int, default=3)
     parser.add_argument("--dart-days", type=int, default=30)
     parser.add_argument("--dart-pages", type=int, default=3)
+    parser.add_argument(
+        "--dart-all-pages",
+        action="store_true",
+        help="각 수집 기간의 OpenDART 전체 페이지를 끝까지 조회한다.",
+    )
     parser.add_argument("--dart-end-date", type=date.fromisoformat)
     parser.add_argument("--dart-sleep-seconds", type=float, default=0.1)
     parser.add_argument("--reuse-existing-raw", action="store_true")
@@ -99,7 +104,7 @@ def main() -> None:
     if not args.skip_dart:
         result = collect_open_dart(
             days=args.dart_days,
-            pages=args.dart_pages,
+            pages=None if args.dart_all_pages else args.dart_pages,
             end_date=args.dart_end_date,
             sleep_seconds=args.dart_sleep_seconds,
         )
@@ -118,9 +123,7 @@ def main() -> None:
     )
 
     if should_write:
-        write_sharded_jsonl(
-            RAW_ALERTS_PATH, [raw_alert_to_dict(alert) for alert in raw_alerts]
-        )
+        write_sharded_jsonl(RAW_ALERTS_PATH, [raw_alert_to_dict(alert) for alert in raw_alerts])
         write_sharded_jsonl(
             WEAK_LABELED_PATH,
             [

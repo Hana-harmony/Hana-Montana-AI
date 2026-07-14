@@ -56,6 +56,64 @@ IMPORTANCE_PATTERNS: dict[Importance, tuple[str, ...]] = {
     "CRITICAL": ("상장폐지", "거래정지", "횡령", "배임", "감사의견 거절", "불성실공시"),
 }
 
+DISCLOSURE_CRITICAL_PATTERNS = (
+    "상장폐지",
+    "횡령",
+    "배임",
+    "감사의견거절",
+    "감사의견 거절",
+    "부도",
+    "회생절차",
+    "파산",
+)
+DISCLOSURE_HIGH_PATTERNS = (
+    "주요사항보고서",
+    "단일판매ㆍ공급계약",
+    "단일판매·공급계약",
+    "공급계약체결",
+    "유상증자",
+    "무상증자",
+    "감자결정",
+    "전환사채",
+    "신주인수권부사채",
+    "자기주식취득",
+    "자기주식처분",
+    "현금ㆍ현물배당",
+    "회사합병",
+    "회사분할",
+    "영업양수",
+    "영업양도",
+    "타법인주식",
+    "매출액또는손익구조",
+    "영업실적",
+    "소송등의제기",
+    "소송등의판결",
+    "거래정지",
+)
+DISCLOSURE_LOW_PATTERNS = (
+    "임원ㆍ주요주주특정증권등소유상황보고서",
+    "임원·주요주주특정증권등소유상황보고서",
+    "주식등의대량보유상황보고서",
+    "주주총회소집공고",
+    "주주총회소집결의",
+    "기업설명회개최",
+    "감사보고서제출",
+    "사업보고서",
+    "분기보고서",
+    "반기보고서",
+    "증권발행실적보고서",
+    "투자설명서",
+    "일괄신고서",
+)
+DISCLOSURE_MEDIUM_PATTERNS = (
+    "최대주주등소유주식변동",
+    "주주총회결과",
+    "조회공시",
+    "정정신고",
+    "기재정정",
+    "대표이사변경",
+)
+
 
 @dataclass(frozen=True)
 class RawCollectedAlert:
@@ -83,8 +141,9 @@ def weak_label(alert: RawCollectedAlert) -> LabeledAlert | None:
 
     sentiment = _single_label_by_score(text, SENTIMENT_PATTERNS, "NEUTRAL")
     importance = _single_label_by_score(text, IMPORTANCE_PATTERNS, "MEDIUM")
-    if alert.source_type == "DISCLOSURE" and importance in {"LOW", "MEDIUM"}:
-        importance = "HIGH"
+    if alert.source_type == "DISCLOSURE":
+        sentiment = _disclosure_sentiment(text, sentiment)
+        importance = _disclosure_importance(text, importance)
 
     return LabeledAlert(
         text=text,
@@ -97,6 +156,52 @@ def weak_label(alert: RawCollectedAlert) -> LabeledAlert | None:
         source_url=alert.original_url,
         content_hash=alert.content_hash,
     )
+
+
+def _disclosure_sentiment(text: str, default: Sentiment) -> Sentiment:
+    compact = re.sub(r"\s+", "", text)
+    if any(pattern.replace(" ", "") in compact for pattern in DISCLOSURE_CRITICAL_PATTERNS):
+        return "NEGATIVE"
+    if any(pattern in compact for pattern in ("계약해지", "결정취소", "계획철회")):
+        return "NEGATIVE"
+    if any(
+        pattern in compact
+        for pattern in ("손실감소", "적자폭감소", "흑자전환", "이익증가", "매출증가")
+    ):
+        return "POSITIVE"
+    if any(
+        pattern in compact
+        for pattern in ("손실증가", "적자전환", "이익감소", "매출감소", "실적하락")
+    ):
+        return "NEGATIVE"
+    if any(pattern in compact for pattern in ("자기주식취득", "현금ㆍ현물배당", "공급계약체결")):
+        return "POSITIVE"
+    if any(
+        pattern in compact
+        for pattern in (
+            "임원ㆍ주요주주특정증권등소유상황보고서",
+            "주주총회소집",
+            "기업설명회개최",
+            "유상증자",
+            "자기주식처분",
+        )
+    ):
+        return "NEUTRAL"
+    return default
+
+
+def _disclosure_importance(text: str, default: Importance) -> Importance:
+    compact = re.sub(r"\s+", "", text)
+    ordered_patterns: tuple[tuple[Importance, tuple[str, ...]], ...] = (
+        ("CRITICAL", DISCLOSURE_CRITICAL_PATTERNS),
+        ("HIGH", DISCLOSURE_HIGH_PATTERNS),
+        ("LOW", DISCLOSURE_LOW_PATTERNS),
+        ("MEDIUM", DISCLOSURE_MEDIUM_PATTERNS),
+    )
+    for importance, patterns in ordered_patterns:
+        if any(pattern.replace(" ", "") in compact for pattern in patterns):
+            return importance
+    return default
 
 
 def normalize_text(value: str) -> str:

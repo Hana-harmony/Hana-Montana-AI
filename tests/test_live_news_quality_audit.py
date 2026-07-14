@@ -125,9 +125,7 @@ class RiskyTranslationEventBuilder:
             is_holder_target=True,
             is_watchlist_target=True,
             glossary_terms=[],
-            translation_quality_flags=[
-                "QWEN_TRANSLATION_SEMANTIC_MISMATCH:KB_FINANCIAL"
-            ],
+            translation_quality_flags=["QWEN_TRANSLATION_SEMANTIC_MISMATCH:KB_FINANCIAL"],
             original_url=request.original_url,
             provider=request.provider or "naver-news",
             published_at=request.published_at,
@@ -1025,9 +1023,7 @@ def test_full_content_builder_retries_transient_article_fetch(monkeypatch) -> No
 def test_full_content_builder_reuses_existing_licensed_rows() -> None:
     module = _load_full_content_script()
 
-    assert module.is_reusable_full_content_policy(
-        "licensed_naver_original_full_text_v1"
-    )
+    assert module.is_reusable_full_content_policy("licensed_naver_original_full_text_v1")
     assert module.is_reusable_full_content_policy("opendart_public_disclosure_text_v1")
     assert module.is_reusable_full_content_policy("internal_rights_safe_full_article_v1")
     assert not module.is_reusable_full_content_policy("NAVER_SEARCH_SNIPPET_ONLY")
@@ -1039,3 +1035,22 @@ def test_full_content_builder_stops_at_target_row_count() -> None:
     assert module.target_reached({"a": {}, "b": {}}, 2)
     assert not module.target_reached({"a": {}}, 2)
     assert not module.target_reached({"a": {}, "b": {}}, 0)
+
+
+def test_full_content_builder_tracks_disclosure_target_separately() -> None:
+    module = _load_full_content_script()
+    rows = {
+        "news": {"source_type": "NEWS"},
+        "disclosure": {"source_type": "DISCLOSURE"},
+    }
+
+    assert module.disclosure_target_reached(rows, 1)
+    assert not module.disclosure_target_reached(rows, 2)
+    assert not module.disclosure_target_reached(rows, 0)
+
+
+def test_full_content_builder_rejects_truncated_dart_zip(monkeypatch) -> None:
+    module = _load_full_content_script()
+    monkeypatch.setattr(module, "fetch_bytes", lambda *_args, **_kwargs: b"PKbroken")
+
+    assert module.fetch_dart_document("local-key", "20260617000001") == ""

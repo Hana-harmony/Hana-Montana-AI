@@ -25,6 +25,8 @@ COPY data/reference ./data/reference
 COPY reports/k-fnspid-impact-training-report.json ./reports/k-fnspid-impact-training-report.json
 COPY reports/kf-deberta-sentiment-training-report.json ./reports/kf-deberta-sentiment-training-report.json
 COPY reports/korean-finance-sentiment-benchmark.json ./reports/korean-finance-sentiment-benchmark.json
+COPY reports/sentiment-stacker-training-report.json ./reports/sentiment-stacker-training-report.json
+COPY reports/disclosure-importance-training-report.json ./reports/disclosure-importance-training-report.json
 COPY reports/k-fnspid-transformer-training-report.json ./reports/k-fnspid-transformer-training-report.json
 
 RUN find /app/src -type f \( -name '*.joblib' -o -name '*.safetensors' \) \

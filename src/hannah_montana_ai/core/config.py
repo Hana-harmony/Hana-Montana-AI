@@ -12,9 +12,7 @@ class Settings(BaseModel):
     market_impact_model_path: Path = Path(
         "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
     )
-    market_impact_training_report_path: Path = Path(
-        "reports/k-fnspid-impact-training-report.json"
-    )
+    market_impact_training_report_path: Path = Path("reports/k-fnspid-impact-training-report.json")
     transformer_base_model_path: Path = Path("/app/models/kf-deberta-base")
     sentiment_transformer_path: Path = Path(
         "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
@@ -24,6 +22,16 @@ class Settings(BaseModel):
     )
     sentiment_transformer_benchmark_report_path: Path = Path(
         "reports/korean-finance-sentiment-benchmark.json"
+    )
+    sentiment_stacker_path: Path = Path(
+        "src/hannah_montana_ai/model_store/sentiment_stacker.joblib"
+    )
+    sentiment_stacker_report_path: Path = Path("reports/sentiment-stacker-training-report.json")
+    disclosure_importance_model_path: Path = Path(
+        "src/hannah_montana_ai/model_store/disclosure_importance_ml.joblib"
+    )
+    disclosure_importance_report_path: Path = Path(
+        "reports/disclosure-importance-training-report.json"
     )
     market_impact_transformer_path: Path = Path(
         "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
@@ -36,29 +44,17 @@ class Settings(BaseModel):
     global_peer_model_path: Path = Path("src/hannah_montana_ai/model_store/global_peer_ml.joblib")
     us_stock_universe_path: Path = Path("data/reference/us_stock_universe.csv")
     global_peer_fundamentals_path: Path = Path("data/reference/global_peer_fundamentals.csv")
-    global_peer_korea_industry_path: Path = Path(
-        "data/reference/korea_stock_industries.csv"
-    )
-    global_peer_korea_company_profile_path: Path = Path(
-        "data/reference/korea_company_profiles.csv"
-    )
+    global_peer_korea_industry_path: Path = Path("data/reference/korea_stock_industries.csv")
+    global_peer_korea_company_profile_path: Path = Path("data/reference/korea_company_profiles.csv")
     global_peer_training_report_path: Path = Path("reports/global-peer-training-report.json")
     global_peer_ai_smoke_report_path: Path = Path("reports/global-peer-ai-smoke-report.json")
     global_peer_full_coverage_report_path: Path = Path(
         "reports/global-peer-full-coverage-report.json"
     )
-    global_peer_all_results_report_path: Path = Path(
-        "reports/global-peer-all-results.json"
-    )
-    global_peer_all_results_csv_path: Path = Path(
-        "reports/global-peer-all-results.csv"
-    )
-    global_peer_all_results_doc_path: Path = Path(
-        "docs/GLOBAL_PEER_ALL_RESULTS.md"
-    )
-    korean_financial_terms_seed_path: Path = Path(
-        "data/reference/korean_financial_terms_seed.json"
-    )
+    global_peer_all_results_report_path: Path = Path("reports/global-peer-all-results.json")
+    global_peer_all_results_csv_path: Path = Path("reports/global-peer-all-results.csv")
+    global_peer_all_results_doc_path: Path = Path("docs/GLOBAL_PEER_ALL_RESULTS.md")
+    korean_financial_terms_seed_path: Path = Path("data/reference/korean_financial_terms_seed.json")
     korean_financial_term_model_version: str = "k-finance-term-dictionary-v3"
     korean_translation_llm_endpoint: str = Field(
         default_factory=lambda: os.getenv(

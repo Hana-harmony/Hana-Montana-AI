@@ -35,9 +35,9 @@
   "rank_pattern": {},
   "revision": null,
   "target_modules": [
-    "key_proj",
+    "value_proj",
     "query_proj",
-    "value_proj"
+    "key_proj"
   ],
   "target_parameters": null,
   "task_type": "SEQ_CLS",

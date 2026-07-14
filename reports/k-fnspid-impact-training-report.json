@@ -1,29 +1,66 @@
 {
   "schema_version": "k-fnspid-impact-training/v1",
-  "version": "k-fnspid-impact-tfidf-logreg-20260713085712",
-  "dataset_dir": "data/k_fnspid/v2",
-  "partition_count": {
-    "TRAIN": 106975,
-    "VALIDATION": 6956,
-    "TEST": 10728
+  "version": "k-fnspid-impact-tfidf-logreg-20260713144017",
+  "dataset_dir": "data/k_fnspid/v3",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v3/manifest.json",
+    "dataset_version": "k-fnspid-v3",
+    "bytes": 9280,
+    "sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df"
   },
-  "final_training_count": 113931,
+  "artifact": {
+    "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib",
+    "bytes": 12615890,
+    "sha256": "e4dba95067c6b6bdc50bab9c3043b57568354061e0ab79b4151c9f4cd913f363"
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "partition_count": {
+    "TRAIN": 107175,
+    "VALIDATION": 6975,
+    "TEST": 10750
+  },
+  "final_training_count": 114150,
+  "evaluation_training_count": 107175,
+  "evaluation_protocol": "TRAIN fit, VALIDATION selection, frozen TEST evaluation",
   "label_distribution": {
-    "LOW": 76747,
-    "MEDIUM": 32648,
-    "HIGH": 11000,
-    "CRITICAL": 5506
+    "LOW": 76953,
+    "MEDIUM": 32685,
+    "HIGH": 11004,
+    "CRITICAL": 5507
   },
   "validation": {
-    "sample_count": 6956,
-    "accuracy": 0.4637722829212191,
-    "macro_f1": 0.3477928213292463,
-    "quadratic_kappa": 0.3286224333848754
+    "sample_count": 6975,
+    "accuracy": 0.4626523297491039,
+    "macro_f1": 0.3490499797688153,
+    "quadratic_kappa": 0.3331793571739069
   },
   "test": {
-    "sample_count": 10728,
-    "accuracy": 0.45423191648023864,
-    "macro_f1": 0.36131736558509486,
-    "quadratic_kappa": 0.35148457958853574
-  }
+    "sample_count": 10750,
+    "accuracy": 0.4642790697674419,
+    "macro_f1": 0.34289600363077616,
+    "quadratic_kappa": 0.31405511670470976
+  },
+  "test_predictions": {
+    "path": "reports/k-fnspid-impact-test-predictions.jsonl",
+    "sample_count": 10750,
+    "bytes": 3379983,
+    "sha256": "33191a98e1bee47a9d2db05bf92d8b60dd0a0be81915a43890664e866cb3a31d"
+  },
+  "provenance_refresh": [
+    {
+      "refreshed_at": "2026-07-13T18:29:46.724555+00:00",
+      "reason": "JSONL shard 재배치 후 동일 Parquet·분할의 원천 manifest 정정",
+      "previous_manifest_sha256": "3d62fa1694f3996477da3836ef5be1ebca44e337c892d5123382cdd53bb836d3",
+      "current_manifest_sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df",
+      "identity_checks": {
+        "partition_count": {
+          "TRAIN": 107175,
+          "VALIDATION": 6975,
+          "TEST": 10750
+        },
+        "test_document_id_and_label_count": 10750,
+        "test_predictions_sha256": "33191a98e1bee47a9d2db05bf92d8b60dd0a0be81915a43890664e866cb3a31d"
+      }
+    }
+  ]
 }

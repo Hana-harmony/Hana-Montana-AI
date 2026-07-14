@@ -15,5 +15,67 @@
     "collected_alerts.part-00010.jsonl",
     "collected_alerts.part-00011.jsonl",
     "collected_alerts.part-00012.jsonl"
+  ],
+  "files": [
+    {
+      "path": "collected_alerts.part-00001.jsonl",
+      "bytes": 26888253,
+      "sha256": "cc9c23df0d5ef44e2d056ca9860f7444fe64475aef65307b3d1bc56d87c8a918"
+    },
+    {
+      "path": "collected_alerts.part-00002.jsonl",
+      "bytes": 32444961,
+      "sha256": "4b64c65810c393d91a06e228c3a02fdd19dfa5192b34d979f3b0dde51a9200fe"
+    },
+    {
+      "path": "collected_alerts.part-00003.jsonl",
+      "bytes": 32314662,
+      "sha256": "a87ef0bed874d446c8716347bdf33f940bb86c8cc09c3309d3f0ab5b40514365"
+    },
+    {
+      "path": "collected_alerts.part-00004.jsonl",
+      "bytes": 32237836,
+      "sha256": "357a16dc81b6941ed5f8b9849b144cd7b2f9bdf850d0ef7f6d883b48676b4697"
+    },
+    {
+      "path": "collected_alerts.part-00005.jsonl",
+      "bytes": 32246862,
+      "sha256": "d7dd1148e55bd1476332cc52f128642de334a694bff9dc6e32a55401a03642af"
+    },
+    {
+      "path": "collected_alerts.part-00006.jsonl",
+      "bytes": 31938624,
+      "sha256": "c38e7af4a38f5bca7096c060ce7c24bc0f7fa54cf43c21a71904058403e7f267"
+    },
+    {
+      "path": "collected_alerts.part-00007.jsonl",
+      "bytes": 32243413,
+      "sha256": "6186d3d2a6453973e0a041172b27387a0f15938f445454375b5da2a21c497834"
+    },
+    {
+      "path": "collected_alerts.part-00008.jsonl",
+      "bytes": 32210718,
+      "sha256": "0fb00b044dd244a3cf8f84d5e64ffaf76605ca71329eb6d63baa3bc5a7857a05"
+    },
+    {
+      "path": "collected_alerts.part-00009.jsonl",
+      "bytes": 32427109,
+      "sha256": "17cb1fc0818988fc26841ef3067941df397818ea5c35c57192a14101bec617ab"
+    },
+    {
+      "path": "collected_alerts.part-00010.jsonl",
+      "bytes": 32363750,
+      "sha256": "f95200ef53867cb20e4828bf0d9c18d0dcd1474cf7a696e97a20ab1353c5f38c"
+    },
+    {
+      "path": "collected_alerts.part-00011.jsonl",
+      "bytes": 32101392,
+      "sha256": "6df732b89e62acfeb108232eaa1e43cc484ae643b95b51f4e8b9816386a4eeef"
+    },
+    {
+      "path": "collected_alerts.part-00012.jsonl",
+      "bytes": 2906534,
+      "sha256": "bb72ba04147751ddc6c330d9685ca2e8f2a1e7777b3a4ebe21a7e88993d37a53"
+    }
   ]
 }

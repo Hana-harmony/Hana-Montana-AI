@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import json
+import math
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from hannah_montana_ai.domain.schemas import Importance
+from hannah_montana_ai.services.impact_model_features import (
+    IMPACT_INPUT_FEATURE_VERSION,
+    build_impact_model_text,
+)
 from hannah_montana_ai.services.market_impact_model import MarketImpactPrediction
 from hannah_montana_ai.services.model_artifact_integrity import (
     verify_artifact_manifest,
@@ -26,14 +31,19 @@ class KfDebertaImpactModel:
         self.enabled = False
         self.version = "kf-deberta-impact-unavailable"
         self.max_length = 256
+        self.input_feature_version = "k-fnspid-text-v1"
+        self.log_prior_offsets = [0.0] * len(LABEL_ORDER)
         self._torch: Any = None
         self._tokenizer: Any = None
         self._model: Any = None
         if not adapter_path.exists() or not report_path.exists():
             return
         report = json.loads(report_path.read_text(encoding="utf-8"))
-        if not _deployment_gate_passed(report) or not verify_artifact_manifest(
-            adapter_path, report.get("artifact_files")
+        log_prior_offsets = _log_prior_offsets(report)
+        if (
+            not _deployment_gate_passed(report)
+            or not verify_artifact_manifest(adapter_path, report.get("artifact_files"))
+            or log_prior_offsets is None
         ):
             return
 
@@ -80,20 +90,32 @@ class KfDebertaImpactModel:
         self._tokenizer = tokenizer
         self._model = model
         self.max_length = int(report.get("max_length", 256))
+        self.input_feature_version = str(report.get("input_feature_version", "k-fnspid-text-v1"))
+        self.log_prior_offsets = log_prior_offsets
         self.version = str(report["version"])
         self.enabled = True
 
-    def predict(self, text: str) -> MarketImpactPrediction | None:
+    def predict(self, text: str, source_type: str = "NEWS") -> MarketImpactPrediction | None:
         if not self.enabled or self._model is None:
             return None
+        model_text = (
+            build_impact_model_text(text, source_type)
+            if self.input_feature_version == IMPACT_INPUT_FEATURE_VERSION
+            else text
+        )
         encoded = self._tokenizer(
-            text,
+            model_text,
             truncation=True,
             max_length=self.max_length,
             return_tensors="pt",
         )
         with self._torch.inference_mode():
             logits = self._model(**encoded).logits[0]
+            logits = logits + self._torch.tensor(
+                self.log_prior_offsets,
+                device=logits.device,
+                dtype=logits.dtype,
+            )
             probabilities = self._torch.softmax(logits, dim=-1).cpu().tolist()
         predicted_index = max(range(len(probabilities)), key=probabilities.__getitem__)
         materiality = sum(
@@ -116,6 +138,35 @@ def _deployment_gate_passed(report: dict[str, Any]) -> bool:
         and float(test.get("quadratic_kappa", 0.0)) >= 0.20
         and gate.get("eligible") is True
     )
+
+
+def _log_prior_offsets(report: dict[str, Any]) -> list[float] | None:
+    configured = report.get("postprocessing")
+    if configured is None:
+        return (
+            None
+            if report.get("input_feature_version") == IMPACT_INPUT_FEATURE_VERSION
+            else [0.0] * len(LABEL_ORDER)
+        )
+    if (
+        not isinstance(configured, dict)
+        or configured.get("method") != "validation-selected-log-prior-correction/v1"
+        or configured.get("selection_partition") != "VALIDATION"
+    ):
+        return None
+    try:
+        strength = float(configured["selected_strength"])
+        prior_by_label = configured["training_class_priors"]
+        priors = [float(prior_by_label[label]) for label in LABEL_ORDER]
+    except (KeyError, TypeError, ValueError):
+        return None
+    if (
+        not 0.0 <= strength <= 2.0
+        or any(not math.isfinite(prior) or prior <= 0.0 for prior in priors)
+        or not math.isclose(sum(priors), 1.0, rel_tol=0.0, abs_tol=1e-6)
+    ):
+        return None
+    return [strength * math.log(prior) for prior in priors]
 
 
 @lru_cache(maxsize=1)

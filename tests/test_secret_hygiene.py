@@ -57,6 +57,62 @@ def test_open_dart_collection_requires_credentials_before_network(monkeypatch) -
     assert "=" not in message
 
 
+def test_open_dart_collection_follows_provider_pagination(monkeypatch) -> None:
+    monkeypatch.setenv("OPEN_DART_API_KEY", "local-dart-key")
+    monkeypatch.setattr(collector.time, "sleep", lambda _: None)
+    requested_pages: list[int] = []
+
+    def fake_json_request(request):
+        page_no = int(request.full_url.split("page_no=")[1].split("&")[0])
+        requested_pages.append(page_no)
+        return {
+            "total_page": 3,
+            "list": [
+                {
+                    "rcept_no": f"2026061700000{page_no}",
+                    "report_nm": f"단일판매ㆍ공급계약체결 {page_no}",
+                    "corp_name": "한화시스템",
+                    "rcept_dt": "20260617",
+                }
+            ],
+        }
+
+    monkeypatch.setattr(collector, "_json_request", fake_json_request)
+
+    result = collect_open_dart(days=1, pages=None, sleep_seconds=0)
+
+    assert requested_pages == [1, 2, 3]
+    assert len(result.alerts) == 3
+    assert result.status.successful_requests == 3
+
+
+def test_open_dart_collection_honors_page_budget(monkeypatch) -> None:
+    monkeypatch.setenv("OPEN_DART_API_KEY", "local-dart-key")
+    monkeypatch.setattr(collector.time, "sleep", lambda _: None)
+    requested_pages: list[int] = []
+
+    def fake_json_request(request):
+        page_no = int(request.full_url.split("page_no=")[1].split("&")[0])
+        requested_pages.append(page_no)
+        return {
+            "total_page": 5,
+            "list": [
+                {
+                    "rcept_no": f"2026061700000{page_no}",
+                    "report_nm": "주요사항보고서",
+                    "corp_name": "테스트",
+                    "rcept_dt": "20260617",
+                }
+            ],
+        }
+
+    monkeypatch.setattr(collector, "_json_request", fake_json_request)
+
+    collect_open_dart(days=1, pages=2, sleep_seconds=0)
+
+    assert requested_pages == [1, 2]
+
+
 def test_naver_collection_retries_timeout_without_losing_shard(monkeypatch) -> None:
     monkeypatch.setenv("NAVER_NEWS_CLIENT_ID", "local-client-id")
     monkeypatch.setenv("NAVER_NEWS_CLIENT_SECRET", "local-client-secret")

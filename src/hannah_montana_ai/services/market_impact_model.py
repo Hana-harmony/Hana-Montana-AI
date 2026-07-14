@@ -2,12 +2,17 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
 
 import joblib
 
 from hannah_montana_ai.domain.schemas import Importance
+from hannah_montana_ai.services.impact_model_features import (
+    IMPACT_INPUT_FEATURE_VERSION,
+    build_impact_model_text,
+)
 
 LABEL_ORDER: tuple[Importance, ...] = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
 
@@ -25,25 +30,34 @@ class KFnspidMarketImpactModel:
         self.enabled = False
         self.version = "k-fnspid-impact-unavailable"
         self.model: Any = None
+        self.input_feature_version = "k-fnspid-text-v1"
         if not model_path.exists() or not report_path.exists():
             return
         report = json.loads(report_path.read_text(encoding="utf-8"))
         test = report.get("test", {})
+        artifact = report.get("artifact", {})
         if (
             int(test.get("sample_count", 0)) < 1_000
             or float(test.get("macro_f1", 0.0)) < 0.30
             or float(test.get("quadratic_kappa", 0.0)) < 0.20
+            or not _matches_file_manifest(model_path, artifact)
         ):
             return
         payload: dict[str, Any] = joblib.load(model_path)
         self.model = payload["model"]
         self.version = str(payload["version"])
+        self.input_feature_version = str(payload.get("input_feature_version", "k-fnspid-text-v1"))
         self.enabled = True
 
-    def predict(self, text: str) -> MarketImpactPrediction | None:
+    def predict(self, text: str, source_type: str = "NEWS") -> MarketImpactPrediction | None:
         if not self.enabled or self.model is None:
             return None
-        probabilities = self.model.predict_proba([text])[0]
+        model_text = (
+            build_impact_model_text(text, source_type)
+            if self.input_feature_version == IMPACT_INPUT_FEATURE_VERSION
+            else text
+        )
+        probabilities = self.model.predict_proba([model_text])[0]
         classes = [str(label) for label in self.model.classes_]
         by_label = {
             label: float(probability)
@@ -66,13 +80,18 @@ def blend_importance(
     semantic_confidence: float,
     market_prediction: MarketImpactPrediction | None,
 ) -> tuple[Importance, float]:
-    if market_prediction is None:
-        return semantic_importance, semantic_confidence
-    if market_prediction.importance == semantic_importance:
-        return semantic_importance, max(semantic_confidence, market_prediction.confidence)
-    semantic_index = LABEL_ORDER.index(semantic_importance)
-    market_index = LABEL_ORDER.index(market_prediction.importance)
-    if market_prediction.confidence >= 0.72 and market_index > semantic_index:
-        upgraded = LABEL_ORDER[min(semantic_index + 1, market_index)]
-        return upgraded, min(max(semantic_confidence, market_prediction.confidence), 0.95)
-    return semantic_importance, min(semantic_confidence, 0.49)
+    # 의미 중요도와 관측 가격충격은 서로 다른 과제이므로 라벨과 confidence를 합치지 않는다.
+    del market_prediction
+    return semantic_importance, semantic_confidence
+
+
+def _matches_file_manifest(path: Path, manifest: Any) -> bool:
+    if not isinstance(manifest, dict) or not path.is_file() or path.is_symlink():
+        return False
+    if path.stat().st_size != int(manifest.get("bytes", -1)):
+        return False
+    digest = sha256()
+    with path.open("rb") as file:
+        while chunk := file.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest() == str(manifest.get("sha256", ""))

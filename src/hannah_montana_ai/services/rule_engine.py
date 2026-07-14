@@ -4,8 +4,27 @@ from hannah_montana_ai.domain.schemas import Importance, Sentiment, SummaryLines
 
 
 class FinancialRuleEngine:
-    critical_keywords = ("상장폐지", "거래정지", "횡령", "배임", "감사의견 거절")
-    high_keywords = ("유상증자", "합병", "분할", "실적", "공급계약", "소송", "자사주")
+    critical_keywords = (
+        "상장폐지",
+        "횡령",
+        "배임",
+        "감사의견 거절",
+        "감사의견거절",
+        "부도",
+        "회생절차",
+        "파산",
+    )
+    high_keywords = (
+        "유상증자",
+        "합병",
+        "분할",
+        "실적",
+        "공급계약",
+        "소송",
+        "자사주",
+        "거래정지",
+        "불성실공시",
+    )
     negative_keywords = ("하락", "손실", "적자", "감소", "리콜", "제재", "과징금")
     positive_keywords = ("상승", "흑자", "증가", "수주", "계약", "배당", "호실적")
     financial_context_keywords = (
@@ -260,9 +279,7 @@ class FinancialRuleEngine:
             if any(term in sentence for term in title_terms)
         ]
         summary_candidates = (
-            related_ranked_sentences
-            if len(related_ranked_sentences) >= 2
-            else ranked_sentences
+            related_ranked_sentences if len(related_ranked_sentences) >= 2 else ranked_sentences
         )
         what = self._first_title_context_sentence(
             article_sentences,
@@ -346,10 +363,7 @@ class FinancialRuleEngine:
         if not impact_sentence:
             impact_sentence = self._investor_check_sentence(fallback_subject)
         if self._line(why) == self._line(what):
-            why = (
-                f"{fallback_subject}의 배경은 "
-                "원문에서 확인된 최신 시장·기업 이벤트입니다."
-            )
+            why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
         if self._line(impact_sentence) in {self._line(what), self._line(why)}:
             impact_sentence = self._investor_check_sentence(fallback_subject)
         what_line = self._line(what)
@@ -432,11 +446,7 @@ class FinancialRuleEngine:
         ]
 
     def _ranked_article_sentences(self, sentences: list[str], title: str) -> list[str]:
-        sentences = [
-            sentence
-            for sentence in sentences
-            if self._is_article_sentence(sentence)
-        ]
+        sentences = [sentence for sentence in sentences if self._is_article_sentence(sentence)]
         title_terms = self._title_terms(title)
         return sorted(
             sentences,
@@ -686,9 +696,7 @@ class FinancialRuleEngine:
         if len(text) <= max_length:
             return text
         boundary_positions = [
-            match.start()
-            for match in re.finditer(r"\s+", text)
-            if match.start() <= max_length
+            match.start() for match in re.finditer(r"\s+", text) if match.start() <= max_length
         ]
         if not boundary_positions:
             return ""
