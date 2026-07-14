@@ -1,0 +1,53 @@
+name: hannah-qwen
+
+services:
+  qwen:
+    image: ghcr.io/ggml-org/llama.cpp:server@sha256:824dbeb98cd711e75969d73e05dcd1200d5a2cb19a0de39f5d1c7f00d80b4cac
+    container_name: hannah-qwen
+    restart: unless-stopped
+    user: "65532:65532"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 6g
+    cpus: 1.75
+    command:
+      - --model
+      - /models/Qwen3-4B-Q4_K_M.gguf
+      - --alias
+      - Qwen3-4B-GGUF-Q4
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --ctx-size
+      - "8192"
+      - --threads
+      - "4"
+      - --parallel
+      - "2"
+      - --reasoning
+      - "off"
+      - --temp
+      - "0"
+    volumes:
+      - ./models:/models:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    ports:
+      - 127.0.0.1:18081:8080
+    networks:
+      - internal
+    logging:
+      driver: json-file
+      options:
+        max-size: 20m
+        max-file: "5"
+
+networks:
+  internal:
+    name: hana-omnilens-internal
+    external: true
