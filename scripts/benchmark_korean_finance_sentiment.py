@@ -11,15 +11,12 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
 
-import torch
-from peft import PeftModel
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     f1_score,
     precision_recall_fscore_support,
 )
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from hannah_montana_ai.domain.schemas import Sentiment
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
@@ -316,6 +313,8 @@ def _predict_reference(
     batch_size: int,
     max_length: int,
 ) -> list[str]:
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained(
         model_name,
         revision=REFERENCE_MODEL_REVISION,
@@ -336,6 +335,9 @@ def _predict_adapter_probabilities(
     batch_size: int,
     max_length: int,
 ) -> list[dict[str, float]]:
+    from peft import PeftModel
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
     if not adapter_path.exists():
         raise SystemExit(f"학습된 감성 어댑터가 없습니다: {adapter_path}")
     tokenizer = AutoTokenizer.from_pretrained(  # nosec B615
@@ -367,6 +369,8 @@ def _batched_probabilities(
     batch_size: int,
     max_length: int,
 ) -> list[dict[str, float]]:
+    import torch
+
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
     model.eval()
@@ -403,6 +407,8 @@ def _batched_predictions(
     batch_size: int,
     max_length: int,
 ) -> list[str]:
+    import torch
+
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
     model.eval()

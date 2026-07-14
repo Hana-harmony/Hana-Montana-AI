@@ -11,21 +11,8 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import torch
-import torch.nn.functional as functional
-from peft import LoraConfig, TaskType, get_peft_model
 from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
-from torch.utils.data import Dataset
 from train_k_fnspid_impact_model import LABEL_ORDER, load_rows
-from transformers import (
-    AutoModelForSequenceClassification,
-    AutoTokenizer,
-    DataCollatorWithPadding,
-    EarlyStoppingCallback,
-    EvalPrediction,
-    Trainer,
-    TrainingArguments,
-)
 
 from hannah_montana_ai.services.impact_model_features import IMPACT_INPUT_FEATURE_VERSION
 from hannah_montana_ai.services.model_artifact_integrity import build_artifact_manifest
@@ -40,7 +27,7 @@ DEFAULT_PREDICTIONS = PROJECT_ROOT / "reports/k-fnspid-transformer-test-predicti
 DEFAULT_BASELINE_REPORT = PROJECT_ROOT / "reports/k-fnspid-impact-training-report.json"
 
 
-class EncodedImpactDataset(Dataset[dict[str, Any]]):
+class EncodedImpactDataset:
     def __init__(
         self,
         rows: list[dict[str, Any]],
@@ -68,6 +55,16 @@ class EncodedImpactDataset(Dataset[dict[str, Any]]):
 
 
 def main() -> None:
+    from peft import LoraConfig, TaskType, get_peft_model
+    from transformers import (
+        AutoModelForSequenceClassification,
+        AutoTokenizer,
+        DataCollatorWithPadding,
+        EarlyStoppingCallback,
+        Trainer,
+        TrainingArguments,
+    )
+
     parser = argparse.ArgumentParser(
         description="KF-DeBERTa LoRA 기반 K-FNSPID 시장영향 모델을 학습한다."
     )
@@ -397,17 +394,20 @@ def main() -> None:
 
 
 def _loss_function(
-    class_weights: torch.Tensor,
+    class_weights: Any,
     *,
     focal_gamma: float,
     ordinal_loss_weight: float,
     label_smoothing: float,
 ) -> Any:
+    import torch
+    import torch.nn.functional as functional
+
     def compute_loss(
         outputs: Any,
-        labels: torch.Tensor,
-        num_items_in_batch: int | torch.Tensor | None = None,
-    ) -> torch.Tensor:
+        labels: Any,
+        num_items_in_batch: int | Any | None = None,
+    ) -> Any:
         del num_items_in_batch
         weights = class_weights.to(outputs.logits.device)
         per_sample_cross_entropy = functional.cross_entropy(
@@ -431,7 +431,9 @@ def _loss_function(
     return compute_loss
 
 
-def _class_weights(rows: list[dict[str, Any]]) -> torch.Tensor:
+def _class_weights(rows: list[dict[str, Any]]) -> Any:
+    import torch
+
     counts = Counter(str(row["importance"]) for row in rows)
     total = sum(counts.values())
     weights = [total / (len(LABEL_ORDER) * max(counts[label], 1)) for label in LABEL_ORDER]
@@ -441,7 +443,7 @@ def _class_weights(rows: list[dict[str, Any]]) -> torch.Tensor:
 def _metrics_with_prior(
     training_rows: list[dict[str, Any]],
 ) -> Any:
-    def compute_metrics(prediction: EvalPrediction) -> dict[str, float]:
+    def compute_metrics(prediction: Any) -> dict[str, float]:
         expected = prediction.label_ids.astype(int)
         logits = np.asarray(prediction.predictions)
         postprocessing = _select_log_prior_correction(logits, expected, training_rows)
@@ -592,6 +594,8 @@ def _stratified_limit(rows: list[dict[str, Any]], limit: int, seed: int) -> list
 
 
 def _set_seed(seed: int) -> None:
+    import torch
+
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
