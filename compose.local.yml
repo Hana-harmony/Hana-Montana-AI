@@ -5,25 +5,28 @@ services:
       context: .
     container_name: hannah-montana-ai
     cpus: "1.50"
-    mem_limit: 6g
-    pids_limit: 256
+    mem_limit: 7g
+    pids_limit: 512
     read_only: true
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
     environment:
-      HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT: ${HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT:-http://host.docker.internal:18081}
-      HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS: ${HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS:-300}
-      HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS: ${HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS:-2048}
-      HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY: ${HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY:-4}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT: http://hannah-qwen:8080
+      HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS: "300"
+      HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS: "2048"
+      HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY: "2"
     tmpfs:
-      - /tmp:rw,noexec,nosuid,size=256m
-      - /app/.cache:rw,noexec,nosuid,size=128m,uid=65532,gid=65532
+      - /tmp:rw,noexec,nosuid,size=512m
+      - /app/.cache:rw,noexec,nosuid,size=256m,uid=65532,gid=65532
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      qwen:
+        condition: service_started
+    networks:
+      - internal
     healthcheck:
       test:
         [
@@ -33,3 +36,54 @@ services:
       interval: 10s
       timeout: 3s
       retries: 20
+
+  qwen:
+    image: ghcr.io/ggml-org/llama.cpp:server@sha256:824dbeb98cd711e75969d73e05dcd1200d5a2cb19a0de39f5d1c7f00d80b4cac
+    container_name: hannah-qwen
+    restart: unless-stopped
+    user: "65532:65532"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 6g
+    cpus: 1.75
+    command:
+      - --model
+      - /models/Qwen3-4B-Q4_K_M.gguf
+      - --alias
+      - Qwen3-4B-GGUF-Q4
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --ctx-size
+      - "8192"
+      - --threads
+      - "4"
+      - --parallel
+      - "2"
+      - --reasoning
+      - "off"
+      - --temp
+      - "0"
+    volumes:
+      - ./models:/models:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    ports:
+      - "127.0.0.1:18081:8080"
+    networks:
+      - internal
+    logging:
+      driver: json-file
+      options:
+        max-size: 20m
+        max-file: "5"
+
+networks:
+  internal:
+    name: hana-omnilens-internal
+    external: true
