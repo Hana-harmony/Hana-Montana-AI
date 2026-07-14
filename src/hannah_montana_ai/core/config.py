@@ -99,6 +99,12 @@ class Settings(BaseModel):
     foreign_ownership_maintenance_token: str = Field(
         default_factory=lambda: os.getenv("HANNAH_AI_MAINTENANCE_TOKEN", "")
     )
+    runtime_environment: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_RUNTIME_ENVIRONMENT", "local")
+    )
+    discord_webhook_url: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_DISCORD_WEBHOOK_URL", "")
+    )
 
 
 @lru_cache
