@@ -13,7 +13,7 @@ def test_production_uses_single_container_with_rollback() -> None:
     assert "active-slot" not in deploy
     assert "inactive=blue" not in deploy
     assert "inactive=green" not in deploy
-    assert "--network \"${NETWORK}\"" in deploy
+    assert '--network "${NETWORK}"' in deploy
     assert "GHCR_USERNAME" in deploy
 
 
@@ -24,7 +24,7 @@ def test_qwen_is_pinned_and_private() -> None:
     workflow = _read(".github/workflows/ci.yml")
 
     assert "llama.cpp:server@sha256:" in compose
-    assert "user: \"65532:65532\"" in compose
+    assert 'user: "65532:65532"' in compose
     assert "mem_limit: 6g" in compose
     assert "127.0.0.1:18081:8080" in compose
     assert "external: true" in compose
@@ -34,3 +34,12 @@ def test_qwen_is_pinned_and_private() -> None:
     assert "http://hannah-qwen:8080" in local_compose
     assert "host.docker.internal" not in local_compose
     assert "hannah-qwen" in local_compose
+
+
+def test_production_requires_discord_and_exports_metrics() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    main = _read("src/hannah_montana_ai/main.py")
+
+    assert "secrets.HANNAH_DISCORD_WEBHOOK_URL" in workflow
+    assert "HANNAH_RUNTIME_ENVIRONMENT=production" in workflow
+    assert '@app.get("/metrics", include_in_schema=False)' in main

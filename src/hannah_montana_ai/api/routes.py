@@ -30,6 +30,7 @@ from hannah_montana_ai.domain.schemas import (
     TaxRefundStatusRequest,
     TaxRefundStatusResponse,
 )
+from hannah_montana_ai.observability import publish_business_event
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.audit import AnalysisAuditLogger
 from hannah_montana_ai.services.feature_contracts import (
@@ -194,6 +195,11 @@ def retrain_foreign_ownership_quantity_model(
     x_hannah_ai_maintenance_token: str | None = Header(default=None),
 ) -> ApiResponse[ForeignOwnershipQuantityRetrainResponse]:
     _verify_maintenance_token(x_hannah_ai_maintenance_token)
+    publish_business_event(
+        "model.retrain.started",
+        "외국인 보유수량 모델 재학습 시작",
+        {"observationCount": len(request.history)},
+    )
     try:
         response = get_foreign_ownership_model_maintenance_service().retrain(
             request,
@@ -203,6 +209,15 @@ def retrain_foreign_ownership_quantity_model(
         raise ApiException(ErrorCode.INVALID_REQUEST, str(exception)) from exception
     if response.promoted:
         get_foreign_ownership_prediction_service.cache_clear()
+    publish_business_event(
+        "model.retrain.completed",
+        "외국인 보유수량 모델 재학습 완료",
+        {
+            "releaseStatus": response.release_status,
+            "promoted": response.promoted,
+            "selectedModel": response.selected_model,
+        },
+    )
     return success_response(response)
 
 

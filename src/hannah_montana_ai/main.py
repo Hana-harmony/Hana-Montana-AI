@@ -1,5 +1,6 @@
 import logging
 import threading
+import time
 import urllib.parse
 import urllib.request
 from collections.abc import AsyncIterator
@@ -8,11 +9,19 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import Response
 
 from hannah_montana_ai.api.common import FieldErrorDetail, error_response
 from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
 from hannah_montana_ai.api.routes import router, warm_runtime_dependencies
 from hannah_montana_ai.core.config import Settings, get_settings
+from hannah_montana_ai.observability import (
+    HTTP_DURATION,
+    HTTP_REQUESTS,
+    configure_observability,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +61,8 @@ def _translation_provider_ready(settings: Settings) -> bool:
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
+    configure_observability(settings.discord_webhook_url, settings.runtime_environment)
     app = FastAPI(
         title="Hannah-Montana-AI",
         version="0.1.0",
@@ -59,6 +70,22 @@ def create_app() -> FastAPI:
         redoc_url=None,
         lifespan=lifespan,
     )
+
+    @app.middleware("http")
+    async def observe_http(request: Request, call_next: RequestResponseEndpoint) -> Response:
+        started = time.perf_counter()
+        response = await call_next(request)
+        route = request.scope.get("route")
+        path = getattr(route, "path", "unmatched")
+        HTTP_REQUESTS.labels(
+            method=request.method,
+            path=path,
+            status=str(response.status_code),
+        ).inc()
+        HTTP_DURATION.labels(method=request.method, path=path).observe(
+            time.perf_counter() - started
+        )
+        return response
 
     @app.exception_handler(ApiException)
     async def api_exception_handler(_request: Request, exception: ApiException) -> JSONResponse:
@@ -98,6 +125,10 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(_request: Request, _exception: Exception) -> JSONResponse:
         error_code = ErrorCode.INTERNAL_SERVER_ERROR
+        logger.error(
+            "Unhandled request failure",
+            exc_info=(type(_exception), _exception, _exception.__traceback__),
+        )
         return JSONResponse(
             status_code=error_code.status,
             content=error_response(
@@ -119,6 +150,10 @@ def create_app() -> FastAPI:
             status_code=503,
             content={"status": "not_ready", "dependency": "korean_translation_llm"},
         )
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics() -> Response:
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     app.include_router(
         router,

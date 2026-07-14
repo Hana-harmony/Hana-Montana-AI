@@ -2,6 +2,8 @@
 
 Hana Harmony의 자체 금융 AI·규칙 추론 서버다. FastAPI로 뉴스·공시 분석, 한국어→영어 번역, 한국 금융 용어 해설, 글로벌 피어 매칭, 외국인 보유 예측, 거래 상태 해석, 세무 문서 OCR과 환급 케이스 판정을 제공한다. ChatGPT API에 의존하지 않는다.
 
+운영 메트릭과 Discord 모델 이벤트는 [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)를 따른다.
+
 ## 기능 및 모델
 
 | 기능 | 현재 모델·엔진 | Serving API | 상세 문서 |
