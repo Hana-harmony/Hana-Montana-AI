@@ -1,6 +1,6 @@
 # K-FNSPID v3: 한국 뉴스·공시와 시장반응을 연결한 시간 외삽 금융 NLP 데이터셋
 
-> 제출 상태: ACL Rolling Review 장문 익명 심사용 LaTeX·BibTeX·책임 있는 NLP 체크리스트·검증 PDF를 `docs/paper/acl/`과 `output/pdf/`에 관리한다. 이 문서는 한국어 기술 근거본이며, 공개 모델명은 `Hana Montana AI(KF-DeBERTa + K-FNSPID)`다.
+> 제출 상태: ACL Rolling Review 장문 익명 심사용 PDF, 최성현 저자 공개 영문 PDF와 별도 한글 논문 PDF를 `docs/paper/acl/`과 `output/pdf/`에 관리한다. 저자 소속은 한국공학대학교 SW대학 컴퓨터공학부 소프트웨어전공이며 4학년 학부생이다. 이 문서는 한국어 기술 근거본이고, 학회 형식 한글본은 `docs/paper/acl/k-fnspid-v3-ko.tex`이며 공개 모델명은 `Hana Montana AI(KF-DeBERTa + K-FNSPID)`다.
 
 ## 초록
 

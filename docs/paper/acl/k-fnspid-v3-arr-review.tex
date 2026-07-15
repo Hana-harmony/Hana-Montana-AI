@@ -1,5 +1,9 @@
 \documentclass[11pt]{article}
-\usepackage[review]{acl}
+\ifdefined\kfnspidAuthorVersion
+  \usepackage[preprint]{acl}
+\else
+  \usepackage[review]{acl}
+\fi
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage[T1]{fontenc}
@@ -19,7 +23,14 @@
 \definecolor{hanagreen}{RGB}{0,128,112}
 
 \title{K-FNSPID v3: Leakage-Aware Korean Financial News and Disclosure Data with Temporally Extrapolated Market-Impact Evaluation}
-\author{Anonymous ACL submission}
+\ifdefined\kfnspidAuthorVersion
+  \author{Sunghyun Choi\\
+    College of SW, Computer Engineering (Major in Software)\\
+    Tech University of Korea\\
+    \textit{Fourth-year undergraduate student}}
+\else
+  \author{Anonymous ACL submission}
+\fi
 
 \begin{document}
 \maketitle
