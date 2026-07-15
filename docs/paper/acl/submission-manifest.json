@@ -15,7 +15,7 @@
       "language": "en",
       "submission_role": "ACL Rolling Review anonymous review",
       "author_identity_visible": false,
-      "abstract_word_count": 177,
+      "abstract_word_count": 161,
       "main_content_pages": 5,
       "total_pages": 7,
       "page_size": "A4",
@@ -23,15 +23,15 @@
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
       "pdf_path": "output/pdf/k-fnspid-v4-arr-review.pdf",
-      "pdf_bytes": 83189,
-      "pdf_sha256": "ac24a81bbd06c1ac081b2cab9633490595af861f6cade5e815e981e56ff2a38d"
+      "pdf_bytes": 84121,
+      "pdf_sha256": "88ae4c6dc049fdf107b9f39a6e057a5a843d85b996c16851f22c3e932181c4ac"
     },
     "author_preprint": {
       "language": "en",
       "submission_role": "non-anonymous author preprint",
       "author_identity_visible": true,
       "author_name": "Sunghyun Choi",
-      "abstract_word_count": 177,
+      "abstract_word_count": 161,
       "main_content_pages": 5,
       "total_pages": 7,
       "page_size": "A4",
@@ -39,8 +39,8 @@
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
       "pdf_path": "output/pdf/k-fnspid-v4-author-preprint.pdf",
-      "pdf_bytes": 73401,
-      "pdf_sha256": "0a4f0be4f2baa224a30ca061dc752509765b99b80cb5e9137416e16e6853506c"
+      "pdf_bytes": 74219,
+      "pdf_sha256": "1da234bdd3e993aa05759de4d6a71e4a09fe408cfa56c40c606af37ef3b9b339"
     },
     "korean_companion": {
       "language": "ko",
@@ -54,8 +54,8 @@
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 4,
       "pdf_path": "output/pdf/k-fnspid-v4-ko.pdf",
-      "pdf_bytes": 183261,
-      "pdf_sha256": "0677e04324e8a686342a4fa8e0f5b7803e90fd1a8f4f4b0ce6e28254bd55b2bc"
+      "pdf_bytes": 186891,
+      "pdf_sha256": "a73f53aa866d2a2a0c8beb0327cd6d5580d93a5e2c24fa3c0636ffb373b7353b"
     }
   },
   "known_scientific_blockers": [
