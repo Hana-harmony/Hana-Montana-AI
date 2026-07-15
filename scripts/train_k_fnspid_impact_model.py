@@ -25,7 +25,7 @@ from hannah_montana_ai.training.k_fnspid.sampling import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v4"
 DEFAULT_MODEL = PROJECT_ROOT / "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/k-fnspid-impact-training-report.json"
 DEFAULT_PREDICTIONS = PROJECT_ROOT / "reports/k-fnspid-impact-test-predictions.jsonl"
@@ -38,9 +38,15 @@ def main() -> None:
     parser.add_argument("--model-path", type=Path, default=DEFAULT_MODEL)
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--predictions-path", type=Path, default=DEFAULT_PREDICTIONS)
+    parser.add_argument("--source-type", choices=("NEWS", "DISCLOSURE"))
+    parser.add_argument("--max-features", type=int, default=180_000)
     args = parser.parse_args()
+    for attribute in ("dataset_dir", "model_path", "report_path", "predictions_path"):
+        setattr(args, attribute, _project_path(getattr(args, attribute)))
 
     rows = load_rows(args.dataset_dir)
+    if args.source_type:
+        rows = [row for row in rows if row["source_type"] == args.source_type]
     dataset_manifest = compact_dataset_manifest(args.dataset_dir)
     partitions = {
         name: [row for row in rows if row["split"] == name]
@@ -48,7 +54,7 @@ def main() -> None:
     }
     if len(partitions["TRAIN"]) < 100:
         raise SystemExit("K-FNSPID impact training requires at least 100 train rows")
-    validation_model = build_model()
+    validation_model = build_model(max_features=args.max_features)
     validation_model.fit(
         [str(row["text"]) for row in partitions["TRAIN"]],
         [str(row["importance"]) for row in partitions["TRAIN"]],
@@ -63,12 +69,16 @@ def main() -> None:
 
     # 배포 산출물만 검증 분할을 추가 학습하며 논문 Test는 TRAIN 전용 모델로 측정한다.
     final_training_rows = [*partitions["TRAIN"], *partitions["VALIDATION"]]
-    model = build_model()
+    model = build_model(max_features=args.max_features)
     model.fit(
         [str(row["text"]) for row in final_training_rows],
         [str(row["importance"]) for row in final_training_rows],
     )
-    version = f"k-fnspid-impact-tfidf-logreg-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    source_slug = str(args.source_type or "shared").lower()
+    version = (
+        f"kfi-{source_slug}-tfidf-"
+        f"{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    )
     artifact = {
         "version": version,
         "trained_at": datetime.now(UTC).isoformat(),
@@ -76,6 +86,7 @@ def main() -> None:
         "label_order": LABEL_ORDER,
         "dataset_manifest": json.loads((args.dataset_dir / "manifest.json").read_text()),
         "input_feature_version": IMPACT_INPUT_FEATURE_VERSION,
+        "source_type": args.source_type,
     }
     args.model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(artifact, args.model_path)
@@ -88,6 +99,7 @@ def main() -> None:
     report = {
         "schema_version": "k-fnspid-impact-training/v1",
         "version": version,
+        "source_type": args.source_type,
         "dataset_dir": str(args.dataset_dir.relative_to(PROJECT_ROOT)),
         "dataset_manifest": dataset_manifest,
         "artifact": artifact_manifest,
@@ -100,6 +112,10 @@ def main() -> None:
         "validation": validation_metrics,
         "test": test_metrics,
         "test_predictions": predictions_manifest,
+        "deployment_gate": _deployment_gate(
+            args.source_type,
+            test_metrics,
+        ),
     }
     args.report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
@@ -108,7 +124,7 @@ def main() -> None:
     print(json.dumps(report, ensure_ascii=False))
 
 
-def build_model() -> Pipeline:
+def build_model(*, max_features: int = 180_000) -> Pipeline:
     return Pipeline(
         [
             (
@@ -117,7 +133,7 @@ def build_model() -> Pipeline:
                     analyzer="char_wb",
                     ngram_range=(2, 5),
                     min_df=2,
-                    max_features=180_000,
+                    max_features=max_features,
                     sublinear_tf=True,
                 ),
             ),
@@ -133,6 +149,34 @@ def build_model() -> Pipeline:
             ),
         ]
     )
+
+
+def _deployment_gate(
+    source_type: str | None,
+    test_metrics: dict[str, float | int],
+) -> dict[str, Any]:
+    thresholds = {
+        "NEWS": (5_000, 0.34, 0.30),
+        "DISCLOSURE": (500, 0.30, 0.08),
+    }
+    minimum_count, minimum_macro_f1, minimum_kappa = thresholds.get(
+        source_type or "",
+        (1_000, 0.30, 0.20),
+    )
+    eligible = (
+        int(test_metrics.get("sample_count", 0)) >= minimum_count
+        and float(test_metrics.get("macro_f1", 0.0)) >= minimum_macro_f1
+        and float(test_metrics.get("quadratic_kappa", 0.0)) >= minimum_kappa
+        and float(test_metrics.get("expected_calibration_error_15_bin", 1.0)) <= 0.20
+    )
+    return {
+        "minimum_test_sample_count": minimum_count,
+        "minimum_macro_f1": minimum_macro_f1,
+        "minimum_quadratic_kappa": minimum_kappa,
+        "maximum_expected_calibration_error_15_bin": 0.20,
+        "eligible": eligible,
+        "decision": "DEPLOY_SOURCE_BASELINE" if eligible else "DISABLE_SOURCE_BASELINE",
+    }
 
 
 def load_rows(
@@ -212,9 +256,11 @@ def evaluate(model: Pipeline, rows: list[dict[str, Any]]) -> dict[str, float | i
         return {"sample_count": 0, "accuracy": 0.0, "macro_f1": 0.0, "quadratic_kappa": 0.0}
     expected = [str(row["importance"]) for row in rows]
     predicted = model.predict([str(row["text"]) for row in rows]).tolist()
+    probability_rows = model.predict_proba([str(row["text"]) for row in rows]).tolist()
+    classes = [str(label) for label in model.classes_]
     expected_ordinal = [LABEL_ORDER.index(label) for label in expected]
     predicted_ordinal = [LABEL_ORDER.index(label) for label in predicted]
-    return {
+    metrics: dict[str, float | int] = {
         "sample_count": len(rows),
         "accuracy": float(accuracy_score(expected, predicted)),
         "macro_f1": float(
@@ -229,6 +275,37 @@ def evaluate(model: Pipeline, rows: list[dict[str, Any]]) -> dict[str, float | i
         "quadratic_kappa": float(
             cohen_kappa_score(expected_ordinal, predicted_ordinal, weights="quadratic")
         ),
+    }
+    metrics.update(_calibration_metrics(expected, probability_rows, classes))
+    return metrics
+
+
+def _calibration_metrics(
+    expected: list[str],
+    probability_rows: list[list[float]],
+    classes: list[str],
+    bins: int = 15,
+) -> dict[str, float]:
+    ece = 0.0
+    brier = 0.0
+    buckets: list[list[tuple[float, bool]]] = [[] for _ in range(bins)]
+    for truth, probabilities in zip(expected, probability_rows, strict=True):
+        by_label = dict(zip(classes, probabilities, strict=True))
+        predicted = max(by_label, key=by_label.__getitem__)
+        confidence = float(by_label[predicted])
+        buckets[min(int(confidence * bins), bins - 1)].append((confidence, predicted == truth))
+        brier += sum(
+            (float(by_label.get(label, 0.0)) - float(label == truth)) ** 2
+            for label in LABEL_ORDER
+        )
+    for bucket in buckets:
+        if bucket:
+            mean_confidence = sum(row[0] for row in bucket) / len(bucket)
+            accuracy = sum(row[1] for row in bucket) / len(bucket)
+            ece += len(bucket) / len(expected) * abs(mean_confidence - accuracy)
+    return {
+        "expected_calibration_error_15_bin": ece,
+        "multiclass_brier_score": brier / len(expected),
     }
 
 
@@ -281,6 +358,13 @@ def compact_dataset_manifest(dataset_dir: Path) -> dict[str, str | int]:
         "bytes": path.stat().st_size,
         "sha256": _file_sha256(path),
     }
+
+
+def _project_path(path: Path) -> Path:
+    resolved = path.resolve() if path.is_absolute() else (PROJECT_ROOT / path).resolve()
+    if not resolved.is_relative_to(PROJECT_ROOT.resolve()):
+        raise ValueError(f"프로젝트 밖의 경로는 사용할 수 없습니다: {path}")
+    return resolved
 
 
 def _file_sha256(path: Path) -> str:

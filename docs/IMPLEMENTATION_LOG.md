@@ -1,5 +1,18 @@
 # 구현 기록
 
+## 2026-07-15 13:00 KST · K-FNSPID v4 출처별 전문가와 대규모 공시 확장
+
+- OpenDART 전체 페이지와 최신 증분을 수집해 원천을 1,252,189건으로 확장하고, 중복 제거 후 K-FNSPID v4 뉴스 524,696건·공시 722,989건, 총 1,247,685문서를 생성했다.
+- 문서–종목 관계 1,136,118건, 시장영향 715,015건, 비혼입 대표 시장영향 255,168건과 파일 기반 일별 시세 10,691,998행을 manifest byte·SHA-256 gate로 고정했다.
+- 뉴스·공시 TF-IDF 기준선과 KF-DeBERTa LoRA artifact·report·배포 gate를 분리하고 요청 출처와 artifact 출처가 다르면 추론을 거부하도록 analyzer와 로더를 변경했다.
+- 시간 Test에서 뉴스 전문가는 9,560건 macro F1 0.3745 / QWK 0.4754, 공시 전문가는 4,615건 0.3216 / 0.1550을 기록해 각각 자체 기준선을 넘었다. 통합 14,175건 exact McNemar p=2.29e-55이며 출처별 거래일 cluster bootstrap 95% CI도 모두 0보다 크다.
+- 공시 기준선은 독립 배포 gate 미달이므로 Transformer 장애 시 부적격 기준선으로 후퇴하지 않고 공시 시장영향만 생략한다. 감성·공시 의미 중요도·이벤트·요약은 계속 제공한다.
+- DART 전문 API 제한과 공개 viewer 차단을 우회하지 않았다. 누적 공시 전문 8,976건을 보존하고 수집 실패·재사용 수치를 report에 누적 기록한다.
+- 연구 평가 bootstrap의 반복 전체 지표 계산을 4x4 혼동행렬 기반 동일 지표 계산으로 교체해 2,000회 평가 시간을 수 분에서 약 27초로 줄이고 동일성 회귀 테스트를 추가했다.
+- 공시 seed 17/42/73의 adapter·전체 report·Test prediction을 서로 다른 경로에 재현하고 report SHA-256까지 집계 manifest에 고정했다. Validation macro F1만으로 seed 17을 선택한 뒤 artifact와 prediction을 무결성 검증해 운영 경로로 원자 승격했다.
+- 뉴스 추가 fine-tuning seed 17은 Validation macro F1 0.3770으로 기존 동결 adapter 0.3823보다 낮아 Test를 읽기 전에 중단했다. Test 성능으로 후보를 고르는 누출을 허용하지 않았다.
+- 운영 컨테이너가 v2 log-prior·temperature 후처리 보고서를 구형 method 문자열로 거부하던 결함을 수정했다. promoted 뉴스·공시 artifact의 출처 gate, 파일 SHA-256, Validation prior와 temperature를 실제 파일로 검사하는 회귀 테스트를 추가하고 두 KF-DeBERTa 전문가가 모두 활성화되는 실추론을 확인했다.
+
 ## 2026-07-15 09:20 KST · 저자 공개본·한글 논문 분리
 
 - ARR 익명 심사용 원고는 저자 정보를 계속 제거하고, 같은 영문 본문을 입력하는 `Sunghyun Choi` 저자 공개본을 추가해 실험 수치 drift를 차단했다.
@@ -41,15 +54,15 @@
 - raw 12개·전문 7개 shard manifest에 파일 byte·SHA-256을 기록하고, 로더가 경로 탈출·symlink·중복 경로·누락된 무결성 항목·변조 파일을 fail closed하도록 강화했다.
 - FINKRX, FININ, 2026년 뉴스·가격 융합 연구를 최신 비교군에 추가하고 과제·시장·지표가 다른 결과를 직접 SOTA 순위로 사용하지 않도록 논문 주장 범위를 고정했다.
 
-## 2026-07-13 23:55 KST · K-FNSPID v3 공시 전문·의미 중요도 고도화
+## 2026-07-13 23:55 KST · K-FNSPID v4 공시 전문·의미 중요도 고도화
 
-- OpenDART 전문 추가 후보 5,065건을 병렬·재개 가능 수집해 4,976건을 추가했고, K-FNSPID 연결 공시 전문을 8,972건(34.55%)으로 확장했다.
-- K-FNSPID v3 정본은 문서 550,662건, 문서–종목 819,772건, 시장영향 398,942건, 비혼입 대표행 130,566건이며 manifest의 byte·SHA-256 gate를 통과했다.
+- OpenDART 전문 5,082건을 병렬·재개 가능 수집해 4,976건을 추가했다. 누적 실패 106건은 원인별로 보존했고 K-FNSPID 연결 공시 전문은 최종 v4에서 8,972건(전체 공시의 1.24%)이다.
+- K-FNSPID v4 정본은 문서 550,662건, 문서–종목 819,772건, 시장영향 398,942건, 비혼입 대표행 130,566건이며 manifest의 byte·SHA-256 gate를 통과했다.
 - 공시 의미 중요도 모델을 Gold URL을 제외한 약지도 실공시 8,302건과 치명위험 어휘 템플릿 400건으로 학습했다. 제목 전용 입력 결함을 제거하고 전문까지 연결한 v2는 기본 Gold 600건에서 accuracy 0.9433 / macro F1 0.8699를 기록했다. Validation temperature 0.6으로 Gold ECE를 0.1444까지 교정했다.
 - 학습 입력·기본 Gold와 겹치지 않는 실제 공시 스트레스 Gold 310건을 추가했다. 통합 910건 accuracy는 기존 0.9055 대비 0.9538이며 McNemar p=0.000125다.
 - 의미 중요도와 시세 기반 시장영향을 분리했다. 시장영향은 `market_impact_importance`, `market_impact_score`, `market_impact_confidence`로 독립 전달하며 의미 등급을 변경하지 않는다.
 - 감성 후보는 공개 Test에서 KR-FinBERT-SC 대비 macro F1 차이 0.1566, paired bootstrap 95% CI [0.1262, 0.1877], exact McNemar p=1.51e-18을 기록했다.
-- 아래 18:30 기록의 공시 Gold 1.0000과 이전 시장영향 Test 수치는 당시 소규모 평가·v2 스냅샷의 역사적 결과다. 현재 주장은 v3 Gold 600건 0.9233과 시간 Test 10,750건 보고서를 사용한다.
+- 아래 18:30 기록의 공시 Gold 1.0000과 이전 시장영향 Test 수치는 당시 소규모 평가·v2 스냅샷의 역사적 결과다. 현재 주장은 최상단 v4 출처별 보고서와 기본·스트레스 공시 Gold 910건을 사용한다.
 
 ## 2026-07-13 20:42 KST · K-FNSPID 도입 전후·연구 주장 감사
 

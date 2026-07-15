@@ -16,7 +16,7 @@ from html.parser import HTMLParser
 from http.client import IncompleteRead
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
@@ -42,6 +42,8 @@ OUTPUT_PATH = PROJECT_ROOT / "data/training/financial_alert_full_content_gold.js
 REPORT_PATH = PROJECT_ROOT / "reports/real-full-content-training-dataset-report.json"
 STOCK_UNIVERSE_PATH = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 OPEN_DART_DOCUMENT_URL = "https://opendart.fss.or.kr/api/document.xml"
+DART_MAIN_URL = "https://dart.fss.or.kr/dsaf001/main.do"
+DART_VIEWER_URL = "https://dart.fss.or.kr/report/viewer.do"
 NEWS_POLICY = "licensed_naver_original_full_text_v1"
 DART_POLICY = "opendart_public_disclosure_text_v1"
 REUSABLE_FULL_CONTENT_POLICIES = {
@@ -230,6 +232,11 @@ def main() -> None:
     parser.add_argument("--news-batch-size", type=int, default=0)
     parser.add_argument("--disclosure-worker-count", type=int, default=4)
     parser.add_argument("--disclosure-batch-size", type=int, default=200)
+    parser.add_argument(
+        "--dart-fetch-mode",
+        choices=("api_with_public_viewer_fallback", "public_viewer"),
+        default="api_with_public_viewer_fallback",
+    )
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     parser.add_argument("--timeout-seconds", type=float, default=4.0)
     parser.add_argument("--append-existing", action=argparse.BooleanOptionalAction, default=True)
@@ -282,6 +289,7 @@ def main() -> None:
         sleep_seconds=args.sleep_seconds,
         worker_count=args.disclosure_worker_count,
         batch_size=args.disclosure_batch_size,
+        dart_fetch_mode=args.dart_fetch_mode,
     )
 
     sorted_rows = sorted(
@@ -289,15 +297,38 @@ def main() -> None:
         key=lambda row: (row["source_type"], row["content_hash"]),
     )
     write_sharded_jsonl(args.output_path, sorted_rows)
-    if not status and args.report_path.exists():
+    if args.append_existing and args.report_path.exists():
         previous_report = json.loads(args.report_path.read_text(encoding="utf-8"))
-        status.update(previous_report.get("collection_status", {}))
+        status = merge_collection_status(
+            previous_report.get("collection_status", {}),
+            status,
+        )
     report = build_report(args.output_path, sorted_rows, status, errors)
     args.report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     print(json.dumps(report, ensure_ascii=False))
+
+
+def merge_collection_status(
+    previous: dict[str, Any],
+    current: Counter[str],
+) -> Counter[str]:
+    """누적 수집 시도는 합산하고 현재 데이터 스냅샷 수치는 최신 값으로 유지한다."""
+    merged = Counter[str]()
+    cumulative_markers = ("_added", "_attempted", "_failed")
+    keys = set(previous) | set(current)
+    for key in keys:
+        previous_value = int(previous.get(key, 0))
+        current_value = int(current.get(key, 0))
+        if any(marker in key for marker in cumulative_markers):
+            merged[key] = previous_value + current_value
+        elif key in current:
+            merged[key] = current_value
+        else:
+            merged[key] = previous_value
+    return merged
 
 
 def read_existing_rows(path: Path) -> list[dict[str, Any]]:
@@ -452,18 +483,20 @@ def collect_news_rows(
                 if accepted_news_labels[label] >= per_label_limit:
                     status["news_label_limit_after_fetch"] += 1
                     continue
-                row = to_labeled_row(
+                candidate_row = to_labeled_row(
                     alert,
                     full_content.content,
                     full_content.canonical_url,
                     NEWS_POLICY,
                     matcher,
                 )
-                if row is None:
+                if candidate_row is None:
                     status["news_unlabeled"] += 1
                     continue
-                rows[row["content_hash"]] = row | {"image_urls": full_content.image_urls}
-                existing_source_urls.add(str(row["source_url"]))
+                rows[candidate_row["content_hash"]] = candidate_row | {
+                    "image_urls": full_content.image_urls
+                }
+                existing_source_urls.add(str(candidate_row["source_url"]))
                 accepted_news_labels[label] += 1
                 status["news_added"] += 1
                 sleep(sleep_seconds)
@@ -483,13 +516,15 @@ def collect_disclosure_rows(
     sleep_seconds: float,
     worker_count: int,
     batch_size: int,
+    dart_fetch_mode: str,
 ) -> None:
     if max_disclosures <= 0:
         return
     dart_api_key = os.environ.get("OPEN_DART_API_KEY", "")
-    if not dart_api_key:
+    if not dart_api_key and dart_fetch_mode != "public_viewer":
         status["disclosure_skipped_missing_key"] += 1
         return
+    status[f"disclosure_fetch_mode_{dart_fetch_mode}"] += 1
 
     accepted_labels = Counter[str]()
     disclosure_count = 0
@@ -523,6 +558,7 @@ def collect_disclosure_rows(
                     fetch_dart_document_with_status,
                     dart_api_key,
                     receipt_number,
+                    fetch_mode=dart_fetch_mode,
                 ): (
                     alert,
                     label,
@@ -545,18 +581,18 @@ def collect_disclosure_rows(
                 if accepted_labels[label] >= per_label_limit:
                     status["disclosure_label_limit_after_fetch"] += 1
                     continue
-                row = to_labeled_row(
+                candidate_row = to_labeled_row(
                     alert,
                     content,
                     alert.original_url,
                     DART_POLICY,
                     matcher,
                 )
-                if row is None:
+                if candidate_row is None:
                     status["disclosure_unlabeled"] += 1
                     continue
-                rows[row["content_hash"]] = row
-                existing_source_urls.add(str(row["source_url"]))
+                rows[candidate_row["content_hash"]] = candidate_row
+                existing_source_urls.add(str(candidate_row["source_url"]))
                 accepted_labels[label] += 1
                 disclosure_count += 1
                 status["disclosure_added"] += 1
@@ -708,7 +744,13 @@ def fetch_dart_document_with_status(
     api_key: str,
     receipt_number: str,
     max_attempts: int = 3,
+    *,
+    fetch_mode: str = "api_with_public_viewer_fallback",
 ) -> tuple[str, str]:
+    if fetch_mode == "public_viewer":
+        return fetch_dart_public_viewer_with_status(receipt_number, "public_viewer")
+    if fetch_mode != "api_with_public_viewer_fallback":
+        raise ValueError("지원하지 않는 DART 원문 수집 모드입니다.")
     params = urlencode({"crtfc_key": api_key, "rcept_no": receipt_number})
     payload = b""
     failure_status = "transport_error"
@@ -722,31 +764,63 @@ def fetch_dart_document_with_status(
         except HTTPError as exception:
             failure_status = f"http_{exception.code}"
             if exception.code not in FETCH_RETRY_HTTP_CODES or attempt == max_attempts - 1:
-                return "", failure_status
+                return fetch_dart_public_viewer_with_status(receipt_number, failure_status)
         except ValueError:
             failure_status = "oversize"
             if attempt == max_attempts - 1:
-                return "", failure_status
+                return fetch_dart_public_viewer_with_status(receipt_number, failure_status)
         except (IncompleteRead, OSError, TimeoutError, URLError):
             if attempt == max_attempts - 1:
-                return "", failure_status
+                return fetch_dart_public_viewer_with_status(receipt_number, failure_status)
         time.sleep(min(0.25 * (2**attempt), 1.0))
     if not payload:
-        return "", failure_status
+        return fetch_dart_public_viewer_with_status(receipt_number, failure_status)
     if payload.startswith(b"PK"):
         try:
             text = extract_zip_text(payload)
         except zipfile.BadZipFile:
-            return "", "malformed_zip"
+            return fetch_dart_public_viewer_with_status(receipt_number, "malformed_zip")
     else:
         text = payload.decode("utf-8", errors="replace")
         status_match = re.search(r"<status>([^<]+)</status>", text)
         if status_match and status_match.group(1) != "000":
-            return "", f"dart_status_{status_match.group(1)}"
+            return fetch_dart_public_viewer_with_status(
+                receipt_number,
+                f"dart_status_{status_match.group(1)}",
+            )
     content = extract_text(text)[:MAX_CONTENT_CHARS]
     if not is_valid_full_content(content):
         return "", "content_too_short"
     return content, "accepted"
+
+
+def fetch_dart_public_viewer_with_status(
+    receipt_number: str,
+    upstream_status: str,
+) -> tuple[str, str]:
+    if not re.fullmatch(r"\d{14}", receipt_number):
+        return "", "invalid_receipt_number"
+    main_url = f"{DART_MAIN_URL}?{urlencode({'rcpNo': receipt_number})}"
+    main_html = fetch_html_with_retry(main_url)
+    view_match = re.search(
+        rf'''viewDoc\(\s*["']{re.escape(receipt_number)}["']\s*,\s*["'](?P<dcm_no>\d+)["']\s*,\s*["']0["']\s*,\s*["']0["']\s*,\s*["']0["']\s*,\s*["'](?P<dtd>dart\d+\.xsd)["']''',
+        main_html,
+    )
+    if not view_match:
+        return "", f"{upstream_status}_viewer_metadata_missing"
+    viewer_url = f"{DART_VIEWER_URL}?{urlencode({
+        'rcpNo': receipt_number,
+        'dcmNo': view_match.group('dcm_no'),
+        'eleId': '0',
+        'offset': '0',
+        'length': '0',
+        'dtd': view_match.group('dtd'),
+    })}"
+    viewer_html = fetch_html_with_retry(viewer_url)
+    content = extract_text(viewer_html)[:MAX_CONTENT_CHARS]
+    if not is_valid_full_content(content):
+        return "", f"{upstream_status}_viewer_content_too_short"
+    return content, "accepted_public_viewer"
 
 
 def fetch_html_with_retry(url: str, max_attempts: int = 3) -> str:
@@ -777,7 +851,7 @@ def fetch_bytes(url: str, max_bytes: int = MAX_FETCH_BYTES) -> bytes:
         headers={"User-Agent": ("Hana-OmniLensTrainingBot/1.0 (+https://github.com/Hana-harmony)")},
     )
     with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS, context=context) as response:  # noqa: S310
-        payload = response.read(max_bytes + 1)
+        payload = cast(bytes, response.read(max_bytes + 1))
     if len(payload) > max_bytes:
         raise ValueError("response exceeds configured byte limit")
     return payload
@@ -995,7 +1069,9 @@ def disclosure_target_reached(
 ) -> bool:
     if target_disclosure_count <= 0:
         return False
-    disclosure_count = sum(row.get("source_type") == "DISCLOSURE" for row in rows.values())
+    disclosure_count = sum(
+        str(row.get("source_type")) == "DISCLOSURE" for row in rows.values()
+    )
     return disclosure_count >= target_disclosure_count
 
 

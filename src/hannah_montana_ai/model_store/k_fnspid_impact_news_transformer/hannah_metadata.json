@@ -1,0 +1,64 @@
+{
+  "schema_version": "k-fnspid-transformer-artifact/v1",
+  "version": "kfi-news-kfd-lora-20260715034259-p0.35-t0.90",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 256,
+  "trained_at": "2026-07-15T03:42:59.487273+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1142,
+      "sha256": "b5c7bfcab25892b5c0955fd650bb3c1a1240e0f01de9fa3a62348f530841597f"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "b04789a6112615a876842d5423ad0bd2a79671d7aaf95ab8e686470d5f08e2f5"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "e1be54e29a04d7e61ed1435af0506f425dcc639d066d44ccb2b7c454c59ae957"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 73,
+  "source_type": "NEWS",
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.35000000000000003,
+    "selected_temperature": 0.9,
+    "selected_validation_negative_log_likelihood": 1.082544430681278,
+    "training_class_priors": {
+      "LOW": 0.6259090818023361,
+      "MEDIUM": 0.25106685633001424,
+      "HIGH": 0.08172219662212249,
+      "CRITICAL": 0.04130186524552722
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.5222969801283054,
+      "macro_f1": 0.38234443495949455,
+      "quadratic_kappa": 0.4661084666050249
+    }
+  }
+}

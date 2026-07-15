@@ -33,7 +33,7 @@ DEFAULT_RAW = PROJECT_ROOT / "data/raw/collected_alerts.jsonl"
 DEFAULT_FULL = PROJECT_ROOT / "data/training/financial_alert_full_content_gold.jsonl"
 DEFAULT_STOCKS = PROJECT_ROOT / "data/reference/korea_stock_universe.csv"
 DEFAULT_PRICES = PROJECT_ROOT / "data/market/market_daily_price.parquet"
-DEFAULT_OUTPUT = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_OUTPUT = PROJECT_ROOT / "data/k_fnspid/v4"
 DEFAULT_GOLD_PATHS = (
     PROJECT_ROOT / "data/evaluation/financial_alert_real_news_gold.jsonl",
     PROJECT_ROOT / "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
@@ -53,7 +53,7 @@ def main() -> None:
         action="append",
         default=None,
     )
-    parser.add_argument("--dataset-version", default="k-fnspid-v3")
+    parser.add_argument("--dataset-version", default="k-fnspid-v4")
     parser.add_argument("--minimum-document-count", type=int, default=500_000)
     parser.add_argument("--minimum-price-row-count", type=int, default=3_000_000)
     parser.add_argument("--minimum-price-stock-count", type=int, default=2_000)
@@ -187,6 +187,11 @@ def main() -> None:
     write_parquet(args.output_dir / "splits.parquet", split_rows)
 
     report = build_quality_report(documents, entities, impacts)
+    source_by_document = {row.document_id: row.source_type for row in documents}
+    split_by_document = {str(row["document_id"]): str(row["split"]) for row in split_rows}
+    eligible_impacts = [
+        row for row in impacts if row.materiality_score is not None and not row.confounded
+    ]
     manifest = report | {
         "dataset_version": args.dataset_version,
         "generated_at": datetime.now().astimezone().isoformat(),
@@ -204,12 +209,39 @@ def main() -> None:
             "passed": True,
         },
         "split_count": dict(sorted(Counter(row["split"] for row in split_rows).items())),
+        "split_source_type_count": {
+            split: dict(
+                sorted(
+                    Counter(
+                        source_by_document[str(row["document_id"])]
+                        for row in split_rows
+                        if row["split"] == split
+                    ).items()
+                )
+            )
+            for split in ("TRAIN", "VALIDATION", "TEST", "EMBARGO")
+        },
         "publication_year_count": dict(
             sorted(Counter(row.published_at_kst[:4] for row in documents).items())
         ),
-        "unconfounded_impact_count": sum(
-            row.materiality_score is not None and not row.confounded for row in impacts
+        "unconfounded_impact_count": len(eligible_impacts),
+        "unconfounded_impact_source_type_count": dict(
+            sorted(
+                Counter(source_by_document[row.document_id] for row in eligible_impacts).items()
+            )
         ),
+        "unconfounded_impact_source_split_count": {
+            source_type: dict(
+                sorted(
+                    Counter(
+                        split_by_document[row.document_id]
+                        for row in eligible_impacts
+                        if source_by_document[row.document_id] == source_type
+                    ).items()
+                )
+            )
+            for source_type in ("NEWS", "DISCLOSURE")
+        },
         "raw_source": _source_manifest(args.raw_path),
         "full_content_source": _source_manifest(args.full_content_path),
         "stock_universe_source": _source_manifest(args.stock_universe_path),
@@ -227,12 +259,11 @@ def main() -> None:
 def load_prices(path: Path) -> list[DailyPrice]:
     if not path.exists():
         return []
+    rows: list[DailyPrice] = []
     if path.suffix == ".parquet":
-        rows: list[DailyPrice] = []
         for batch in pq.ParquetFile(path).iter_batches(batch_size=100_000):
             rows.extend(DailyPrice(**row) for row in batch.to_pylist())
         return rows
-    rows: list[DailyPrice] = []
     with path.open(newline="", encoding="utf-8") as file:
         for payload in csv.DictReader(file):
             rows.append(
@@ -277,7 +308,7 @@ def file_manifest(directory: Path) -> list[dict[str, Any]]:
 def _source_manifest(path: Path) -> dict[str, Any]:
     resolved = resolve_jsonl_paths(path) if path.suffix == ".jsonl" else [path]
     files = [path, *resolved] if resolved != [path] else [path]
-    file_rows = [
+    file_rows: list[dict[str, str | int]] = [
         {
             "path": _source_display_path(file, path),
             "bytes": file.stat().st_size,

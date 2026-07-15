@@ -8,7 +8,8 @@ REPORT_PATH = PROJECT_ROOT / "reports/hannah-ai-model-audit-report.json"
 
 
 def _load_json(path: str) -> dict[str, Any]:
-    return json.loads((PROJECT_ROOT / path).read_text())
+    payload: dict[str, Any] = json.loads((PROJECT_ROOT / path).read_text())
+    return payload
 
 
 def _metric(report: dict[str, Any], section: str, name: str) -> float | None:
@@ -36,9 +37,18 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
     sentiment_benchmark = _load_json("reports/korean-finance-sentiment-benchmark.json")
     disclosure_importance = _load_json("reports/disclosure-importance-training-report.json")
     disclosure_research = _load_json("reports/disclosure-importance-research-evaluation.json")
-    impact_baseline = _load_json("reports/k-fnspid-impact-training-report.json")
-    impact_transformer = _load_json("reports/k-fnspid-transformer-training-report.json")
-    impact_multiseed = _load_json("reports/k-fnspid-transformer-multiseed-report.json")
+    impact_baselines = {
+        source_type: _load_json(
+            f"reports/k-fnspid-impact-{source_type.lower()}-training-report.json"
+        )
+        for source_type in ("NEWS", "DISCLOSURE")
+    }
+    impact_transformers = {
+        source_type: _load_json(
+            f"reports/k-fnspid-impact-{source_type.lower()}-transformer-training-report.json"
+        )
+        for source_type in ("NEWS", "DISCLOSURE")
+    }
     impact_research = _load_json("reports/k-fnspid-research-evaluation.json")
 
     peer_gate_status = (
@@ -52,7 +62,10 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
         sentiment_benchmark["deployment_gate"]["eligible"]
         and disclosure_importance["deployment_gate"]["eligible"]
         and disclosure_research["research_gate"]["eligible_for_superiority_claim"]
-        and impact_transformer["deployment_gate"]["eligible"]
+        and all(
+            report["deployment_gate"]["eligible"]
+            for report in impact_transformers.values()
+        )
         and impact_research["research_gate"]["eligible_for_superiority_claim"]
     )
     audit = {
@@ -144,44 +157,58 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "평가자 간 일치도를 대신하지 않는다."
                 ),
             },
-            {
-                "name": "k_fnspid_market_impact_classifier",
-                "artifact": (
-                    "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
-                    if impact_transformer["deployment_gate"]["eligible"]
-                    else "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
-                ),
-                "version": (
-                    impact_transformer["version"]
-                    if impact_transformer["deployment_gate"]["eligible"]
-                    else impact_baseline["version"]
-                ),
-                "model_type": (
-                    "KF-DeBERTa base + LoRA ordinal market-impact classifier"
-                    if impact_transformer["deployment_gate"]["eligible"]
-                    else "TF-IDF char n-gram + class-balanced OVR LogisticRegression"
-                ),
-                "serving_surface": "separate news/disclosure market-impact fields",
-                "release_status": impact_transformer["deployment_gate"]["decision"],
-                "training_samples": impact_baseline["final_training_count"],
-                "evaluation": {
-                    "baseline_test": impact_baseline["test"],
-                    "transformer_validation": impact_transformer["validation"],
-                    "transformer_test": impact_transformer["test"],
-                    "multiseed": impact_multiseed,
-                    "research": impact_research,
-                },
-                "gate_status": (
-                    "pass"
-                    if impact_transformer["deployment_gate"]["eligible"]
-                    and impact_research["research_gate"]["eligible_for_superiority_claim"]
-                    else "fail"
-                ),
-                "remaining_risk": (
-                    "텍스트만으로 가격 충격을 예측하므로 단독 투자 신호가 아니라 "
-                    "의미 기반 중요도의 보조 신호로만 사용한다."
-                ),
-            },
+            *[
+                {
+                    "name": f"k_fnspid_{source_type.lower()}_market_impact_expert",
+                    "artifact": (
+                        "src/hannah_montana_ai/model_store/"
+                        f"k_fnspid_impact_{source_type.lower()}_transformer"
+                        if impact_transformers[source_type]["deployment_gate"]["eligible"]
+                        else "src/hannah_montana_ai/model_store/"
+                        f"k_fnspid_impact_{source_type.lower()}_ml.joblib"
+                    ),
+                    "version": (
+                        impact_transformers[source_type]["version"]
+                        if impact_transformers[source_type]["deployment_gate"]["eligible"]
+                        else impact_baselines[source_type]["version"]
+                    ),
+                    "model_type": (
+                        "source-routed KF-DeBERTa base + LoRA ordinal expert"
+                        if impact_transformers[source_type]["deployment_gate"]["eligible"]
+                        else "source-routed TF-IDF char n-gram OVR LogisticRegression"
+                    ),
+                    "serving_surface": f"{source_type.lower()} market-impact fields",
+                    "release_status": impact_transformers[source_type]["deployment_gate"][
+                        "decision"
+                    ],
+                    "training_samples": impact_baselines[source_type][
+                        "final_training_count"
+                    ],
+                    "evaluation": {
+                        "baseline_test": impact_baselines[source_type]["test"],
+                        "transformer_validation": impact_transformers[source_type][
+                            "validation"
+                        ],
+                        "transformer_test": impact_transformers[source_type]["test"],
+                        "source_research": impact_research["source_type"][source_type],
+                    },
+                    "gate_status": (
+                        "pass"
+                        if impact_transformers[source_type]["deployment_gate"]["eligible"]
+                        and all(
+                            impact_research["source_type"][source_type][
+                                "non_regression_gate"
+                            ].values()
+                        )
+                        else "fail"
+                    ),
+                    "remaining_risk": (
+                        "텍스트만으로 가격 충격을 예측하므로 단독 투자 신호가 아니라 "
+                        "의미 기반 중요도의 보조 신호로만 사용한다."
+                    ),
+                }
+                for source_type in ("NEWS", "DISCLOSURE")
+            ],
             {
                 "name": "stock_linker",
                 "artifact": "src/hannah_montana_ai/model_store/stock_linker_ml.joblib",

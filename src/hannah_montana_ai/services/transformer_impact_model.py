@@ -19,6 +19,12 @@ from hannah_montana_ai.services.model_artifact_integrity import (
 BASE_MODEL = "kakaobank/kf-deberta-base"
 BASE_MODEL_REVISION = "363b171d71443b0874b0bf9cea053eb5b1650633"
 LABEL_ORDER: tuple[Importance, ...] = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
+SUPPORTED_POSTPROCESSING_METHODS = frozenset(
+    {
+        "validation-selected-log-prior-correction/v1",
+        "validation-selected-log-prior-temperature/v2",
+    }
+)
 
 
 class KfDebertaImpactModel:
@@ -27,12 +33,15 @@ class KfDebertaImpactModel:
         adapter_path: Path,
         report_path: Path,
         local_base_model_path: Path,
+        expected_source_type: str | None = None,
     ) -> None:
         self.enabled = False
         self.version = "kf-deberta-impact-unavailable"
         self.max_length = 256
         self.input_feature_version = "k-fnspid-text-v1"
         self.log_prior_offsets = [0.0] * len(LABEL_ORDER)
+        self.temperature = 1.0
+        self.source_type = expected_source_type
         self._torch: Any = None
         self._tokenizer: Any = None
         self._model: Any = None
@@ -40,10 +49,12 @@ class KfDebertaImpactModel:
             return
         report = json.loads(report_path.read_text(encoding="utf-8"))
         log_prior_offsets = _log_prior_offsets(report)
+        temperature = _temperature(report)
         if (
-            not _deployment_gate_passed(report)
+            not _deployment_gate_passed(report, expected_source_type)
             or not verify_artifact_manifest(adapter_path, report.get("artifact_files"))
             or log_prior_offsets is None
+            or temperature is None
         ):
             return
 
@@ -92,11 +103,17 @@ class KfDebertaImpactModel:
         self.max_length = int(report.get("max_length", 256))
         self.input_feature_version = str(report.get("input_feature_version", "k-fnspid-text-v1"))
         self.log_prior_offsets = log_prior_offsets
+        self.temperature = temperature
         self.version = str(report["version"])
         self.enabled = True
 
     def predict(self, text: str, source_type: str = "NEWS") -> MarketImpactPrediction | None:
-        if not self.enabled or self._model is None:
+        normalized_source_type = source_type.strip().upper()
+        if (
+            not self.enabled
+            or self._model is None
+            or (self.source_type is not None and normalized_source_type != self.source_type)
+        ):
             return None
         model_text = (
             build_impact_model_text(text, source_type)
@@ -116,6 +133,7 @@ class KfDebertaImpactModel:
                 device=logits.device,
                 dtype=logits.dtype,
             )
+            logits = logits / self.temperature
             probabilities = self._torch.softmax(logits, dim=-1).cpu().tolist()
         predicted_index = max(range(len(probabilities)), key=probabilities.__getitem__)
         materiality = sum(
@@ -129,13 +147,21 @@ class KfDebertaImpactModel:
         )
 
 
-def _deployment_gate_passed(report: dict[str, Any]) -> bool:
+def _deployment_gate_passed(
+    report: dict[str, Any],
+    expected_source_type: str | None = None,
+) -> bool:
     test = report.get("test", {})
     gate = report.get("deployment_gate", {})
+    report_source_type = str(report.get("source_type", "")).upper() or None
     return (
-        int(test.get("sample_count", 0)) >= 1_000
-        and float(test.get("macro_f1", 0.0)) >= 0.35
-        and float(test.get("quadratic_kappa", 0.0)) >= 0.20
+        (expected_source_type is None or report_source_type == expected_source_type)
+        and int(test.get("sample_count", 0))
+        >= int(gate.get("minimum_test_sample_count", 1_000))
+        and float(test.get("macro_f1", 0.0))
+        >= float(gate.get("minimum_macro_f1", 0.35))
+        and float(test.get("quadratic_kappa", 0.0))
+        >= float(gate.get("minimum_quadratic_kappa", 0.20))
         and gate.get("eligible") is True
     )
 
@@ -150,7 +176,7 @@ def _log_prior_offsets(report: dict[str, Any]) -> list[float] | None:
         )
     if (
         not isinstance(configured, dict)
-        or configured.get("method") != "validation-selected-log-prior-correction/v1"
+        or configured.get("method") not in SUPPORTED_POSTPROCESSING_METHODS
         or configured.get("selection_partition") != "VALIDATION"
     ):
         return None
@@ -169,10 +195,26 @@ def _log_prior_offsets(report: dict[str, Any]) -> list[float] | None:
     return [strength * math.log(prior) for prior in priors]
 
 
-@lru_cache(maxsize=1)
+def _temperature(report: dict[str, Any]) -> float | None:
+    postprocessing = report.get("postprocessing", {})
+    if not postprocessing:
+        return 1.0 if report.get("input_feature_version") == "k-fnspid-text-v1" else None
+    if postprocessing.get("selection_partition") != "VALIDATION":
+        return None
+    temperature = float(postprocessing.get("selected_temperature", 1.0))
+    return temperature if 0.05 <= temperature <= 10.0 else None
+
+
+@lru_cache(maxsize=4)
 def load_kf_deberta_impact_model(
     adapter_path: Path,
     report_path: Path,
     local_base_model_path: Path,
+    expected_source_type: str | None = None,
 ) -> KfDebertaImpactModel:
-    return KfDebertaImpactModel(adapter_path, report_path, local_base_model_path)
+    return KfDebertaImpactModel(
+        adapter_path,
+        report_path,
+        local_base_model_path,
+        expected_source_type,
+    )

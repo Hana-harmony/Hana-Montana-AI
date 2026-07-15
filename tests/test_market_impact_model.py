@@ -1,9 +1,16 @@
+import json
 from hashlib import sha256
 from pathlib import Path
+
+import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
 
 from hannah_montana_ai.domain.schemas import StockCandidate
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.market_impact_model import (
+    KFnspidMarketImpactModel,
     MarketImpactPrediction,
     _matches_file_manifest,
     blend_importance,
@@ -63,6 +70,56 @@ def test_joblib_manifest_rejects_symbolic_link(tmp_path: Path) -> None:
     }
 
     assert not _matches_file_manifest(link, manifest)
+
+
+def test_source_expert_rejects_cross_source_prediction(tmp_path: Path) -> None:
+    model_path = tmp_path / "disclosure.joblib"
+    report_path = tmp_path / "disclosure-report.json"
+    labels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] * 2
+    model = Pipeline(
+        [
+            ("tfidf", TfidfVectorizer()),
+            ("classifier", LogisticRegression(max_iter=100)),
+        ]
+    ).fit([f"[SOURCE=DISCLOSURE] sample {index}" for index in range(8)], labels)
+    joblib.dump(
+        {
+            "model": model,
+            "version": "disclosure-expert-v1",
+            "source_type": "DISCLOSURE",
+            "input_feature_version": "k-fnspid-text-v2",
+        },
+        model_path,
+    )
+    report_path.write_text(
+        json.dumps(
+            {
+                "source_type": "DISCLOSURE",
+                "test": {
+                    "sample_count": 500,
+                    "macro_f1": 0.31,
+                    "quadratic_kappa": 0.09,
+                },
+                "deployment_gate": {
+                    "minimum_test_sample_count": 500,
+                    "minimum_macro_f1": 0.30,
+                    "minimum_quadratic_kappa": 0.08,
+                    "eligible": True,
+                },
+                "artifact": {
+                    "bytes": model_path.stat().st_size,
+                    "sha256": sha256(model_path.read_bytes()).hexdigest(),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    expert = KFnspidMarketImpactModel(model_path, report_path, "DISCLOSURE")
+
+    assert expert.enabled is True
+    assert expert.predict("sample", "NEWS") is None
+    assert expert.predict("sample", "DISCLOSURE") is not None
 
 
 def test_serving_impact_input_appends_primary_stock_like_training() -> None:

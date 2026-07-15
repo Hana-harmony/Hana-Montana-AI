@@ -26,31 +26,52 @@ class MarketImpactPrediction:
 
 
 class KFnspidMarketImpactModel:
-    def __init__(self, model_path: Path, report_path: Path) -> None:
+    def __init__(
+        self,
+        model_path: Path,
+        report_path: Path,
+        expected_source_type: str | None = None,
+    ) -> None:
         self.enabled = False
         self.version = "k-fnspid-impact-unavailable"
         self.model: Any = None
         self.input_feature_version = "k-fnspid-text-v1"
+        self.source_type = expected_source_type
         if not model_path.exists() or not report_path.exists():
             return
         report = json.loads(report_path.read_text(encoding="utf-8"))
         test = report.get("test", {})
         artifact = report.get("artifact", {})
+        report_source_type = str(report.get("source_type", "")).upper() or None
+        gate = report.get("deployment_gate", {})
         if (
-            int(test.get("sample_count", 0)) < 1_000
-            or float(test.get("macro_f1", 0.0)) < 0.30
-            or float(test.get("quadratic_kappa", 0.0)) < 0.20
+            (expected_source_type is not None and report_source_type != expected_source_type)
+            or int(test.get("sample_count", 0))
+            < int(gate.get("minimum_test_sample_count", 1_000))
+            or float(test.get("macro_f1", 0.0))
+            < float(gate.get("minimum_macro_f1", 0.30))
+            or float(test.get("quadratic_kappa", 0.0))
+            < float(gate.get("minimum_quadratic_kappa", 0.20))
+            or gate.get("eligible", True) is not True
             or not _matches_file_manifest(model_path, artifact)
         ):
             return
         payload: dict[str, Any] = joblib.load(model_path)
+        payload_source_type = str(payload.get("source_type", "")).upper() or None
+        if expected_source_type is not None and payload_source_type != expected_source_type:
+            return
         self.model = payload["model"]
         self.version = str(payload["version"])
         self.input_feature_version = str(payload.get("input_feature_version", "k-fnspid-text-v1"))
         self.enabled = True
 
     def predict(self, text: str, source_type: str = "NEWS") -> MarketImpactPrediction | None:
-        if not self.enabled or self.model is None:
+        normalized_source_type = source_type.strip().upper()
+        if (
+            not self.enabled
+            or self.model is None
+            or (self.source_type is not None and normalized_source_type != self.source_type)
+        ):
             return None
         model_text = (
             build_impact_model_text(text, source_type)

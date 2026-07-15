@@ -76,12 +76,14 @@
   "minimum_full_text_characters": 180,
   "collection_status": {
     "disclosure_added": 4976,
-    "disclosure_attempted": 5065,
-    "disclosure_failed": 89,
+    "disclosure_attempted": 5082,
+    "disclosure_failed": 106,
     "disclosure_failed_content_too_short": 51,
     "disclosure_failed_dart_status_013": 1,
     "disclosure_failed_dart_status_014": 37,
-    "disclosure_reused_existing_url": 3996
+    "disclosure_failed_public_viewer_viewer_metadata_missing": 17,
+    "disclosure_fetch_mode_public_viewer": 1,
+    "disclosure_reused_existing_url": 8972
   },
   "errors": []
 }

@@ -48,7 +48,7 @@
 | 이벤트 | TF-IDF char/word n-gram + One-vs-Rest Logistic Regression + 라벨별 규칙 보강 | 변경 없음 |
 | 감성 | TF-IDF Logistic Regression 확률 + 금융 규칙 보강 | artifact·외부 Test·운영 Gold gate를 통과한 KF-DeBERTa LoRA 80%와 기존 모델 20% 확률 앙상블. gate 실패 시 기존 모델로 fallback |
 | 의미 중요도 | `source_type`·TF-IDF·금융 token 기반 Logistic Regression + 규칙 보강 | Gold 비중복 공시 약지도에서 Validation으로 제목+요약 뷰를 선택하고 존속위험 코드북 floor로 강화. 시장영향과 분리해 의미 등급을 보존 |
-| 시장영향 | 사용하지 않음 | DB가 아닌 일별 시세 Parquet 10,691,998행과 뉴스·공시 550,662건으로 1·3·5거래일 초과수익·거래량·변동성 등급 생성. 공시 25,966건 중 8,972건은 실제 원문 포함. 등급·점수·confidence를 독립 출력 |
+| 시장영향 | 사용하지 않음 | DB가 아닌 일별 시세 Parquet 10,691,998행과 뉴스·공시 1,247,685건으로 1·3·5거래일 초과수익·거래량·변동성 등급 생성. 뉴스·공시 전문가를 분리하고 출처가 일치할 때만 등급·점수·confidence를 독립 출력 |
 | 시간 처리 | 기사 텍스트 평가만 수행 | 장전·장중·장후·비거래일 세션별 유효 거래일, 7일 embargo, 시간 외삽 Test 적용 |
 | 교란 억제 | 없음 | 동일 종목·거래일 다중 사건 제외, 사건 cluster 대표 기사 선택, 시장 평균 수익률 차감 |
 | 배포 안전성 | 단일 joblib 모델 version | 고정 base revision, `safetensors`, artifact SHA-256·크기·독립 보고서 검증, 실패 시 기존 모델로 fail closed |

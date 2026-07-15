@@ -1,0 +1,62 @@
+{
+  "schema_version": "k-fnspid-impact-training/v1",
+  "version": "kfi-disclosure-tfidf-20260715032635",
+  "source_type": "DISCLOSURE",
+  "dataset_dir": "data/k_fnspid/v4",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v4/manifest.json",
+    "dataset_version": "k-fnspid-v4",
+    "bytes": 12648,
+    "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+  },
+  "artifact": {
+    "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_ml.joblib",
+    "bytes": 8418047,
+    "sha256": "a1b5a021ba47cff72300e77cf694cf3aa093b232efeecd9be14627ccb2e04822"
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "partition_count": {
+    "TRAIN": 119146,
+    "VALIDATION": 584,
+    "TEST": 4615
+  },
+  "final_training_count": 119730,
+  "evaluation_training_count": 119146,
+  "evaluation_protocol": "TRAIN fit, VALIDATION selection, frozen TEST evaluation",
+  "label_distribution": {
+    "LOW": 85865,
+    "MEDIUM": 29399,
+    "HIGH": 6816,
+    "CRITICAL": 2273
+  },
+  "validation": {
+    "sample_count": 584,
+    "accuracy": 0.4708904109589041,
+    "macro_f1": 0.3106672081867904,
+    "quadratic_kappa": 0.132584916005285,
+    "expected_calibration_error_15_bin": 0.09770100345445473,
+    "multiclass_brier_score": 0.6570562812652838
+  },
+  "test": {
+    "sample_count": 4615,
+    "accuracy": 0.3674972914409534,
+    "macro_f1": 0.2677065976426612,
+    "quadratic_kappa": 0.11254900792716382,
+    "expected_calibration_error_15_bin": 0.04442918320374048,
+    "multiclass_brier_score": 0.6899598015198128
+  },
+  "test_predictions": {
+    "path": "reports/k-fnspid-impact-disclosure-test-predictions.jsonl",
+    "sample_count": 4615,
+    "bytes": 1479220,
+    "sha256": "d2cc5dfe90865ced0325b4f7d774027b3e96e3f0c59a82235084b9e144ce77ae"
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 500,
+    "minimum_macro_f1": 0.3,
+    "minimum_quadratic_kappa": 0.08,
+    "maximum_expected_calibration_error_15_bin": 0.2,
+    "eligible": false,
+    "decision": "DISABLE_SOURCE_BASELINE"
+  }
+}

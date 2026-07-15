@@ -1,0 +1,202 @@
+{
+  "schema_version": "k-fnspid-transformer-training/v1",
+  "version": "kfi-disclosure-kfd-lora-20260715040412-p0.05-t0.50",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-15T04:04:12.516049+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1142,
+      "sha256": "d4e75592e5273c12d1d5aea161a301362b2a805748464a709ee6c0c7e9236355"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "a59f3f17b7c709554a21ead716725e5560ab314193d06f9aa60d27033315f962"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 17,
+  "source_type": "DISCLOSURE",
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.05,
+    "selected_temperature": 0.5,
+    "selected_validation_negative_log_likelihood": 1.0520467738365131,
+    "training_class_priors": {
+      "LOW": 0.698125,
+      "MEDIUM": 0.231375,
+      "HIGH": 0.0525,
+      "CRITICAL": 0.018
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.5376712328767124,
+      "macro_f1": 0.2470924074580813,
+      "quadratic_kappa": 0.10244122858128113
+    }
+  },
+  "dataset_dir": "data/k_fnspid/v4",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v4/manifest.json",
+    "dataset_version": "k-fnspid-v4",
+    "bytes": 12648,
+    "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+  },
+  "artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17",
+  "evaluation_protocol": "TRAIN fit; Validation selects checkpoint, log-prior correction, and seed; frozen TEST is evaluated once for final deployment and superiority gates",
+  "training_hyperparameters": {
+    "evaluation_only": false,
+    "epochs_requested": 1.0,
+    "per_device_train_batch_size": 16,
+    "per_device_eval_batch_size": 32,
+    "gradient_accumulation_steps": 2,
+    "effective_batch_size": 32,
+    "learning_rate": 5e-05,
+    "lr_scheduler_type": "cosine",
+    "warmup_steps": 20,
+    "warmup_ratio_of_optimizer_steps": 0.08,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "early_stopping_patience_epochs": 1,
+    "gradient_checkpointing": false,
+    "mixed_precision": "none",
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.1,
+      "target_modules": [
+        "query_proj",
+        "key_proj",
+        "value_proj"
+      ],
+      "modules_to_save": [
+        "pooler",
+        "classifier"
+      ],
+      "initial_adapter_path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
+    }
+  },
+  "training_state": {
+    "completed_epoch": 1.0,
+    "global_optimizer_steps": 250,
+    "best_validation_macro_f1": 0.2470924074580813,
+    "evaluation_only": false
+  },
+  "runtime": {
+    "device": "mps",
+    "python_packages": {
+      "torch": "2.6.0",
+      "transformers": "5.13.1",
+      "peft": "0.19.1"
+    }
+  },
+  "training_objective": {
+    "name": "class-balanced-focal-plus-ordinal-cdf",
+    "focal_gamma": 1.0,
+    "ordinal_loss_weight": 0.2,
+    "label_smoothing": 0.01
+  },
+  "partition_count": {
+    "TRAIN": 8000,
+    "VALIDATION": 584,
+    "TEST": 4615
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "LOW": 5585,
+      "MEDIUM": 1851,
+      "HIGH": 420,
+      "CRITICAL": 144
+    },
+    "VALIDATION": {
+      "LOW": 340,
+      "MEDIUM": 170,
+      "HIGH": 58,
+      "CRITICAL": 16
+    },
+    "TEST": {
+      "MEDIUM": 1668,
+      "LOW": 2332,
+      "CRITICAL": 119,
+      "HIGH": 496
+    }
+  },
+  "trainable_parameter_count": 1478404,
+  "total_parameter_count": 187362824,
+  "validation": {
+    "accuracy": 0.5376712328767124,
+    "macro_f1": 0.2470924074580813,
+    "quadratic_kappa": 0.10244122858128113,
+    "expected_calibration_error_15_bin": 0.06421038059525865,
+    "multiclass_brier_score": 0.5943431286585911,
+    "sample_count": 584
+  },
+  "validation_raw": {
+    "accuracy": 0.4897260273972603,
+    "macro_f1": 0.24707888181548815,
+    "quadratic_kappa": 0.10201089900889126
+  },
+  "test": {
+    "accuracy": 0.47497291440953415,
+    "macro_f1": 0.32163949090130667,
+    "quadratic_kappa": 0.15497773582734986,
+    "expected_calibration_error_15_bin": 0.04405630384532965,
+    "multiclass_brier_score": 0.6269169108140011,
+    "sample_count": 4615
+  },
+  "test_raw": {
+    "accuracy": 0.4422535211267606,
+    "macro_f1": 0.32569204328413975,
+    "quadratic_kappa": 0.15655387340582594
+  },
+  "baseline_test": {
+    "sample_count": 4615,
+    "accuracy": 0.3674972914409534,
+    "macro_f1": 0.2677065976426612,
+    "quadratic_kappa": 0.11254900792716382,
+    "expected_calibration_error_15_bin": 0.04442918320374048,
+    "multiclass_brier_score": 0.6899598015198128
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 500,
+    "minimum_macro_f1": 0.3,
+    "minimum_quadratic_kappa": 0.08,
+    "maximum_expected_calibration_error_15_bin": 0.2,
+    "must_match_or_improve_baseline_calibration": true,
+    "must_match_or_exceed_baseline": "k-fnspid-impact-disclosure-tfidf-logreg",
+    "eligible": true,
+    "decision": "DEPLOY_KF_DEBERTA_IMPACT"
+  },
+  "test_predictions": {
+    "path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed17.jsonl",
+    "sample_count": 4615,
+    "bytes": 1476078,
+    "sha256": "4ed25b54783636395fed41cbeca8d0d89812411e0e8c106e2265472f847664f5"
+  }
+}

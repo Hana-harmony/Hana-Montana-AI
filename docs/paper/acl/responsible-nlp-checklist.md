@@ -8,7 +8,7 @@
 - [x] Test는 모델·threshold·prior 선택에 사용하지 않았다.
 - [x] 세 seed 평균과 표본표준편차를 보고했다.
 - [x] 거래일 cluster bootstrap과 exact McNemar를 함께 보고했다.
-- [x] 공시 하위집합 macro-F1·QWK 하락을 본문에 공개했다.
+- [x] v3 공유 모델의 공시 회귀와 v4 출처별 전문가의 제거 결과를 모두 공개했다.
 - [x] 시장반응을 의미 중요도·인과효과·수익 신호와 분리했다.
 - [x] 과제가 다른 FNSPID·KRX Bench·FINKRX와 성능 수치를 직접 비교하지 않았다.
 - [x] 모델 단독 결과와 코드북 안전 floor 결과를 분리했다.
@@ -36,7 +36,7 @@
 - [x] baseline과 각 Transformer seed의 prediction 파일을 제공한다.
 - [x] 원고의 핵심 수치를 동결 JSON과 자동 대조한다.
 - [x] 공식 ACL style을 고정 upstream commit에서 사용한다.
-- [x] 익명 심사용·저자 공개 영문·한글 PDF의 모든 페이지를 렌더링해 검수한다.
+- [x] 익명 심사용·저자 공개 영문·한글 PDF 총 18쪽을 모두 렌더링해 검수한다.
 - [ ] 실제 제출 직전 익명 supplementary archive의 메타데이터·파일명을 다시 검사한다.
 
 ## PDF QA
@@ -46,4 +46,4 @@
 - [x] A4 2단, 11pt 공식 ACL review style과 줄 번호를 사용한다.
 - [x] 13개 폰트가 모두 내장되어 있다.
 - [x] 표·수식·참고문헌에 잘림이나 겹침이 없다.
-- [x] 7개 페이지를 140 DPI PNG로 렌더링해 시각 검수했다.
+- [x] 세 PDF 총 18개 페이지를 140 DPI PNG로 렌더링해 시각 검수했다.
