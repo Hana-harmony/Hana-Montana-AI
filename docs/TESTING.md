@@ -69,7 +69,8 @@ uv run python scripts/train_k_fnspid_transformer.py \
 - benchmark 768건: 이벤트 macro F1 0.9844, recall 1.0, 감성 accuracy 0.9492, v3 중요도 accuracy 0.9323 / macro F1 0.9193, 종목 accuracy 1.0
 - 실제 공시 Gold 600건: 이벤트 macro F1 0.9979, recall 0.9967, 감성 accuracy 0.9233, 중요도 accuracy 1.0, 종목 accuracy 1.0
 - 실제 뉴스 Gold 80건: 이벤트 macro F1 0.9184, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9500, 종목 accuracy 1.0
-- 공개 금융 감성 Test 933건: 앙상블 accuracy 0.8842, macro F1 0.8840. 기존 Hana TF-IDF macro F1 0.4423, KR-FinBERT-SC 0.7272
+- 중복 제거 공개 금융 감성 Test 932건: Validation Selection에서 잠근 KF-DeBERTa LoRA accuracy 0.8852 / macro F1 0.8849, 기존 Hana TF-IDF 0.4775 / 0.4415, KR-FinBERT-SC 0.7361 / 0.7266. 이 Test는 과거 반복 조회되었으므로 동일셋 재현 결과로만 해석한다.
+- 감성 운영 Gold: 실제 뉴스 80건 accuracy 0.8625 / macro F1 0.8308, 실제 공시 600건 0.9150 / 0.8084. 뉴스 accuracy가 승격 기준 0.90에 미달해 신규 후보를 승격하지 않고 기존 서비스 모델로 fail closed한다.
 - K-FNSPID v4: 문서 1,247,685건, 문서–종목 1,136,118건, 시장영향 715,015건, 파일 기반 시세 10,691,998행
 - Git 추적 raw·전문 JSONL shard: 최대 48MB, Parquet와 모든 raw/full-content/종목/시세/Gold 원천의 byte·개별/복합 SHA-256 검증, 경로 탈출·symlink·변조 fail-closed
 - K-FNSPID v4 시간 Test: 뉴스 9,560건 기준선 macro F1 0.3484 / QWK 0.3421에서 전문가 0.3745 / 0.4754, 공시 4,615건 기준선 0.2677 / 0.1125에서 전문가 0.3216 / 0.1550으로 개선됐다. 통합 14,175건 거래일 cluster bootstrap 2,000회와 exact McNemar를 연구 평가 보고서에 고정한다.
