@@ -30,6 +30,19 @@ def test_pr_title_matches_single_commit_subject_with_prefix() -> None:
     assert _validate_pr_title("feat(intelligence): 중복 제거 계약 추가", commit_subjects) == []
 
 
+def test_main_feature_sync_pr_keeps_title_format_without_stale_commit_match() -> None:
+    stale_diverged_subject = ["fix: 과거 기능 브랜치 커밋 (#271)"]
+
+    assert (
+        _validate_pr_title(
+            "docs: 감성 평가 기준선 최신화",
+            stale_diverged_subject,
+            require_commit_match=False,
+        )
+        == []
+    )
+
+
 def test_pr_body_requires_korean_template_fields() -> None:
     body = """
 - 배경: 기능정의서 계약을 CI에서 검증해야 함

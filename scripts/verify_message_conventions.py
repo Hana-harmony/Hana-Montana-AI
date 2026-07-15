@@ -45,12 +45,19 @@ def main() -> None:
     args = _parse_args()
     errors: list[str] = []
     subjects = _commit_subjects(args.base, args.head) if args.base and args.head else []
+    is_main_feature_sync = _is_main_feature_sync_pr()
 
     if not args.skip_pr:
-        errors.extend(_validate_pr_title(args.pr_title or os.getenv("PR_TITLE", ""), subjects))
+        errors.extend(
+            _validate_pr_title(
+                args.pr_title or os.getenv("PR_TITLE", ""),
+                subjects,
+                require_commit_match=not is_main_feature_sync,
+            )
+        )
         errors.extend(_validate_pr_body(args.pr_body or os.getenv("PR_BODY", "")))
 
-    if subjects and not _is_main_feature_sync_pr():
+    if subjects and not is_main_feature_sync:
         errors.extend(_validate_commit_subject(subject) for subject in subjects)
 
     errors = [error for error in errors if error]
@@ -73,7 +80,12 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _validate_pr_title(title: str, commit_subjects: list[str] | None = None) -> list[str]:
+def _validate_pr_title(
+    title: str,
+    commit_subjects: list[str] | None = None,
+    *,
+    require_commit_match: bool = True,
+) -> list[str]:
     normalized = title.strip()
     errors: list[str] = []
     if not normalized:
@@ -83,7 +95,11 @@ def _validate_pr_title(title: str, commit_subjects: list[str] | None = None) -> 
         errors.append(f"PR 제목 형식 오류: {subject_error}")
     if _looks_like_english_sentence(normalized):
         errors.append("PR 제목은 영어 문장형으로 작성하면 안 됨")
-    expected_title = _expected_pr_title_from_commits(commit_subjects or [])
+    expected_title = (
+        _expected_pr_title_from_commits(commit_subjects or [])
+        if require_commit_match
+        else ""
+    )
     if expected_title and normalized != expected_title:
         errors.append(
             f"PR 제목은 대표 커밋 제목과 일치해야 함: expected={expected_title}"
