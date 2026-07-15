@@ -1,0 +1,264 @@
+\documentclass[11pt]{article}
+\ifdefined\kfnspidAuthorVersion
+  \usepackage[preprint]{acl}
+\else
+  \usepackage[review]{acl}
+\fi
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{url}
+
+\newcommand{\dataset}{K-FNSPID v4}
+\newcommand{\system}{Hana Montana AI(KF-DeBERTa + K-FNSPID)}
+\newcommand{\model}{KF-DeBERTa}
+\definecolor{hanagreen}{RGB}{0,128,112}
+
+\title{K-FNSPID v4: Leakage-Aware Korean Financial News and Disclosure Data with Temporally Extrapolated Market-Impact Evaluation}
+\ifdefined\kfnspidAuthorVersion
+  \author{Sunghyun Choi\\
+    College of SW, Computer Engineering (Major in Software)\\
+    Tech University of Korea\\
+    \textit{Fourth-year undergraduate student}}
+\else
+  \author{Anonymous ACL submission}
+\fi
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce K-FNSPID v4, a Korean financial NLP resource linking 524,696 news articles and 722,989 regulatory disclosures to 10,691,998 file-based daily price records. The release contains 1,247,685 documents, 1,136,118 document--security links, 715,015 market-impact rows, and 255,168 representatives after event-level deconfounding. We normalize publication time to Korean trading sessions, cluster near-duplicate events, exclude security-day collisions, and use seven-day-embargoed chronological splits. A KF-DeBERTa LoRA classifier improves balanced public sentiment macro-F1 from 0.7272 to 0.8850 over KR-FinBERT-SC. For ordinal market impact, source-routed news and disclosure experts improve combined macro-F1 from 0.3210 to 0.3690 and quadratic weighted kappa from 0.2552 to 0.3975 over source-matched TF-IDF baselines. Both sources improve separately, and trading-day clustered bootstrap intervals exclude zero. We also evaluate disclosure-semantic materiality on 910 codebook-labeled cases. We separate semantic materiality from ex-post price response and release immutable manifests, hashes, predictions, and evaluation protocols. K-FNSPID is a research dataset and does not support causal or investment-return claims.
+\end{abstract}
+
+\section{Introduction}
+
+Financial language systems are often evaluated on sentiment or question answering, yet production monitoring asks a different question: which event deserves attention, for which listed security, and when? Answering it requires text, entity links, trading-session timestamps, and prices under a split that does not allow future events to influence model selection. English resources such as FNSPID connect large-scale news and prices \citep{dong-etal-2024-fnspid}, whereas Korean benchmarks emphasize financial knowledge and QA \citep{son-etal-2024-krx,son-etal-2025-finkrx}. A public Korean resource with news, disclosures, all-market daily prices, and explicit event-confounding controls remains limited.
+
+We present \dataset, a file-distributed dataset and evaluation suite for Korean financial NLP. It combines Naver-search news, OpenDART disclosures, and daily prices for listed Korean securities. It is not a translation of FNSPID: Korean trading sessions, disclosure identifiers, market segments, and company aliases require different normalization. The resulting resource supports three separated tasks: document sentiment, semantic materiality, and ex-post ordinal market impact. The public system using these components is named \system. We explicitly avoid treating observed price movement as semantic importance or causal impact.
+
+Our contributions are:
+\begin{itemize}
+  \item a 1,247,685-document Korean news--disclosure corpus with 1,136,118 security links and 10.69M daily price rows distributed as immutable Parquet files rather than a private database;
+  \item a leakage-aware protocol that maps release times to effective trading dates, uses a seven-day embargo, clusters repeated events, and removes ambiguous security-day collisions;
+  \item source-routed lexical and domain-Transformer baselines with disclosure three-seed reporting, paired tests, calibration metrics, and source-specific non-regression gates; and
+  \item a reproducibility package whose tables are traceable to machine-readable reports and whose limitations include collection bias, weak market labels, and single-annotator semantic Gold.
+\end{itemize}
+
+\section{Related Work}
+
+\paragraph{Financial datasets and Korean evaluation.}
+FNSPID contains 15.7M English news items and 29.7M price records for 4,775 S\&P 500 firms over 1999--2023 \citep{dong-etal-2024-fnspid}; its scale motivates our linking design but its market and language assumptions do not transfer directly. KRX Bench contains 1,002 finance questions generated and filtered for Korean, US, and Japanese firms \citep{son-etal-2024-krx}. FINKRX provides Korean financial instruction data and operational benchmark practice \citep{son-etal-2025-finkrx}. These resources evaluate knowledge or QA and therefore are not numerically comparable to document-level market-impact labels. MultiFinBen extends multilingual and multimodal financial evaluation \citep{peng-etal-2026-multifinben}; our scope is narrower but supplies temporally linked Korean events and prices.
+
+\paragraph{Temporal shift and market prediction.}
+Financial sentiment degrades under temporal distribution shift \citep{guo-etal-2023-predict}, motivating chronological rather than random evaluation. FININ models interactions among news and prices \citep{wang-etal-2024-modeling}; unlike that return-optimization setting, we evaluate an interpretable four-level proxy and do not report portfolio performance. ExAnte highlights the broader risk of future information contamination \citep{liu-etal-2026-exante}. Our controls operate at dataset construction time through session mapping, embargoes, and event clusters.
+
+\paragraph{Domain representations and documentation.}
+KF-DeBERTa is pretrained on Korean financial corpora \citep{jeon-etal-2023-kfdeberta}; we adapt it with LoRA \citep{hu-etal-2022-lora}. Domain-specific disclosure embeddings can improve the extraction of economically relevant topics \citep{jehnen-etal-2026-fintextsim}, but our current semantic materiality model remains a sparse classifier because validation favored shorter context. We follow data-statement and datasheet principles \citep{bender-friedman-2018-data,gebru-etal-2021-datasheets} by recording provenance, coverage, known bias, and deletion/versioning policy.
+
+\section{Dataset Construction}
+
+\subsection{Sources and schema}
+
+Table~\ref{tab:scale} summarizes the frozen release. News is collected through Naver Search queries anchored on listed-company aliases. Disclosures originate from OpenDART. Daily adjusted prices cover 10,691,998 security-day observations and are stored in \texttt{prices\_daily.parquet}; no database table is required for training or reproduction. Each document retains publication time, source type, provider, URL-derived provenance, and normalized text. Document--security relations include the mapped code and primary-link status. Market-impact rows store the effective trading date, future response features, ordinal label, split, collision flags, and event-cluster identity.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+Component & Count \\
+\midrule
+News documents & 524,696 \\
+OpenDART disclosures & 722,989 \\
+All documents & 1,247,685 \\
+Document--security links & 1,136,118 \\
+Market-impact rows & 715,015 \\
+Unconfounded representatives & 255,168 \\
+Daily price rows & 10,691,998 \\
+Linked disclosure full texts & 8,972 \\
+Primary semantic Gold & 680 \\
+\bottomrule
+\end{tabular}
+\caption{Frozen \dataset{} scale. Counts are read from the release manifest and evaluation reports.}
+\label{tab:scale}
+\end{table}
+
+\subsection{Disclosure full text and weak supervision}
+
+Only 273 disclosure full texts were initially available for model development. We joined the complete paginated OpenDART list to source identifiers and applied response-size limits, timeout and retry policies, ZIP validation, and status-code accounting. This yielded 8,972 release-linked full texts (1.24\% of disclosures); 8,976 are present in the broader internal training snapshot because four rows do not map to release URLs. Of 5,082 final recovery attempts, 4,976 were stored; the 106 failures comprise 51 short contents, one DART status 013, 37 status 014 responses, and 17 public-viewer metadata misses.
+
+Recovered text is \emph{not} Gold. Explicit schema fields mark weak supervision and unreviewed labels. After removing Gold URLs, 8,302 real disclosures are used only as supervised candidates for semantic materiality; they are not sentiment ground truth. This separation prevents collection rules from masquerading as independent annotation.
+
+\subsection{Gold sets and annotation protocol}
+
+The primary operational Gold has 80 news items and 600 disclosures. Disclosure materiality labels are LOW 250, MEDIUM 34, HIGH 287, and CRITICAL 29; sentiment labels are negative 55, neutral 475, and positive 70. A 310-case disclosure stress set targets policy boundaries, yielding 910 semantic-materiality cases in the combined evaluation. Training and Gold URLs have zero overlap.
+
+A fixed codebook defines precedence, evidence fields, sentiment overrides, exclusion of ambiguous cases, and a per-security cap. CRITICAL is restricted to existential risks such as delisting, embezzlement/breach-of-trust, adverse audit opinion, default, rehabilitation, or bankruptcy. Trading suspension or an unfaithful-disclosure designation alone is HIGH. Gold labels were adjudicated by a single Codex-based reviewer following this codebook, not by independent financial experts. We consequently report neither inter-annotator agreement nor expert validity, and we treat the nearly perfect policy-augmented result as an internal consistency test rather than an external SOTA claim.
+
+\subsection{Trading-session normalization}
+
+For a document released before the market close, the effective date is the same valid trading day; releases after close, on weekends, or on holidays map to the next trading day. Exchange calendars are applied before response computation. We cluster repeated reporting of an event using a fingerprint that includes effective date and normalized content. If multiple distinct event clusters occur for the same security and trading day, all such rows are flagged as confounded and excluded from the primary training set. Within the same event/security/day cluster, the most informative document becomes the representative.
+
+\section{Tasks and Labels}
+
+\paragraph{Sentiment.}
+We predict negative, neutral, or positive language. The balanced public test has 933 items (311 per class), while the operational news and disclosure Gold sets test source transfer.
+
+\paragraph{Semantic materiality.}
+The four-level codebook estimates the business significance of a disclosure from its meaning. This label must remain stable even when observed market response is small.
+
+\paragraph{Ex-post market impact.}
+Let $P$ be adjusted close and $r_m$ the same-market mean return. For horizons $h\in\{1,3,5\}$ we subtract compounded market return from compounded security return. The score combines clipped one-day absolute excess return (0.50), three-day absolute excess return (0.20), a 60-day log-volume z-score shock (0.15), and a 20-day intraday-volatility shock (0.15). Thresholds are LOW $<0.20$, MEDIUM $<0.45$, HIGH $<0.75$, and CRITICAL otherwise. Future observations are used only to construct targets. This is a weak ordinal proxy for observed response, not causal materiality and not a tradable signal.
+
+\section{Leakage-Aware Experimental Protocol}
+
+\subsection{Chronological split}
+
+The training harness materializes source-specific representative sets. News contains 99,826 training, 6,391 validation, and 9,560 test rows; disclosure contains 119,146, 584, and 4,615 respectively. Validation begins 2026-01-01 and test begins 2026-04-01. Seven days immediately before each boundary are embargoed. Preprocessing, prior and temperature correction, model selection, and early stopping use no test observations. Paired comparisons require identical document IDs and labels within each source.
+
+\subsection{Models}
+
+\paragraph{Sentiment.}
+We fine-tune \texttt{kakaobank/kf-deberta-base} at immutable revision \texttt{363b171d...0633} using LoRA rank 16, $\alpha=32$, and dropout 0.1. The deployed component averages KF-DeBERTa and TF-IDF logistic probabilities at weights 0.8/0.2. A validation-trained logistic stacker is evaluated but not deployed because it underperforms on independent test and operational Gold.
+
+\paragraph{Semantic materiality.}
+We compare title, title+summary, and title+summary+full-text TF-IDF logistic models using only chronological validation. Title+summary and title tie on validation macro-F1 (0.9894); title+summary wins on Brier score (0.00134 versus 0.00156). Full text reaches 0.9815 macro-F1 and is not forced into deployment. A narrow deterministic floor covers existential-risk phrases. We report model-only and policy-augmented results separately.
+
+\paragraph{Market impact.}
+We train separate source experts because news and disclosures differ in style, temporal density, and label prevalence. Each source has a train-only class-balanced one-vs-rest logistic baseline over character 2--5-gram TF-IDF features. The neural experts use the immutable KF-DeBERTa revision with rank-16 LoRA. The disclosure expert uses 128 tokens, effective batch size 32, learning rate $5\times10^{-5}$, focal loss ($\gamma=1.0$), ordinal CDF weight 0.20, and label smoothing 0.01. Validation jointly selects a log-prior offset and temperature. Disclosure runs seeds 17, 42, and 73 under the same configuration; seed 17 is selected only by validation macro-F1. The news expert uses the previously validated adapter, is frozen before the v4 test is read, and is re-evaluated on the isolated news split. Serving rejects a request when its source does not match the artifact metadata.
+
+\subsection{Metrics and inference}
+
+We report accuracy, macro-F1, quadratic weighted Cohen's kappa (QWK), ordinal mean absolute error, 15-bin expected calibration error (ECE), and multiclass Brier score \citep{guo-etal-2017-calibration}. Statistical comparisons use 2,000 paired bootstrap resamples and exact two-sided McNemar tests. Because documents sharing a trading day have correlated errors, the primary superiority gate is a 2,000-resample trading-day cluster bootstrap with 70 test-day clusters.
+
+\section{Results}
+
+\subsection{Sentiment}
+
+Table~\ref{tab:sentiment} shows the balanced public test. KF-DeBERTa improves macro-F1 by 0.1579 over KR-FinBERT-SC and by 0.4427 over the local TF-IDF baseline. Against KR-FinBERT-SC, the paired-bootstrap macro-F1 difference is 0.1566 with 95\% CI [0.1262, 0.1877], and exact McNemar $p=1.51\times10^{-18}$. The 80:20 ensemble is marginally lower on this test but is retained for operational robustness. It obtains 0.9000 accuracy/0.8642 macro-F1 on 80 news Gold items and 0.9233/0.8344 on 600 disclosure Gold items. The stacker reaches 0.8820 public-test macro-F1 and is rejected by the promotion gate.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Model & Accuracy & Macro-F1 \\
+\midrule
+TF-IDF logistic & 0.4780 & 0.4423 \\
+KR-FinBERT-SC & 0.7363 & 0.7272 \\
+KF-DeBERTa LoRA & \textbf{0.8853} & \textbf{0.8850} \\
+80:20 ensemble & 0.8842 & 0.8840 \\
+Logistic stacker & 0.8821 & 0.8820 \\
+\bottomrule
+\end{tabular}
+\caption{Sentiment on the balanced 933-item public test.}
+\label{tab:sentiment}
+\end{table}
+
+\subsection{Disclosure semantic materiality}
+
+The title+summary model alone reaches 0.9850 accuracy, 0.9470 macro-F1, and 0.8163 CRITICAL F1 on the 600-case primary Gold, compared with 0.7150/0.4489/0.2619 for the pre-v3 integrated analyzer. Adding the narrow codebook floor yields 1.0000 on the primary set. On primary plus stress Gold (910 cases), the operational candidate reaches 0.9989 accuracy, 0.9962 macro-F1, 0.9994 QWK, 0.0225 ECE, and 0.0063 Brier. The exact McNemar $p$ against the previous analyzer is $1.14\times10^{-24}$. These values measure agreement with the same codebook used to design the floor; they cannot establish independent expert validity. Model-only performance is therefore the less circular primary scientific result.
+
+\subsection{Temporally extrapolated market impact}
+
+Table~\ref{tab:impact} reports the frozen source-specific tests. The news expert improves macro-F1 from 0.3484 to 0.3745 and QWK from 0.3421 to 0.4754. The selected disclosure expert improves macro-F1 from 0.2677 to 0.3216 and QWK from 0.1125 to 0.1550. Its three-seed test macro-F1 is $0.3170\pm0.0052$; seed 17 is selected by validation macro-F1 0.2471, without consulting test. Combined source-routed predictions improve accuracy from 0.4377 to 0.5085, macro-F1 from 0.3210 to 0.3690, and QWK from 0.2552 to 0.3975. ECE also improves from 0.0369 to 0.0259.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Source/model & Acc. & Macro-F1 & QWK \\
+\midrule
+News TF-IDF & 0.4715 & 0.3484 & 0.3421 \\
+News KF-DeBERTa & \textbf{0.5247} & \textbf{0.3745} & \textbf{0.4754} \\
+Disc. TF-IDF & 0.3675 & 0.2677 & 0.1125 \\
+Disc. KF-DeBERTa$^\dagger$ & \textbf{0.4750} & \textbf{0.3216} & \textbf{0.1550} \\
+Combined routed & 0.5085 & 0.3690 & 0.3975 \\
+\bottomrule
+\end{tabular}
+\caption{Market-impact test results (news $n=9{,}560$, disclosure $n=4{,}615$). $\dagger$ Disclosure seed selected only by validation macro-F1.}
+\label{tab:impact}
+\end{table}
+
+\subsection{Paired statistical inference}
+
+Trading-day cluster-bootstrap 95\% CIs for Transformer-minus-baseline macro-F1 are [0.0120, 0.0409] for news and [0.0264, 0.0806] for disclosure; QWK intervals are [0.1090, 0.1558] and [0.0046, 0.0794]. Combined intervals are accuracy [0.0594, 0.0818], macro-F1 [0.0351, 0.0608], and QWK [0.1178, 0.1649]. Exact McNemar $p=2.29\times10^{-55}$. Thus, the earlier disclosure regression is removed without hiding source results. The lower disclosure QWK bound remains close to zero, so replication across additional periods is necessary.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Source & Model & $n$ & M-F1 & QWK \\
+\midrule
+\multirow{2}{*}{News} & TF-IDF & 9,560 & 0.3484 & 0.3421 \\
+ & KF-DeBERTa & & \textbf{0.3745} & \textbf{0.4754} \\
+\multirow{2}{*}{Disclosure} & TF-IDF & 4,615 & 0.2677 & 0.1125 \\
+ & KF-DeBERTa & & \textbf{0.3216} & \textbf{0.1550} \\
+\bottomrule
+\end{tabular}
+\caption{Source-stratified market-impact test after source-routed training and calibration.}
+\label{tab:source}
+\end{table}
+
+\section{Ablations and Operational Comparison}
+
+The previous shared model had only 590 disclosure test rows and regressed from 0.3006 to 0.2211 macro-F1. Expanding disclosure metadata to 722,989 documents yields 4,615 deconfounded disclosure test rows; source-specific fine-tuning lifts macro-F1 to 0.3216. Historical TF-IDF ablations also showed title+snippet outperforming full text (0.3505 versus 0.3429 on the former mixed split), so we preserve 8,972 linked disclosure full texts without claiming that context length alone caused the gain. The source route, larger disclosure split, and validation-only calibration change together; a factorial attribution remains future work.
+
+The v3 migration also causes regressions on several pre-existing operational sets: real-news sentiment accuracy 0.9750$\rightarrow$0.9000, stock-review sentiment 0.9180$\rightarrow$0.7880, real-news importance 0.9625$\rightarrow$0.9500, stock-review importance 0.8480$\rightarrow$0.8060, and stock-review event macro-F1 0.7307$\rightarrow$0.7110. These sets encode partially incompatible legacy label policies; nevertheless, the drops remain release risks rather than being relabeled away. The deployment design therefore keeps task-specific gates and fallbacks instead of replacing every legacy component with one score.
+
+\section{Discussion}
+
+\dataset{} advances Korean financial NLP primarily as infrastructure and evaluation discipline, not as a solved prediction task. Its strongest empirical finding is that one shared market-impact model can conceal a disclosure regression, while source-routed experts improve both sources under chronological evaluation. The second finding is methodological: semantic importance and price impact must be separate API outputs. A bankruptcy disclosure can be intrinsically critical even if anticipated by the market; a rumor can cause a large move without being semantically reliable.
+
+Compared with FNSPID, our corpus is much smaller, but adds Korean disclosures, session normalization, deconfounding fields, embargoed splits, and all-file distribution. Compared with KRX Bench and FINKRX, it evaluates event-linked classification rather than QA. Accordingly, we claim neither cross-benchmark SOTA nor profitable forecasting. The defensible claims are limited to identical-test gains over named baselines and codebook consistency on the disclosed Gold sets.
+
+\section{Conclusion}
+
+We introduced \dataset, a leakage-aware Korean news--disclosure--price resource, and \system, the associated sentiment and materiality stack. The release connects 1.25M documents to 10.69M daily price rows and supplies reproducible chronological evaluation. KF-DeBERTa establishes strong same-test sentiment results, while source-routed market-impact experts significantly exceed their matched TF-IDF baselines. The dataset, predictions, immutable hashes, codebook, and evaluation scripts support replication; independent expert annotation and broader-period evaluation remain necessary before stronger scientific claims.
+
+\clearpage
+\section*{Limitations}
+
+News collection is subject to Naver Search result limits, query design, provider availability, deduplication, and survivorship effects. OpenDART full-text coverage is 1.24\%, so missingness is not random across disclosure types or dates. Company alias mapping can miss renamed firms, ambiguous abbreviations, and historical securities. Although prices cover the full stored universe, corporate actions and exchange-specific data corrections may remain.
+
+Daily data cannot isolate intraday reaction, information leakage before publication, or response outside the chosen 1/3/5-day windows. Market-mean subtraction does not remove industry, size, macroeconomic, or concurrent-event confounding. Event clustering and security-day collision filtering reduce obvious contamination but cannot identify every related story. Therefore, the impact target is correlational and weakly supervised.
+
+The public sentiment test is balanced and may not match production prevalence. The 680-item primary Gold and 310-case stress extension are small relative to the corpus. Most importantly, disclosure Gold was reviewed by one Codex-based annotator under a fixed codebook. There are no two independent financial experts, adjudication rounds, or inter-annotator agreement statistics. The policy floor is intentionally deterministic and evaluated against the same policy, making its near-perfect score unsuitable as evidence of external validity. We foreground the model-only result and require expert replication.
+
+The market-impact test spans only 70 effective trading dates. Disclosure has 4,615 rows across 34 dates, and its QWK gain interval begins at 0.0046; broader periods may reverse the result. Korean-only text and the selected 2026 boundary limit geographic and temporal generalization. Base-model revision pinning improves reproducibility but can preserve unknown model biases. No result should be interpreted as financial advice, causal effect, or expected return.
+
+\section*{Ethical Considerations}
+
+The sources are publicly accessible news, disclosures, and market records, but public availability does not eliminate copyright, privacy, or contextual-integrity concerns. Distribution follows the project's declared research-use policy and preserves provenance and deletion/version procedures. Credentials, API keys, and private user data are excluded. URLs and identifiers can still expose individuals named in corporate events; downstream users should apply access controls, retention limits, and purpose limitation.
+
+Financial NLP can amplify rumors, market manipulation, or automation bias. The API returns semantic materiality and observed market-impact estimates separately, includes confidence and model version, and fails closed to validated fallbacks when artifact hashes or promotion gates fail. It does not execute trades, generate personalized recommendations, or claim causality. High-stakes alerts require human review and primary-source verification.
+
+The authors used a generative coding assistant for data engineering, code review, Gold adjudication under the published codebook, and manuscript drafting. All numeric claims are checked against versioned machine-readable reports. This assistance is disclosed because it creates correlated annotation and writing errors; it does not substitute for independent domain experts.
+
+\section*{Reproducibility Statement}
+
+The environment uses Python 3.12 with a locked dependency graph. The KF-DeBERTa revision, LoRA parameters, disclosure seeds, optimizer, scheduler, completed epochs, and validation selection values are stored in reports. Release Parquet files include SHA-256 and byte size in the manifest. Source-specific baseline and Transformer predictions enable paired reevaluation without retraining. Remote model code is disabled; weights use safetensors; loaders verify version, source, path, size, and hash before activation. The anonymous supplement includes the datasheet, codebook, report JSON, metric verifier, and build instructions. The public artifact URL is withheld from the review manuscript to preserve anonymity.
+
+\bibliography{references}
+
+\appendix
+\section{Release Files}
+
+The frozen distribution contains \texttt{documents.parquet}, \texttt{document\_entities.parquet}, \texttt{market\_impacts.parquet}, \texttt{prices\_daily.parquet}, \texttt{splits.parquet}, and \texttt{annotations.parquet}. The corresponding byte sizes and SHA-256 values are recorded in \texttt{manifest.json}. Dataset data are never reconstructed from an application database.
+
+\section{Promotion Gates}
+
+Sentiment promotion requires public-test macro-F1 at least 0.85, performance no worse than KR-FinBERT-SC on the same IDs, and at least 0.90 accuracy on both operational news and disclosure Gold. News market-impact promotion requires at least 5,000 test rows, macro-F1 0.35, and QWK 0.30; disclosure requires 500, 0.30, and 0.08. Both require ECE at most 0.20, non-regression against the matched baseline, source metadata parity, and artifact-integrity validation. The research claim additionally requires positive trading-day cluster-bootstrap lower bounds for accuracy, macro-F1, and QWK in both sources.
+
+\end{document}

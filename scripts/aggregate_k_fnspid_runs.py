@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from statistics import mean, stdev
@@ -45,6 +46,7 @@ def aggregate_reports(
         json.dumps(
             {
                 "dataset_dir": report["dataset_dir"],
+                "source_type": report.get("source_type"),
                 "dataset_manifest_sha256": report["dataset_manifest"]["sha256"],
                 "partition_count": report["partition_count"],
                 "training_objective": report["training_objective"],
@@ -63,7 +65,8 @@ def aggregate_reports(
 
     selected = max(reports, key=lambda report: float(report["validation"]["macro_f1"]))
     return {
-        "schema_version": "k-fnspid-transformer-multiseed/v1",
+        "schema_version": "k-fnspid-transformer-multiseed/v2",
+        "source_type": selected.get("source_type"),
         "run_count": len(reports),
         "seeds": sorted(seeds),
         "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
@@ -72,13 +75,20 @@ def aggregate_reports(
         "selected_artifact_dir": _artifact_dir(selected),
         "selected_predictions_path": selected["test_predictions"]["path"],
         "report_paths": [_display_path(path) for path in report_paths],
+        "report_sha256": {
+            _display_path(path): _sha256(path) for path in report_paths
+        },
         "validation": summarize_partition(reports, "validation"),
         "test": summarize_partition(reports, "test"),
         "runs": [
             {
                 "seed": int(report["seed"]),
                 "version": report["version"],
-                "validation": {metric: float(report["validation"][metric]) for metric in METRICS},
+                "artifact_dir": _artifact_dir(report),
+                "predictions": report["test_predictions"],
+                "validation": {
+                    metric: float(report["validation"][metric]) for metric in METRICS
+                },
                 "test": {metric: float(report["test"][metric]) for metric in METRICS},
             }
             for report in sorted(reports, key=lambda report: int(report["seed"]))
@@ -112,6 +122,14 @@ def _display_path(path: Path) -> str:
         return str(path)
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file_handle:
+        for chunk in iter(lambda: file_handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _artifact_dir(report: dict[str, Any]) -> str:
     configured = report.get("artifact_dir")
     if configured:
@@ -128,6 +146,7 @@ def _postprocessing_protocol(report: dict[str, Any]) -> dict[str, Any]:
         "selection_partition": postprocessing["selection_partition"],
         "selection_objective": postprocessing["selection_objective"],
         "strength_grid": postprocessing["strength_grid"],
+        "temperature_grid": postprocessing.get("temperature_grid"),
     }
 
 

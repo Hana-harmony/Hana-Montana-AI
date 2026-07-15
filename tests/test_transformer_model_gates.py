@@ -10,6 +10,7 @@ from hannah_montana_ai.services.model_artifact_integrity import (
 from hannah_montana_ai.services.transformer_impact_model import (
     KfDebertaImpactModel,
     _log_prior_offsets,
+    _temperature,
 )
 from hannah_montana_ai.services.transformer_impact_model import (
     _deployment_gate_passed as impact_gate_passed,
@@ -85,6 +86,22 @@ def test_impact_gate_requires_large_temporal_test_and_ordinal_quality() -> None:
     assert impact_gate_passed(report)
 
 
+def test_impact_gate_requires_matching_source_expert() -> None:
+    report = {
+        "source_type": "DISCLOSURE",
+        "test": {"sample_count": 590, "macro_f1": 0.34, "quadratic_kappa": 0.12},
+        "deployment_gate": {
+            "minimum_test_sample_count": 500,
+            "minimum_macro_f1": 0.30,
+            "minimum_quadratic_kappa": 0.08,
+            "eligible": True,
+        },
+    }
+
+    assert impact_gate_passed(report, "DISCLOSURE")
+    assert not impact_gate_passed(report, "NEWS")
+
+
 def test_impact_log_prior_correction_requires_validation_provenance() -> None:
     report = {
         "postprocessing": {
@@ -116,6 +133,19 @@ def test_current_impact_feature_requires_postprocessing() -> None:
         0.0,
         0.0,
     ]
+
+
+def test_impact_temperature_requires_validation_selection() -> None:
+    report = {
+        "postprocessing": {
+            "selection_partition": "VALIDATION",
+            "selected_temperature": 1.35,
+        }
+    }
+
+    assert _temperature(report) == 1.35
+    report["postprocessing"]["selection_partition"] = "TEST"
+    assert _temperature(report) is None
 
 
 def test_artifact_manifest_rejects_tampered_file(tmp_path: Path) -> None:

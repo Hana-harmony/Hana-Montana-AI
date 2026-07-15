@@ -1,98 +1,91 @@
-# K-FNSPID 시장영향 모델
+# K-FNSPID v4 시장영향 모델
 
 ## 목적
 
-한국 뉴스·공시와 파일 기반 일별 시세를 결합해 1·3·5거래일 시장 반응을 재현하고, 텍스트 중요도 분류의 보조 신호를 제공한다.
+한국 뉴스·공시와 파일 기반 일별 시세를 결합해 1·3·5거래일 가격반응을 재현한다. Hana Montana AI(KF-DeBERTa + K-FNSPID)는 의미 기반 공시 중요도와 사후 시장영향을 별도 신호로 제공하며, 시장영향을 인과 효과나 단독 투자 신호로 사용하지 않는다.
 
-## K-FNSPID v3 데이터셋
+## 데이터셋
 
-- 원천: Naver News Search 524,696건, OpenDART 25,966건
-- 문서: 550,662건, 2000-02-03~2026-07-13
-- 문서–종목 관계: 819,772건, 대표 종목 2,720개
-- 시장영향 행: 398,942건
-- 비혼입 시장영향: 130,566건
-- 시세: 10,691,998행, 2,800종목, 2000-01-04~2026-07-13
-- 시장별 종목: KOSPI 948, KOSDAQ 1,752, KONEX 100
-- 공시 실제 원문: 8,972건, 공시 25,966건의 34.5529%
-- Gold: Codex가 원문 제목·대상 종목·라벨 근거를 검수한 실제 뉴스 80건 + 공시 600건
-- 저장: `data/k_fnspid/v3/*.parquet`, Zstandard 압축
-- 시세 정본: `data/market/market_daily_price.parquet`, 236,508,054 bytes
-- 원천·정규화 파일은 DB와 독립적으로 생성하며 manifest에 크기·SHA-256·고정 원천 리비전을 남긴다.
+- 문서 1,247,685건: Naver 뉴스 524,696건, OpenDART 공시 722,989건
+- 문서–종목 관계 1,136,118건
+- 시장영향 715,015건, 다중 사건 교란을 제외한 대표 행 255,168건
+- 일별 시세 10,691,998행, 2,800종목, `data/market/market_daily_price.parquet`
+- 실제 전문 28,703건: 뉴스 19,727건, 공시 8,976건. K-FNSPID 문서에는 뉴스 13,310건과 공시 8,972건이 연결된다.
+- 원천 JSONL과 48MB 이하 shard는 Git에 보존한다. Parquet 6개는 documents·prices 두 파일이 GitHub 100MB 한도를 넘으므로 부분 누락 없이 한 묶음으로 `k-fnspid-v4.0.0` Release에 게시하고, Git manifest가 각 파일의 byte·SHA-256을 고정한다.
+- 정본 manifest: `data/k_fnspid/v4/manifest.json`, SHA-256 `80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4`
+- 운영 DB의 `market_daily_price`를 데이터셋 입력으로 연결하지 않는다. 복원 스크립트는 Release 자산의 크기와 SHA-256을 확인한 뒤 파일을 원자적으로 교체한다.
 
-48MB 이하 JSONL shard는 Git에 포함하고, GitHub 단일 파일 제한을 넘는 Parquet은 실제 파일 6개와 동일 manifest를 K-FNSPID v3.0.0 Release 자산으로 게시한다. `restore_k_fnspid_release.py`가 6개 자산의 크기·SHA-256을 확인한 뒤 `prices_daily.parquet`을 파일 기반 시세 정본 경로에 원자적으로 복원하며, 로컬 학습·Docker 검증은 이 스냅샷만 사용한다.
+## 시간 정규화와 누수 방지
 
-## 시간 정규화·누수 방지
-
-- 발표 시각은 UTC·KST를 모두 보존하고 `PRE_MARKET/REGULAR/AFTER_CLOSE/NON_TRADING` 세션을 기록한다.
-- 장 시작 전·장중 뉴스는 당일, 장 마감 후·비거래일 뉴스는 다음 거래일을 유효일로 사용한다.
-- 시세 시작일보다 이른 기사를 첫 거래일에 연결하지 않고 제외한다.
-- 사건 cluster key에 유효 거래일을 포함해 다른 날의 반복 제목이 같은 cluster로 합쳐지지 않게 한다.
-- 같은 종목·거래일에 서로 다른 사건 cluster가 두 개 이상이면 시장영향 학습에서 제외한다.
-- 같은 cluster·종목·거래일의 중복 기사는 정보가 가장 많은 한 건만 대표 학습행으로 사용한다.
+- 발표 시각의 UTC·KST와 `PRE_MARKET/REGULAR/AFTER_CLOSE/NON_TRADING` 세션을 보존한다.
+- 장 시작 전·장중 문서는 당일, 장 마감 후·비거래일 문서는 다음 거래일을 유효일로 사용한다.
+- 같은 종목·유효 거래일의 서로 다른 사건이 둘 이상이면 학습에서 제외한다.
+- 같은 사건 cluster의 반복 문서는 정보량이 가장 큰 한 건만 대표로 사용한다.
+- Train과 Validation/Test 경계에 7일 embargo를 두고, Test는 모델·보정·시드 선택에 사용하지 않는다.
+- 대표 분할은 뉴스 Train 99,826 / Validation 6,391 / Test 9,560, 공시 Train 119,146 / Validation 584 / Test 4,615다.
 
 ## 라벨
 
-- `abnormal_return_1d/3d/5d`: 종목 수정종가 수익률에서 같은 시장의 일별 평균 복리수익률을 차감한다. 1일 반응은 유효일 전일 종가→유효일 종가다.
-- `abnormal_volume_z`: 뉴스 이전 최대 60거래일 로그 거래량 기준 z-score다.
+- `abnormal_return_1d/3d/5d`: 종목 수정종가 수익률에서 같은 시장의 일별 평균 복리수익률을 차감한다.
+- `abnormal_volume_z`: 이전 최대 60거래일 로그 거래량 기준 z-score다.
 - `volatility_shock`: 당일 고저 범위를 이전 20거래일 평균과 비교한다.
-- `materiality_score`: 1일 절대 초과수익 50%, 3일 20%, 거래량 15%, 변동성 15%를 결합한 0~1 점수다.
-- 중요도: `<0.20 LOW`, `<0.45 MEDIUM`, `<0.75 HIGH`, `>=0.75 CRITICAL`.
-- 미래 시장값은 정답 생성에만 사용하고 모델 입력에는 포함하지 않는다.
+- `materiality_score`: 1일 절대 초과수익 50%, 3일 20%, 거래량 15%, 변동성 15%를 결합한다.
+- 등급은 `<0.20 LOW`, `<0.45 MEDIUM`, `<0.75 HIGH`, `>=0.75 CRITICAL`이다.
+- 미래 시장값은 정답 생성에만 사용하고 텍스트 모델 입력에는 포함하지 않는다.
 
-## 시간 분할
+## 출처별 전문가
 
-- Train: 2025-12-24 이전
-- Embargo: 2026-01-01·2026-04-01 경계 전 7일
-- Validation: 2026-01-01~2026-03-24
-- Test: 2026-04-01 이후
-- 비혼입 대표 학습행: Train 107,175 / Validation 6,975 / Test 10,750
-- 시간순 Test는 설정 선택에 사용하지 않고 마지막에 한 번 평가한다.
+- 공통 구조: 고정 리비전 `kakaobank/kf-deberta-base` + LoRA r=16, class-balanced focal cross entropy, ordinal CDF loss
+- 뉴스와 공시의 문체·라벨 분포 차이를 고려해 학습 artifact, 기준선, 배포 gate, Validation 보정을 분리한다.
+- Validation에서 log class-prior offset과 temperature를 공동 선택하고 Test에는 고정 적용한다.
+- 런타임은 요청 `source_type`과 artifact의 `source_type`이 다르면 추론을 거부한다.
+- 출처별 Transformer가 gate를 통과해야 활성화한다. 공시 TF-IDF 기준선은 독립 gate 미달이므로 Transformer 장애 시 부적격 기준선으로 후퇴하지 않고 시장영향 필드를 생략한다.
 
-## 모델·배포 gate
+## 시간 외삽 Test
 
-- 기준선: TF-IDF char 2~5-gram + class-balanced One-vs-Rest Logistic Regression
-- 기준선 Test: Train 전용 모델로 평가한 10,750건, accuracy 0.4643, macro F1 0.3429, quadratic kappa 0.3141
-- 제목+snippet만 사용한 TF-IDF ablation은 Test macro F1 0.3505 / quadratic kappa 0.3271로 전문 입력보다 높았다. 공시 전문 확대 자체를 시장영향 성능 개선으로 해석하지 않는다.
-- Transformer 후보: `kakaobank/kf-deberta-base` 고정 리비전 + LoRA r=16, class-balanced focal cross entropy + ordinal CDF loss
-- Transformer 후처리: Validation에서만 선택한 log class-prior offset을 raw logits에 적용하고 raw·보정 지표와 설정을 report에 함께 보존
-<!-- K_FNSPID_FINAL_TRANSFORMER_RESULT -->
-- seed 17/42/73의 Test 평균±표본표준편차는 accuracy 0.5105±0.0080, macro F1 0.3824±0.0102, quadratic kappa 0.4675±0.0042다.
-- Validation macro F1로 선택한 seed 73은 Test 10,750건에서 accuracy 0.5095, macro F1 0.3820, quadratic kappa 0.4694를 기록했다. raw logits는 0.4842 / 0.3794 / 0.4468이고 Validation 선택 prior 강도는 0.15다.
-- 기준선 대비 거래일 cluster bootstrap 2,000회 차이 95% CI는 accuracy [0.0351, 0.0557], macro F1 [0.0256, 0.0536], quadratic kappa [0.1331, 0.1776]이며 exact McNemar p=1.70e-20이다.
-- 전체 Brier score는 0.6450→0.6129로 개선됐지만 ECE는 0.0491→0.0662로 악화됐다. 뉴스 10,160건은 macro F1 0.3436→0.3847, 공시 590건은 0.3006→0.2211이므로 공시 가격반응은 후속 외삽 검증 대상이다.
-- Transformer 배포 조건: Test 1,000건 이상, macro F1 0.35 이상, quadratic kappa 0.20 이상, 그리고 두 지표 모두 기준선 이상
-- 논문 우월성 조건: 2,000회 거래일 cluster bootstrap에서 accuracy·macro F1·quadratic kappa 차이 95% 구간이 모두 0 초과이고 exact McNemar p<0.05
-- 보고서·artifact 크기·SHA-256가 모두 맞을 때만 로더가 Transformer를 활성화한다. 실패 시 기준선으로 fail closed한다.
-- seed 17/42/73을 같은 설정으로 반복하고 Validation에서 보정 강도와 배포 run을 선택한다. Test는 paired bootstrap·exact McNemar·ECE·Brier 평가에만 사용한다.
-- 두 시장영향 모델 모두 의미 기반 중요도를 대체하지 않고 보조 신호로만 사용한다.
+| 출처 | 모델 | 표본 | Accuracy | Macro-F1 | QWK | ECE |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 뉴스 | TF-IDF 기준선 | 9,560 | 0.4715 | 0.3484 | 0.3421 | 0.0453 |
+| 뉴스 | KF-DeBERTa 전문가 | 9,560 | 0.5247 | 0.3745 | 0.4754 | 0.0182 |
+| 공시 | TF-IDF 기준선 | 4,615 | 0.3675 | 0.2677 | 0.1125 | 0.0444 |
+| 공시 | KF-DeBERTa 전문가 | 4,615 | 0.4750 | 0.3216 | 0.1550 | 0.0441 |
+| 통합 | TF-IDF 기준선 | 14,175 | 0.4377 | 0.3210 | 0.2552 | 0.0369 |
+| 통합 | 출처별 KF-DeBERTa | 14,175 | 0.5085 | 0.3690 | 0.3975 | 0.0259 |
 
-## SOTA 비교
+뉴스 전문가는 v4 Test 이전에 동결한 검증 adapter를 뉴스 전용으로 재평가했다. 공시 전문가는 동일 설정 seed 17/42/73 가운데 Test를 보지 않고 Validation Macro-F1로 seed 17을 선택했다. 공시 3-seed Test 평균±표본표준편차는 Accuracy `0.4534±0.0216`, Macro-F1 `0.3170±0.0052`, QWK `0.1556±0.0007`이다.
 
-- 원 설계 비교: [FNSPID 논문](https://arxiv.org/abs/2402.06698)의 뉴스–시세 시계열 결합 구조를 한국 시장 발표 세션·종목 관계·embargo에 맞게 재설계했다.
-- 절대 규모는 원 FNSPID의 뉴스 1,570만·시세 2,970만·4,775종목보다 작다. K-FNSPID v3는 한국 공개 원천으로 재현한 뉴스·공시 55만·시세 1,069만·2,800종목 규모이며, 50만 문서·300만 시세·2,000종목 내부 대규모 gate를 통과했다.
-- 베이스 모델: [KF-DeBERTa 공식 모델 card](https://huggingface.co/kakaobank/kf-deberta-base)의 금융 도메인 사전학습 모델과 고정 commit `363b171d...`를 사용한다.
-- 한국 금융 벤치마크 설계 참고: [KRX-Bench, FinNLP 2024](https://aclanthology.org/2024.finnlp-1.2/).
-- 한국 금융 감성은 균형 공개 Test 933건에서 KF-DeBERTa LoRA 앙상블 macro F1 0.8840, KF-DeBERTa 단독 0.8850, `snunlp/KR-FinBERT-SC` 0.7272, 기존 Hana TF-IDF 0.4423이다. 운영 Gold는 뉴스 accuracy 0.9000 / macro F1 0.8642, 공시 accuracy 0.9233 / macro F1 0.8344로 별도 gate를 통과한다.
-- 시장영향 중요도에는 동일한 한국 종목·라벨 정의의 공인 leaderboard가 없다. 따라서 시간 외삽 Test의 macro F1·quadratic kappa와 강한 텍스트 기준선을 배포 비교로 사용한다.
-- KF-DeBERTa 원 모델 card의 FN-Sentiment 성능은 외부 참고치이며, K-FNSPID 테스트 결과로 재주장하지 않는다.
+2,000회 거래일 cluster bootstrap의 Transformer−기준선 95% CI는 다음과 같다.
+
+- 뉴스: Accuracy `[0.0427, 0.0637]`, Macro-F1 `[0.0120, 0.0409]`, QWK `[0.1090, 0.1558]`
+- 공시: Accuracy `[0.0847, 0.1323]`, Macro-F1 `[0.0264, 0.0806]`, QWK `[0.0046, 0.0794]`
+- 통합: Accuracy `[0.0594, 0.0818]`, Macro-F1 `[0.0351, 0.0608]`, QWK `[0.1178, 0.1649]`
+- 통합 exact McNemar `p=2.29e-55`
+
+## 배포 gate
+
+- 뉴스: Test 5,000건 이상, Macro-F1 0.35 이상, QWK 0.30 이상, ECE 0.20 이하, 기준선 대비 Macro-F1·QWK·ECE 비회귀
+- 공시: Test 500건 이상, Macro-F1 0.30 이상, QWK 0.08 이상, ECE 0.20 이하, 기준선 대비 Macro-F1·QWK·ECE 비회귀
+- 논문 우월성: 10,000건 이상, 두 출처 모두 Macro-F1·QWK 비회귀, 거래일 cluster bootstrap의 Accuracy·Macro-F1·QWK 차이 95% CI가 모두 0 초과, exact McNemar `p<0.05`
+- artifact 크기·SHA-256, manifest version, source type, report gate가 모두 맞을 때만 로더가 모델을 활성화한다.
+
+## SOTA 비교 범위
+
+- FNSPID는 미국 뉴스 1,570만건·시세 2,970만행·4,775종목 규모의 원 설계 참고 자료다. K-FNSPID v4는 한국 공개 뉴스·공시 124만건과 시세 1,069만행·2,800종목으로 규모는 작지만 한국 발표 세션, 공시, 종목 관계, embargo를 추가한다.
+- FINKRX, FININ, KRX-Bench, CARAG, FinKario는 각각 한국 금융 instruction, information extraction, QA·RAG 등 과제가 달라 동일 라벨·동일 Test의 직접 순위 비교가 아니다.
+- 동일한 한국 종목·시장영향 코드북의 공인 leaderboard가 없으므로 외부 SOTA 초과를 주장하지 않는다. 이 프로젝트가 주장할 수 있는 범위는 공개된 시간 분할·강한 기준선·출처별 비회귀·cluster bootstrap을 통과한 내부 우위다.
 
 ## 산출물
 
-- 공개 데이터셋: `k-fnspid-v3.0.0` Release
-- 데이터 manifest: `data/k_fnspid/v3/manifest.json`
-- Datasheet: `docs/datasets/k-fnspid-v3-datasheet.md`
-- 시세 manifest: `data/market/manifest.json`
-- 기준선 artifact: `src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib`
-- 기준선 report: `reports/k-fnspid-impact-training-report.json`
-- Transformer artifact: `src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/`
-- Transformer report: `reports/k-fnspid-transformer-training-report.json`
-- 감성 SOTA 비교: `reports/korean-finance-sentiment-benchmark.json`
+- 데이터셋: `data/k_fnspid/v4/manifest.json`, `k-fnspid-v4.0.0` Release
+- 기준선: `k_fnspid_impact_news_ml.joblib`, `k_fnspid_impact_disclosure_ml.joblib`
+- Transformer: `k_fnspid_impact_news_transformer/`, `k_fnspid_impact_disclosure_transformer/`
+- 학습 보고서: `reports/k-fnspid-impact-{news,disclosure}-transformer-training-report.json`
+- 통계 보고서: `reports/k-fnspid-research-evaluation.json`
+- Datasheet와 코드북: `docs/datasets/k-fnspid-v4-datasheet.md`, `docs/datasets/k-fnspid-v4-annotation-codebook.md`
 
 ## 한계
 
-- 장중 분봉이 아닌 일봉이므로 즉시 반응과 장중 교란을 분리하지 못한다.
-- 시세가 있는 2,800종목 중 문서 대표 종목으로 연결된 종목은 2,720개다.
-- 동일 종목·날짜의 다중 사건을 제외해 교란을 줄였지만, 거시경제·업종·미관측 사건의 영향은 완전히 제거할 수 없다.
-- 텍스트만으로 미래 가격 충격을 맞히는 문제는 불확실성이 크므로 단독 투자 신호로 사용하지 않는다.
-- 기존 4개 legacy 운영 평가셋의 중요도 정확도는 도입 전후 동일하다. 별도로 구축한 v3 코드북 비중복 공시 Gold 910건에서는 기존 분석기 accuracy 0.9055 / macro F1 0.8206에서 후보 운영 파이프라인 0.9989 / 0.9962로 개선됐다. 평가 정의가 다르므로 두 결과를 합쳐 하나의 전 분포 개선율로 주장하지 않는다.
-- 반복 seed·신뢰구간·통계 검정은 v3 연구 harness로 수행한다. 독립 인간 다중 평가자 Gold와 기간·시장 국면별 추가 외삽은 여전히 남아 있으며 상세 판정은 [도입 전후·연구 준비도](k-fnspid-research-readiness.md)에 고정한다.
+- 일봉으로 정답을 생성하므로 장중 즉시 반응과 미관측 거시·업종 사건을 완전히 분리하지 못한다.
+- 공시 전문 연결은 8,972건으로 전체 공시보다 적다. DART 문서 API 제한과 공개 viewer 차단 시 재시도 폭주를 막아 수집을 중단했으며, 제목·요약 ablation이 시장영향에서는 전문보다 강했던 기존 결과도 함께 공개한다.
+- 현재 Gold 검수는 Codex 기반 일관성·근거 검수다. 독립 다중 평가자 합의도는 확보하지 못했으므로 사람 평가자 기반 Gold로 표현하지 않는다.
+- 모델은 가격반응의 확률적 보조 신호이며 투자 권유·인과 추론에 사용하지 않는다.

@@ -25,7 +25,7 @@ DEFAULT_STRESS_GOLD = (
 )
 DEFAULT_REPORT = PROJECT_ROOT / "reports/disclosure-importance-research-evaluation.json"
 DEFAULT_TRAINING_REPORT = PROJECT_ROOT / "reports/disclosure-importance-training-report.json"
-DEFAULT_CODEBOOK = PROJECT_ROOT / "docs/datasets/k-fnspid-v3-annotation-codebook.md"
+DEFAULT_CODEBOOK = PROJECT_ROOT / "docs/datasets/k-fnspid-v4-annotation-codebook.md"
 LABEL_ORDER = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
 
 

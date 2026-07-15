@@ -13,7 +13,7 @@ from typing import Any
 from train_k_fnspid_impact_model import build_model, evaluate, load_rows
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v4"
 DEFAULT_BASELINE_REPORT = PROJECT_ROOT / "reports/k-fnspid-impact-training-report.json"
 DEFAULT_OUTPUT = PROJECT_ROOT / "reports/k-fnspid-baseline-ablation-report.json"
 

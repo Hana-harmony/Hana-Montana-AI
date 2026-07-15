@@ -67,6 +67,18 @@ def test_exact_mcnemar_handles_identical_predictions() -> None:
     assert module.exact_mcnemar_p_value(0, 0) == 1.0
 
 
+def test_bootstrap_metrics_match_full_classification_metrics() -> None:
+    module = _load_script()
+    expected = ["LOW", "LOW", "MEDIUM", "HIGH", "CRITICAL", "CRITICAL"]
+    predicted = ["LOW", "MEDIUM", "MEDIUM", "CRITICAL", "HIGH", "CRITICAL"]
+
+    full = module.classification_metrics(expected, predicted)
+    fast = module.bootstrap_metrics(expected, predicted)
+
+    for metric in ("accuracy", "macro_f1", "quadratic_kappa"):
+        assert fast[metric] == pytest.approx(full[metric])
+
+
 def test_clustered_bootstrap_rejects_missing_cluster_key() -> None:
     module = _load_script()
 

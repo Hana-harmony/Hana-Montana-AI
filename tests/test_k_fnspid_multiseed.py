@@ -38,16 +38,18 @@ def _report(seed: int, validation_f1: float, test_f1: float) -> dict:
         "seed": seed,
         "version": f"run-{seed}",
         "artifact_dir": f"artifacts/seed-{seed}",
-        "dataset_dir": "data/k_fnspid/v3",
+        "dataset_dir": "data/k_fnspid/v4",
+        "source_type": "DISCLOSURE",
         "dataset_manifest": {"sha256": "frozen-dataset"},
         "partition_count": {"TRAIN": 100, "VALIDATION": 20, "TEST": 20},
         "training_objective": {"name": "ordinal"},
         "training_hyperparameters": {"effective_batch_size": 32, "learning_rate": 2e-4},
         "postprocessing": {
-            "method": "validation-selected-log-prior-correction/v1",
+            "method": "validation-selected-log-prior-temperature/v2",
             "selection_partition": "VALIDATION",
             "selection_objective": "macro_f1",
             "strength_grid": {"minimum": 0.0, "maximum": 2.0, "step": 0.05},
+            "temperature_grid": {"minimum": 0.5, "maximum": 3.0, "step": 0.05},
         },
         "base_model": "kf-deberta",
         "base_model_revision": "frozen-revision",
@@ -65,13 +67,16 @@ def test_multiseed_selection_uses_validation_only(tmp_path: Path) -> None:
         _report(42, 0.45, 0.40),
         _report(73, 0.43, 0.70),
     ]
+    paths = [tmp_path / f"seed-{seed}.json" for seed in (17, 42, 73)]
+    for path, report in zip(paths, reports, strict=True):
+        path.write_text(json.dumps(report), encoding="utf-8")
 
-    result = module.aggregate_reports(
-        reports,
-        [tmp_path / f"seed-{seed}.json" for seed in (17, 42, 73)],
-    )
+    result = module.aggregate_reports(reports, paths)
 
     assert result["selected_seed_by_validation"] == 42
+    assert result["schema_version"] == "k-fnspid-transformer-multiseed/v2"
+    assert set(result["report_sha256"]) == {str(path) for path in paths}
+    assert result["runs"][1]["artifact_dir"] == "artifacts/seed-42"
     assert result["test"]["macro_f1"]["mean"] == pytest.approx(0.5666667)
     assert result["test"]["macro_f1"]["sample_std"] == pytest.approx(0.1527525)
 
@@ -107,6 +112,15 @@ def test_multiseed_rejects_changed_postprocessing_protocol(tmp_path: Path) -> No
     module = _load_script()
     reports = [_report(17, 0.41, 0.42), _report(42, 0.43, 0.44), _report(73, 0.45, 0.46)]
     reports[2]["postprocessing"]["selection_partition"] = "TEST"
+
+    with pytest.raises(ValueError, match="일치하지 않습니다"):
+        module.aggregate_reports(reports, [tmp_path / f"{index}.json" for index in range(3)])
+
+
+def test_multiseed_rejects_mixed_source_experts(tmp_path: Path) -> None:
+    module = _load_script()
+    reports = [_report(17, 0.41, 0.42), _report(42, 0.43, 0.44), _report(73, 0.45, 0.46)]
+    reports[2]["source_type"] = "NEWS"
 
     with pytest.raises(ValueError, match="일치하지 않습니다"):
         module.aggregate_reports(reports, [tmp_path / f"{index}.json" for index in range(3)])
@@ -163,6 +177,31 @@ def test_selected_report_path_matches_validation_selected_seed(
         path.write_text(json.dumps({"seed": seed}), encoding="utf-8")
         paths.append(path.name)
 
-    selected = module._selected_report_path({"report_paths": paths}, 73)
+    report_sha256 = {
+        path.name: sha256(path.read_bytes()).hexdigest()
+        for path in (tmp_path / name for name in paths)
+    }
+
+    selected = module._selected_report_path(
+        {"report_paths": paths, "report_sha256": report_sha256}, 73
+    )
 
     assert selected == tmp_path / "seed-73.json"
+
+
+def test_selected_report_path_rejects_tampered_seed_report(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_promotion_script()
+    monkeypatch.setattr(module, "PROJECT_ROOT", tmp_path)
+    path = tmp_path / "seed-17.json"
+    path.write_text(json.dumps({"seed": 17}), encoding="utf-8")
+    manifest = {
+        "report_paths": [path.name],
+        "report_sha256": {path.name: sha256(path.read_bytes()).hexdigest()},
+    }
+    path.write_text(json.dumps({"seed": 73}), encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="무결성"):
+        module._selected_report_path(manifest, 17)

@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "paper": "K-FNSPID v3",
+  "paper": "K-FNSPID v4",
   "system_name": "Hana Montana AI(KF-DeBERTa + K-FNSPID)",
   "format": "ACL Rolling Review long-paper package with anonymous review, author preprint, and Korean companion",
   "author_metadata_path": "docs/paper/acl/author-metadata.json",
@@ -22,9 +22,9 @@
       "embedded_font_count": 13,
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
-      "pdf_path": "output/pdf/k-fnspid-v3-arr-review.pdf",
-      "pdf_bytes": 83782,
-      "pdf_sha256": "96465b257c19f047b1070dccd75563ac128e44d4d4f4eeb4ba685015c33e4be3"
+      "pdf_path": "output/pdf/k-fnspid-v4-arr-review.pdf",
+      "pdf_bytes": 83189,
+      "pdf_sha256": "ac24a81bbd06c1ac081b2cab9633490595af861f6cade5e815e981e56ff2a38d"
     },
     "author_preprint": {
       "language": "en",
@@ -38,9 +38,9 @@
       "embedded_font_count": 12,
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
-      "pdf_path": "output/pdf/k-fnspid-v3-author-preprint.pdf",
-      "pdf_bytes": 74060,
-      "pdf_sha256": "eb34b9f41a976607985a5cde942b5bd98d3a84ed4127d8889786e80ac2fbf716"
+      "pdf_path": "output/pdf/k-fnspid-v4-author-preprint.pdf",
+      "pdf_bytes": 73401,
+      "pdf_sha256": "0a4f0be4f2baa224a30ca061dc752509765b99b80cb5e9137416e16e6853506c"
     },
     "korean_companion": {
       "language": "ko",
@@ -53,14 +53,14 @@
       "embedded_font_count": 15,
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 4,
-      "pdf_path": "output/pdf/k-fnspid-v3-ko.pdf",
-      "pdf_bytes": 182293,
-      "pdf_sha256": "b683257b71c582abb878217b0e577fbfbccd08899227ac49aa64255efbb99006"
+      "pdf_path": "output/pdf/k-fnspid-v4-ko.pdf",
+      "pdf_bytes": 183261,
+      "pdf_sha256": "0677e04324e8a686342a4fa8e0f5b7803e90fd1a8f4f4b0ce6e28254bd55b2bc"
     }
   },
   "known_scientific_blockers": [
     "No independent multi-expert annotation or inter-annotator agreement",
-    "Disclosure market-impact macro-F1 regresses from 0.3006 to 0.2211",
+    "Disclosure QWK improvement has a cluster-bootstrap lower bound close to zero and needs additional periods",
     "No DOI-backed anonymous dataset archive yet"
   ]
 }

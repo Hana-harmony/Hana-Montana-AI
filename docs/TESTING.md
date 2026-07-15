@@ -70,9 +70,9 @@ uv run python scripts/train_k_fnspid_transformer.py \
 - 실제 공시 Gold 600건: 이벤트 macro F1 0.9979, recall 0.9967, 감성 accuracy 0.9233, 중요도 accuracy 1.0, 종목 accuracy 1.0
 - 실제 뉴스 Gold 80건: 이벤트 macro F1 0.9184, recall 0.9875, 감성 accuracy 0.9000, 중요도 accuracy 0.9500, 종목 accuracy 1.0
 - 공개 금융 감성 Test 933건: 앙상블 accuracy 0.8842, macro F1 0.8840. 기존 Hana TF-IDF macro F1 0.4423, KR-FinBERT-SC 0.7272
-- K-FNSPID v3: 문서 550,662건, 문서–종목 819,772건, 시장영향 398,942건, 파일 기반 시세 10,691,998행
+- K-FNSPID v4: 문서 1,247,685건, 문서–종목 1,136,118건, 시장영향 715,015건, 파일 기반 시세 10,691,998행
 - Git 추적 raw·전문 JSONL shard: 최대 48MB, Parquet와 모든 raw/full-content/종목/시세/Gold 원천의 byte·개별/복합 SHA-256 검증, 경로 탈출·symlink·변조 fail-closed
-- K-FNSPID v3 시간 Test 10,750건: Train-only TF-IDF 기준선 accuracy 0.4643, macro F1 0.3429, quadratic kappa 0.3141. Validation 선택 seed 73 Transformer는 0.5095 / 0.3820 / 0.4694이며 다중 seed·연구 평가 보고서가 단일 원천이다.
+- K-FNSPID v4 시간 Test: 뉴스 9,560건 기준선 macro F1 0.3484 / QWK 0.3421에서 전문가 0.3745 / 0.4754, 공시 4,615건 기준선 0.2677 / 0.1125에서 전문가 0.3216 / 0.1550으로 개선됐다. 통합 14,175건 거래일 cluster bootstrap 2,000회와 exact McNemar를 연구 평가 보고서에 고정한다.
 - 시장영향 우월성: 행 단위 paired bootstrap과 70개 거래일 cluster bootstrap을 각각 2,000회 계산하고, 보수적인 거래일 cluster macro F1 차이 구간이 0을 넘을 때만 주장한다.
 - 기본 공시 Codex Gold 600건: 모델 학습 전에 겹치는 원천 URL 401건을 제외해 post-filter 중복 0, 감성·중요도 accuracy와 macro F1 및 클래스별 지표를 함께 검증한다.
 - 보조 스트레스 Gold 310건: 기본 Gold·전문 원천과 URL 중복 0, 기본 Gold와 합친 910건에서 paired bootstrap 2,000회·exact McNemar·ECE·Brier를 검증한다.
