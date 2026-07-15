@@ -17,41 +17,49 @@ def assert_close(actual: float, expected: float, label: str) -> None:
 
 
 def main() -> None:
-    manifest = load("data/k_fnspid/v3/manifest.json")
+    manifest = load("data/k_fnspid/v4/manifest.json")
     sentiment = load("reports/korean-finance-sentiment-benchmark.json")
     impact = load("reports/k-fnspid-research-evaluation.json")
-    multiseed = load("reports/k-fnspid-transformer-multiseed-report.json")
+    disclosure_multiseed = load(
+        "reports/k-fnspid-impact-disclosure-transformer-multiseed-report.json"
+    )
     disclosure = load("reports/disclosure-importance-research-evaluation.json")
 
     expected_counts = {
-        "document_count": 550_662,
-        "entity_count": 819_772,
-        "impact_count": 398_942,
-        "unconfounded_impact_count": 130_566,
+        "document_count": 1_247_685,
+        "entity_count": 1_136_118,
+        "impact_count": 715_015,
+        "unconfounded_impact_count": 255_168,
     }
     for key, expected in expected_counts.items():
         actual = manifest[key]
         if actual != expected:
             raise AssertionError(f"manifest.{key}: expected={expected}, actual={actual}")
 
-    if manifest["source_type_count"] != {"DISCLOSURE": 25_966, "NEWS": 524_696}:
+    if manifest["source_type_count"] != {"DISCLOSURE": 722_989, "NEWS": 524_696}:
         raise AssertionError("source_type_count changed")
     if manifest["full_text_source_type_count"]["DISCLOSURE"] != 8_972:
         raise AssertionError("disclosure full-text count changed")
 
     assert_close(sentiment["models"]["kr_finbert_sc"]["macro_f1"], 0.7272, "KR-FinBERT-SC macro-F1")
     assert_close(sentiment["models"]["kf_deberta_lora"]["macro_f1"], 0.8850, "KF-DeBERTa macro-F1")
-    assert_close(impact["baseline"]["macro_f1"], 0.3429, "market baseline macro-F1")
-    assert_close(impact["transformer"]["macro_f1"], 0.3820, "market Transformer macro-F1")
-    assert_close(impact["source_type"]["NEWS"]["transformer"]["macro_f1"], 0.3847, "news macro-F1")
+    assert_close(impact["baseline"]["macro_f1"], 0.3210, "market baseline macro-F1")
+    assert_close(impact["transformer"]["macro_f1"], 0.3690, "market Transformer macro-F1")
+    assert_close(impact["source_type"]["NEWS"]["transformer"]["macro_f1"], 0.3745, "news macro-F1")
     assert_close(
         impact["source_type"]["DISCLOSURE"]["transformer"]["macro_f1"],
-        0.2211,
+        0.3216,
         "disclosure macro-F1",
     )
-    if multiseed["selected_seed_by_validation"] != 73:
-        raise AssertionError("selected market-impact seed changed")
-    assert_close(multiseed["test"]["macro_f1"]["sample_std"], 0.0102, "three-seed macro-F1 std")
+    if disclosure_multiseed["selected_seed_by_validation"] != 17:
+        raise AssertionError("selected disclosure market-impact seed changed")
+    assert_close(
+        disclosure_multiseed["test"]["macro_f1"]["sample_std"],
+        0.0052,
+        "disclosure three-seed macro-F1 std",
+    )
+    if not impact["research_gate"]["eligible_for_superiority_claim"]:
+        raise AssertionError("source-routed superiority gate failed")
     assert_close(disclosure["candidate"]["macro_f1"], 0.9962, "disclosure operational macro-F1")
 
     print("submission metrics verified against frozen reports")

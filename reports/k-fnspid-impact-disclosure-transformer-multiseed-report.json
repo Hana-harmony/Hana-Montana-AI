@@ -1,0 +1,130 @@
+{
+  "schema_version": "k-fnspid-transformer-multiseed/v2",
+  "source_type": "DISCLOSURE",
+  "run_count": 3,
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
+  "selected_seed_by_validation": 17,
+  "selected_version": "kfi-disclosure-kfd-lora-20260715040412-p0.05-t0.50",
+  "selected_artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17",
+  "selected_predictions_path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed17.jsonl",
+  "report_paths": [
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed17.json",
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed42.json",
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed73.json"
+  ],
+  "report_sha256": {
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed17.json": "ef279bfdb00b784af3c9c9f2ba20fee5b9c9ad0157a52ee840dce753ca212e71",
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed42.json": "2807fda2cc97fd58f1705423455f263952bbef5d02e90d2f82c3543c614d7b26",
+    "reports/k-fnspid-impact-disclosure-transformer-training-report-seed73.json": "f82d5f4251aea70a8ae05bdb86a0b4387a1a10179bfae11431188f8cd2d57a92"
+  },
+  "validation": {
+    "accuracy": {
+      "mean": 0.5079908675799086,
+      "sample_std": 0.025703950340634062,
+      "minimum": 0.4931506849315068,
+      "maximum": 0.5376712328767124
+    },
+    "macro_f1": {
+      "mean": 0.24360474330135304,
+      "sample_std": 0.0030204095812186864,
+      "minimum": 0.24185610646261474,
+      "maximum": 0.2470924074580813
+    },
+    "quadratic_kappa": {
+      "mean": 0.10171478127311258,
+      "sample_std": 0.0061884208350462475,
+      "minimum": 0.09519519845447533,
+      "maximum": 0.10750791678358129
+    }
+  },
+  "test": {
+    "accuracy": {
+      "mean": 0.4533766702780787,
+      "sample_std": 0.02156022074963985,
+      "minimum": 0.43185265438786563,
+      "maximum": 0.47497291440953415
+    },
+    "macro_f1": {
+      "mean": 0.3170427784856502,
+      "sample_std": 0.005187676719216753,
+      "minimum": 0.31141806301145947,
+      "maximum": 0.32163949090130667
+    },
+    "quadratic_kappa": {
+      "mean": 0.1556313560263047,
+      "sample_std": 0.0006730021250744463,
+      "minimum": 0.15497773582734986,
+      "maximum": 0.1563221954336591
+    }
+  },
+  "runs": [
+    {
+      "seed": 17,
+      "version": "kfi-disclosure-kfd-lora-20260715040412-p0.05-t0.50",
+      "artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17",
+      "predictions": {
+        "path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed17.jsonl",
+        "sample_count": 4615,
+        "bytes": 1476078,
+        "sha256": "4ed25b54783636395fed41cbeca8d0d89812411e0e8c106e2265472f847664f5"
+      },
+      "validation": {
+        "accuracy": 0.5376712328767124,
+        "macro_f1": 0.2470924074580813,
+        "quadratic_kappa": 0.10244122858128113
+      },
+      "test": {
+        "accuracy": 0.47497291440953415,
+        "macro_f1": 0.32163949090130667,
+        "quadratic_kappa": 0.15497773582734986
+      }
+    },
+    {
+      "seed": 42,
+      "version": "kfi-disclosure-kfd-lora-20260715041159-p0.00-t0.50",
+      "artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed42",
+      "predictions": {
+        "path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed42.jsonl",
+        "sample_count": 4615,
+        "bytes": 1476933,
+        "sha256": "7632461e30e71abf11189b635c6ef3cc180a9691cd9012e688ea3bab6b98a36e"
+      },
+      "validation": {
+        "accuracy": 0.4931506849315068,
+        "macro_f1": 0.24186571598336304,
+        "quadratic_kappa": 0.09519519845447533
+      },
+      "test": {
+        "accuracy": 0.4533044420368364,
+        "macro_f1": 0.31807078154418456,
+        "quadratic_kappa": 0.1563221954336591
+      }
+    },
+    {
+      "seed": 73,
+      "version": "kfi-disclosure-kfd-lora-20260715044341-p0.00-t0.50",
+      "artifact_dir": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed73",
+      "predictions": {
+        "path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed73.jsonl",
+        "sample_count": 4615,
+        "bytes": 1475787,
+        "sha256": "00644b5ba918a6a46170495566d4585d2e0ae4eca39c3ad26496edf3ebe9caf8"
+      },
+      "validation": {
+        "accuracy": 0.4931506849315068,
+        "macro_f1": 0.24185610646261474,
+        "quadratic_kappa": 0.10750791678358129
+      },
+      "test": {
+        "accuracy": 0.43185265438786563,
+        "macro_f1": 0.31141806301145947,
+        "quadratic_kappa": 0.15559413681790513
+      }
+    }
+  ]
+}

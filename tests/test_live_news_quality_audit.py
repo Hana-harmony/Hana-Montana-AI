@@ -1054,3 +1054,59 @@ def test_full_content_builder_rejects_truncated_dart_zip(monkeypatch) -> None:
     monkeypatch.setattr(module, "fetch_bytes", lambda *_args, **_kwargs: b"PKbroken")
 
     assert module.fetch_dart_document("local-key", "20260617000001") == ""
+
+
+def test_full_content_builder_falls_back_to_public_dart_viewer(monkeypatch) -> None:
+    module = _load_full_content_script()
+    receipt_number = "20260604000655"
+    main_html = (
+        'viewDoc("20260604000655", "11419376", "0", "0", "0", "dart4.xsd", "")'
+    )
+    viewer_html = (
+        "<html><body>"
+        + ("전환사채권 발행 결정 공시 원문입니다. " * 20)
+        + "</body></html>"
+    )
+
+    monkeypatch.setattr(
+        module,
+        "fetch_bytes",
+        lambda *_args, **_kwargs: b"<status>020</status><message>limit</message>",
+    )
+    monkeypatch.setattr(
+        module,
+        "fetch_html_with_retry",
+        lambda url: main_html if "main.do" in url else viewer_html,
+    )
+
+    content, status = module.fetch_dart_document_with_status("local-key", receipt_number)
+
+    assert status == "accepted_public_viewer"
+    assert "전환사채권 발행 결정" in content
+
+
+def test_collection_status_merges_counters_without_inflating_snapshot() -> None:
+    module = _load_full_content_script()
+
+    merged = module.merge_collection_status(
+        {
+            "disclosure_added": 4_976,
+            "disclosure_attempted": 5_065,
+            "disclosure_failed": 89,
+            "disclosure_reused_existing_url": 3_996,
+        },
+        module.Counter(
+            {
+                "disclosure_attempted": 17,
+                "disclosure_failed": 17,
+                "disclosure_failed_public_viewer_viewer_metadata_missing": 17,
+                "disclosure_reused_existing_url": 8_972,
+            }
+        ),
+    )
+
+    assert merged["disclosure_added"] == 4_976
+    assert merged["disclosure_attempted"] == 5_082
+    assert merged["disclosure_failed"] == 106
+    assert merged["disclosure_failed_public_viewer_viewer_metadata_missing"] == 17
+    assert merged["disclosure_reused_existing_url"] == 8_972

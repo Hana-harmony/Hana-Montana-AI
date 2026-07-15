@@ -1,0 +1,64 @@
+{
+  "schema_version": "k-fnspid-transformer-artifact/v1",
+  "version": "kfi-disclosure-kfd-lora-20260715041159-p0.00-t0.50",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-15T04:11:59.905398+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1142,
+      "sha256": "f623dd2229931fb681f6b527aa2c98029bbe3a0cf4c2acf664883c56a15299b3"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924696,
+      "sha256": "db0496b7a8ce10837778b4638b7dbe15f6262b612150f54cea26e7cef1bd611e"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 42,
+  "source_type": "DISCLOSURE",
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.0,
+    "selected_temperature": 0.5,
+    "selected_validation_negative_log_likelihood": 1.0924519705086095,
+    "training_class_priors": {
+      "LOW": 0.698125,
+      "MEDIUM": 0.231375,
+      "HIGH": 0.0525,
+      "CRITICAL": 0.018
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.4931506849315068,
+      "macro_f1": 0.24186571598336304,
+      "quadratic_kappa": 0.09519519845447533
+    }
+  }
+}

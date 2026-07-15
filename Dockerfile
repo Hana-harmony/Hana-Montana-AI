@@ -22,17 +22,19 @@ RUN apt-get update \
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 COPY data/reference ./data/reference
-COPY reports/k-fnspid-impact-training-report.json ./reports/k-fnspid-impact-training-report.json
+COPY reports/k-fnspid-impact-news-training-report.json ./reports/k-fnspid-impact-news-training-report.json
+COPY reports/k-fnspid-impact-disclosure-training-report.json ./reports/k-fnspid-impact-disclosure-training-report.json
 COPY reports/kf-deberta-sentiment-training-report.json ./reports/kf-deberta-sentiment-training-report.json
 COPY reports/korean-finance-sentiment-benchmark.json ./reports/korean-finance-sentiment-benchmark.json
 COPY reports/sentiment-stacker-training-report.json ./reports/sentiment-stacker-training-report.json
 COPY reports/disclosure-importance-training-report.json ./reports/disclosure-importance-training-report.json
-COPY reports/k-fnspid-transformer-training-report.json ./reports/k-fnspid-transformer-training-report.json
+COPY reports/k-fnspid-impact-news-transformer-training-report.json ./reports/k-fnspid-impact-news-transformer-training-report.json
+COPY reports/k-fnspid-impact-disclosure-transformer-training-report.json ./reports/k-fnspid-impact-disclosure-transformer-training-report.json
 
 RUN find /app/src -type f \( -name '*.joblib' -o -name '*.safetensors' \) \
         -exec chmod 0444 {} + \
     && find /app/reports -type f -exec chmod 0444 {} + \
-    && chmod 0444 /app/reports/k-fnspid-impact-training-report.json \
+    && chmod 0444 /app/reports/k-fnspid-impact-*-training-report.json \
     && chmod -R a+rX,go-w /app/src /app/reports /app/data/reference
 
 RUN uv sync --frozen --no-dev --extra transformer

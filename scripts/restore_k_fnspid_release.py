@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET_DIR = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_DATASET_DIR = PROJECT_ROOT / "data/k_fnspid/v4"
 DEFAULT_MARKET_PRICE = PROJECT_ROOT / "data/market/market_daily_price.parquet"
 EXPECTED_RELEASE_ASSETS = {
     "annotations.parquet",

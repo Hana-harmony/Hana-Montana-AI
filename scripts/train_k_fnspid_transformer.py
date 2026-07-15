@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from importlib.metadata import version as package_version
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
@@ -20,7 +20,7 @@ from hannah_montana_ai.services.model_artifact_integrity import build_artifact_m
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BASE_MODEL = "kakaobank/kf-deberta-base"
 BASE_MODEL_REVISION = "363b171d71443b0874b0bf9cea053eb5b1650633"
-DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v3"
+DEFAULT_DATASET = PROJECT_ROOT / "data/k_fnspid/v4"
 DEFAULT_OUTPUT = PROJECT_ROOT / "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/k-fnspid-transformer-training-report.json"
 DEFAULT_PREDICTIONS = PROJECT_ROOT / "reports/k-fnspid-transformer-test-predictions.jsonl"
@@ -55,7 +55,7 @@ class EncodedImpactDataset:
 
 
 def main() -> None:
-    from peft import LoraConfig, TaskType, get_peft_model
+    from peft import LoraConfig, PeftModel, TaskType, get_peft_model
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
@@ -73,6 +73,17 @@ def main() -> None:
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--predictions-path", type=Path, default=DEFAULT_PREDICTIONS)
     parser.add_argument("--baseline-report-path", type=Path, default=DEFAULT_BASELINE_REPORT)
+    parser.add_argument("--source-type", choices=("NEWS", "DISCLOSURE"))
+    parser.add_argument(
+        "--initial-adapter-path",
+        type=Path,
+        help="검증된 기존 LoRA adapter에서 출처 전문가 fine-tuning을 시작한다.",
+    )
+    parser.add_argument(
+        "--evaluation-only",
+        action="store_true",
+        help="기존 검증 adapter를 추가 gradient 없이 출처별 동결 평가한다.",
+    )
     parser.add_argument(
         "--resume-from-checkpoint",
         type=Path,
@@ -110,13 +121,18 @@ def main() -> None:
         "predictions_path",
         "baseline_report_path",
         "resume_from_checkpoint",
+        "initial_adapter_path",
     ):
         value = getattr(args, attribute)
         if value is not None:
             setattr(args, attribute, _project_path(value))
 
     _set_seed(args.seed)
+    if args.evaluation_only and not args.initial_adapter_path:
+        raise SystemExit("evaluation-only에는 검증된 initial adapter가 필요합니다.")
     rows = load_rows(args.dataset_dir)
+    if args.source_type:
+        rows = [row for row in rows if row["source_type"] == args.source_type]
     dataset_manifest = _dataset_manifest(args.dataset_dir)
     partitions = {
         name: [row for row in rows if row["split"] == name]
@@ -146,17 +162,25 @@ def main() -> None:
         label2id={label: index for index, label in enumerate(LABEL_ORDER)},
         trust_remote_code=False,
     )
-    model = get_peft_model(
-        model,
-        LoraConfig(
-            task_type=TaskType.SEQ_CLS,
-            r=16,
-            lora_alpha=32,
-            lora_dropout=0.1,
-            target_modules=["query_proj", "key_proj", "value_proj"],
-            modules_to_save=["pooler", "classifier"],
-        ),
-    )
+    if args.initial_adapter_path:
+        model = PeftModel.from_pretrained(
+            model,
+            args.initial_adapter_path,
+            is_trainable=True,
+            use_safetensors=True,
+        )
+    else:
+        model = get_peft_model(
+            model,
+            LoraConfig(
+                task_type=TaskType.SEQ_CLS,
+                r=16,
+                lora_alpha=32,
+                lora_dropout=0.1,
+                target_modules=["query_proj", "key_proj", "value_proj"],
+                modules_to_save=["pooler", "classifier"],
+            ),
+        )
     if args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
     model.config.use_cache = False
@@ -173,6 +197,7 @@ def main() -> None:
     warmup_steps = max(1, round(optimizer_steps * 0.08))
     evaluation_batch_size = max(args.batch_size * 2, 8)
     training_hyperparameters = {
+        "evaluation_only": args.evaluation_only,
         "epochs_requested": args.epochs,
         "per_device_train_batch_size": args.batch_size,
         "per_device_eval_batch_size": evaluation_batch_size,
@@ -193,6 +218,11 @@ def main() -> None:
             "dropout": 0.1,
             "target_modules": ["query_proj", "key_proj", "value_proj"],
             "modules_to_save": ["pooler", "classifier"],
+            "initial_adapter_path": (
+                str(args.initial_adapter_path.relative_to(PROJECT_ROOT))
+                if args.initial_adapter_path
+                else None
+            ),
         },
     }
     trainer = Trainer(
@@ -237,19 +267,24 @@ def main() -> None:
         compute_metrics=_metrics_with_prior(partitions["TRAIN"]),
         callbacks=[EarlyStoppingCallback(early_stopping_patience=1)],
     )
-    trainer.train(
-        resume_from_checkpoint=(
-            str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None
+    if not args.evaluation_only:
+        trainer.train(
+            resume_from_checkpoint=(
+                str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None
+            )
         )
-    )
     trainer.remove_callback(EarlyStoppingCallback)
-    validation_output = trainer.predict(validation_dataset, metric_key_prefix="validation")
-    test_output = trainer.predict(test_dataset, metric_key_prefix="test")
+    validation_output = trainer.predict(
+        cast(Any, validation_dataset), metric_key_prefix="validation"
+    )
+    test_output = trainer.predict(cast(Any, test_dataset), metric_key_prefix="test")
     validation_logits = np.asarray(validation_output.predictions)
     test_logits = np.asarray(test_output.predictions)
+    validation_labels = np.asarray(validation_output.label_ids).astype(int)
+    test_labels = np.asarray(test_output.label_ids).astype(int)
     postprocessing = _select_log_prior_correction(
         validation_logits,
-        validation_output.label_ids.astype(int),
+        validation_labels,
         partitions["TRAIN"],
     )
     corrected_validation_logits = _apply_log_prior_correction(
@@ -258,38 +293,50 @@ def main() -> None:
     )
     corrected_test_logits = _apply_log_prior_correction(test_logits, postprocessing)
     validation_raw_metrics = _classification_metrics(
-        validation_output.label_ids.astype(int),
+        validation_labels,
         validation_logits.argmax(axis=-1),
     )
     test_raw_metrics = _classification_metrics(
-        test_output.label_ids.astype(int),
+        test_labels,
         test_logits.argmax(axis=-1),
     )
     validation_metrics = _classification_metrics(
-        validation_output.label_ids.astype(int),
+        validation_labels,
         corrected_validation_logits.argmax(axis=-1),
     )
     test_metrics = _classification_metrics(
-        test_output.label_ids.astype(int),
+        test_labels,
         corrected_test_logits.argmax(axis=-1),
+    )
+    validation_metrics.update(
+        _calibration_metrics(validation_labels, corrected_validation_logits)
+    )
+    test_metrics.update(
+        _calibration_metrics(test_labels, corrected_test_logits)
     )
     validation_metrics["sample_count"] = len(validation_dataset)
     test_metrics["sample_count"] = len(test_dataset)
     baseline_report = json.loads(args.baseline_report_path.read_text(encoding="utf-8"))
     if baseline_report.get("dataset_manifest", {}).get("sha256") != dataset_manifest["sha256"]:
         raise SystemExit("기준선과 Transformer의 K-FNSPID manifest가 다릅니다.")
+    if baseline_report.get("source_type") != args.source_type:
+        raise SystemExit("기준선과 Transformer의 source_type이 다릅니다.")
     baseline_test = baseline_report.get("test", {})
+    minimum_count, minimum_macro_f1, minimum_kappa = _source_gate_thresholds(args.source_type)
     deployment_eligible = (
-        len(test_dataset) >= 1_000
-        and float(test_metrics.get("macro_f1", 0.0)) >= 0.35
-        and float(test_metrics.get("quadratic_kappa", 0.0)) >= 0.20
+        len(test_dataset) >= minimum_count
+        and float(test_metrics.get("macro_f1", 0.0)) >= minimum_macro_f1
+        and float(test_metrics.get("quadratic_kappa", 0.0)) >= minimum_kappa
+        and float(test_metrics.get("expected_calibration_error_15_bin", 1.0)) <= 0.20
         and float(test_metrics.get("macro_f1", 0.0)) >= float(baseline_test.get("macro_f1", 0.0))
         and float(test_metrics.get("quadratic_kappa", 0.0))
         >= float(baseline_test.get("quadratic_kappa", 0.0))
+        and float(test_metrics.get("expected_calibration_error_15_bin", 1.0))
+        <= float(baseline_test.get("expected_calibration_error_15_bin", 1.0))
     )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    trainer.model.save_pretrained(args.output_dir, safe_serialization=True)
+    cast(Any, trainer.model).save_pretrained(args.output_dir, safe_serialization=True)
     tokenizer.save_pretrained(args.output_dir)
     artifact_files = build_artifact_manifest(
         args.output_dir,
@@ -300,9 +347,12 @@ def main() -> None:
             "tokenizer_config.json",
         ),
     )
+    source_slug = str(args.source_type or "shared").lower()
     version = (
-        f"k-fnspid-impact-kf-deberta-lora-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
-        f"-prior{float(postprocessing['selected_strength']):.2f}"
+        f"kfi-{source_slug}-kfd-lora-"
+        f"{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+        f"-p{float(postprocessing['selected_strength']):.2f}"
+        f"-t{float(postprocessing['selected_temperature']):.2f}"
     )
     metadata = {
         "version": version,
@@ -314,6 +364,7 @@ def main() -> None:
         "artifact_files": artifact_files,
         "input_feature_version": IMPACT_INPUT_FEATURE_VERSION,
         "seed": args.seed,
+        "source_type": args.source_type,
         "postprocessing": postprocessing,
     }
     (args.output_dir / "hannah_metadata.json").write_text(
@@ -332,7 +383,10 @@ def main() -> None:
         "dataset_manifest": dataset_manifest,
         "artifact_dir": str(args.output_dir.resolve().relative_to(PROJECT_ROOT)),
         "evaluation_protocol": (
-            "TRAIN fit; Validation selects checkpoint, log-prior correction, and seed; "
+            "frozen validated adapter; Validation selects source-specific log-prior correction; "
+            "frozen TEST is evaluated once for deployment and non-regression gates"
+            if args.evaluation_only
+            else "TRAIN fit; Validation selects checkpoint, log-prior correction, and seed; "
             "frozen TEST is evaluated once for final deployment and superiority gates"
         ),
         "training_hyperparameters": training_hyperparameters,
@@ -340,6 +394,7 @@ def main() -> None:
             "completed_epoch": float(trainer.state.epoch or 0.0),
             "global_optimizer_steps": int(trainer.state.global_step),
             "best_validation_macro_f1": float(trainer.state.best_metric or 0.0),
+            "evaluation_only": args.evaluation_only,
         },
         "runtime": {
             "device": str(trainer.args.device),
@@ -370,10 +425,12 @@ def main() -> None:
         "test_raw": test_raw_metrics,
         "baseline_test": baseline_test,
         "deployment_gate": {
-            "minimum_test_sample_count": 1_000,
-            "minimum_macro_f1": 0.35,
-            "minimum_quadratic_kappa": 0.20,
-            "must_match_or_exceed_baseline": "k-fnspid-impact-tfidf-logreg",
+            "minimum_test_sample_count": minimum_count,
+            "minimum_macro_f1": minimum_macro_f1,
+            "minimum_quadratic_kappa": minimum_kappa,
+            "maximum_expected_calibration_error_15_bin": 0.20,
+            "must_match_or_improve_baseline_calibration": True,
+            "must_match_or_exceed_baseline": f"k-fnspid-impact-{source_slug}-tfidf-logreg",
             "eligible": deployment_eligible,
             "decision": (
                 "DEPLOY_KF_DEBERTA_IMPACT" if deployment_eligible else "KEEP_TFIDF_IMPACT"
@@ -391,6 +448,14 @@ def main() -> None:
         encoding="utf-8",
     )
     print(json.dumps(report, ensure_ascii=False))
+
+
+def _source_gate_thresholds(source_type: str | None) -> tuple[int, float, float]:
+    if source_type == "NEWS":
+        return 5_000, 0.35, 0.30
+    if source_type == "DISCLOSURE":
+        return 500, 0.30, 0.08
+    return 1_000, 0.35, 0.20
 
 
 def _loss_function(
@@ -472,6 +537,35 @@ def _classification_metrics(
     }
 
 
+def _calibration_metrics(
+    expected: np.ndarray,
+    logits: np.ndarray,
+    bins: int = 15,
+) -> dict[str, float]:
+    shifted = logits - logits.max(axis=-1, keepdims=True)
+    exponentials = np.exp(shifted)
+    probabilities = exponentials / exponentials.sum(axis=-1, keepdims=True)
+    predicted = probabilities.argmax(axis=-1)
+    confidences = probabilities.max(axis=-1)
+    ece = 0.0
+    for index in range(bins):
+        lower = index / bins
+        upper = (index + 1) / bins
+        mask = (confidences >= lower) & (
+            confidences <= upper if index == bins - 1 else confidences < upper
+        )
+        if mask.any():
+            ece += float(mask.mean()) * abs(
+                float((predicted[mask] == expected[mask]).mean())
+                - float(confidences[mask].mean())
+            )
+    targets = np.eye(len(LABEL_ORDER), dtype=np.float64)[expected]
+    return {
+        "expected_calibration_error_15_bin": ece,
+        "multiclass_brier_score": float(np.square(probabilities - targets).sum(axis=1).mean()),
+    }
+
+
 def _select_log_prior_correction(
     logits: np.ndarray,
     expected: np.ndarray,
@@ -492,12 +586,29 @@ def _select_log_prior_correction(
         )
         candidates.append((objective, strength, metrics))
     _, selected_strength, selected_metrics = max(candidates, key=lambda row: row[0])
+    prior_corrected = logits + selected_strength * np.log(priors)[None, :]
+    temperature_candidates: list[tuple[float, float]] = []
+    for temperature in np.linspace(0.5, 3.0, 51).tolist():
+        scaled = prior_corrected / temperature
+        shifted = scaled - scaled.max(axis=-1, keepdims=True)
+        log_probabilities = shifted - np.log(np.exp(shifted).sum(axis=-1, keepdims=True))
+        negative_log_likelihood = -float(
+            log_probabilities[np.arange(len(expected)), expected].mean()
+        )
+        temperature_candidates.append((negative_log_likelihood, temperature))
+    selected_nll, selected_temperature = min(temperature_candidates)
     return {
-        "method": "validation-selected-log-prior-correction/v1",
+        "method": "validation-selected-log-prior-temperature/v2",
         "selection_partition": "VALIDATION",
-        "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower strength",
+        "selection_objective": (
+            "macro_f1, then quadratic_kappa, accuracy, lower prior strength; "
+            "then validation negative log likelihood for temperature"
+        ),
         "strength_grid": {"minimum": 0.0, "maximum": 2.0, "step": 0.05},
+        "temperature_grid": {"minimum": 0.5, "maximum": 3.0, "step": 0.05},
         "selected_strength": selected_strength,
+        "selected_temperature": selected_temperature,
+        "selected_validation_negative_log_likelihood": selected_nll,
         "training_class_priors": {
             label: float(prior) for label, prior in zip(LABEL_ORDER, priors, strict=True)
         },
@@ -516,7 +627,10 @@ def _apply_log_prior_correction(
     )
     if strength < 0 or np.any(priors <= 0) or not np.isclose(priors.sum(), 1.0):
         raise ValueError("시장영향 log-prior 보정 설정이 올바르지 않습니다.")
-    return logits + strength * np.log(priors)[None, :]
+    temperature = float(postprocessing.get("selected_temperature", 1.0))
+    if not 0.05 <= temperature <= 10.0:
+        raise ValueError("시장영향 temperature 보정 설정이 올바르지 않습니다.")
+    return (logits + strength * np.log(priors)[None, :]) / temperature
 
 
 def _write_predictions(

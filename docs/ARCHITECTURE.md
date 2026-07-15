@@ -29,7 +29,7 @@
 - 이벤트 태그는 `financial_nlp_ml.joblib`의 source type과 한국어 금융 token feature 포함 One-vs-Rest multilabel classifier로 예측한다.
 - 감성은 고정 리비전 `kakaobank/kf-deberta-base` + LoRA 모델을 artifact SHA·독립 benchmark gate 뒤에서 서빙한다. gate 실패 시 기존 TF-IDF Logistic Regression으로 fallback한다.
 - 중요도는 source type, TF-IDF char n-gram, 한국어 금융 token feature를 결합한 Logistic Regression 모델이 분류한다.
-- `data/k_fnspid/v3`는 550,662건 뉴스·공시, 819,772건 종목 관계, 398,942건 시장반응, 10,691,998행 일별 시세를 Parquet 스냅샷으로 보관한다. 공시 25,966건 중 8,972건은 OpenDART 실제 원문을 포함하고, 평가 Gold는 뉴스 80건·공시 600건이다. 데이터셋 빌드는 운영 DB를 읽지 않는다.
+- `data/k_fnspid/v4`는 뉴스 524,696건·공시 722,989건, 총 1,247,685문서와 1,136,118건 종목 관계, 715,015건 시장반응, 10,691,998행 일별 시세를 Parquet 스냅샷으로 보관한다. 공시 8,972건과 뉴스 13,310건은 실제 전문을 연결한다. 데이터셋 빌드는 운영 DB를 읽지 않는다.
 - 시장영향은 KF-DeBERTa LoRA와 TF-IDF OVR을 같은 시간 외삽 Test에서 비교한다. Transformer가 macro F1·quadratic kappa gate와 기준선을 모두 넘을 때만 승격하고, 아니면 검증된 TF-IDF artifact를 계속 서빙한다.
 - 중복 제거 키는 source type, 종목코드, 뉴스 라벨·꼬리표를 제거한 canonical title을 SHA-256으로 해시한다.
 - 주문 상태 계약은 외부 KIS/PredictEngine 입력값을 받아 외국인 보유율, 한도소진율, 예측 지분율 구간, VI, 상·하한가, 즉시체결 가능 여부를 계산한다.

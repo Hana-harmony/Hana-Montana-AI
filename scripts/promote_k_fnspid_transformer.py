@@ -34,6 +34,8 @@ def main() -> None:
     selected_report = _load_json(selected_report_path)
     if int(selected_report["seed"]) != selected_seed:
         raise SystemExit("선택 seed와 학습 report의 seed가 다릅니다.")
+    if selected_report.get("source_type") != multiseed.get("source_type"):
+        raise SystemExit("선택 집계와 학습 report의 source_type이 다릅니다.")
     if selected_report.get("deployment_gate", {}).get("eligible") is not True:
         raise SystemExit("Test 배포 gate를 통과하지 못한 모델은 승격할 수 없습니다.")
     dataset_manifest = selected_report.get("dataset_manifest", {})
@@ -89,8 +91,14 @@ def main() -> None:
 
 
 def _selected_report_path(multiseed: dict[str, Any], selected_seed: int) -> Path:
+    report_hashes = multiseed.get("report_sha256")
+    if not isinstance(report_hashes, dict):
+        raise SystemExit("집계 report에 seed report SHA-256이 없습니다.")
     for configured in multiseed["report_paths"]:
         path = _safe_path(PROJECT_ROOT / str(configured))
+        expected_sha256 = report_hashes.get(str(configured))
+        if not isinstance(expected_sha256, str) or _sha256(path) != expected_sha256:
+            raise SystemExit(f"seed report 무결성 검증에 실패했습니다: {configured}")
         report = _load_json(path)
         if int(report["seed"]) == selected_seed:
             return path

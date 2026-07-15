@@ -371,7 +371,7 @@ def test_real_news_gold_dataset_is_expanded_and_traceable() -> None:
     evaluation_rows = _read_jsonl(Path("data/evaluation/financial_alert_real_news_gold.jsonl"))
     raw_manifest_path = Path("data/raw/collected_alerts.jsonl")
     raw_manifest = _read_json(raw_manifest_path)
-    quality_manifest = _read_json(Path("data/k_fnspid/v2/manifest.json"))
+    quality_manifest = _read_json(Path("data/k_fnspid/v4/manifest.json"))
 
     assert len(training_rows) >= 60
     assert len(evaluation_rows) >= 80

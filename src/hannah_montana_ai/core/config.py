@@ -9,10 +9,18 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model_path: Path = Path("src/hannah_montana_ai/model_store/financial_nlp_ml.joblib")
-    market_impact_model_path: Path = Path(
-        "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib"
+    market_impact_news_model_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_news_ml.joblib"
     )
-    market_impact_training_report_path: Path = Path("reports/k-fnspid-impact-training-report.json")
+    market_impact_news_training_report_path: Path = Path(
+        "reports/k-fnspid-impact-news-training-report.json"
+    )
+    market_impact_disclosure_model_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_ml.joblib"
+    )
+    market_impact_disclosure_training_report_path: Path = Path(
+        "reports/k-fnspid-impact-disclosure-training-report.json"
+    )
     transformer_base_model_path: Path = Path("/app/models/kf-deberta-base")
     sentiment_transformer_path: Path = Path(
         "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
@@ -33,11 +41,17 @@ class Settings(BaseModel):
     disclosure_importance_report_path: Path = Path(
         "reports/disclosure-importance-training-report.json"
     )
-    market_impact_transformer_path: Path = Path(
-        "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer"
+    market_impact_news_transformer_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_news_transformer"
     )
-    market_impact_transformer_report_path: Path = Path(
-        "reports/k-fnspid-transformer-training-report.json"
+    market_impact_news_transformer_report_path: Path = Path(
+        "reports/k-fnspid-impact-news-transformer-training-report.json"
+    )
+    market_impact_disclosure_transformer_path: Path = Path(
+        "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer"
+    )
+    market_impact_disclosure_transformer_report_path: Path = Path(
+        "reports/k-fnspid-impact-disclosure-transformer-training-report.json"
     )
     stock_universe_path: Path = Path("data/reference/korea_stock_universe.csv")
     stock_linker_model_path: Path = Path("src/hannah_montana_ai/model_store/stock_linker_ml.joblib")
