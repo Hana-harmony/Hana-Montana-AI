@@ -19,6 +19,12 @@ from hannah_montana_ai.services.model_artifact_integrity import (
 BASE_MODEL = "kakaobank/kf-deberta-base"
 BASE_MODEL_REVISION = "363b171d71443b0874b0bf9cea053eb5b1650633"
 LABEL_ORDER: tuple[Importance, ...] = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
+SUPPORTED_POSTPROCESSING_METHODS = frozenset(
+    {
+        "validation-selected-log-prior-correction/v1",
+        "validation-selected-log-prior-temperature/v2",
+    }
+)
 
 
 class KfDebertaImpactModel:
@@ -170,7 +176,7 @@ def _log_prior_offsets(report: dict[str, Any]) -> list[float] | None:
         )
     if (
         not isinstance(configured, dict)
-        or configured.get("method") != "validation-selected-log-prior-correction/v1"
+        or configured.get("method") not in SUPPORTED_POSTPROCESSING_METHODS
         or configured.get("selection_partition") != "VALIDATION"
     ):
         return None

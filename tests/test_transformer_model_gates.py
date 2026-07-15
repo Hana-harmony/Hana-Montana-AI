@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -123,6 +124,57 @@ def test_impact_log_prior_correction_requires_validation_provenance() -> None:
 
     report["postprocessing"]["selection_partition"] = "TEST"
     assert _log_prior_offsets(report) is None
+
+
+def test_impact_log_prior_temperature_v2_uses_validation_provenance() -> None:
+    report = {
+        "postprocessing": {
+            "method": "validation-selected-log-prior-temperature/v2",
+            "selection_partition": "VALIDATION",
+            "selected_strength": 0.35,
+            "selected_temperature": 0.9,
+            "training_class_priors": {
+                "LOW": 0.7,
+                "MEDIUM": 0.2,
+                "HIGH": 0.08,
+                "CRITICAL": 0.02,
+            },
+        }
+    }
+
+    assert _log_prior_offsets(report) is not None
+    assert _temperature(report) == 0.9
+
+    report["postprocessing"]["method"] = "unreviewed-postprocessing/v3"
+    assert _log_prior_offsets(report) is None
+
+
+@pytest.mark.parametrize(
+    ("source_type", "artifact_dir", "report_path"),
+    (
+        (
+            "NEWS",
+            "src/hannah_montana_ai/model_store/k_fnspid_impact_news_transformer",
+            "reports/k-fnspid-impact-news-transformer-training-report.json",
+        ),
+        (
+            "DISCLOSURE",
+            "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer",
+            "reports/k-fnspid-impact-disclosure-transformer-training-report.json",
+        ),
+    ),
+)
+def test_promoted_impact_experts_satisfy_runtime_contract(
+    source_type: str,
+    artifact_dir: str,
+    report_path: str,
+) -> None:
+    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+
+    assert impact_gate_passed(report, source_type)
+    assert verify_artifact_manifest(Path(artifact_dir), report["artifact_files"])
+    assert _log_prior_offsets(report) is not None
+    assert _temperature(report) is not None
 
 
 def test_current_impact_feature_requires_postprocessing() -> None:
