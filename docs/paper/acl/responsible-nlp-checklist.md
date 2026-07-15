@@ -27,12 +27,16 @@
 ## 익명화 및 재현성
 
 - [x] 심사 PDF에서 저자·소속·공개 저장소 URL을 제거했다.
+- [x] 저자 공개 영문본과 한글본에 최성현의 공식 국문·영문 소속과 학부생 신분을 표기했다.
+- [x] 익명본과 저자 공개 영문본이 같은 본문 원천을 사용하도록 구성했다.
+- [x] 저자 이메일·ORCID를 임의 생성하지 않고 미입력 메타데이터로 기록했다.
 - [x] 제품명 외에 저자를 역추적할 조직 식별자를 넣지 않았다.
 - [x] Python·lockfile·base revision·seed·LoRA·optimizer·scheduler를 기록했다.
 - [x] Parquet byte size와 SHA-256 manifest를 제공한다.
 - [x] baseline과 각 Transformer seed의 prediction 파일을 제공한다.
 - [x] 원고의 핵심 수치를 동결 JSON과 자동 대조한다.
 - [x] 공식 ACL style을 고정 upstream commit에서 사용한다.
+- [x] 익명 심사용·저자 공개 영문·한글 PDF의 모든 페이지를 렌더링해 검수한다.
 - [ ] 실제 제출 직전 익명 supplementary archive의 메타데이터·파일명을 다시 검사한다.
 
 ## PDF QA

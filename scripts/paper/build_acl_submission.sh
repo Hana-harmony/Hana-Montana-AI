@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SOURCE_DIR="$ROOT/docs/paper/acl"
-BUILD_DIR="$ROOT/tmp/pdfs/k-fnspid-v3-arr"
+BUILD_DIR="$ROOT/tmp/pdfs/k-fnspid-v3-paper"
 OUTPUT_DIR="$ROOT/output/pdf"
 STYLE_COMMIT="d5adc823ff0f80f98c80405ca0ab66c68e684409"
 STYLE_BASE="https://raw.githubusercontent.com/acl-org/acl-style-files/${STYLE_COMMIT}"
@@ -17,12 +17,26 @@ python3 "$ROOT/scripts/paper/verify_k_fnspid_submission.py"
 curl --fail --silent --show-error --location "$STYLE_BASE/acl.sty" --output "$BUILD_DIR/acl.sty"
 curl --fail --silent --show-error --location "$STYLE_BASE/acl_natbib.bst" --output "$BUILD_DIR/acl_natbib.bst"
 install -m 0644 "$SOURCE_DIR/k-fnspid-v3-arr-review.tex" "$BUILD_DIR/k-fnspid-v3-arr-review.tex"
+install -m 0644 "$SOURCE_DIR/k-fnspid-v3-author-preprint.tex" "$BUILD_DIR/k-fnspid-v3-author-preprint.tex"
+install -m 0644 "$SOURCE_DIR/k-fnspid-v3-ko.tex" "$BUILD_DIR/k-fnspid-v3-ko.tex"
 install -m 0644 "$SOURCE_DIR/references.bib" "$BUILD_DIR/references.bib"
 
 (
   cd "$BUILD_DIR"
   tectonic --keep-logs --keep-intermediates k-fnspid-v3-arr-review.tex
+  tectonic --keep-logs --keep-intermediates k-fnspid-v3-author-preprint.tex
+  tectonic --keep-logs --keep-intermediates k-fnspid-v3-ko.tex
 )
 
 install -m 0644 "$BUILD_DIR/k-fnspid-v3-arr-review.pdf" "$OUTPUT_DIR/k-fnspid-v3-arr-review.pdf"
-pdfinfo "$OUTPUT_DIR/k-fnspid-v3-arr-review.pdf"
+install -m 0644 "$BUILD_DIR/k-fnspid-v3-author-preprint.pdf" "$OUTPUT_DIR/k-fnspid-v3-author-preprint.pdf"
+install -m 0644 "$BUILD_DIR/k-fnspid-v3-ko.pdf" "$OUTPUT_DIR/k-fnspid-v3-ko.pdf"
+python3 "$ROOT/scripts/paper/verify_paper_artifacts.py"
+
+for pdf in \
+  "$OUTPUT_DIR/k-fnspid-v3-arr-review.pdf" \
+  "$OUTPUT_DIR/k-fnspid-v3-author-preprint.pdf" \
+  "$OUTPUT_DIR/k-fnspid-v3-ko.pdf"
+do
+  pdfinfo "$pdf"
+done
