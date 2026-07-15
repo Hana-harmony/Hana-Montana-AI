@@ -6,7 +6,7 @@
 - 공시 원문은 기존 273건에서 K-FNSPID 연결 8,972건으로 확장했고, 모델 학습 입력에서 URL을 제외한 기본 공시 Codex Gold 600건과 완전 비중복 스트레스 Gold 310건을 고정했다.
 - 감성은 공개 균형 Test 933건과 뉴스·공시 운영 Gold를 분리해 평가한다. 공개 Test 한 개의 우위만으로 전 분포 SOTA를 주장하지 않는다.
 - 시장영향은 동일한 한국어 가격반응 라벨의 외부 leaderboard가 없으므로 동일 시간 Test의 TF-IDF 기준선 대비 거래일 cluster bootstrap 통계적 우월성만 주장한다.
-- ACL Rolling Review 장문 익명 심사용 LaTeX·BibTeX·Limitations·Ethics·재현성 부록과 검증 PDF를 완성했다. 독립 금융 전문가 다중 주석과 DOI 동결은 제출을 막는 형식 요건이 아니라 논문이 공개한 과학적 한계다. 현재 결과를 투자 수익성이나 인과효과로 해석하지 않는다.
+- ACL Rolling Review 장문 익명 심사용 LaTeX·BibTeX·Limitations·Ethics·재현성 부록과 검증 PDF를 완성했다. 최성현 저자 공개 영문본과 한국공학대학교 공식 소속을 표기한 한글 논문도 별도 생성한다. 독립 금융 전문가 다중 주석과 DOI 동결은 제출을 막는 형식 요건이 아니라 논문이 공개한 과학적 한계다. 현재 결과를 투자 수익성이나 인과효과로 해석하지 않는다.
 
 ## 비교 기준
 
@@ -96,7 +96,7 @@ Transformer 결과는 `reports/k-fnspid-transformer-multiseed-report.json`과 `r
 - 현재 산출물은 ACL Rolling Review 장문 익명 심사에 업로드 가능한 데이터셋·시스템 논문 제출 패키지다. 본문 5쪽·전체 7쪽, 초록 177단어, A4 2단 review style, 13개 폰트 내장, 7쪽 시각 검수를 완료했다.
 - 다중 seed 통계적 유의성과 강한 동일 split 기준선은 확보했지만, DISCLOSURE 시장영향 하위집합 회귀 때문에 전 source 모델 SOTA 주장은 할 수 없다.
 - 독립 전문가 다중 주석, 시장 국면·업종별 OOD, DOI 동결을 추가하면 채택 가능성과 카메라레디 완성도가 높아진다. 이는 현재 Codex Gold 결과를 숨기지 않고 Limitations·Ethics 본문에 명시했다.
-- 제출 원고와 manifest는 `docs/paper/acl/`, 검증 PDF는 `output/pdf/k-fnspid-v3-arr-review.pdf`에 있다. 논문 수치는 `scripts/paper/verify_k_fnspid_submission.py`가 동결 JSON과 대조한다.
+- 제출 원고와 manifest는 `docs/paper/acl/`에 있다. 검증 PDF는 익명 심사용 `output/pdf/k-fnspid-v3-arr-review.pdf`, 저자 공개 영문 `output/pdf/k-fnspid-v3-author-preprint.pdf`, 한글 `output/pdf/k-fnspid-v3-ko.pdf`로 분리한다. 논문 수치는 `scripts/paper/verify_k_fnspid_submission.py`가 동결 JSON과 대조한다.
 
 ## 연구 설계 참고
 
