@@ -1,18 +1,164 @@
 {
-  "schema_version": "korean-finance-sentiment-benchmark/v1",
+  "schema_version": "korean-finance-sentiment-benchmark/v3",
   "dataset_source": "mssongit/finance-task:fnsentiment:test",
   "test_path": "data/external/kf_deberta_benchmark/ratings_test.csv",
   "test_sha256": "ec2e60f370b711f307683995c7cf02770a53ab1b2e5ec4d5feb00da5ecd38360",
-  "sample_count": 933,
+  "sample_count": 932,
   "label_distribution": {
     "NEGATIVE": 311,
-    "NEUTRAL": 311,
+    "NEUTRAL": 310,
     "POSITIVE": 311
+  },
+  "public_partition_leakage_audit": {
+    "normalization": "NFKC-casefold-alphanumeric/v1",
+    "holdout_priority": [
+      "TEST",
+      "VALIDATION",
+      "TRAIN"
+    ],
+    "internal": {
+      "TRAIN": {
+        "input_count": 7464,
+        "output_count": 7420,
+        "duplicate_count": 41,
+        "conflicting_text_count": 3,
+        "empty_normalized_text_count": 0
+      },
+      "VALIDATION": {
+        "input_count": 933,
+        "output_count": 932,
+        "duplicate_count": 1,
+        "conflicting_text_count": 0,
+        "empty_normalized_text_count": 0
+      },
+      "TEST": {
+        "input_count": 933,
+        "output_count": 932,
+        "duplicate_count": 0,
+        "conflicting_text_count": 0,
+        "empty_normalized_text_count": 1
+      }
+    },
+    "cross_partition_removed": {
+      "TRAIN": 13,
+      "VALIDATION": 0,
+      "TEST": 0
+    },
+    "final_count": {
+      "TRAIN": 7407,
+      "VALIDATION": 932,
+      "TEST": 932
+    }
+  },
+  "candidate_selection": {
+    "locked_candidate": "kf_deberta_lora",
+    "selection_partition": "PUBLIC_VALIDATION_SELECTION",
+    "diagnostic_partition": "DISCLOSURE_2026_SELECTION_WEAK_LABEL",
+    "selection_metrics": {
+      "kf_deberta_lora": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8903225806451613,
+            "macro_f1": 0.8905164227250116
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9476987447698745,
+            "macro_f1": 0.6448428737713569
+          }
+        },
+        "mean_source_macro_f1": 0.7676796482481842,
+        "minimum_source_macro_f1": 0.6448428737713569
+      },
+      "kf_deberta_lora_ensemble": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8881720430107527,
+            "macro_f1": 0.8884073032006805
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9456066945606695,
+            "macro_f1": 0.6382841406995996
+          }
+        },
+        "mean_source_macro_f1": 0.76334572195014,
+        "minimum_source_macro_f1": 0.6382841406995996
+      },
+      "kf_deberta_lora_stacker": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8494623655913979,
+            "macro_f1": 0.8452780965756469
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.950836820083682,
+            "macro_f1": 0.6561272609154148
+          }
+        },
+        "mean_source_macro_f1": 0.7507026787455309,
+        "minimum_source_macro_f1": 0.6561272609154148
+      },
+      "kf_deberta_lora_calibrated": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.886021505376344,
+            "macro_f1": 0.8863302134443849
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9456066945606695,
+            "macro_f1": 0.6522152864177404
+          }
+        },
+        "mean_source_macro_f1": 0.7692727499310626,
+        "minimum_source_macro_f1": 0.6522152864177404
+      }
+    },
+    "test_used_for_selection": false,
+    "operational_gold_used_for_selection": false,
+    "tie_break": "news-macro-f1,news-accuracy,plain-adapter",
+    "calibration": {
+      "method": "source-logit-bias-grid/v1",
+      "fit_partition": "CALIBRATION",
+      "source_biases": {
+        "NEWS": {
+          "NEGATIVE": -0.25,
+          "NEUTRAL": 0.0,
+          "POSITIVE": 0.75
+        },
+        "DISCLOSURE": {
+          "NEGATIVE": 1.0,
+          "NEUTRAL": 0.0,
+          "POSITIVE": -0.75
+        }
+      },
+      "fit_metrics": {
+        "NEWS": {
+          "sample_count": 467.0,
+          "accuracy": 0.892933618843683,
+          "macro_f1": 0.893452335839937
+        },
+        "DISCLOSURE": {
+          "sample_count": 957.0,
+          "accuracy": 0.9529780564263323,
+          "macro_f1": 0.7074441766193207
+        }
+      }
+    },
+    "candidate_frozen_before_current_evaluation": true,
+    "artifact_historically_exposed_to_public_test": true,
+    "historical_public_test_exposure_disclosed": true
   },
   "models": {
     "hannah_tfidf_logistic": {
-      "accuracy": 0.4780278670953912,
-      "macro_f1": 0.44232297951476274,
+      "accuracy": 0.47746781115879827,
+      "macro_f1": 0.4414572078536055,
       "confusion_matrix": {
         "NEGATIVE": {
           "NEGATIVE": 78,
@@ -21,7 +167,7 @@
         },
         "NEUTRAL": {
           "NEGATIVE": 7,
-          "NEUTRAL": 90,
+          "NEUTRAL": 89,
           "POSITIVE": 214
         },
         "POSITIVE": {
@@ -38,10 +184,10 @@
           "support": 311
         },
         "NEUTRAL": {
-          "precision": 0.5084745762711864,
-          "recall": 0.28938906752411575,
-          "f1": 0.36885245901639346,
-          "support": 311
+          "precision": 0.5056818181818182,
+          "recall": 0.2870967741935484,
+          "f1": 0.3662551440329218,
+          "support": 310
         },
         "POSITIVE": {
           "precision": 0.4174174174174174,
@@ -50,11 +196,11 @@
           "support": 311
         }
       },
-      "elapsed_seconds": 1.395144
+      "elapsed_seconds": 1.237291
     },
     "kr_finbert_sc": {
-      "accuracy": 0.7363344051446945,
-      "macro_f1": 0.7271624759857328,
+      "accuracy": 0.7360515021459227,
+      "macro_f1": 0.7265929558130395,
       "confusion_matrix": {
         "NEGATIVE": {
           "NEGATIVE": 269,
@@ -63,7 +209,7 @@
         },
         "NEUTRAL": {
           "NEGATIVE": 23,
-          "NEUTRAL": 144,
+          "NEUTRAL": 143,
           "POSITIVE": 144
         },
         "POSITIVE": {
@@ -80,10 +226,10 @@
           "support": 311
         },
         "NEUTRAL": {
-          "precision": 0.7422680412371134,
-          "recall": 0.4630225080385852,
-          "f1": 0.5702970297029702,
-          "support": 311
+          "precision": 0.7409326424870466,
+          "recall": 0.4612903225806452,
+          "f1": 0.5685884691848907,
+          "support": 310
         },
         "POSITIVE": {
           "precision": 0.6241457858769932,
@@ -92,11 +238,11 @@
           "support": 311
         }
       },
-      "elapsed_seconds": 9.497956
+      "elapsed_seconds": 10.060133
     },
     "kf_deberta_lora": {
-      "accuracy": 0.8853161843515541,
-      "macro_f1": 0.8850250763430297,
+      "accuracy": 0.8851931330472103,
+      "macro_f1": 0.884872188677242,
       "confusion_matrix": {
         "NEGATIVE": {
           "NEGATIVE": 298,
@@ -105,7 +251,7 @@
         },
         "NEUTRAL": {
           "NEGATIVE": 13,
-          "NEUTRAL": 276,
+          "NEUTRAL": 275,
           "POSITIVE": 22
         },
         "POSITIVE": {
@@ -122,10 +268,10 @@
           "support": 311
         },
         "NEUTRAL": {
-          "precision": 0.8189910979228486,
-          "recall": 0.887459807073955,
-          "f1": 0.8518518518518519,
-          "support": 311
+          "precision": 0.8184523809523809,
+          "recall": 0.8870967741935484,
+          "f1": 0.8513931888544891,
+          "support": 310
         },
         "POSITIVE": {
           "precision": 0.9064748201438849,
@@ -134,11 +280,11 @@
           "support": 311
         }
       },
-      "elapsed_seconds": 15.046832
+      "elapsed_seconds": 12.203465
     },
     "kf_deberta_lora_ensemble": {
-      "accuracy": 0.8842443729903537,
-      "macro_f1": 0.8839830041996367,
+      "accuracy": 0.8841201716738197,
+      "macro_f1": 0.883830116533849,
       "confusion_matrix": {
         "NEGATIVE": {
           "NEGATIVE": 297,
@@ -147,7 +293,7 @@
         },
         "NEUTRAL": {
           "NEGATIVE": 13,
-          "NEUTRAL": 276,
+          "NEUTRAL": 275,
           "POSITIVE": 22
         },
         "POSITIVE": {
@@ -164,10 +310,10 @@
           "support": 311
         },
         "NEUTRAL": {
-          "precision": 0.8189910979228486,
-          "recall": 0.887459807073955,
-          "f1": 0.8518518518518519,
-          "support": 311
+          "precision": 0.8184523809523809,
+          "recall": 0.8870967741935484,
+          "f1": 0.8513931888544891,
+          "support": 310
         },
         "POSITIVE": {
           "precision": 0.9032258064516129,
@@ -179,43 +325,85 @@
       "transformer_weight": 0.8,
       "baseline_weight": 0.2
     },
-    "kf_deberta_lora_stacker": {
-      "accuracy": 0.8821007502679529,
-      "macro_f1": 0.8820262420757777,
+    "kf_deberta_lora_calibrated": {
+      "accuracy": 0.8723175965665236,
+      "macro_f1": 0.8724327338491467,
       "confusion_matrix": {
         "NEGATIVE": {
-          "NEGATIVE": 295,
+          "NEGATIVE": 293,
           "NEUTRAL": 11,
-          "POSITIVE": 5
+          "POSITIVE": 7
         },
         "NEUTRAL": {
-          "NEGATIVE": 12,
-          "NEUTRAL": 274,
-          "POSITIVE": 25
+          "NEGATIVE": 10,
+          "NEUTRAL": 262,
+          "POSITIVE": 38
         },
         "POSITIVE": {
-          "NEGATIVE": 7,
-          "NEUTRAL": 50,
-          "POSITIVE": 254
+          "NEGATIVE": 6,
+          "NEUTRAL": 47,
+          "POSITIVE": 258
         }
       },
       "label_metrics": {
         "NEGATIVE": {
-          "precision": 0.9394904458598726,
-          "recall": 0.9485530546623794,
-          "f1": 0.944,
+          "precision": 0.948220064724919,
+          "recall": 0.9421221864951769,
+          "f1": 0.9451612903225807,
           "support": 311
         },
         "NEUTRAL": {
-          "precision": 0.817910447761194,
-          "recall": 0.8810289389067524,
-          "f1": 0.848297213622291,
-          "support": 311
+          "precision": 0.81875,
+          "recall": 0.8451612903225807,
+          "f1": 0.8317460317460318,
+          "support": 310
         },
         "POSITIVE": {
-          "precision": 0.8943661971830986,
-          "recall": 0.8167202572347267,
-          "f1": 0.853781512605042,
+          "precision": 0.8514851485148515,
+          "recall": 0.8295819935691319,
+          "f1": 0.8403908794788274,
+          "support": 311
+        }
+      },
+      "calibration": "source-logit-bias-grid/v1"
+    },
+    "kf_deberta_lora_stacker": {
+      "accuracy": 0.8390557939914163,
+      "macro_f1": 0.833054205814475,
+      "confusion_matrix": {
+        "NEGATIVE": {
+          "NEGATIVE": 303,
+          "NEUTRAL": 3,
+          "POSITIVE": 5
+        },
+        "NEUTRAL": {
+          "NEGATIVE": 19,
+          "NEUTRAL": 190,
+          "POSITIVE": 101
+        },
+        "POSITIVE": {
+          "NEGATIVE": 7,
+          "NEUTRAL": 15,
+          "POSITIVE": 289
+        }
+      },
+      "label_metrics": {
+        "NEGATIVE": {
+          "precision": 0.9209726443768997,
+          "recall": 0.9742765273311897,
+          "f1": 0.946875,
+          "support": 311
+        },
+        "NEUTRAL": {
+          "precision": 0.9134615384615384,
+          "recall": 0.6129032258064516,
+          "f1": 0.7335907335907336,
+          "support": 310
+        },
+        "POSITIVE": {
+          "precision": 0.7316455696202532,
+          "recall": 0.9292604501607717,
+          "f1": 0.8186968838526912,
           "support": 311
         }
       },
@@ -224,42 +412,42 @@
   },
   "operational_gold": {
     "real_disclosure_gold": {
-      "accuracy": 0.9233333333333333,
-      "macro_f1": 0.8343921853959096,
+      "accuracy": 0.915,
+      "macro_f1": 0.8083642151792865,
       "confusion_matrix": {
         "NEGATIVE": {
-          "NEGATIVE": 51,
-          "NEUTRAL": 4,
+          "NEGATIVE": 50,
+          "NEUTRAL": 5,
           "POSITIVE": 0
         },
         "NEUTRAL": {
-          "NEGATIVE": 3,
-          "NEUTRAL": 472,
+          "NEGATIVE": 2,
+          "NEUTRAL": 473,
           "POSITIVE": 0
         },
         "POSITIVE": {
           "NEGATIVE": 0,
-          "NEUTRAL": 39,
-          "POSITIVE": 31
+          "NEUTRAL": 44,
+          "POSITIVE": 26
         }
       },
       "label_metrics": {
         "NEGATIVE": {
-          "precision": 0.9444444444444444,
-          "recall": 0.9272727272727272,
-          "f1": 0.9357798165137615,
+          "precision": 0.9615384615384616,
+          "recall": 0.9090909090909091,
+          "f1": 0.9345794392523364,
           "support": 55
         },
         "NEUTRAL": {
-          "precision": 0.916504854368932,
-          "recall": 0.9936842105263158,
-          "f1": 0.9535353535353536,
+          "precision": 0.9061302681992337,
+          "recall": 0.9957894736842106,
+          "f1": 0.9488465396188566,
           "support": 475
         },
         "POSITIVE": {
           "precision": 1.0,
-          "recall": 0.44285714285714284,
-          "f1": 0.6138613861386139,
+          "recall": 0.37142857142857144,
+          "f1": 0.5416666666666666,
           "support": 70
         }
       },
@@ -268,42 +456,42 @@
       "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
     },
     "real_news_gold": {
-      "accuracy": 0.9,
-      "macro_f1": 0.8642135642135642,
+      "accuracy": 0.8625,
+      "macro_f1": 0.8307781649245065,
       "confusion_matrix": {
         "NEGATIVE": {
-          "NEGATIVE": 19,
-          "NEUTRAL": 1,
+          "NEGATIVE": 18,
+          "NEUTRAL": 2,
           "POSITIVE": 0
         },
         "NEUTRAL": {
           "NEGATIVE": 3,
-          "NEUTRAL": 11,
-          "POSITIVE": 3
+          "NEUTRAL": 12,
+          "POSITIVE": 2
         },
         "POSITIVE": {
           "NEGATIVE": 0,
-          "NEUTRAL": 1,
-          "POSITIVE": 42
+          "NEUTRAL": 4,
+          "POSITIVE": 39
         }
       },
       "label_metrics": {
         "NEGATIVE": {
-          "precision": 0.8636363636363636,
-          "recall": 0.95,
-          "f1": 0.9047619047619048,
+          "precision": 0.8571428571428571,
+          "recall": 0.9,
+          "f1": 0.8780487804878049,
           "support": 20
         },
         "NEUTRAL": {
-          "precision": 0.8461538461538461,
-          "recall": 0.6470588235294118,
-          "f1": 0.7333333333333333,
+          "precision": 0.6666666666666666,
+          "recall": 0.7058823529411765,
+          "f1": 0.6857142857142857,
           "support": 17
         },
         "POSITIVE": {
-          "precision": 0.9333333333333333,
-          "recall": 0.9767441860465116,
-          "f1": 0.9545454545454546,
+          "precision": 0.9512195121951219,
+          "recall": 0.9069767441860465,
+          "f1": 0.9285714285714286,
           "support": 43
         }
       },
@@ -315,8 +503,8 @@
   "operational_gold_by_model": {
     "real_disclosure_gold": {
       "kf_deberta_lora": {
-        "accuracy": 0.9133333333333333,
-        "macro_f1": 0.8051279190837423,
+        "accuracy": 0.915,
+        "macro_f1": 0.8083642151792865,
         "confusion_matrix": {
           "NEGATIVE": {
             "NEGATIVE": 50,
@@ -324,8 +512,8 @@
             "POSITIVE": 0
           },
           "NEUTRAL": {
-            "NEGATIVE": 3,
-            "NEUTRAL": 472,
+            "NEGATIVE": 2,
+            "NEUTRAL": 473,
             "POSITIVE": 0
           },
           "POSITIVE": {
@@ -336,15 +524,15 @@
         },
         "label_metrics": {
           "NEGATIVE": {
-            "precision": 0.9433962264150944,
+            "precision": 0.9615384615384616,
             "recall": 0.9090909090909091,
-            "f1": 0.9259259259259259,
+            "f1": 0.9345794392523364,
             "support": 55
           },
           "NEUTRAL": {
-            "precision": 0.9059500959692899,
-            "recall": 0.9936842105263158,
-            "f1": 0.9477911646586346,
+            "precision": 0.9061302681992337,
+            "recall": 0.9957894736842106,
+            "f1": 0.9488465396188566,
             "support": 475
           },
           "POSITIVE": {
@@ -359,8 +547,8 @@
         "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
       },
       "kf_deberta_lora_ensemble": {
-        "accuracy": 0.9233333333333333,
-        "macro_f1": 0.8343921853959096,
+        "accuracy": 0.925,
+        "macro_f1": 0.8376323841600439,
         "confusion_matrix": {
           "NEGATIVE": {
             "NEGATIVE": 51,
@@ -368,8 +556,8 @@
             "POSITIVE": 0
           },
           "NEUTRAL": {
-            "NEGATIVE": 3,
-            "NEUTRAL": 472,
+            "NEGATIVE": 2,
+            "NEUTRAL": 473,
             "POSITIVE": 0
           },
           "POSITIVE": {
@@ -380,15 +568,15 @@
         },
         "label_metrics": {
           "NEGATIVE": {
-            "precision": 0.9444444444444444,
+            "precision": 0.9622641509433962,
             "recall": 0.9272727272727272,
-            "f1": 0.9357798165137615,
+            "f1": 0.9444444444444444,
             "support": 55
           },
           "NEUTRAL": {
-            "precision": 0.916504854368932,
-            "recall": 0.9936842105263158,
-            "f1": 0.9535353535353536,
+            "precision": 0.9166666666666666,
+            "recall": 0.9957894736842106,
+            "f1": 0.9545913218970736,
             "support": 475
           },
           "POSITIVE": {
@@ -402,43 +590,87 @@
         "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
         "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
       },
-      "kf_deberta_lora_stacker": {
-        "accuracy": 0.9116666666666666,
-        "macro_f1": 0.8030673099503399,
+      "kf_deberta_lora_calibrated": {
+        "accuracy": 0.88,
+        "macro_f1": 0.6236708817281175,
         "confusion_matrix": {
           "NEGATIVE": {
-            "NEGATIVE": 48,
-            "NEUTRAL": 7,
+            "NEGATIVE": 53,
+            "NEUTRAL": 2,
             "POSITIVE": 0
           },
           "NEUTRAL": {
-            "NEGATIVE": 3,
-            "NEUTRAL": 472,
+            "NEGATIVE": 2,
+            "NEUTRAL": 473,
             "POSITIVE": 0
           },
           "POSITIVE": {
-            "NEGATIVE": 0,
-            "NEUTRAL": 43,
-            "POSITIVE": 27
+            "NEGATIVE": 11,
+            "NEUTRAL": 57,
+            "POSITIVE": 2
           }
         },
         "label_metrics": {
           "NEGATIVE": {
-            "precision": 0.9411764705882353,
-            "recall": 0.8727272727272727,
-            "f1": 0.9056603773584906,
+            "precision": 0.803030303030303,
+            "recall": 0.9636363636363636,
+            "f1": 0.8760330578512396,
             "support": 55
           },
           "NEUTRAL": {
-            "precision": 0.9042145593869731,
-            "recall": 0.9936842105263158,
-            "f1": 0.9468405215646941,
+            "precision": 0.8890977443609023,
+            "recall": 0.9957894736842106,
+            "f1": 0.9394240317775571,
             "support": 475
           },
           "POSITIVE": {
             "precision": 1.0,
-            "recall": 0.38571428571428573,
-            "f1": 0.5567010309278351,
+            "recall": 0.02857142857142857,
+            "f1": 0.05555555555555555,
+            "support": 70
+          }
+        },
+        "sample_count": 600,
+        "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+        "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+      },
+      "kf_deberta_lora_stacker": {
+        "accuracy": 0.895,
+        "macro_f1": 0.7351582383676712,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 50,
+            "NEUTRAL": 5,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 2,
+            "NEUTRAL": 473,
+            "POSITIVE": 0
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 56,
+            "POSITIVE": 14
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.9615384615384616,
+            "recall": 0.9090909090909091,
+            "f1": 0.9345794392523364,
+            "support": 55
+          },
+          "NEUTRAL": {
+            "precision": 0.8857677902621723,
+            "recall": 0.9957894736842106,
+            "f1": 0.9375619425173439,
+            "support": 475
+          },
+          "POSITIVE": {
+            "precision": 1.0,
+            "recall": 0.2,
+            "f1": 0.3333333333333333,
             "support": 70
           }
         },
@@ -449,96 +681,8 @@
     },
     "real_news_gold": {
       "kf_deberta_lora": {
-        "accuracy": 0.8875,
-        "macro_f1": 0.8460791006315996,
-        "confusion_matrix": {
-          "NEGATIVE": {
-            "NEGATIVE": 19,
-            "NEUTRAL": 1,
-            "POSITIVE": 0
-          },
-          "NEUTRAL": {
-            "NEGATIVE": 3,
-            "NEUTRAL": 10,
-            "POSITIVE": 4
-          },
-          "POSITIVE": {
-            "NEGATIVE": 0,
-            "NEUTRAL": 1,
-            "POSITIVE": 42
-          }
-        },
-        "label_metrics": {
-          "NEGATIVE": {
-            "precision": 0.8636363636363636,
-            "recall": 0.95,
-            "f1": 0.9047619047619048,
-            "support": 20
-          },
-          "NEUTRAL": {
-            "precision": 0.8333333333333334,
-            "recall": 0.5882352941176471,
-            "f1": 0.6896551724137931,
-            "support": 17
-          },
-          "POSITIVE": {
-            "precision": 0.9130434782608695,
-            "recall": 0.9767441860465116,
-            "f1": 0.9438202247191011,
-            "support": 43
-          }
-        },
-        "sample_count": 80,
-        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
-        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
-      },
-      "kf_deberta_lora_ensemble": {
-        "accuracy": 0.9,
-        "macro_f1": 0.8642135642135642,
-        "confusion_matrix": {
-          "NEGATIVE": {
-            "NEGATIVE": 19,
-            "NEUTRAL": 1,
-            "POSITIVE": 0
-          },
-          "NEUTRAL": {
-            "NEGATIVE": 3,
-            "NEUTRAL": 11,
-            "POSITIVE": 3
-          },
-          "POSITIVE": {
-            "NEGATIVE": 0,
-            "NEUTRAL": 1,
-            "POSITIVE": 42
-          }
-        },
-        "label_metrics": {
-          "NEGATIVE": {
-            "precision": 0.8636363636363636,
-            "recall": 0.95,
-            "f1": 0.9047619047619048,
-            "support": 20
-          },
-          "NEUTRAL": {
-            "precision": 0.8461538461538461,
-            "recall": 0.6470588235294118,
-            "f1": 0.7333333333333333,
-            "support": 17
-          },
-          "POSITIVE": {
-            "precision": 0.9333333333333333,
-            "recall": 0.9767441860465116,
-            "f1": 0.9545454545454546,
-            "support": 43
-          }
-        },
-        "sample_count": 80,
-        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
-        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
-      },
-      "kf_deberta_lora_stacker": {
         "accuracy": 0.8625,
-        "macro_f1": 0.8106905896645173,
+        "macro_f1": 0.8307781649245065,
         "confusion_matrix": {
           "NEGATIVE": {
             "NEGATIVE": 18,
@@ -547,13 +691,13 @@
           },
           "NEUTRAL": {
             "NEGATIVE": 3,
-            "NEUTRAL": 9,
-            "POSITIVE": 5
+            "NEUTRAL": 12,
+            "POSITIVE": 2
           },
           "POSITIVE": {
             "NEGATIVE": 0,
-            "NEUTRAL": 1,
-            "POSITIVE": 42
+            "NEUTRAL": 4,
+            "POSITIVE": 39
           }
         },
         "label_metrics": {
@@ -564,15 +708,147 @@
             "support": 20
           },
           "NEUTRAL": {
-            "precision": 0.75,
-            "recall": 0.5294117647058824,
-            "f1": 0.6206896551724138,
+            "precision": 0.6666666666666666,
+            "recall": 0.7058823529411765,
+            "f1": 0.6857142857142857,
             "support": 17
           },
           "POSITIVE": {
-            "precision": 0.8936170212765957,
-            "recall": 0.9767441860465116,
-            "f1": 0.9333333333333333,
+            "precision": 0.9512195121951219,
+            "recall": 0.9069767441860465,
+            "f1": 0.9285714285714286,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      },
+      "kf_deberta_lora_ensemble": {
+        "accuracy": 0.875,
+        "macro_f1": 0.8466766796182018,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 18,
+            "NEUTRAL": 2,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 13,
+            "POSITIVE": 1
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 4,
+            "POSITIVE": 39
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.8571428571428571,
+            "recall": 0.9,
+            "f1": 0.8780487804878049,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.6842105263157895,
+            "recall": 0.7647058823529411,
+            "f1": 0.7222222222222222,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.975,
+            "recall": 0.9069767441860465,
+            "f1": 0.9397590361445783,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      },
+      "kf_deberta_lora_calibrated": {
+        "accuracy": 0.85,
+        "macro_f1": 0.8120689655172413,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 17,
+            "NEUTRAL": 2,
+            "POSITIVE": 1
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 11,
+            "POSITIVE": 3
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 3,
+            "POSITIVE": 40
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.85,
+            "recall": 0.85,
+            "f1": 0.85,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.6875,
+            "recall": 0.6470588235294118,
+            "f1": 0.6666666666666666,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.9090909090909091,
+            "recall": 0.9302325581395349,
+            "f1": 0.9195402298850575,
+            "support": 43
+          }
+        },
+        "sample_count": 80,
+        "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+        "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+      },
+      "kf_deberta_lora_stacker": {
+        "accuracy": 0.85,
+        "macro_f1": 0.8075296701242873,
+        "confusion_matrix": {
+          "NEGATIVE": {
+            "NEGATIVE": 18,
+            "NEUTRAL": 2,
+            "POSITIVE": 0
+          },
+          "NEUTRAL": {
+            "NEGATIVE": 3,
+            "NEUTRAL": 10,
+            "POSITIVE": 4
+          },
+          "POSITIVE": {
+            "NEGATIVE": 0,
+            "NEUTRAL": 3,
+            "POSITIVE": 40
+          }
+        },
+        "label_metrics": {
+          "NEGATIVE": {
+            "precision": 0.8571428571428571,
+            "recall": 0.9,
+            "f1": 0.8780487804878049,
+            "support": 20
+          },
+          "NEUTRAL": {
+            "precision": 0.6666666666666666,
+            "recall": 0.5882352941176471,
+            "f1": 0.625,
+            "support": 17
+          },
+          "POSITIVE": {
+            "precision": 0.9090909090909091,
+            "recall": 0.9302325581395349,
+            "f1": 0.9195402298850575,
             "support": 43
           }
         },
@@ -586,43 +862,50 @@
     "protocol": {
       "paired_bootstrap_samples": 2000,
       "seed": 20260713,
-      "mcnemar": "exact two-sided"
+      "mcnemar": "exact two-sided",
+      "candidate_selection_partition": "PUBLIC_VALIDATION_SELECTION",
+      "test_used_for_candidate_selection": false,
+      "historical_test_reuse": true,
+      "confirmatory_claim_allowed": false,
+      "inference_scope": "고정 예측의 대응비교는 유효하나 과거 반복 조회된 공개 Test이므로 새 독립 확증 집합에 대한 전역적 SOTA 주장으로 해석하지 않는다."
     },
     "candidate_vs_kr_finbert_sc": {
       "accuracy_difference_95_ci": {
-        "mean": 0.1475573419078242,
-        "low": 0.11682743837084664,
-        "high": 0.17899249732047162
+        "mean": 0.14868347639484977,
+        "low": 0.11695278969957079,
+        "high": 0.18133047210300424
       },
       "macro_f1_difference_95_ci": {
-        "mean": 0.1566153543625085,
-        "low": 0.12619772599421208,
-        "high": 0.187702085132051
+        "mean": 0.15795046395678744,
+        "low": 0.12653103553748535,
+        "high": 0.18986601723277752
       },
       "mcnemar_exact": {
         "reference_only_correct": 59,
-        "candidate_only_correct": 197,
-        "p_value": 1.5148606060610167e-18
+        "candidate_only_correct": 198,
+        "p_value": 9.81093047543724e-19
       },
-      "statistically_significant_macro_f1_gain": true
+      "fixed_prediction_interval_excludes_zero": true,
+      "confirmatory_significance_claim_allowed": false
     },
     "candidate_vs_hana_tfidf_logistic": {
       "accuracy_difference_95_ci": {
-        "mean": 0.40618703108252946,
-        "low": 0.367631296891747,
-        "high": 0.4437299035369775
+        "mean": 0.4077559012875536,
+        "low": 0.3701716738197425,
+        "high": 0.44635193133047213
       },
       "macro_f1_difference_95_ci": {
-        "mean": 0.4420252159830909,
-        "low": 0.4033067515493129,
-        "high": 0.48023394209159037
+        "mean": 0.44380203035132304,
+        "low": 0.4054505011168882,
+        "high": 0.48159510516309384
       },
       "mcnemar_exact": {
         "reference_only_correct": 57,
-        "candidate_only_correct": 436,
-        "p_value": 2.3730753867631607e-73
+        "candidate_only_correct": 437,
+        "p_value": 1.3408475287141655e-73
       },
-      "statistically_significant_macro_f1_gain": true
+      "fixed_prediction_interval_excludes_zero": true,
+      "confirmatory_significance_claim_allowed": false
     }
   },
   "deployment_gate": {
@@ -631,8 +914,10 @@
     "must_match_or_exceed_reference": "snunlp/KR-FinBERT-SC",
     "minimum_operational_gold_accuracy": 0.9,
     "minimum_operational_gold_macro_f1": 0.8,
-    "candidate_model": "kf_deberta_lora_ensemble",
-    "eligible": true,
-    "decision": "DEPLOY_HANA_MONTANA_AI"
+    "candidate_model": "kf_deberta_lora",
+    "candidate_locked_before_current_evaluation": true,
+    "historical_public_test_reuse_accepted_for_regression_gate_only": true,
+    "eligible": false,
+    "decision": "KEEP_CURRENT_MODEL"
   }
 }

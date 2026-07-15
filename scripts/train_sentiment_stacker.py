@@ -7,6 +7,7 @@ from collections import Counter
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
 import joblib
 import numpy as np
@@ -18,15 +19,23 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
+from hannah_montana_ai.services.sentiment_calibration import apply_source_logit_bias
 from hannah_montana_ai.services.sentiment_stacker import (
     FEATURE_VERSION,
     LABEL_ORDER,
     build_stacker_features,
 )
-from hannah_montana_ai.training.dataset import load_labeled_alerts
+from hannah_montana_ai.training.sentiment_protocol import (
+    decontaminate_public_partitions,
+    load_disclosure_domain_partitions,
+    stratified_hash_split,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_VALIDATION = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_val.csv"
+PUBLIC_TRAIN = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_train.csv"
+PUBLIC_TEST = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_test.csv"
+DISCLOSURE_DOMAIN_DATASET = PROJECT_ROOT / "data/training/financial_alert_full_content_gold.jsonl"
 BASELINE_MODEL = PROJECT_ROOT / "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"
 ADAPTER_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
 OUTPUT_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/sentiment_stacker.joblib"
@@ -54,15 +63,20 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=20260713)
     args = parser.parse_args()
 
-    rows, excluded_overlap_count = load_calibration_rows(args.public_validation)
+    prepared = load_protocol_rows(args.public_validation)
+    rows = prepared["CALIBRATION"]
+    selection_rows = prepared["SELECTION"]
+    all_rows = rows + selection_rows
     baseline = MachineLearningFinancialNlpModel(args.baseline_model)
-    baseline_probabilities = [baseline.sentiment_probabilities(row["text"]) for row in rows]
+    baseline_probabilities = [baseline.sentiment_probabilities(row["text"]) for row in all_rows]
     transformer_probabilities = predict_transformer_probabilities(
-        [row["text"] for row in rows],
+        [row["text"] for row in all_rows],
         adapter_path=args.adapter_path,
         batch_size=args.batch_size,
         max_length=args.max_length,
     )
+    calibration_baseline = baseline_probabilities[: len(rows)]
+    calibration_transformer = transformer_probabilities[: len(rows)]
     features = np.asarray(
         [
             build_stacker_features(
@@ -73,8 +87,8 @@ def main() -> None:
             )
             for row, transformer, baseline_row in zip(
                 rows,
-                transformer_probabilities,
-                baseline_probabilities,
+                calibration_transformer,
+                calibration_baseline,
                 strict=True,
             )
         ],
@@ -94,6 +108,58 @@ def main() -> None:
         "macro_f1": float(f1_score(targets, cross_validated, labels=LABEL_ORDER, average="macro")),
     }
     model.fit(features, targets)
+    selection_baseline = baseline_probabilities[len(rows) :]
+    selection_transformer = transformer_probabilities[len(rows) :]
+    selection_features = np.asarray(
+        [
+            build_stacker_features(
+                transformer,
+                baseline_row,
+                row["text"],
+                row["source_type"],
+            )
+            for row, transformer, baseline_row in zip(
+                selection_rows,
+                selection_transformer,
+                selection_baseline,
+                strict=True,
+            )
+        ],
+        dtype=np.float64,
+    )
+    stacker_probabilities = [
+        {str(label): float(value) for label, value in zip(model.classes_, values, strict=True)}
+        for values in model.predict_proba(selection_features)
+    ]
+    ensemble_probabilities = [
+        {label: 0.8 * transformer[label] + 0.2 * baseline_row[label] for label in LABEL_ORDER}
+        for transformer, baseline_row in zip(selection_transformer, selection_baseline, strict=True)
+    ]
+    source_biases, calibration_metrics = _select_source_biases(
+        rows,
+        calibration_transformer,
+    )
+    calibrated_probabilities = [
+        apply_source_logit_bias(probabilities, row["source_type"], source_biases)
+        for row, probabilities in zip(selection_rows, selection_transformer, strict=True)
+    ]
+    selection_metrics = _selection_metrics(
+        selection_rows,
+        {
+            "kf_deberta_lora": selection_transformer,
+            "kf_deberta_lora_ensemble": ensemble_probabilities,
+            "kf_deberta_lora_stacker": stacker_probabilities,
+            "kf_deberta_lora_calibrated": calibrated_probabilities,
+        },
+    )
+    locked_candidate = max(
+        selection_metrics,
+        key=lambda name: (
+            float(selection_metrics[name]["by_source"]["NEWS"]["macro_f1"]),
+            float(selection_metrics[name]["by_source"]["NEWS"]["accuracy"]),
+            name == "kf_deberta_lora",
+        ),
+    )
     version = f"sentiment-stacker-logreg-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
     payload = {
         "version": version,
@@ -109,27 +175,39 @@ def main() -> None:
         "sha256": file_sha256(args.output_path),
     }
     report = {
-        "schema_version": "sentiment-stacker-training/v1",
+        "schema_version": "sentiment-stacker-training/v2",
         "version": version,
         "feature_version": FEATURE_VERSION,
         "sample_count": len(rows),
         "transformer_max_length": args.max_length,
         "calibration_protocol": (
-            "KF-DeBERTa 학습 문장을 제외한 공개 VALIDATION으로만 결합기를 학습하고 "
-            "공개 TEST는 최종 평가까지 봉인한다."
+            "공개 VALIDATION과 2026 공시 약지도를 각각 Calibration/Selection으로 "
+            "해시 분할하고 Calibration으로만 결합기를 학습한다."
         ),
         "source_distribution": dict(sorted(Counter(row["dataset"] for row in rows).items())),
         "label_distribution": dict(sorted(Counter(targets.tolist()).items())),
-        "excluded_evaluation_overlap_count": excluded_overlap_count,
+        "candidate_selection": {
+            "locked_candidate": locked_candidate,
+            "selection_partition": "PUBLIC_VALIDATION_SELECTION",
+            "diagnostic_partition": "DISCLOSURE_2026_SELECTION_WEAK_LABEL",
+            "selection_metrics": selection_metrics,
+            "test_used_for_selection": False,
+            "operational_gold_used_for_selection": False,
+            "tie_break": "news-macro-f1,news-accuracy,plain-adapter",
+            "calibration": {
+                "method": "source-logit-bias-grid/v1",
+                "fit_partition": "CALIBRATION",
+                "source_biases": source_biases,
+                "fit_metrics": calibration_metrics,
+            },
+        },
+        "protocol_audit": prepared["AUDIT"],
         "cross_validation": cross_validation,
         "artifact": artifact,
         "limitations": [
-            "스태커 교차검증은 결합기 보정 성능이며 독립 Test 성능을 대신하지 않는다.",
-            (
-                "기반 모델 조기종료에도 같은 공개 VALIDATION을 사용했으므로 "
-                "최종 성능은 TEST만 판정한다."
-            ),
-            "최종 승격은 공개 Test와 운영 Gold를 함께 평가하는 별도 benchmark가 결정한다.",
+            "스태커 교차검증은 Calibration 내부 성능이며 Selection 성능을 대신하지 않는다.",
+            "공시 Selection 라벨은 약지도이므로 독립 전문가 Gold를 대신하지 않는다.",
+            "공개 Test와 운영 Gold는 고정 후보의 최종 gate에만 사용한다.",
         ],
     }
     args.report_path.write_text(
@@ -139,34 +217,131 @@ def main() -> None:
     print(json.dumps(report, ensure_ascii=False))
 
 
-def load_calibration_rows(public_validation: Path) -> tuple[list[dict[str, str]], int]:
-    evaluation_texts = {
-        sample.text for path in EVALUATION_PATHS for sample in load_labeled_alerts(path)
+def load_protocol_rows(public_validation: Path) -> dict[str, Any]:
+    public, public_audit = decontaminate_public_partitions(
+        {
+            "TRAIN": _load_public_rows(PUBLIC_TRAIN),
+            "VALIDATION": _load_public_rows(public_validation),
+            "TEST": _load_public_rows(PUBLIC_TEST),
+        }
+    )
+    public_split = stratified_hash_split(
+        public["VALIDATION"], left_name="CALIBRATION", right_name="SELECTION"
+    )
+    disclosure, disclosure_audit = load_disclosure_domain_partitions(
+        DISCLOSURE_DOMAIN_DATASET,
+        EVALUATION_PATHS,
+    )
+    calibration = [
+        {**row, "source_type": "NEWS", "dataset": "public_validation_calibration"}
+        for row in public_split["CALIBRATION"]
+    ] + [{**row, "dataset": "disclosure_2026_calibration"} for row in disclosure["CALIBRATION"]]
+    selection = [
+        {**row, "source_type": "NEWS", "dataset": "public_validation_selection"}
+        for row in public_split["SELECTION"]
+    ] + [{**row, "dataset": "disclosure_2026_selection"} for row in disclosure["SELECTION"]]
+    return {
+        "CALIBRATION": calibration,
+        "SELECTION": selection,
+        "AUDIT": {
+            "public": public_audit,
+            "disclosure": disclosure_audit,
+            "partition_count": {
+                "CALIBRATION": len(calibration),
+                "SELECTION": len(selection),
+            },
+        },
     }
-    rows: list[dict[str, str]] = []
-    with public_validation.open(encoding="utf-8-sig", newline="") as file:
-        rows.extend(
-            {
-                "text": row["document"],
-                "label": SOURCE_LABEL[row["label"]],
-                "source_type": "NEWS",
-                "dataset": "public_validation",
-            }
+
+
+def _load_public_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8-sig", newline="") as file:
+        return [
+            {"text": row["document"], "label": SOURCE_LABEL[row["label"]]}
             for row in csv.DictReader(file, delimiter="\t")
-            if row.get("document")
-            and row.get("label") in SOURCE_LABEL
-            and row["document"] not in evaluation_texts
-        )
-    unique: dict[str, dict[str, str]] = {}
-    conflicts: set[str] = set()
-    for row in rows:
-        previous = unique.get(row["text"])
-        if previous is not None and previous["label"] != row["label"]:
-            conflicts.add(row["text"])
-        else:
-            unique[row["text"]] = row
-    result = [row for text, row in unique.items() if text not in conflicts]
-    return result, len(rows) - len(result)
+            if row.get("document") and row.get("label") in SOURCE_LABEL
+        ]
+
+
+def _selection_metrics(
+    rows: list[dict[str, str]],
+    probability_sets: dict[str, list[dict[str, float]]],
+) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for model_name, probabilities in probability_sets.items():
+        by_source: dict[str, dict[str, float | int]] = {}
+        for source_type in ("NEWS", "DISCLOSURE"):
+            indices = [index for index, row in enumerate(rows) if row["source_type"] == source_type]
+            expected = [rows[index]["label"] for index in indices]
+            predicted = [
+                max(probabilities[index], key=probabilities[index].__getitem__) for index in indices
+            ]
+            by_source[source_type] = {
+                "sample_count": len(indices),
+                "accuracy": float(accuracy_score(expected, predicted)),
+                "macro_f1": float(
+                    f1_score(
+                        expected,
+                        predicted,
+                        labels=LABEL_ORDER,
+                        average="macro",
+                        zero_division=0,
+                    )
+                ),
+            }
+        source_macro = [float(metrics["macro_f1"]) for metrics in by_source.values()]
+        result[model_name] = {
+            "by_source": by_source,
+            "mean_source_macro_f1": sum(source_macro) / len(source_macro),
+            "minimum_source_macro_f1": min(source_macro),
+        }
+    return result
+
+
+def _select_source_biases(
+    rows: list[dict[str, str]],
+    probabilities: list[dict[str, float]],
+) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, float]]]:
+    grid = (-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0)
+    source_biases: dict[str, dict[str, float]] = {}
+    metrics: dict[str, dict[str, float]] = {}
+    for source_type in ("NEWS", "DISCLOSURE"):
+        indices = [index for index, row in enumerate(rows) if row["source_type"] == source_type]
+        expected = [rows[index]["label"] for index in indices]
+        candidates: list[tuple[float, float, float, dict[str, float], list[str]]] = []
+        for negative_bias in grid:
+            for positive_bias in grid:
+                biases = {
+                    "NEGATIVE": negative_bias,
+                    "NEUTRAL": 0.0,
+                    "POSITIVE": positive_bias,
+                }
+                predicted = []
+                for index in indices:
+                    calibrated = apply_source_logit_bias(
+                        probabilities[index], source_type, {source_type: biases}
+                    )
+                    predicted.append(max(calibrated, key=calibrated.__getitem__))
+                macro_f1 = float(
+                    f1_score(
+                        expected,
+                        predicted,
+                        labels=LABEL_ORDER,
+                        average="macro",
+                        zero_division=0,
+                    )
+                )
+                accuracy = float(accuracy_score(expected, predicted))
+                magnitude = abs(negative_bias) + abs(positive_bias)
+                candidates.append((macro_f1, accuracy, -magnitude, biases, predicted))
+        macro_f1, accuracy, _, biases, _ = max(candidates, key=lambda row: row[:3])
+        source_biases[source_type] = biases
+        metrics[source_type] = {
+            "sample_count": len(indices),
+            "accuracy": accuracy,
+            "macro_f1": macro_f1,
+        }
+    return source_biases, metrics
 
 
 def predict_transformer_probabilities(

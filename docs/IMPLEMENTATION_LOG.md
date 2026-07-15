@@ -1,5 +1,16 @@
 # 구현 기록
 
+## 2026-07-15 · 감성 비교 누수 감사와 fail-closed 재학습
+
+- 공개 감성 Train/Validation/Test를 NFKC·대소문자·영숫자 정규화 기준으로 재감사해 내부 중복·충돌을 제거하고 Test→Validation→Train 우선순위로 분할 간 중복 13건을 Train에서 제외했다. 최종 분할은 7,407 / 932 / 932건이다.
+- Validation을 Calibration 467건과 Selection 465건으로 결정론적으로 나누고 후보를 Selection에서 잠근 뒤에만 Test·운영 Gold를 평가하도록 학습·stacker·benchmark 계약을 변경했다. 과거 benchmark의 Test 최고점 후보 선택 로직을 제거했다.
+- 잠근 KF-DeBERTa LoRA는 동일 Test에서 Macro-F1 0.8849로 KR-FinBERT-SC 0.7266보다 0.1580 높았고 paired bootstrap 95% CI `[0.1265, 0.1899]`, exact McNemar `p=9.81e-19`였다.
+- 공개 Test가 과거 후보 선택과 개발 중 반복 조회된 사실을 보고서에 `historical_test_reuse=true`로 고정했다. 이 결과는 고정 예측의 대응 재현 비교이며 독립 확증 또는 전역 SOTA 주장이 아니다.
+- 후보가 이번 평가 전에 고정된 사실과 어댑터 계보가 과거 Test에 노출된 사실을 분리했다. 적응적 재사용으로 bootstrap 구간과 McNemar p값의 명목 오류율이 보장되지 않으므로 확증적 유의성 주장을 기계적으로 차단한다.
+- 약지도 공시 8,976건에서 모든 운영 Gold URL·정규화 제목을 제외하고 중복·충돌을 제거해 6,488건을 구성했다. 2026년 구간을 Calibration 957 / Selection 956으로 분리했으며 약한 공시 라벨은 운영 Gold와 불일치해 후보 선택이 아닌 진단에만 사용한다.
+- 공시 적응, 균형 공개 replay, 보존 학습과 source logit bias·stacker를 실제 실험했다. 공시 양성 재현율 개선과 뉴스 회귀가 맞바뀌어 엄격한 운영 gate를 통과한 후보가 없었으며 기존 어댑터를 복원했다.
+- 최종 잠근 LoRA의 실제 공시 Gold는 Accuracy 0.9150 / Macro-F1 0.8084, 뉴스 Gold는 0.8625 / 0.8308이다. 뉴스 Accuracy 0.90 gate 실패로 보고서 결정은 `KEEP_CURRENT_MODEL`이고 서비스는 기존 모델로 fail closed한다.
+
 ## 2026-07-15 · 논문 동료 검토 반영
 
 - 한글 초록을 연구 목적과 실험 결과가 분리되도록 재구성하고, 영문 초록도 같은 주장 범위를 유지하도록 동기화했다.

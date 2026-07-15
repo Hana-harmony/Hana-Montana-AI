@@ -637,7 +637,7 @@ class AlertAnalyzer:
     def _sentiment_probabilities(self, text: str, source_type: str = "NEWS") -> dict[str, float]:
         baseline = self.model.sentiment_probabilities(text)
         transformer = (
-            self.sentiment_transformer.probabilities(text)
+            self.sentiment_transformer.probabilities(text, source_type)
             if self.sentiment_transformer.enabled
             else None
         )
@@ -1300,6 +1300,9 @@ class AlertAnalyzer:
         return sorted(tag_set)
 
     def _augment_sentiment(self, text: str, sentiment: Sentiment) -> Sentiment:
+        # 검증된 Transformer 판단은 키워드 규칙으로 덮어쓰지 않는다.
+        if self.sentiment_transformer.enabled:
+            return sentiment
         return apply_financial_sentiment_policy(text, sentiment)
 
     def _has_mixed_market_sentiment(self, text: str) -> bool:
