@@ -1,7 +1,7 @@
 {
   "schema_version": "hannah-ai-model-audit/v2",
-  "generated_at": "2026-07-15T04:48:02.017976+00:00",
-  "overall_status": "pass",
+  "generated_at": "2026-07-15T08:55:08.112472+00:00",
+  "overall_status": "conditional_pass",
   "models": [
     {
       "name": "financial_news_disclosure_classifier",
@@ -27,7 +27,7 @@
       "version": "kf-deberta-finance-sentiment-lora-20260713102924",
       "model_type": "KF-DeBERTa base + LoRA finance sentiment classifier",
       "serving_surface": "news/disclosure sentiment analysis",
-      "release_status": "DEPLOY_HANA_MONTANA_AI",
+      "release_status": "KEEP_CURRENT_MODEL",
       "training_samples": 18139,
       "evaluation": {
         "validation": {
@@ -50,8 +50,8 @@
         },
         "independent_benchmark": {
           "hannah_tfidf_logistic": {
-            "accuracy": 0.4780278670953912,
-            "macro_f1": 0.44232297951476274,
+            "accuracy": 0.47746781115879827,
+            "macro_f1": 0.4414572078536055,
             "confusion_matrix": {
               "NEGATIVE": {
                 "NEGATIVE": 78,
@@ -60,7 +60,7 @@
               },
               "NEUTRAL": {
                 "NEGATIVE": 7,
-                "NEUTRAL": 90,
+                "NEUTRAL": 89,
                 "POSITIVE": 214
               },
               "POSITIVE": {
@@ -77,10 +77,10 @@
                 "support": 311
               },
               "NEUTRAL": {
-                "precision": 0.5084745762711864,
-                "recall": 0.28938906752411575,
-                "f1": 0.36885245901639346,
-                "support": 311
+                "precision": 0.5056818181818182,
+                "recall": 0.2870967741935484,
+                "f1": 0.3662551440329218,
+                "support": 310
               },
               "POSITIVE": {
                 "precision": 0.4174174174174174,
@@ -89,11 +89,11 @@
                 "support": 311
               }
             },
-            "elapsed_seconds": 1.395144
+            "elapsed_seconds": 1.237291
           },
           "kr_finbert_sc": {
-            "accuracy": 0.7363344051446945,
-            "macro_f1": 0.7271624759857328,
+            "accuracy": 0.7360515021459227,
+            "macro_f1": 0.7265929558130395,
             "confusion_matrix": {
               "NEGATIVE": {
                 "NEGATIVE": 269,
@@ -102,7 +102,7 @@
               },
               "NEUTRAL": {
                 "NEGATIVE": 23,
-                "NEUTRAL": 144,
+                "NEUTRAL": 143,
                 "POSITIVE": 144
               },
               "POSITIVE": {
@@ -119,10 +119,10 @@
                 "support": 311
               },
               "NEUTRAL": {
-                "precision": 0.7422680412371134,
-                "recall": 0.4630225080385852,
-                "f1": 0.5702970297029702,
-                "support": 311
+                "precision": 0.7409326424870466,
+                "recall": 0.4612903225806452,
+                "f1": 0.5685884691848907,
+                "support": 310
               },
               "POSITIVE": {
                 "precision": 0.6241457858769932,
@@ -131,11 +131,11 @@
                 "support": 311
               }
             },
-            "elapsed_seconds": 9.497956
+            "elapsed_seconds": 10.060133
           },
           "kf_deberta_lora": {
-            "accuracy": 0.8853161843515541,
-            "macro_f1": 0.8850250763430297,
+            "accuracy": 0.8851931330472103,
+            "macro_f1": 0.884872188677242,
             "confusion_matrix": {
               "NEGATIVE": {
                 "NEGATIVE": 298,
@@ -144,7 +144,7 @@
               },
               "NEUTRAL": {
                 "NEGATIVE": 13,
-                "NEUTRAL": 276,
+                "NEUTRAL": 275,
                 "POSITIVE": 22
               },
               "POSITIVE": {
@@ -161,10 +161,10 @@
                 "support": 311
               },
               "NEUTRAL": {
-                "precision": 0.8189910979228486,
-                "recall": 0.887459807073955,
-                "f1": 0.8518518518518519,
-                "support": 311
+                "precision": 0.8184523809523809,
+                "recall": 0.8870967741935484,
+                "f1": 0.8513931888544891,
+                "support": 310
               },
               "POSITIVE": {
                 "precision": 0.9064748201438849,
@@ -173,11 +173,11 @@
                 "support": 311
               }
             },
-            "elapsed_seconds": 15.046832
+            "elapsed_seconds": 12.203465
           },
           "kf_deberta_lora_ensemble": {
-            "accuracy": 0.8842443729903537,
-            "macro_f1": 0.8839830041996367,
+            "accuracy": 0.8841201716738197,
+            "macro_f1": 0.883830116533849,
             "confusion_matrix": {
               "NEGATIVE": {
                 "NEGATIVE": 297,
@@ -186,7 +186,7 @@
               },
               "NEUTRAL": {
                 "NEGATIVE": 13,
-                "NEUTRAL": 276,
+                "NEUTRAL": 275,
                 "POSITIVE": 22
               },
               "POSITIVE": {
@@ -203,10 +203,10 @@
                 "support": 311
               },
               "NEUTRAL": {
-                "precision": 0.8189910979228486,
-                "recall": 0.887459807073955,
-                "f1": 0.8518518518518519,
-                "support": 311
+                "precision": 0.8184523809523809,
+                "recall": 0.8870967741935484,
+                "f1": 0.8513931888544891,
+                "support": 310
               },
               "POSITIVE": {
                 "precision": 0.9032258064516129,
@@ -218,43 +218,85 @@
             "transformer_weight": 0.8,
             "baseline_weight": 0.2
           },
-          "kf_deberta_lora_stacker": {
-            "accuracy": 0.8821007502679529,
-            "macro_f1": 0.8820262420757777,
+          "kf_deberta_lora_calibrated": {
+            "accuracy": 0.8723175965665236,
+            "macro_f1": 0.8724327338491467,
             "confusion_matrix": {
               "NEGATIVE": {
-                "NEGATIVE": 295,
+                "NEGATIVE": 293,
                 "NEUTRAL": 11,
-                "POSITIVE": 5
+                "POSITIVE": 7
               },
               "NEUTRAL": {
-                "NEGATIVE": 12,
-                "NEUTRAL": 274,
-                "POSITIVE": 25
+                "NEGATIVE": 10,
+                "NEUTRAL": 262,
+                "POSITIVE": 38
               },
               "POSITIVE": {
-                "NEGATIVE": 7,
-                "NEUTRAL": 50,
-                "POSITIVE": 254
+                "NEGATIVE": 6,
+                "NEUTRAL": 47,
+                "POSITIVE": 258
               }
             },
             "label_metrics": {
               "NEGATIVE": {
-                "precision": 0.9394904458598726,
-                "recall": 0.9485530546623794,
-                "f1": 0.944,
+                "precision": 0.948220064724919,
+                "recall": 0.9421221864951769,
+                "f1": 0.9451612903225807,
                 "support": 311
               },
               "NEUTRAL": {
-                "precision": 0.817910447761194,
-                "recall": 0.8810289389067524,
-                "f1": 0.848297213622291,
-                "support": 311
+                "precision": 0.81875,
+                "recall": 0.8451612903225807,
+                "f1": 0.8317460317460318,
+                "support": 310
               },
               "POSITIVE": {
-                "precision": 0.8943661971830986,
-                "recall": 0.8167202572347267,
-                "f1": 0.853781512605042,
+                "precision": 0.8514851485148515,
+                "recall": 0.8295819935691319,
+                "f1": 0.8403908794788274,
+                "support": 311
+              }
+            },
+            "calibration": "source-logit-bias-grid/v1"
+          },
+          "kf_deberta_lora_stacker": {
+            "accuracy": 0.8390557939914163,
+            "macro_f1": 0.833054205814475,
+            "confusion_matrix": {
+              "NEGATIVE": {
+                "NEGATIVE": 303,
+                "NEUTRAL": 3,
+                "POSITIVE": 5
+              },
+              "NEUTRAL": {
+                "NEGATIVE": 19,
+                "NEUTRAL": 190,
+                "POSITIVE": 101
+              },
+              "POSITIVE": {
+                "NEGATIVE": 7,
+                "NEUTRAL": 15,
+                "POSITIVE": 289
+              }
+            },
+            "label_metrics": {
+              "NEGATIVE": {
+                "precision": 0.9209726443768997,
+                "recall": 0.9742765273311897,
+                "f1": 0.946875,
+                "support": 311
+              },
+              "NEUTRAL": {
+                "precision": 0.9134615384615384,
+                "recall": 0.6129032258064516,
+                "f1": 0.7335907335907336,
+                "support": 310
+              },
+              "POSITIVE": {
+                "precision": 0.7316455696202532,
+                "recall": 0.9292604501607717,
+                "f1": 0.8186968838526912,
                 "support": 311
               }
             },
@@ -263,42 +305,42 @@
         },
         "operational_gold": {
           "real_disclosure_gold": {
-            "accuracy": 0.9233333333333333,
-            "macro_f1": 0.8343921853959096,
+            "accuracy": 0.915,
+            "macro_f1": 0.8083642151792865,
             "confusion_matrix": {
               "NEGATIVE": {
-                "NEGATIVE": 51,
-                "NEUTRAL": 4,
+                "NEGATIVE": 50,
+                "NEUTRAL": 5,
                 "POSITIVE": 0
               },
               "NEUTRAL": {
-                "NEGATIVE": 3,
-                "NEUTRAL": 472,
+                "NEGATIVE": 2,
+                "NEUTRAL": 473,
                 "POSITIVE": 0
               },
               "POSITIVE": {
                 "NEGATIVE": 0,
-                "NEUTRAL": 39,
-                "POSITIVE": 31
+                "NEUTRAL": 44,
+                "POSITIVE": 26
               }
             },
             "label_metrics": {
               "NEGATIVE": {
-                "precision": 0.9444444444444444,
-                "recall": 0.9272727272727272,
-                "f1": 0.9357798165137615,
+                "precision": 0.9615384615384616,
+                "recall": 0.9090909090909091,
+                "f1": 0.9345794392523364,
                 "support": 55
               },
               "NEUTRAL": {
-                "precision": 0.916504854368932,
-                "recall": 0.9936842105263158,
-                "f1": 0.9535353535353536,
+                "precision": 0.9061302681992337,
+                "recall": 0.9957894736842106,
+                "f1": 0.9488465396188566,
                 "support": 475
               },
               "POSITIVE": {
                 "precision": 1.0,
-                "recall": 0.44285714285714284,
-                "f1": 0.6138613861386139,
+                "recall": 0.37142857142857144,
+                "f1": 0.5416666666666666,
                 "support": 70
               }
             },
@@ -307,42 +349,42 @@
             "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
           },
           "real_news_gold": {
-            "accuracy": 0.9,
-            "macro_f1": 0.8642135642135642,
+            "accuracy": 0.8625,
+            "macro_f1": 0.8307781649245065,
             "confusion_matrix": {
               "NEGATIVE": {
-                "NEGATIVE": 19,
-                "NEUTRAL": 1,
+                "NEGATIVE": 18,
+                "NEUTRAL": 2,
                 "POSITIVE": 0
               },
               "NEUTRAL": {
                 "NEGATIVE": 3,
-                "NEUTRAL": 11,
-                "POSITIVE": 3
+                "NEUTRAL": 12,
+                "POSITIVE": 2
               },
               "POSITIVE": {
                 "NEGATIVE": 0,
-                "NEUTRAL": 1,
-                "POSITIVE": 42
+                "NEUTRAL": 4,
+                "POSITIVE": 39
               }
             },
             "label_metrics": {
               "NEGATIVE": {
-                "precision": 0.8636363636363636,
-                "recall": 0.95,
-                "f1": 0.9047619047619048,
+                "precision": 0.8571428571428571,
+                "recall": 0.9,
+                "f1": 0.8780487804878049,
                 "support": 20
               },
               "NEUTRAL": {
-                "precision": 0.8461538461538461,
-                "recall": 0.6470588235294118,
-                "f1": 0.7333333333333333,
+                "precision": 0.6666666666666666,
+                "recall": 0.7058823529411765,
+                "f1": 0.6857142857142857,
                 "support": 17
               },
               "POSITIVE": {
-                "precision": 0.9333333333333333,
-                "recall": 0.9767441860465116,
-                "f1": 0.9545454545454546,
+                "precision": 0.9512195121951219,
+                "recall": 0.9069767441860465,
+                "f1": 0.9285714285714286,
                 "support": 43
               }
             },
@@ -352,8 +394,8 @@
           }
         }
       },
-      "gate_status": "pass",
-      "remaining_risk": "공개 감성 데이터와 실제 운영 뉴스의 분포 차이는 지속적인 시간 외삽 Gold로 감시한다."
+      "gate_status": "fail",
+      "remaining_risk": "공개 Test는 과거 반복 조회되어 독립 확증셋이 아니며 실제 뉴스 Gold accuracy 0.90 gate도 미달했다. 새 기간의 미열람 Gold가 필요하다."
     },
     {
       "name": "disclosure_semantic_importance_classifier",
@@ -1292,6 +1334,7 @@
     }
   ],
   "required_next_improvements": [
+    "과거 공개 Test와 겹치지 않는 새 기간 감성 confirmatory set을 독립 라벨링하고 후보 동결 뒤 한 번만 평가한다.",
     "공시 의미 중요도 Gold를 독립 금융 전문가 2인 이상으로 재주석하고 합의도를 보고한다.",
     "장중 시세와 과거 가격 문맥을 분리된 후속 실험에 추가해 텍스트 단독 시장영향 한계를 검증한다."
   ]

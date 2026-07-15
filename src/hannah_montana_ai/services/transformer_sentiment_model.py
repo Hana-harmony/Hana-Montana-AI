@@ -8,6 +8,7 @@ from typing import Any
 from hannah_montana_ai.services.model_artifact_integrity import (
     verify_artifact_manifest,
 )
+from hannah_montana_ai.services.sentiment_calibration import apply_source_logit_bias
 
 BASE_MODEL = "kakaobank/kf-deberta-base"
 BASE_MODEL_REVISION = "363b171d71443b0874b0bf9cea053eb5b1650633"
@@ -26,6 +27,7 @@ class KfDebertaSentimentModel:
         self.version = "kf-deberta-sentiment-unavailable"
         self.max_length = 192
         self.transformer_weight = 0.8
+        self.source_biases: dict[str, dict[str, float]] = {}
         self._torch: Any = None
         self._tokenizer: Any = None
         self._model: Any = None
@@ -84,11 +86,29 @@ class KfDebertaSentimentModel:
         self._model = model
         self.max_length = int(training_report.get("max_length", 192))
         candidate_name = str(benchmark_report.get("deployment_gate", {}).get("candidate_model", ""))
-        self.transformer_weight = 1.0 if candidate_name == "kf_deberta_lora" else 0.8
+        self.transformer_weight = (
+            1.0 if candidate_name in {"kf_deberta_lora", "kf_deberta_lora_calibrated"} else 0.8
+        )
+        if candidate_name == "kf_deberta_lora_calibrated":
+            configured = (
+                benchmark_report.get("candidate_selection", {})
+                .get("calibration", {})
+                .get("source_biases", {})
+            )
+            if isinstance(configured, dict):
+                self.source_biases = {
+                    str(source_type).upper(): {
+                        str(label): float(bias)
+                        for label, bias in biases.items()
+                        if isinstance(bias, int | float)
+                    }
+                    for source_type, biases in configured.items()
+                    if isinstance(biases, dict)
+                }
         self.version = str(training_report["version"])
         self.enabled = True
 
-    def probabilities(self, text: str) -> dict[str, float] | None:
+    def probabilities(self, text: str, source_type: str = "NEWS") -> dict[str, float] | None:
         if not self.enabled or self._model is None:
             return None
         encoded = self._tokenizer(
@@ -100,10 +120,11 @@ class KfDebertaSentimentModel:
         with self._torch.inference_mode():
             logits = self._model(**encoded).logits[0]
             values = self._torch.softmax(logits, dim=-1).cpu().tolist()
-        return {
+        probabilities = {
             label: float(probability)
             for label, probability in zip(LABEL_ORDER, values, strict=True)
         }
+        return apply_source_logit_bias(probabilities, source_type, self.source_biases)
 
 
 def _deployment_gate_passed(
@@ -120,11 +141,18 @@ def _deployment_gate_passed(
         candidate_name,
         models.get("kf_deberta_lora_ensemble", models.get("kf_deberta_lora", {})),
     )
+    selection = benchmark_report.get("candidate_selection", {})
     return (
         int(test.get("sample_count", 0)) >= 900
         and float(test.get("macro_f1", 0.0)) >= 0.85
         and int(benchmark_report.get("sample_count", 0)) >= 900
         and float(benchmark.get("macro_f1", 0.0)) >= 0.85
+        and gate.get("candidate_locked_before_current_evaluation") is True
+        and selection.get("candidate_frozen_before_current_evaluation") is True
+        and selection.get("historical_public_test_exposure_disclosed") is True
+        and isinstance(selection.get("artifact_historically_exposed_to_public_test"), bool)
+        and selection.get("test_used_for_selection") is False
+        and selection.get("operational_gold_used_for_selection") is False
         and gate.get("eligible") is True
     )
 

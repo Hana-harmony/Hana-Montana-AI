@@ -28,6 +28,14 @@ from transformers import (
 
 from hannah_montana_ai.services.model_artifact_integrity import build_artifact_manifest
 from hannah_montana_ai.training.dataset import load_labeled_alerts
+from hannah_montana_ai.training.sentiment_protocol import (
+    conflict_safe_deduplicate,
+    decontaminate_public_partitions,
+    label_distribution,
+    load_disclosure_domain_partitions,
+    normalized_sentiment_text,
+    stratified_hash_split,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BASE_MODEL = "kakaobank/kf-deberta-base"
@@ -36,6 +44,7 @@ DATASET_REVISION = "7a8dc8cf6548a08e0a5dab3a12ad0fb8dccfd23f"
 DEFAULT_DATASET = PROJECT_ROOT / "data/external/kf_deberta_benchmark"
 DEFAULT_OUTPUT = PROJECT_ROOT / "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/kf-deberta-sentiment-training-report.json"
+DISCLOSURE_DOMAIN_DATASET = PROJECT_ROOT / "data/training/financial_alert_full_content_gold.jsonl"
 OPERATIONAL_TRAINING_PATHS = (
     PROJECT_ROOT / "data/training/financial_alert_augmented.jsonl",
     PROJECT_ROOT / "data/training/financial_alert_corpus.jsonl",
@@ -82,6 +91,8 @@ def main() -> None:
     parser.add_argument("--dataset-dir", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT)
+    parser.add_argument("--parent-adapter-path", type=Path)
+    parser.add_argument("--parent-report-path", type=Path)
     parser.add_argument("--max-length", type=int, default=192)
     parser.add_argument("--epochs", type=float, default=3.0)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -89,28 +100,47 @@ def main() -> None:
     parser.add_argument("--max-rows", type=int)
     parser.add_argument("--gradient-checkpointing", action="store_true")
     parser.add_argument("--domain-adaptation", action="store_true")
+    parser.add_argument("--public-replay-limit", type=int, default=6_000)
+    parser.add_argument("--disclosure-per-label-limit", type=int, default=800)
+    parser.add_argument("--real-news-replay-multiplier", type=int, default=10)
     args = parser.parse_args()
 
     _set_seed(42)
-    partitions = {
+    raw_partitions = {
         "TRAIN": _load_rows(args.dataset_dir / "ratings_train.csv"),
         "VALIDATION": _load_rows(args.dataset_dir / "ratings_val.csv"),
         "TEST": _load_rows(args.dataset_dir / "ratings_test.csv"),
     }
+    partitions, public_leakage_audit = decontaminate_public_partitions(raw_partitions)
+    public_validation_split = stratified_hash_split(
+        partitions.pop("VALIDATION"),
+        left_name="CALIBRATION",
+        right_name="SELECTION",
+    )
+    partitions.update(public_validation_split)
+    disclosure_partitions, disclosure_audit = load_disclosure_domain_partitions(
+        DISCLOSURE_DOMAIN_DATASET,
+        OPERATIONAL_EVALUATION_PATHS,
+    )
     operational_rows, excluded_overlap_count = _load_operational_training_rows(
         OPERATIONAL_TRAINING_PATHS,
         OPERATIONAL_EVALUATION_PATHS,
-        partitions["VALIDATION"] + partitions["TEST"],
+        partitions["CALIBRATION"] + partitions["SELECTION"] + partitions["TEST"],
     )
     parent_version = ""
     parent_training_exposure_count = 0
+    disclosure_training_rows = _per_label_limit(
+        disclosure_partitions["TRAIN"], args.disclosure_per_label_limit, seed=79
+    )
     if args.domain_adaptation:
-        metadata_path = args.output_dir / "hannah_metadata.json"
+        parent_adapter_path = args.parent_adapter_path or args.output_dir
+        parent_report_path = args.parent_report_path or args.report_path
+        metadata_path = parent_adapter_path / "hannah_metadata.json"
         if not metadata_path.exists():
             raise SystemExit("도메인 적응에는 기존 검증 어댑터가 필요하다.")
         parent_version = str(json.loads(metadata_path.read_text())["version"])
-        if args.report_path.exists():
-            parent_report = json.loads(args.report_path.read_text())
+        if parent_report_path.exists():
+            parent_report = json.loads(parent_report_path.read_text())
             parent_training_exposure_count = int(
                 parent_report.get(
                     "cumulative_training_exposure_count",
@@ -120,19 +150,22 @@ def main() -> None:
         real_news_rows, _ = _load_operational_training_rows(
             (PROJECT_ROOT / "data/training/financial_alert_real_news_gold.jsonl",),
             OPERATIONAL_EVALUATION_PATHS,
-            partitions["VALIDATION"] + partitions["TEST"],
+            partitions["CALIBRATION"] + partitions["SELECTION"] + partitions["TEST"],
         )
         real_news_texts = {row["text"] for row in real_news_rows}
         other_operational_rows = [
             row for row in operational_rows if row["text"] not in real_news_texts
         ]
         partitions["TRAIN"] = (
-            _stratified_limit(partitions["TRAIN"], 1_866, seed=71)
+            _stratified_limit(partitions["TRAIN"], args.public_replay_limit, seed=71)
             + _stratified_limit(other_operational_rows, 1_200, seed=73)
-            + real_news_rows * 10
+            + real_news_rows * args.real_news_replay_multiplier
+            + disclosure_training_rows
         )
     else:
-        partitions["TRAIN"] = _deduplicate_rows(partitions["TRAIN"] + operational_rows)
+        partitions["TRAIN"] = _deduplicate_rows(
+            partitions["TRAIN"] + operational_rows + disclosure_training_rows
+        )
     if args.max_rows:
         partitions = {
             name: _stratified_limit(rows, args.max_rows, seed=42 + index)
@@ -154,7 +187,7 @@ def main() -> None:
     if args.domain_adaptation:
         model = PeftModel.from_pretrained(
             model,
-            args.output_dir,
+            args.parent_adapter_path or args.output_dir,
             is_trainable=True,
             use_safetensors=True,
         )
@@ -207,7 +240,7 @@ def main() -> None:
             dataloader_pin_memory=False,
         ),
         train_dataset=datasets["TRAIN"],
-        eval_dataset=datasets["VALIDATION"],
+        eval_dataset=datasets["CALIBRATION"],
         data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
         processing_class=tokenizer,
         compute_loss_func=_loss_function(class_weights),
@@ -216,13 +249,27 @@ def main() -> None:
     )
     trainer.train()
     trainer.remove_callback(EarlyStoppingCallback)
-    validation = _clean_metrics(trainer.evaluate(datasets["VALIDATION"]))
-    test = _clean_metrics(trainer.evaluate(datasets["TEST"], metric_key_prefix="test"))
-    validation["sample_count"] = len(datasets["VALIDATION"])
+    validation = _clean_metrics(trainer.evaluate(datasets["CALIBRATION"]), "eval")
+    selection = _clean_metrics(
+        trainer.evaluate(datasets["SELECTION"], metric_key_prefix="selection"),
+        "selection",
+    )
+    test = _clean_metrics(trainer.evaluate(datasets["TEST"], metric_key_prefix="test"), "test")
+    disclosure_selection_dataset = EncodedSentimentDataset(
+        disclosure_partitions["SELECTION"], tokenizer, args.max_length
+    )
+    disclosure_selection = _clean_metrics(
+        trainer.evaluate(disclosure_selection_dataset, metric_key_prefix="disclosure_selection"),
+        "disclosure_selection",
+    )
+    validation["sample_count"] = len(datasets["CALIBRATION"])
+    selection["sample_count"] = len(datasets["SELECTION"])
     test["sample_count"] = len(datasets["TEST"])
+    disclosure_selection["sample_count"] = len(disclosure_selection_dataset)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    trainer.model.save_pretrained(args.output_dir, safe_serialization=True)
+    trained_model: Any = trainer.model
+    trained_model.save_pretrained(args.output_dir, safe_serialization=True)
     tokenizer.save_pretrained(args.output_dir)
     artifact_files = build_artifact_manifest(
         args.output_dir,
@@ -278,7 +325,34 @@ def main() -> None:
             for path in OPERATIONAL_TRAINING_PATHS
         },
         "operational_training_count": len(operational_rows),
+        "domain_replay": {
+            "public_limit": args.public_replay_limit,
+            "real_news_multiplier": args.real_news_replay_multiplier,
+        },
         "excluded_evaluation_overlap_count": excluded_overlap_count,
+        "public_partition_leakage_audit": public_leakage_audit,
+        "public_validation_protocol": {
+            "method": "label-stratified-normalized-text-sha256/v1",
+            "calibration_partition": "CALIBRATION",
+            "candidate_selection_partition": "SELECTION",
+            "test_partition": "TEST",
+        },
+        "disclosure_domain_dataset": {
+            "path": str(DISCLOSURE_DOMAIN_DATASET.relative_to(PROJECT_ROOT)),
+            "label_provenance": "RULE_WEAK_SUPERVISION_V2",
+            "gold_used_for_training": False,
+            "audit": disclosure_audit,
+            "partition_count": {name: len(rows) for name, rows in disclosure_partitions.items()},
+            "training_selection": {
+                "method": "per-label-cap/v1",
+                "per_label_limit": args.disclosure_per_label_limit,
+                "selected_count": len(disclosure_training_rows),
+                "selected_label_distribution": label_distribution(disclosure_training_rows),
+            },
+            "label_distribution": {
+                name: label_distribution(rows) for name, rows in disclosure_partitions.items()
+            },
+        },
         "partition_count": {name: len(rows) for name, rows in partitions.items()},
         "label_distribution": {
             name: dict(Counter(row["label"] for row in rows)) for name, rows in partitions.items()
@@ -288,6 +362,8 @@ def main() -> None:
         ),
         "total_parameter_count": sum(parameter.numel() for parameter in model.parameters()),
         "validation": validation,
+        "selection": selection,
+        "disclosure_selection": disclosure_selection,
         "test": test,
     }
     args.report_path.write_text(
@@ -311,27 +387,23 @@ def _load_operational_training_rows(
     evaluation_paths: tuple[Path, ...],
     public_holdout_rows: list[dict[str, str]],
 ) -> tuple[list[dict[str, str]], int]:
-    holdout_texts = {row["text"] for row in public_holdout_rows}
+    holdout_texts = {normalized_sentiment_text(row["text"]) for row in public_holdout_rows}
     for path in evaluation_paths:
-        holdout_texts.update(sample.text for sample in load_labeled_alerts(path))
+        holdout_texts.update(
+            normalized_sentiment_text(sample.text) for sample in load_labeled_alerts(path)
+        )
     rows = [
         {"text": sample.text, "label": sample.sentiment}
         for path in training_paths
         for sample in load_labeled_alerts(path)
         if sample.sentiment in LABEL_ORDER
     ]
-    filtered = [row for row in rows if row["text"] not in holdout_texts]
+    filtered = [row for row in rows if normalized_sentiment_text(row["text"]) not in holdout_texts]
     return _deduplicate_rows(filtered), len(rows) - len(filtered)
 
 
 def _deduplicate_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    unique: dict[str, dict[str, str]] = {}
-    for row in rows:
-        existing = unique.get(row["text"])
-        if existing is not None and existing["label"] != row["label"]:
-            continue
-        unique[row["text"]] = row
-    return list(unique.values())
+    return conflict_safe_deduplicate(rows)[0]
 
 
 def _loss_function(class_weights: torch.Tensor) -> Any:
@@ -362,7 +434,9 @@ def _class_weights(rows: list[dict[str, str]]) -> torch.Tensor:
 
 def _metrics(prediction: EvalPrediction) -> dict[str, float]:
     expected = prediction.label_ids.astype(int)
-    predicted = np.asarray(prediction.predictions).argmax(axis=-1)
+    raw_predictions = prediction.predictions
+    logits = raw_predictions[0] if isinstance(raw_predictions, tuple) else raw_predictions
+    predicted = np.asarray(logits).argmax(axis=-1)
     return {
         "accuracy": float(accuracy_score(expected, predicted)),
         "macro_f1": float(
@@ -371,9 +445,9 @@ def _metrics(prediction: EvalPrediction) -> dict[str, float]:
     }
 
 
-def _clean_metrics(metrics: dict[str, Any]) -> dict[str, float]:
+def _clean_metrics(metrics: dict[str, Any], prefix: str) -> dict[str, float]:
     return {
-        key.removeprefix("eval_").removeprefix("test_"): float(value)
+        key.removeprefix(f"{prefix}_"): float(value)
         for key, value in metrics.items()
         if key != "epoch" and isinstance(value, int | float)
     }
@@ -390,6 +464,19 @@ def _stratified_limit(rows: list[dict[str, str]], limit: int, seed: int) -> list
         selected.extend(bucket[: max(1, round(limit * len(bucket) / len(rows)))])
     random_generator.shuffle(selected)
     return selected[:limit]
+
+
+def _per_label_limit(
+    rows: list[dict[str, str]], per_label_limit: int, seed: int
+) -> list[dict[str, str]]:
+    random_generator = random.Random(seed)  # noqa: S311
+    selected: list[dict[str, str]] = []
+    for label in LABEL_ORDER:
+        bucket = [row for row in rows if row["label"] == label]
+        random_generator.shuffle(bucket)
+        selected.extend(bucket[:per_label_limit])
+    random_generator.shuffle(selected)
+    return selected
 
 
 def _set_seed(seed: int) -> None:

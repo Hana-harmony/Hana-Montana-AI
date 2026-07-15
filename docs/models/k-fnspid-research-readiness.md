@@ -4,7 +4,7 @@
 
 K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Test, 출처별 강한 기준선, 공시 3개 시드, calibration, paired 통계 검정, ablation, Datasheet, 코드북과 재현 가능한 artifact를 갖췄다. 뉴스와 공시를 하나의 시장영향 모델로 합쳤던 v3의 공시 회귀를 v4 출처별 전문가가 제거했다.
 
-다만 동일 한국 시장영향 코드북의 외부 leaderboard가 없고 Gold가 독립 금융전문가 다중 주석이 아니므로 외부 SOTA 초과나 인간 전문가 수준을 주장할 수 없다. 논문에서 허용되는 주장은 동일 시간 Test에서 출처별 TF-IDF 기준선을 통계적으로 유의하게 넘었다는 범위다.
+다만 동일 한국 시장영향 코드북의 외부 leaderboard가 없고 Gold가 독립 금융전문가 다중 주석이 아니므로 외부 SOTA 초과나 인간 전문가 수준을 주장할 수 없다. 감성 공개 Test도 과거 반복 사용됐다. 논문에서 허용되는 주장은 시장영향의 동일 시간 Test 기준선 우위와 감성의 동일 공개셋 재현 우위까지다.
 
 ## 데이터와 로직 변화
 
@@ -41,9 +41,11 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 
 ## 의미 중요도와 감성
 
-- 감성 공개 Test 933건: KF-DeBERTa LoRA Macro-F1 0.8850, 배포 80:20 앙상블 0.8840, KR-FinBERT-SC 0.7272, Hana TF-IDF 0.4423
-- 실제 뉴스 Gold: Accuracy 0.9000 / Macro-F1 0.8642
-- 공시 감성 Gold 600건: Accuracy 0.9233 / Macro-F1 0.8344
+- 정규화 중복·충돌 제거 감성 공개 Test 932건: 잠근 KF-DeBERTa LoRA Macro-F1 0.8849, 80:20 앙상블 0.8838, KR-FinBERT-SC 0.7266, Hana TF-IDF 0.4415
+- 동일 932개 문서의 LoRA−KR-FinBERT-SC paired bootstrap Macro-F1 차이 0.1580, 95% CI `[0.1265, 0.1899]`, exact McNemar `p=9.81e-19`
+- 실제 뉴스 Gold: Accuracy 0.8625 / Macro-F1 0.8308
+- 공시 감성 Gold 600건: Accuracy 0.9150 / Macro-F1 0.8084
+- 뉴스 Accuracy 0.90 gate 미달로 감성 신규 후보는 미승격하고 기존 모델로 fail closed
 - 공시 의미 중요도 모델 단독 Gold 600건: Accuracy 0.9850 / Macro-F1 0.9470
 - 존속위험 정책 포함 운영 Gold 910건: Accuracy 0.9989 / Macro-F1 0.9962
 
@@ -53,8 +55,8 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 
 - FNSPID는 미국 뉴스 15.7M건·시세 29.7M행·4,775종목으로 K-FNSPID보다 크다. K-FNSPID는 한국 공시, 거래 세션, 종목 alias, 사건 교란과 embargo를 추가한다.
 - FINKRX, FININ, KRX-Bench, CARAG, FinKario는 QA, instruction, information extraction 또는 RAG 과제라 시장영향 4등급과 직접 점수 비교할 수 없다.
-- KF-DeBERTa 금융 감성은 동일 공개 Test에서 비교할 수 있지만, 시장영향에는 동일 라벨·동일 기간의 공인 외부 모델이 없다.
-- 따라서 `SOTA급 방법론과 제출 가능한 평가 harness`는 타당하지만 `외부 SOTA보다 높다`는 표현은 부정확하다.
+- KF-DeBERTa 금융 감성의 동일 공개 Test 대응비교는 유효하지만 해당 Test를 과거 후보 선택과 개발 중 반복 조회해 새 독립 확증 결과로 볼 수 없다. 시장영향에는 동일 라벨·동일 기간의 공인 외부 모델도 없다.
+- 따라서 `동일 공개셋의 고정 예측에서 KR-FinBERT-SC보다 0.1583 높은 재현 결과`는 타당하지만, `통계적으로 유의하게 우월`, `독립 검증된 SOTA` 또는 `외부 SOTA보다 높다`는 표현은 부정확하다. 과거 적응적 Test 사용 때문에 bootstrap 구간과 McNemar p값의 명목 오류율이 보장되지 않는다.
 
 ## 연구 gate
 
@@ -66,6 +68,8 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 | 출처별 비회귀 | 완료 | 뉴스·공시 Macro-F1·QWK 모두 개선 |
 | 공시 반복 시드 | 완료 | seed 17/42/73, Validation 선택 |
 | 통계 검정 | 완료 | 2,000회 행·거래일 bootstrap, exact McNemar |
+| 감성 후보 선택 누수 차단 | 완료 | Validation Calibration/Selection 분리, Test·Gold 선택 금지 |
+| 감성 독립 확증셋 | 미완료 | 공개 Test 과거 반복 사용, 새 기간 미열람 Gold 필요 |
 | calibration | 완료 | ECE·Brier, Validation temperature |
 | artifact 무결성 | 완료 | safetensors, 크기·SHA-256, source metadata |
 | Datasheet·코드북 | 완료 | v4 문서와 release manifest |

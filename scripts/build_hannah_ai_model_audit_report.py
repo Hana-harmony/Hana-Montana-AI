@@ -62,10 +62,7 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
         sentiment_benchmark["deployment_gate"]["eligible"]
         and disclosure_importance["deployment_gate"]["eligible"]
         and disclosure_research["research_gate"]["eligible_for_superiority_claim"]
-        and all(
-            report["deployment_gate"]["eligible"]
-            for report in impact_transformers.values()
-        )
+        and all(report["deployment_gate"]["eligible"] for report in impact_transformers.values())
         and impact_research["research_gate"]["eligible_for_superiority_claim"]
     )
     audit = {
@@ -123,8 +120,8 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "pass" if sentiment_benchmark["deployment_gate"]["eligible"] else "fail"
                 ),
                 "remaining_risk": (
-                    "공개 감성 데이터와 실제 운영 뉴스의 분포 차이는 지속적인 "
-                    "시간 외삽 Gold로 감시한다."
+                    "공개 Test는 과거 반복 조회되어 독립 확증셋이 아니며 실제 뉴스 "
+                    "Gold accuracy 0.90 gate도 미달했다. 새 기간의 미열람 Gold가 필요하다."
                 ),
             },
             {
@@ -181,14 +178,10 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
                     "release_status": impact_transformers[source_type]["deployment_gate"][
                         "decision"
                     ],
-                    "training_samples": impact_baselines[source_type][
-                        "final_training_count"
-                    ],
+                    "training_samples": impact_baselines[source_type]["final_training_count"],
                     "evaluation": {
                         "baseline_test": impact_baselines[source_type]["test"],
-                        "transformer_validation": impact_transformers[source_type][
-                            "validation"
-                        ],
+                        "transformer_validation": impact_transformers[source_type]["validation"],
                         "transformer_test": impact_transformers[source_type]["test"],
                         "source_research": impact_research["source_type"][source_type],
                     },
@@ -275,6 +268,8 @@ def build_hannah_ai_model_audit_report(report_path: Path = REPORT_PATH) -> dict[
             },
         ],
         "required_next_improvements": [
+            "과거 공개 Test와 겹치지 않는 새 기간 감성 confirmatory set을 독립 라벨링하고 "
+            "후보 동결 뒤 한 번만 평가한다.",
             "공시 의미 중요도 Gold를 독립 금융 전문가 2인 이상으로 재주석하고 합의도를 보고한다.",
             "장중 시세와 과거 가격 문맥을 분리된 후속 실험에 추가해 "
             "텍스트 단독 시장영향 한계를 검증한다.",

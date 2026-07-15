@@ -1,31 +1,194 @@
 {
-  "schema_version": "sentiment-stacker-training/v1",
-  "version": "sentiment-stacker-logreg-20260713125639",
+  "schema_version": "sentiment-stacker-training/v2",
+  "version": "sentiment-stacker-logreg-20260715082141",
   "feature_version": "sentiment-stacker-v1",
-  "sample_count": 932,
+  "sample_count": 1424,
   "transformer_max_length": 128,
-  "calibration_protocol": "KF-DeBERTa 학습 문장을 제외한 공개 VALIDATION으로만 결합기를 학습하고 공개 TEST는 최종 평가까지 봉인한다.",
+  "calibration_protocol": "공개 VALIDATION과 2026 공시 약지도를 각각 Calibration/Selection으로 해시 분할하고 Calibration으로만 결합기를 학습한다.",
   "source_distribution": {
-    "public_validation": 932
+    "disclosure_2026_calibration": 957,
+    "public_validation_calibration": 467
   },
   "label_distribution": {
-    "NEGATIVE": 310,
-    "NEUTRAL": 311,
-    "POSITIVE": 311
+    "NEGATIVE": 166,
+    "NEUTRAL": 1050,
+    "POSITIVE": 208
   },
-  "excluded_evaluation_overlap_count": 1,
+  "candidate_selection": {
+    "locked_candidate": "kf_deberta_lora",
+    "selection_partition": "PUBLIC_VALIDATION_SELECTION",
+    "diagnostic_partition": "DISCLOSURE_2026_SELECTION_WEAK_LABEL",
+    "selection_metrics": {
+      "kf_deberta_lora": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8903225806451613,
+            "macro_f1": 0.8905164227250116
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9476987447698745,
+            "macro_f1": 0.6448428737713569
+          }
+        },
+        "mean_source_macro_f1": 0.7676796482481842,
+        "minimum_source_macro_f1": 0.6448428737713569
+      },
+      "kf_deberta_lora_ensemble": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8881720430107527,
+            "macro_f1": 0.8884073032006805
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9456066945606695,
+            "macro_f1": 0.6382841406995996
+          }
+        },
+        "mean_source_macro_f1": 0.76334572195014,
+        "minimum_source_macro_f1": 0.6382841406995996
+      },
+      "kf_deberta_lora_stacker": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.8494623655913979,
+            "macro_f1": 0.8452780965756469
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.950836820083682,
+            "macro_f1": 0.6561272609154148
+          }
+        },
+        "mean_source_macro_f1": 0.7507026787455309,
+        "minimum_source_macro_f1": 0.6561272609154148
+      },
+      "kf_deberta_lora_calibrated": {
+        "by_source": {
+          "NEWS": {
+            "sample_count": 465,
+            "accuracy": 0.886021505376344,
+            "macro_f1": 0.8863302134443849
+          },
+          "DISCLOSURE": {
+            "sample_count": 956,
+            "accuracy": 0.9456066945606695,
+            "macro_f1": 0.6522152864177404
+          }
+        },
+        "mean_source_macro_f1": 0.7692727499310626,
+        "minimum_source_macro_f1": 0.6522152864177404
+      }
+    },
+    "test_used_for_selection": false,
+    "operational_gold_used_for_selection": false,
+    "tie_break": "news-macro-f1,news-accuracy,plain-adapter",
+    "calibration": {
+      "method": "source-logit-bias-grid/v1",
+      "fit_partition": "CALIBRATION",
+      "source_biases": {
+        "NEWS": {
+          "NEGATIVE": -0.25,
+          "NEUTRAL": 0.0,
+          "POSITIVE": 0.75
+        },
+        "DISCLOSURE": {
+          "NEGATIVE": 1.0,
+          "NEUTRAL": 0.0,
+          "POSITIVE": -0.75
+        }
+      },
+      "fit_metrics": {
+        "NEWS": {
+          "sample_count": 467.0,
+          "accuracy": 0.892933618843683,
+          "macro_f1": 0.893452335839937
+        },
+        "DISCLOSURE": {
+          "sample_count": 957.0,
+          "accuracy": 0.9529780564263323,
+          "macro_f1": 0.7074441766193207
+        }
+      }
+    }
+  },
+  "protocol_audit": {
+    "public": {
+      "normalization": "NFKC-casefold-alphanumeric/v1",
+      "holdout_priority": [
+        "TEST",
+        "VALIDATION",
+        "TRAIN"
+      ],
+      "internal": {
+        "TRAIN": {
+          "input_count": 7464,
+          "output_count": 7420,
+          "duplicate_count": 41,
+          "conflicting_text_count": 3,
+          "empty_normalized_text_count": 0
+        },
+        "VALIDATION": {
+          "input_count": 933,
+          "output_count": 932,
+          "duplicate_count": 1,
+          "conflicting_text_count": 0,
+          "empty_normalized_text_count": 0
+        },
+        "TEST": {
+          "input_count": 933,
+          "output_count": 932,
+          "duplicate_count": 0,
+          "conflicting_text_count": 0,
+          "empty_normalized_text_count": 1
+        }
+      },
+      "cross_partition_removed": {
+        "TRAIN": 13,
+        "VALIDATION": 0,
+        "TEST": 0
+      },
+      "final_count": {
+        "TRAIN": 7407,
+        "VALIDATION": 932,
+        "TEST": 932
+      }
+    },
+    "disclosure": {
+      "normalization": "NFKC-casefold-alphanumeric/v1",
+      "temporal_train_max_year": "2025",
+      "calibration_selection_year": "2026",
+      "excluded_gold_url_count": 462,
+      "excluded_gold_normalized_text_count": 471,
+      "deduplication": {
+        "input_count": 8043,
+        "output_count": 6488,
+        "duplicate_count": 1555,
+        "conflicting_text_count": 0,
+        "empty_normalized_text_count": 0
+      }
+    },
+    "partition_count": {
+      "CALIBRATION": 1424,
+      "SELECTION": 1421
+    }
+  },
   "cross_validation": {
-    "accuracy": 0.8873390557939914,
-    "macro_f1": 0.8875160256972129
+    "accuracy": 0.9213483146067416,
+    "macro_f1": 0.8799914061138203
   },
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/sentiment_stacker.joblib",
     "bytes": 1424,
-    "sha256": "0dcad62a9b52cb38cb5d46e56357f7afd827feb4295784065caa3091181bc9ec"
+    "sha256": "a55a850461544205fec804591f67a31537b7c67f1948c7a85a4a3c33d8b054bf"
   },
   "limitations": [
-    "스태커 교차검증은 결합기 보정 성능이며 독립 Test 성능을 대신하지 않는다.",
-    "기반 모델 조기종료에도 같은 공개 VALIDATION을 사용했으므로 최종 성능은 TEST만 판정한다.",
-    "최종 승격은 공개 Test와 운영 Gold를 함께 평가하는 별도 benchmark가 결정한다."
+    "스태커 교차검증은 Calibration 내부 성능이며 Selection 성능을 대신하지 않는다.",
+    "공시 Selection 라벨은 약지도이므로 독립 전문가 Gold를 대신하지 않는다.",
+    "공개 Test와 운영 Gold는 고정 후보의 최종 gate에만 사용한다."
   ]
 }

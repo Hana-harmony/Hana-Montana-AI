@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def load(path: str) -> dict[str, Any]:
-    return json.loads((ROOT / path).read_text(encoding="utf-8"))
+    return cast(dict[str, Any], json.loads((ROOT / path).read_text(encoding="utf-8")))
 
 
 def assert_close(actual: float, expected: float, label: str) -> None:
@@ -41,8 +41,25 @@ def main() -> None:
     if manifest["full_text_source_type_count"]["DISCLOSURE"] != 8_972:
         raise AssertionError("disclosure full-text count changed")
 
-    assert_close(sentiment["models"]["kr_finbert_sc"]["macro_f1"], 0.7272, "KR-FinBERT-SC macro-F1")
-    assert_close(sentiment["models"]["kf_deberta_lora"]["macro_f1"], 0.8850, "KF-DeBERTa macro-F1")
+    if sentiment["sample_count"] != 932:
+        raise AssertionError("decontaminated sentiment test count changed")
+    assert_close(sentiment["models"]["kr_finbert_sc"]["macro_f1"], 0.7266, "KR-FinBERT-SC macro-F1")
+    assert_close(sentiment["models"]["kf_deberta_lora"]["macro_f1"], 0.8849, "KF-DeBERTa macro-F1")
+    protocol = sentiment["statistical_comparison"]["protocol"]
+    if protocol["historical_test_reuse"] is not True:
+        raise AssertionError("historical sentiment test reuse must remain disclosed")
+    if protocol["confirmatory_claim_allowed"] is not False:
+        raise AssertionError("historically reused sentiment Test cannot support confirmation")
+    selection = sentiment["candidate_selection"]
+    if selection["test_used_for_selection"] or selection["operational_gold_used_for_selection"]:
+        raise AssertionError("sentiment candidate selection used Test or operational Gold")
+    if (
+        selection["artifact_historically_exposed_to_public_test"] is not True
+        or selection["historical_public_test_exposure_disclosed"] is not True
+    ):
+        raise AssertionError("historical sentiment artifact exposure must remain explicit")
+    if sentiment["deployment_gate"]["eligible"]:
+        raise AssertionError("sentiment candidate unexpectedly passed the operational gate")
     assert_close(impact["baseline"]["macro_f1"], 0.3210, "market baseline macro-F1")
     assert_close(impact["transformer"]["macro_f1"], 0.3690, "market Transformer macro-F1")
     assert_close(impact["source_type"]["NEWS"]["transformer"]["macro_f1"], 0.3745, "news macro-F1")

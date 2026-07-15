@@ -41,4 +41,5 @@ def test_paired_comparison_detects_clear_candidate_gain() -> None:
 
     assert result["macro_f1_difference_95_ci"]["low"] > 0
     assert result["mcnemar_exact"]["p_value"] < 0.001
-    assert result["statistically_significant_macro_f1_gain"] is True
+    assert result["fixed_prediction_interval_excludes_zero"] is True
+    assert result["confirmatory_significance_claim_allowed"] is False

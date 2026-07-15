@@ -4,7 +4,7 @@
 
 Hana Montana AI(KF-DeBERTa + K-FNSPID)는 한국 뉴스·공시를 종목 인텔리전스로 변환하는 복합 모델이다. 단일 신경망 이름이 아니라 다음 검증된 구성의 서비스 표기명이다.
 
-- 금융 감성: KF-DeBERTa LoRA + TF-IDF Logistic Regression 확률 앙상블
+- 금융 감성: Validation Selection으로 잠근 KF-DeBERTa LoRA 후보와 fail-closed 기존 TF-IDF 모델
 - 의미 중요도·이벤트: 공시 약지도 Validation 선택 Logistic Regression과 제한적 존속위험 정책
 - 시장영향 등급: K-FNSPID v4로 각각 학습한 뉴스·공시 KF-DeBERTa LoRA 전문가
 - 종목 연결: 한국 종목 master·alias 문맥 링커
@@ -44,20 +44,24 @@ Hana Montana AI(KF-DeBERTa + K-FNSPID)는 한국 뉴스·공시를 종목 인텔
 - base model: `kakaobank/kf-deberta-base`
 - revision: `363b171d71443b0874b0bf9cea053eb5b1650633`
 - LoRA: r=16, alpha=32, dropout=0.1
-- 서빙 결합: Transformer 0.8 + TF-IDF 기준선 0.2
-- stacker 실험: 공개 Validation 932건으로만 학습했으나 독립 Test·실제 뉴스 Gold에서 열세라 비활성화
+- 분할: 정규화 중복·충돌 제거 후 공개 Train 7,407 / Validation 932 / Test 932건
+- 선택: Validation을 Calibration 467 / Selection 465로 분리하고 Test·운영 Gold를 보지 않은 Selection에서 단독 LoRA를 잠금
+- stacker·80:20 ensemble·source logit bias: Validation 비교에서 단독 LoRA를 넘지 못하거나 운영 gate를 통과하지 못해 미승격
 
 ### 평가
 
-| 모델 | 공개 Test 933 macro F1 |
+| 모델 | 중복 제거 공개 Test 932 macro F1 |
 | --- | ---: |
-| Hana TF-IDF | 0.4423 |
-| KR-FinBERT-SC | 0.7272 |
-| KF-DeBERTa LoRA | 0.8850 |
-| 배포 80:20 앙상블 | 0.8840 |
-| Logistic stacker | 0.8820 |
+| Hana TF-IDF | 0.4415 |
+| KR-FinBERT-SC | 0.7266 |
+| 잠근 KF-DeBERTa LoRA | 0.8849 |
+| 80:20 앙상블 | 0.8838 |
+| Source-bias 후보 | 0.8724 |
+| Logistic stacker | 0.8331 |
 
-배포 앙상블은 실제 뉴스 Gold 80건에서 accuracy 0.9000 / macro F1 0.8642, 학습 URL과 겹치지 않는 공시 Gold 600건에서 accuracy 0.9233 / macro F1 0.8344를 기록해 강화된 운영 gate도 만족한다. 공개 Test와 운영 Gold의 분포가 다르므로 한 지표로 합산하지 않는다.
+잠근 LoRA와 KR-FinBERT-SC의 동일 문서 paired bootstrap Macro-F1 차이는 0.1580이고 고정 예측 구간은 `[0.1265, 0.1899]`, exact McNemar의 계산값은 `p=9.81e-19`다. 그러나 Test를 과거 후보 선택과 개발 중 반복 조회했으므로 이 구간과 p값의 명목 오류율은 보장되지 않는다. 따라서 기술적 동일셋 재현 차이만 보고하며 확증적 통계 우위, 독립 확증시험 또는 한국 금융 감성 전역 SOTA로 해석하지 않는다.
+
+운영 평가는 실제 뉴스 Gold 80건 Accuracy 0.8625 / Macro-F1 0.8308, 공시 Gold 600건 0.9150 / 0.8084다. 뉴스 Accuracy가 0.90 gate에 미달하므로 신규 Transformer 후보는 `KEEP_CURRENT_MODEL`이고 기존 서비스 모델로 fail closed한다. 공시 적응·균형 replay·보존 학습을 실제 수행했지만 한 운영 분포를 개선할 때 다른 분포가 회귀해 어느 후보도 승격하지 않았다.
 
 ## 공시 의미 중요도 모델
 
@@ -107,6 +111,7 @@ Hana Montana AI(KF-DeBERTa + K-FNSPID)는 한국 뉴스·공시를 종목 인텔
 - macro F1 0.85 이상
 - KR-FinBERT-SC 이상
 - 뉴스·공시 운영 Gold 각각 30건 이상, accuracy 0.90·macro F1 0.80 이상
+- 후보를 Test 전에 Validation Selection에서 잠그고 Test·운영 Gold를 선택에 사용하지 않음
 
 ### 가격반응
 
@@ -126,7 +131,7 @@ Hana Montana AI(KF-DeBERTa + K-FNSPID)는 한국 뉴스·공시를 종목 인텔
 - OpenDART·Naver 자격증명은 로컬 secret 파일에서만 읽고 report에 기록하지 않는다.
 - 검수되지 않은 공시 전문 약한 중요도 라벨은 Gold URL을 제거한 뒤 의미 중요도 후보 학습에만 사용한다. 감성 학습과 Gold 평가 정답에는 사용하지 않는다.
 - 공시 Gold와 전문 학습 URL 중복은 0건이다.
-- 시간 Test는 threshold·전처리 선택에 사용하지 않는다.
+- 현재 파이프라인은 시간 Test를 threshold·전처리·후보 선택에 사용하지 않는다. 단, 공개 감성 Test는 과거 버전에서 반복 사용했으므로 새 독립 확증셋으로 표현하지 않는다.
 - 같은 종목·거래일 다중 사건은 가격반응 학습에서 제외한다.
 - Parquet 6개뿐 아니라 raw/full-content/종목/시세/Gold 원천의 경로·byte·개별/복합 SHA-256이 모두 일치해야 재학습을 허용한다.
 
