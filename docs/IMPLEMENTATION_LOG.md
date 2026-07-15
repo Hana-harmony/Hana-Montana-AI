@@ -11,6 +11,7 @@
 - 연구 평가 bootstrap의 반복 전체 지표 계산을 4x4 혼동행렬 기반 동일 지표 계산으로 교체해 2,000회 평가 시간을 수 분에서 약 27초로 줄이고 동일성 회귀 테스트를 추가했다.
 - 공시 seed 17/42/73의 adapter·전체 report·Test prediction을 서로 다른 경로에 재현하고 report SHA-256까지 집계 manifest에 고정했다. Validation macro F1만으로 seed 17을 선택한 뒤 artifact와 prediction을 무결성 검증해 운영 경로로 원자 승격했다.
 - 뉴스 추가 fine-tuning seed 17은 Validation macro F1 0.3770으로 기존 동결 adapter 0.3823보다 낮아 Test를 읽기 전에 중단했다. Test 성능으로 후보를 고르는 누출을 허용하지 않았다.
+- 운영 컨테이너가 v2 log-prior·temperature 후처리 보고서를 구형 method 문자열로 거부하던 결함을 수정했다. promoted 뉴스·공시 artifact의 출처 gate, 파일 SHA-256, Validation prior와 temperature를 실제 파일로 검사하는 회귀 테스트를 추가하고 두 KF-DeBERTa 전문가가 모두 활성화되는 실추론을 확인했다.
 
 ## 2026-07-15 09:20 KST · 저자 공개본·한글 논문 분리
 
