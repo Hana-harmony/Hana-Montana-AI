@@ -9,7 +9,7 @@ import time
 from collections import Counter
 from hashlib import sha256
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from sklearn.metrics import (
     accuracy_score,
@@ -18,14 +18,16 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
 )
 
-from hannah_montana_ai.domain.schemas import Sentiment
 from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
-from hannah_montana_ai.services.sentiment_policy import apply_financial_sentiment_policy
+from hannah_montana_ai.services.sentiment_calibration import apply_source_logit_bias
 from hannah_montana_ai.services.sentiment_stacker import SentimentStacker
 from hannah_montana_ai.training.dataset import load_labeled_alerts
+from hannah_montana_ai.training.sentiment_protocol import decontaminate_public_partitions
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TEST = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_test.csv"
+DEFAULT_TRAIN = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_train.csv"
+DEFAULT_VALIDATION = PROJECT_ROOT / "data/external/kf_deberta_benchmark/ratings_val.csv"
 DEFAULT_REPORT = PROJECT_ROOT / "reports/korean-finance-sentiment-benchmark.json"
 CURRENT_MODEL_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib"
 ADAPTER_PATH = PROJECT_ROOT / "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
@@ -57,7 +59,14 @@ def main() -> None:
     parser.add_argument("--max-length", type=int, default=128)
     args = parser.parse_args()
 
-    rows = _load_rows(args.test_path)
+    public_partitions, public_leakage_audit = decontaminate_public_partitions(
+        {
+            "TRAIN": _load_rows(DEFAULT_TRAIN),
+            "VALIDATION": _load_rows(DEFAULT_VALIDATION),
+            "TEST": _load_rows(args.test_path),
+        }
+    )
+    rows = public_partitions["TEST"]
     expected = [row["label"] for row in rows]
     texts = [row["text"] for row in rows]
     operational_rows = {
@@ -75,6 +84,12 @@ def main() -> None:
         row["text"] for name in OPERATIONAL_GOLD_PATHS for row in operational_rows[name]
     ]
     results: dict[str, Any] = {}
+    stacker_training_report = json.loads(STACKER_REPORT_PATH.read_text(encoding="utf-8"))
+    source_biases = (
+        stacker_training_report.get("candidate_selection", {})
+        .get("calibration", {})
+        .get("source_biases", {})
+    )
 
     started = time.perf_counter()
     current = MachineLearningFinancialNlpModel(CURRENT_MODEL_PATH)
@@ -125,11 +140,21 @@ def main() -> None:
         "transformer_weight": 0.8,
         "baseline_weight": 0.2,
     }
+    calibrated_probabilities = [
+        apply_source_logit_bias(probabilities, "NEWS", source_biases)
+        for probabilities in external_adapter_probabilities
+    ]
+    calibrated_predictions = [_top_label(row) for row in calibrated_probabilities]
+    results["kf_deberta_lora_calibrated"] = {
+        **_metrics(expected, calibrated_predictions),
+        "calibration": "source-logit-bias-grid/v1",
+    }
 
     stacker = SentimentStacker(STACKER_PATH, STACKER_REPORT_PATH)
     candidate_predictions = {
         "kf_deberta_lora": adapter_predictions,
         "kf_deberta_lora_ensemble": ensemble_predictions,
+        "kf_deberta_lora_calibrated": calibrated_predictions,
     }
     if stacker.enabled:
         stacked_probabilities = [
@@ -170,6 +195,10 @@ def main() -> None:
         probability_sets: dict[str, list[dict[str, float]]] = {
             "kf_deberta_lora": adapter_rows,
             "kf_deberta_lora_ensemble": blended_rows,
+            "kf_deberta_lora_calibrated": [
+                apply_source_logit_bias(row, gold_rows[index]["source_type"], source_biases)
+                for index, row in enumerate(adapter_rows)
+            ],
         }
         if stacker.enabled:
             stacked_rows = [
@@ -194,16 +223,7 @@ def main() -> None:
             model_name: {
                 **_metrics(
                     [row["label"] for row in gold_rows],
-                    [
-                        apply_financial_sentiment_policy(
-                            row["text"], cast(Sentiment, _top_label(probabilities))
-                        )
-                        for row, probabilities in zip(
-                            gold_rows,
-                            model_probabilities,
-                            strict=True,
-                        )
-                    ],
+                    [_top_label(probabilities) for probabilities in model_probabilities],
                 ),
                 "sample_count": size,
                 "path": str(path.relative_to(PROJECT_ROOT)),
@@ -213,26 +233,9 @@ def main() -> None:
         }
         offset += size
 
-    deployable_candidates = [
-        model_name
-        for model_name in (
-            "kf_deberta_lora",
-            "kf_deberta_lora_ensemble",
-            "kf_deberta_lora_stacker",
-        )
-        if model_name in results
-        and float(results[model_name]["macro_f1"]) >= 0.85
-        and all(
-            model_name in model_results
-            and model_results[model_name]["sample_count"] >= 30
-            and float(model_results[model_name]["accuracy"]) >= 0.90
-            and float(model_results[model_name]["macro_f1"]) >= MIN_OPERATIONAL_GOLD_MACRO_F1
-            for model_results in operational_by_model.values()
-        )
-    ]
-    candidate_name = max(
-        deployable_candidates or ["kf_deberta_lora"],
-        key=lambda name: float(results[name]["macro_f1"]),
+    candidate_name = _locked_candidate(
+        stacker_training_report,
+        set(candidate_predictions) & set(results),
     )
     candidate = results[candidate_name]
     reference = results["kr_finbert_sc"]
@@ -253,12 +256,19 @@ def main() -> None:
         )
     )
     report = {
-        "schema_version": "korean-finance-sentiment-benchmark/v1",
+        "schema_version": "korean-finance-sentiment-benchmark/v3",
         "dataset_source": "mssongit/finance-task:fnsentiment:test",
         "test_path": str(args.test_path.relative_to(PROJECT_ROOT)),
         "test_sha256": _sha256(args.test_path),
         "sample_count": len(rows),
         "label_distribution": dict(sorted(Counter(expected).items())),
+        "public_partition_leakage_audit": public_leakage_audit,
+        "candidate_selection": {
+            **stacker_training_report["candidate_selection"],
+            "candidate_frozen_before_current_evaluation": True,
+            "artifact_historically_exposed_to_public_test": True,
+            "historical_public_test_exposure_disclosed": True,
+        },
         "models": results,
         "operational_gold": operational_results,
         "operational_gold_by_model": operational_by_model,
@@ -267,6 +277,16 @@ def main() -> None:
                 "paired_bootstrap_samples": BOOTSTRAP_SAMPLES,
                 "seed": BOOTSTRAP_SEED,
                 "mcnemar": "exact two-sided",
+                "candidate_selection_partition": stacker_training_report["candidate_selection"][
+                    "selection_partition"
+                ],
+                "test_used_for_candidate_selection": False,
+                "historical_test_reuse": True,
+                "confirmatory_claim_allowed": False,
+                "inference_scope": (
+                    "고정 예측의 대응비교는 유효하나 과거 반복 조회된 공개 Test이므로 "
+                    "새 독립 확증 집합에 대한 전역적 SOTA 주장으로 해석하지 않는다."
+                ),
             },
             "candidate_vs_kr_finbert_sc": _paired_comparison(
                 expected,
@@ -286,6 +306,8 @@ def main() -> None:
             "minimum_operational_gold_accuracy": 0.90,
             "minimum_operational_gold_macro_f1": MIN_OPERATIONAL_GOLD_MACRO_F1,
             "candidate_model": candidate_name,
+            "candidate_locked_before_current_evaluation": True,
+            "historical_public_test_reuse_accepted_for_regression_gate_only": True,
             "eligible": eligible,
             "decision": "DEPLOY_HANA_MONTANA_AI" if eligible else "KEEP_CURRENT_MODEL",
         },
@@ -304,6 +326,19 @@ def _load_rows(path: Path) -> list[dict[str, str]]:
             for row in csv.DictReader(file, delimiter="\t")
             if row.get("document") and row.get("label") in SOURCE_LABEL
         ]
+
+
+def _locked_candidate(report: dict[str, Any], available: set[str]) -> str:
+    selection = report.get("candidate_selection", {})
+    candidate = str(selection.get("locked_candidate", ""))
+    if (
+        candidate not in available
+        or selection.get("test_used_for_selection") is not False
+        or selection.get("operational_gold_used_for_selection") is not False
+        or not selection.get("selection_partition")
+    ):
+        raise SystemExit("선택 파티션에서 고정된 감성 후보가 없습니다.")
+    return candidate
 
 
 def _predict_reference(
@@ -497,7 +532,8 @@ def _paired_comparison(
             "candidate_only_correct": candidate_only,
             "p_value": _exact_mcnemar_p_value(reference_only, candidate_only),
         },
-        "statistically_significant_macro_f1_gain": macro_interval["low"] > 0.0,
+        "fixed_prediction_interval_excludes_zero": macro_interval["low"] > 0.0,
+        "confirmatory_significance_claim_allowed": False,
     }
 
 

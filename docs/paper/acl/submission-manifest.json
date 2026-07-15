@@ -15,32 +15,32 @@
       "language": "en",
       "submission_role": "ACL Rolling Review anonymous review",
       "author_identity_visible": false,
-      "abstract_word_count": 161,
-      "main_content_pages": 5,
+      "abstract_word_count": 181,
+      "main_content_pages": 6,
       "total_pages": 7,
       "page_size": "A4",
       "embedded_font_count": 13,
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
       "pdf_path": "output/pdf/k-fnspid-v4-arr-review.pdf",
-      "pdf_bytes": 84121,
-      "pdf_sha256": "88ae4c6dc049fdf107b9f39a6e057a5a843d85b996c16851f22c3e932181c4ac"
+      "pdf_bytes": 85747,
+      "pdf_sha256": "964cb4e170933de5dc5a73a5886bbb5d20cb2f43a30f84d68a836c4f078339fa"
     },
     "author_preprint": {
       "language": "en",
       "submission_role": "non-anonymous author preprint",
       "author_identity_visible": true,
       "author_name": "Sunghyun Choi",
-      "abstract_word_count": 161,
-      "main_content_pages": 5,
+      "abstract_word_count": 181,
+      "main_content_pages": 6,
       "total_pages": 7,
       "page_size": "A4",
       "embedded_font_count": 12,
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 7,
       "pdf_path": "output/pdf/k-fnspid-v4-author-preprint.pdf",
-      "pdf_bytes": 74219,
-      "pdf_sha256": "1da234bdd3e993aa05759de4d6a71e4a09fe408cfa56c40c606af37ef3b9b339"
+      "pdf_bytes": 75434,
+      "pdf_sha256": "c70d6299c9405c351303fc0b4aa01bd1cab2ee73c4fcb37c872c83c942c03997"
     },
     "korean_companion": {
       "language": "ko",
@@ -54,11 +54,12 @@
       "all_fonts_embedded": true,
       "rendered_pages_reviewed": 4,
       "pdf_path": "output/pdf/k-fnspid-v4-ko.pdf",
-      "pdf_bytes": 186891,
-      "pdf_sha256": "a73f53aa866d2a2a0c8beb0327cd6d5580d93a5e2c24fa3c0636ffb373b7353b"
+      "pdf_bytes": 190400,
+      "pdf_sha256": "e88778d7a47d3d9de73d74f74c2975a0b059ac5a1595b15ea534c52d86cb4121"
     }
   },
   "known_scientific_blockers": [
+    "The public sentiment test was repeatedly inspected in earlier development and is not an untouched confirmatory set",
     "No independent multi-expert annotation or inter-annotator agreement",
     "Disclosure QWK improvement has a cluster-bootstrap lower bound close to zero and needs additional periods",
     "No DOI-backed anonymous dataset archive yet"

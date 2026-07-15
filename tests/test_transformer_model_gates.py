@@ -1,6 +1,7 @@
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -26,10 +27,21 @@ from hannah_montana_ai.services.transformer_sentiment_model import (
 
 def test_sentiment_gate_requires_external_benchmark_eligibility() -> None:
     training = {"test": {"sample_count": 933, "macro_f1": 0.91}}
-    benchmark = {
+    benchmark: dict[str, Any] = {
         "sample_count": 933,
         "models": {"kf_deberta_lora": {"macro_f1": 0.90}},
-        "deployment_gate": {"eligible": False},
+        "candidate_selection": {
+            "candidate_frozen_before_current_evaluation": True,
+            "artifact_historically_exposed_to_public_test": True,
+            "historical_public_test_exposure_disclosed": True,
+            "test_used_for_selection": False,
+            "operational_gold_used_for_selection": False,
+        },
+        "deployment_gate": {
+            "eligible": False,
+            "candidate_locked_before_current_evaluation": True,
+            "candidate_model": "kf_deberta_lora",
+        },
     }
 
     assert not sentiment_gate_passed(training, benchmark)
@@ -40,13 +52,24 @@ def test_sentiment_gate_requires_external_benchmark_eligibility() -> None:
 
 def test_sentiment_gate_uses_serving_ensemble_result() -> None:
     training = {"test": {"sample_count": 933, "macro_f1": 0.91}}
-    benchmark = {
+    benchmark: dict[str, Any] = {
         "sample_count": 933,
         "models": {
             "kf_deberta_lora": {"macro_f1": 0.91},
             "kf_deberta_lora_ensemble": {"macro_f1": 0.84},
         },
-        "deployment_gate": {"eligible": True},
+        "candidate_selection": {
+            "candidate_frozen_before_current_evaluation": True,
+            "artifact_historically_exposed_to_public_test": True,
+            "historical_public_test_exposure_disclosed": True,
+            "test_used_for_selection": False,
+            "operational_gold_used_for_selection": False,
+        },
+        "deployment_gate": {
+            "eligible": True,
+            "candidate_locked_before_current_evaluation": True,
+            "candidate_model": "kf_deberta_lora_ensemble",
+        },
     }
 
     assert not sentiment_gate_passed(training, benchmark)
@@ -57,7 +80,7 @@ def test_sentiment_gate_uses_serving_ensemble_result() -> None:
 
 def test_sentiment_gate_uses_declared_stacker_candidate() -> None:
     training = {"test": {"sample_count": 933, "macro_f1": 0.91}}
-    benchmark = {
+    benchmark: dict[str, Any] = {
         "sample_count": 933,
         "models": {
             "kf_deberta_lora_ensemble": {"macro_f1": 0.90},
@@ -65,7 +88,15 @@ def test_sentiment_gate_uses_declared_stacker_candidate() -> None:
         },
         "deployment_gate": {
             "eligible": True,
+            "candidate_locked_before_current_evaluation": True,
             "candidate_model": "kf_deberta_lora_stacker",
+        },
+        "candidate_selection": {
+            "candidate_frozen_before_current_evaluation": True,
+            "artifact_historically_exposed_to_public_test": True,
+            "historical_public_test_exposure_disclosed": True,
+            "test_used_for_selection": False,
+            "operational_gold_used_for_selection": False,
         },
     }
 
@@ -76,7 +107,7 @@ def test_sentiment_gate_uses_declared_stacker_candidate() -> None:
 
 
 def test_impact_gate_requires_large_temporal_test_and_ordinal_quality() -> None:
-    report = {
+    report: dict[str, Any] = {
         "test": {"sample_count": 999, "macro_f1": 0.5, "quadratic_kappa": 0.4},
         "deployment_gate": {"eligible": True},
     }

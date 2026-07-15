@@ -8,7 +8,7 @@
 
 | 과제 | 배포 구성 | 독립 평가 | 상태 |
 | --- | --- | --- | --- |
-| 금융 감성 | KF-DeBERTa LoRA 80% + TF-IDF 20% | 공개 Test Macro-F1 0.8840, 뉴스 Gold Accuracy 0.9000 | pass |
+| 금융 감성 | Validation Selection에서 잠근 KF-DeBERTa LoRA 후보, gate 실패 시 기존 TF-IDF | 중복 제거 공개 Test 932건 Macro-F1 0.8849, 뉴스 Gold Accuracy 0.8625 | fail closed |
 | 공시 의미 중요도 | Validation 선택 제목+요약 모델 + 제한적 존속위험 정책 | 모델 단독 Gold Macro-F1 0.9470, 운영 Gold 0.9962 | pass |
 | 뉴스 시장영향 | K-FNSPID v4 뉴스 KF-DeBERTa 전문가 | Test 9,560건 Accuracy 0.5247 / Macro-F1 0.3745 / QWK 0.4754 | pass |
 | 공시 시장영향 | K-FNSPID v4 공시 KF-DeBERTa 전문가 seed 17 | Test 4,615건 Accuracy 0.4750 / Macro-F1 0.3216 / QWK 0.1550 | pass |
@@ -57,9 +57,17 @@
 
 Gold는 Codex가 공개 코드북, 원문 제목, 대상 종목과 근거 필드를 대조해 검수했다. 사람 금융전문가 다중 주석이나 평가자 간 합의도로 표현하지 않는다. 정책 floor와 같은 코드북의 높은 운영 Gold 점수는 내부 일관성 결과이며 외부 전문가 타당성이나 SOTA 근거가 아니다.
 
+## 금융 감성 방법론 감사
+
+- 공개 원천의 NFKC·대소문자·영숫자 정규화 중복을 제거하고 Test→Validation→Train 순으로 holdout을 보호했다. 최종 분할은 Train 7,407 / Validation 932 / Test 932건이며 Train에서 holdout 중복 13건을 추가 제외했다.
+- 공개 Validation 932건은 결정론적으로 Calibration 467건과 Selection 465건으로 분리했다. 후보 잠금은 Selection만 사용하며 Test와 운영 Gold는 후보 선택에 사용하지 않는다.
+- 잠근 KF-DeBERTa LoRA와 KR-FinBERT-SC를 같은 932개 문서에서 비교한 Macro-F1은 0.8849 대 0.7266이다. 2,000회 paired bootstrap 차이는 0.1580, 95% CI `[0.1265, 0.1899]`, exact McNemar `p=9.81e-19`다.
+- 이 대응비교의 계산은 유효하지만 공개 Test를 과거 후보 선택과 개발 중 반복 조회했으므로 독립 확증시험 또는 전역 SOTA 근거가 아니다. 새 기간·새 라벨러의 미열람 confirmatory set이 필요하다.
+- 실제 뉴스 Gold 80건은 Accuracy 0.8625 / Macro-F1 0.8308, 공시 Gold 600건은 0.9150 / 0.8084다. 뉴스 Accuracy가 0.90 gate에 미달하므로 `KEEP_CURRENT_MODEL`이며 추가학습·stacker·source bias 후보도 승격하지 않았다.
+
 ## SOTA 판정
 
-동일 한국 종목·동일 시장영향 라벨·동일 시간 Test의 외부 leaderboard가 없다. FNSPID, FINKRX, FININ, KRX-Bench, CARAG와 FinKario는 규모 또는 과제가 다르므로 직접 점수 순위를 만들지 않는다. 현재 모델은 최신 방법론과 논문 수준 평가 harness를 갖췄고 내부 기준선을 유의하게 넘지만, 외부 SOTA보다 뛰어나다고 주장하지 않는다.
+동일 한국 종목·동일 시장영향 라벨·동일 시간 Test의 외부 leaderboard가 없다. FNSPID, FINKRX, FININ, KRX-Bench, CARAG와 FinKario는 규모 또는 과제가 다르므로 직접 점수 순위를 만들지 않는다. 감성은 동일 공개 재현셋에서 KR-FinBERT-SC보다 0.1583 높고 고정 예측 bootstrap 구간이 0을 제외하지만, Test의 적응적 반복 사용으로 명목 유의수준이 보장되지 않아 확증적 유의성이나 독립 SOTA를 주장하지 않는다. 시장영향도 내부 기준선 우위만 주장하며 외부 SOTA보다 뛰어나다고 주장하지 않는다.
 
 ## 정본 산출물
 
