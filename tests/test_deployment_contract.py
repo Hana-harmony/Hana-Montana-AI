@@ -30,6 +30,8 @@ def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
     assert "PreferredAuthentications publickey,password" in workflow
     assert "SSH_ASKPASS" in workflow
     assert "scripts/ssh-askpass.sh" in workflow
+    assert "ControlMaster" not in workflow
+    assert "ControlPersist" not in workflow
     assert '"${PROD_SSH_PASSWORD}"' in askpass
 
 
