@@ -6,9 +6,13 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v curl >/dev/null 2>&1 || ! command -v nginx >/dev/null 2>&1 || ! command -v certbot >/dev/null 2>&1; then
+if ! command -v curl >/dev/null 2>&1 \
+  || ! command -v nginx >/dev/null 2>&1 \
+  || ! command -v certbot >/dev/null 2>&1 \
+  || ! command -v openssl >/dev/null 2>&1 \
+  || ! command -v flock >/dev/null 2>&1; then
   sudo apt-get update
-  sudo apt-get install -y ca-certificates curl nginx certbot
+  sudo apt-get install -y ca-certificates curl nginx certbot openssl util-linux
 fi
 
 if ! command -v docker >/dev/null 2>&1; then
@@ -25,3 +29,6 @@ fi
 
 sudo usermod -aG docker "$(id -un)"
 sudo systemctl enable --now docker nginx certbot.timer
+
+source /opt/hannah-montana-ai/runtime-secrets.sh
+ensure_runtime_root_secret

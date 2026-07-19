@@ -43,3 +43,21 @@ def test_production_requires_discord_and_exports_metrics() -> None:
     assert "secrets.HANNAH_DISCORD_WEBHOOK_URL" in workflow
     assert "HANNAH_RUNTIME_ENVIRONMENT=production" in workflow
     assert '@app.get("/metrics", include_in_schema=False)' in main
+
+
+def test_maintenance_token_is_derived_from_the_shared_oci_host_root() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    bootstrap = _read("scripts/bootstrap-host.sh")
+    runtime_secrets = _read("scripts/runtime-secrets.sh")
+    deploy = _read("scripts/deploy-prod.sh")
+
+    assert "secrets.HANNAH_AI_MAINTENANCE_TOKEN" not in workflow
+    assert "scripts/runtime-secrets.sh" in workflow
+    assert "ensure_runtime_root_secret" in bootstrap
+    assert "HANA_RUNTIME_SECRET_DIR=/opt/hana-runtime" in runtime_secrets
+    assert "root-secret" in runtime_secrets
+    assert "openssl rand -hex 32" in runtime_secrets
+    assert "flock -x" in runtime_secrets
+    assert "hana/ai/maintenance-auth/v1" in deploy
+    assert 'HANNAH_AI_MAINTENANCE_TOKEN=${ai_token}' in deploy
+    assert '--env-file "${RUNTIME_APP_ENV}"' in deploy

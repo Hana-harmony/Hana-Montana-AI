@@ -16,7 +16,7 @@ curl http://localhost:8000/ready
 - 운영 포트는 공개하지 않고 Hana-OmniLens-API와 같은 private network에서만 접근시킨다.
 - 협력사 API key는 이 서비스로 전달하지 않는다.
 - 뉴스·공시 수집 credential은 학습 수집 작업에서 gitignore된 환경 파일 또는 Secret Manager로 주입한다.
-- `HANNAH_AI_MAINTENANCE_TOKEN`을 설정한 환경은 외국인 모델 재학습 요청의 `X-HANNAH-AI-MAINTENANCE-TOKEN`을 검증한다.
+- 운영의 `HANNAH_AI_MAINTENANCE_TOKEN`은 OCI 최초 배포에서 생성한 `/opt/hana-runtime/root-secret`과 `hana/ai/maintenance-auth/v1` 라벨로 자동 파생한다. OmniLens API도 같은 호스트 루트와 라벨을 사용하므로 GitHub에 공유 토큰을 등록하지 않는다. 로컬은 명시적으로 설정한 환경에서 외국인 모델 재학습 요청의 `X-HANNAH-AI-MAINTENANCE-TOKEN`을 검증한다.
 - 세무 원본 파일과 뉴스 원문을 운영 로그에 기록하지 않는다.
 
 ## Serving 구성
@@ -70,3 +70,5 @@ curl http://localhost:8000/ready
 CI의 ruff, mypy, bandit, secret hygiene와 pytest가 모두 통과한 이미지를 배포한다. container는 non-root 사용자로 실행하고 artifact는 read-only로 제공한다. 운영 앱은 단일 컨테이너로 교체하며 readiness 실패 시 직전 이미지를 자동 복구한다. Nginx는 Ubuntu 호스트의 systemd 서비스로 운영한다.
 
 rollback은 이전에 검증을 통과한 이미지와 그 이미지에 포함된 model artifact·report를 함께 복원한다. 코드와 artifact version을 따로 되돌리지 않는다.
+
+`/opt/hana-runtime/root-secret`은 재배포 시 유지하고 권한을 `600`으로 제한한다. 해당 파일을 잃으면 OmniLens 포털 암호화 데이터와 연계된 파생키도 복구할 수 없으므로 OCI 암호화 볼륨 백업에 포함한다.
