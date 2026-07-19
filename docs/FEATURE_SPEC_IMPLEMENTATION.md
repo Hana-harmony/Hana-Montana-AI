@@ -41,12 +41,12 @@
 ## 2. 한국 주식 정보 취득 및 분석
 - endpoint: `POST /api/v1/intelligence/events`
 - 입력 v1: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
-- 입력 v2: v1 필드에 Hana-OmniLens-API가 사용 허가 원문 URL과 OpenDART document에서 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
+- 입력 v2: v1 필드에 Hana-Omni-Connect-API가 사용 허가 원문 URL과 OpenDART document에서 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
 - 파서:
   - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보와 사용 허가된 전문·이미지·canonical URL·본문 hash를 정규화한다.
   - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자와 공시 전문을 정규화하고 DART 원문 링크를 구성한다.
   - `build_intelligence_event_request`: provider row를 `IntelligenceEventRequest`로 변환한다.
-  - `build_omnilens_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
+  - `build_omni_connect_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.

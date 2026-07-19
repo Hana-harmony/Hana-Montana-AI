@@ -10,7 +10,7 @@ from hannah_montana_ai.services.feature_contracts import (
 from hannah_montana_ai.services.provider_parsers import (
     ProviderParseError,
     build_intelligence_event_request,
-    build_omnilens_websocket_event,
+    build_omni_connect_websocket_event,
     build_stock_order_status_request,
     parse_kis_master_csv,
     parse_kis_realtime_packet,
@@ -249,7 +249,7 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
 
     request = build_intelligence_event_request(record)
     response = IntelligenceEventService(get_analyzer()).build_response(request)
-    websocket_event = build_omnilens_websocket_event(
+    websocket_event = build_omni_connect_websocket_event(
         response,
         partner_id="US_BROKER",
     )

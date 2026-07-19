@@ -27,4 +27,4 @@
 
 - `tests/test_korean_translation_generator.py`
 - `tests/test_news_summary_quality.py`
-- `tests/test_omnilens_contract.py`
+- `tests/test_omni_connect_contract.py`

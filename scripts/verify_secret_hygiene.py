@@ -19,7 +19,7 @@ FORBIDDEN_ASSIGNMENT_PATTERNS = (
     re.compile(r"\bNAVER_NEWS_CLIENT_SECRET\s*=\s*\S+"),
     re.compile(r"\bOPEN_DART_API_KEY\s*=\s*\S+"),
     re.compile(r"\bKRX_API_KEY\s*=\s*\S+"),
-    re.compile(r"\bOMNILENS_API_KEY\s*=\s*\S+"),
+    re.compile(r"\bOMNI_CONNECT_API_KEY\s*=\s*\S+"),
     re.compile(r"\bX-HANNAH-AI-SERVICE-TOKEN\s*=\s*\S+"),
 )
 TEXT_FILE_SUFFIXES = {

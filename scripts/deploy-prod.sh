@@ -4,7 +4,7 @@ set -euo pipefail
 APP_DIR=/opt/hannah-montana-ai
 APP_NAME=hannah-montana-ai
 APP_PORT=18000
-NETWORK=hana-omnilens-internal
+NETWORK=hana-omni-connect-internal
 RUNTIME_APP_ENV="${APP_DIR}/runtime-application.env"
 
 source "${APP_DIR}/deploy.env"

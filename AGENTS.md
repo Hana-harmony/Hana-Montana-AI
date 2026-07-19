@@ -10,10 +10,10 @@
 ## 서비스 경계
 - 이 레포는 Hannah-Montana-AI 모델 API 서버다.
 - 뉴스·공시의 종목 매핑, 이벤트 분류, 감성 분류, 중요도 분류, 요약, 중복 제거 키 생성을 담당한다.
-- 한국어 전문 번역은 이 레포의 로컬 Qwen3 endpoint가 담당하고 Hana-OmniLens-API가 호출을 orchestration한다.
+- 한국어 전문 번역은 이 레포의 로컬 Qwen3 endpoint가 담당하고 Hana-Omni-Connect-API가 호출을 orchestration한다.
 - 세무 문서 OCR/위변조 검증은 이 레포의 `hanah_tax_ocr` 파이프라인과 모델 API가 담당한다.
-- 협력사 REST/WebSocket API는 Hana-OmniLens-API 레포 책임이다.
-- 협력사용 `OMNILENS_API_KEY`를 요구하거나 저장하지 않는다.
+- 협력사 REST/WebSocket API는 Hana-Omni-Connect-API 레포 책임이다.
+- 협력사용 `OMNI_CONNECT_API_KEY`를 요구하거나 저장하지 않는다.
 - 별도 서비스 토큰 인증을 구현하지 않고 배포 네트워크 격리로 접근을 제한한다.
 - 실제 주문, 모의 투자, 사용자 알림 저장은 구현하지 않는다.
 - 최종투자자 세무 파일 저장, 환급금 지급/환수 실행도 구현하지 않는다.
