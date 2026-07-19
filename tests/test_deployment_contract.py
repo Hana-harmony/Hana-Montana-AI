@@ -21,6 +21,18 @@ def test_production_uses_single_container_with_rollback() -> None:
     assert "secrets.GHCR_USERNAME" not in workflow
 
 
+def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    askpass = _read("scripts/ssh-askpass.sh")
+
+    assert "secrets.PROD_SSH_PASSWORD" in workflow
+    assert "StrictHostKeyChecking yes" in workflow
+    assert "PreferredAuthentications publickey,password" in workflow
+    assert "SSH_ASKPASS" in workflow
+    assert "scripts/ssh-askpass.sh" in workflow
+    assert '"${PROD_SSH_PASSWORD}"' in askpass
+
+
 def test_qwen_is_pinned_and_private() -> None:
     compose = _read("deploy/compose/hannah-qwen.yml")
     local_compose = _read("compose.local.yml")

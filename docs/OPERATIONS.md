@@ -67,7 +67,7 @@ curl http://localhost:8000/ready
 
 ## 배포와 rollback
 
-CI의 ruff, mypy, bandit, secret hygiene와 pytest가 모두 통과한 이미지를 배포한다. 서버의 GHCR pull 인증은 GitHub Secret `GHCR_TOKEN`만 사용하며 배포가 GitHub API로 token 소유자를 검증해 사용자명을 자동 결정한다. `GHCR_USERNAME` Secret은 등록하지 않는다. container는 non-root 사용자로 실행하고 artifact는 read-only로 제공한다. 운영 앱은 단일 컨테이너로 교체하며 readiness 실패 시 직전 이미지를 자동 복구한다. Nginx는 Ubuntu 호스트의 systemd 서비스로 운영한다.
+CI의 ruff, mypy, bandit, secret hygiene와 pytest가 모두 통과한 이미지를 배포한다. 서버의 GHCR pull 인증은 GitHub Secret `GHCR_TOKEN`만 사용하며 배포가 GitHub API로 token 소유자를 검증해 사용자명을 자동 결정한다. `GHCR_USERNAME` Secret은 등록하지 않는다. OCI SSH는 `PROD_SSH_KEY` 인증 뒤 `PROD_SSH_PASSWORD`를 요구하고 `PROD_HOST_KEY`로 서버를 고정한다. 비밀번호는 배포 단계의 마스킹된 환경변수와 OpenSSH `SSH_ASKPASS`로만 전달하며 파일·명령 인자·로그에 기록하지 않는다. container는 non-root 사용자로 실행하고 artifact는 read-only로 제공한다. 운영 앱은 단일 컨테이너로 교체하며 readiness 실패 시 직전 이미지를 자동 복구한다. Nginx는 Ubuntu 호스트의 systemd 서비스로 운영한다.
 
 rollback은 이전에 검증을 통과한 이미지와 그 이미지에 포함된 model artifact·report를 함께 복원한다. 코드와 artifact version을 따로 되돌리지 않는다.
 

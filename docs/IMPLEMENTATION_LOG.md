@@ -1,5 +1,11 @@
 # 구현 기록
 
+## 2026-07-20 · OCI SSH 키·비밀번호 연속 인증
+
+- 운영 배포 SSH가 고정 private key 인증 뒤 계정 비밀번호를 추가로 요구하는 OCI 정책을 지원한다.
+- 비밀번호는 GitHub `production` 환경의 `PROD_SSH_PASSWORD`로만 받아 OpenSSH `SSH_ASKPASS`에 전달하며 파일·명령 인자·로그에 기록하지 않는다.
+- 고정 host key, 전용 identity, 단일 password prompt와 연결 재사용을 강제해 반복 SSH·SCP 배포도 같은 인증 계약을 사용한다.
+
 ## 2026-07-15 · 감성 비교 누수 감사와 fail-closed 재학습
 
 - 공개 감성 Train/Validation/Test를 NFKC·대소문자·영숫자 정규화 기준으로 재감사해 내부 중복·충돌을 제거하고 Test→Validation→Train 우선순위로 분할 간 중복 13건을 Train에서 제외했다. 최종 분할은 7,407 / 932 / 932건이다.
