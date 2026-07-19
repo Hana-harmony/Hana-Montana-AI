@@ -58,6 +58,7 @@ jobs:
           PROD_HOST: ${{ secrets.PROD_HOST }}
           PROD_USER: ${{ secrets.PROD_USER }}
           PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
           PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
@@ -65,6 +66,7 @@ jobs:
           : "${PROD_HOST:?}"
           : "${PROD_USER:?}"
           : "${PROD_SSH_KEY:?}"
+          : "${PROD_SSH_PASSWORD:?}"
           : "${PROD_HOST_KEY:?}"
           : "${GHCR_TOKEN:?}"
           : "${DISCORD_WEBHOOK:?}"
@@ -85,11 +87,38 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
       - name: SSH 설정
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' '${{ secrets.PROD_SSH_KEY }}' > ~/.ssh/prod_key
-          printf '%s\n' '${{ secrets.PROD_HOST_KEY }}' > ~/.ssh/known_hosts
+          printf '%s\n' "${PROD_SSH_KEY}" > ~/.ssh/prod_key
+          printf '%s\n' "${PROD_HOST_KEY}" > ~/.ssh/known_hosts
+          printf '%s\n' \
+            'Host production' \
+            "  HostName ${PROD_HOST}" \
+            "  User ${PROD_USER}" \
+            '  IdentityFile ~/.ssh/prod_key' \
+            '  IdentitiesOnly yes' \
+            '  IdentityAgent none' \
+            '  UserKnownHostsFile ~/.ssh/known_hosts' \
+            '  StrictHostKeyChecking yes' \
+            '  PreferredAuthentications publickey,password' \
+            '  PubkeyAuthentication yes' \
+            '  PasswordAuthentication yes' \
+            '  KbdInteractiveAuthentication no' \
+            '  NumberOfPasswordPrompts 1' \
+            '  ConnectTimeout 15' \
+            '  ServerAliveInterval 15' \
+            '  ServerAliveCountMax 3' \
+            '  ControlMaster auto' \
+            '  ControlPath ~/.ssh/control-%C' \
+            '  ControlPersist 10m' \
+            > ~/.ssh/config
           chmod 600 ~/.ssh/prod_key ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/config
       - name: 운영 설정 생성
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -121,9 +150,14 @@ jobs:
             > deploy.env
           chmod 600 application.env deploy.env
       - name: OCI 운영 배포
+        env:
+          PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
+          SSH_ASKPASS: ${{ github.workspace }}/scripts/ssh-askpass.sh
+          SSH_ASKPASS_REQUIRE: force
+          DISPLAY: github-actions:0
         run: |
-          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 700 /opt/hannah-montana-ai'
-          scp -i ~/.ssh/prod_key application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/runtime-secrets.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
-          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
-          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-qwen.sh /opt/hannah-montana-ai/download-qwen-model.sh && /opt/hannah-montana-ai/bootstrap-qwen.sh'
-          ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
+          ssh production 'sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 700 /opt/hannah-montana-ai'
+          scp application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/runtime-secrets.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf 'production:/opt/hannah-montana-ai/'
+          ssh production 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
+          ssh production 'chmod 700 /opt/hannah-montana-ai/bootstrap-qwen.sh /opt/hannah-montana-ai/download-qwen-model.sh && /opt/hannah-montana-ai/bootstrap-qwen.sh'
+          ssh production 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
