@@ -61,7 +61,6 @@ jobs:
           PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          MAINTENANCE_TOKEN: ${{ secrets.HANNAH_AI_MAINTENANCE_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
         run: |
           : "${PROD_HOST:?}"
@@ -70,7 +69,6 @@ jobs:
           : "${PROD_HOST_KEY:?}"
           : "${GHCR_USERNAME:?}"
           : "${GHCR_TOKEN:?}"
-          : "${MAINTENANCE_TOKEN:?}"
           : "${DISCORD_WEBHOOK:?}"
           [[ "${DISCORD_WEBHOOK}" == https://discord.com/api/webhooks/* ]]
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
@@ -96,7 +94,6 @@ jobs:
           chmod 600 ~/.ssh/prod_key ~/.ssh/known_hosts
       - name: 운영 설정 생성
         env:
-          MAINTENANCE_TOKEN: ${{ secrets.HANNAH_AI_MAINTENANCE_TOKEN }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
@@ -107,7 +104,6 @@ jobs:
             'HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS=2048' \
             'HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY=2' \
             'HANNAH_RUNTIME_ENVIRONMENT=production' \
-            "HANNAH_AI_MAINTENANCE_TOKEN=${MAINTENANCE_TOKEN}" \
             "HANNAH_DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK}" \
             > application.env
           printf '%s\n' \
@@ -119,7 +115,7 @@ jobs:
       - name: OCI 운영 배포
         run: |
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 700 /opt/hannah-montana-ai'
-          scp -i ~/.ssh/prod_key application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
+          scp -i ~/.ssh/prod_key application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/runtime-secrets.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-qwen.sh /opt/hannah-montana-ai/download-qwen-model.sh && /opt/hannah-montana-ai/bootstrap-qwen.sh'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
