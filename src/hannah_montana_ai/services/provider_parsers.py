@@ -244,7 +244,7 @@ def build_intelligence_event_request(
     )
 
 
-def build_omnilens_websocket_event(
+def build_omni_connect_websocket_event(
     response: IntelligenceEventResponse,
     *,
     partner_id: str = "",

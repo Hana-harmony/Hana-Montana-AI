@@ -85,5 +85,5 @@ services:
 
 networks:
   internal:
-    name: hana-omnilens-internal
+    name: hana-omni-connect-internal
     external: true

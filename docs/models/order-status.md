@@ -16,4 +16,4 @@
 ## 검증
 
 - `tests/test_feature_definition_contracts.py`
-- `tests/test_omnilens_contract.py`
+- `tests/test_omni_connect_contract.py`
