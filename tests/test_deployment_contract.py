@@ -7,6 +7,7 @@ def _read(path: str) -> str:
 
 def test_production_uses_single_container_with_rollback() -> None:
     deploy = _read("scripts/deploy-prod.sh")
+    workflow = _read(".github/workflows/ci.yml")
 
     assert "previous_image" in deploy
     assert "rollback" in deploy
@@ -15,6 +16,9 @@ def test_production_uses_single_container_with_rollback() -> None:
     assert "inactive=green" not in deploy
     assert '--network "${NETWORK}"' in deploy
     assert "GHCR_USERNAME" in deploy
+    assert "https://api.github.com/user" in workflow
+    assert "secrets.GHCR_TOKEN" in workflow
+    assert "secrets.GHCR_USERNAME" not in workflow
 
 
 def test_qwen_is_pinned_and_private() -> None:
