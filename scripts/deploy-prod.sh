@@ -5,12 +5,27 @@ APP_DIR=/opt/hannah-montana-ai
 APP_NAME=hannah-montana-ai
 APP_PORT=18000
 NETWORK=hana-omnilens-internal
+RUNTIME_APP_ENV="${APP_DIR}/runtime-application.env"
 
 source "${APP_DIR}/deploy.env"
+source "${APP_DIR}/runtime-secrets.sh"
 
 : "${IMAGE:?IMAGE is required}"
 : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
+
+write_runtime_secret_env() {
+  local ai_token temp_file
+  ai_token="$(derive_runtime_secret_hex 'hana/ai/maintenance-auth/v1')"
+  temp_file="$(mktemp "${APP_DIR}/.runtime-application.XXXXXX")"
+
+  umask 077
+  printf '%s\n' "HANNAH_AI_MAINTENANCE_TOKEN=${ai_token}" > "${temp_file}"
+  chmod 600 "${temp_file}"
+  mv "${temp_file}" "${RUNTIME_APP_ENV}"
+}
+
+write_runtime_secret_env
 
 run_container() {
   local image="$1"
@@ -24,6 +39,7 @@ run_container() {
     --memory 7g \
     --cpus 1.5 \
     --env-file "${APP_DIR}/application.env" \
+    --env-file "${RUNTIME_APP_ENV}" \
     --network "${NETWORK}" \
     --tmpfs /tmp:rw,noexec,nosuid,size=512m \
     --tmpfs /app/.cache:rw,noexec,nosuid,size=256m,uid=65532,gid=65532 \
