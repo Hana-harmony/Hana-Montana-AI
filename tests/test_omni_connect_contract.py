@@ -125,7 +125,7 @@ EXPECTED_FOREIGN_OWNERSHIP_RESPONSE_FIELDS = {
 }
 
 
-def test_omnilens_spring_client_schema_field_names_are_stable() -> None:
+def test_omni_connect_spring_client_schema_field_names_are_stable() -> None:
     request_schema = AlertAnalysisRequest.model_json_schema()
     response_schema = AlertAnalysisResponse.model_json_schema()
     stock_schema = request_schema["$defs"]["StockCandidate"]
@@ -135,7 +135,7 @@ def test_omnilens_spring_client_schema_field_names_are_stable() -> None:
     assert set(response_schema["properties"]) == EXPECTED_RESPONSE_FIELDS
 
 
-def test_omnilens_foreign_ownership_prediction_schema_field_names_are_stable() -> None:
+def test_omni_connect_foreign_ownership_prediction_schema_field_names_are_stable() -> None:
     request_schema = ForeignOwnershipTimeseriesPredictionRequest.model_json_schema()
     response_schema = ForeignOwnershipTimeseriesPredictionResponse.model_json_schema()
     history_schema = request_schema["$defs"]["ForeignOwnershipHistoryPoint"]
@@ -145,7 +145,7 @@ def test_omnilens_foreign_ownership_prediction_schema_field_names_are_stable() -
     assert set(response_schema["properties"]) == EXPECTED_FOREIGN_OWNERSHIP_RESPONSE_FIELDS
 
 
-def test_omnilens_tax_document_verification_schema_accepts_ocr_payload() -> None:
+def test_omni_connect_tax_document_verification_schema_accepts_ocr_payload() -> None:
     request_schema = TaxDocumentVerificationRequest.model_json_schema()
     response_schema = TaxDocumentVerificationResponse.model_json_schema()
 
@@ -154,7 +154,7 @@ def test_omnilens_tax_document_verification_schema_accepts_ocr_payload() -> None
     assert "verification_status" in response_schema["properties"]
 
 
-def test_omnilens_spring_client_payload_is_accepted_without_service_token() -> None:
+def test_omni_connect_spring_client_payload_is_accepted_without_service_token() -> None:
     get_settings.cache_clear()
     get_analyzer.cache_clear()
 

@@ -13,7 +13,7 @@
 
 ## 외부 책임
 
-- KIS·KRX·Naver·OpenDART 수집과 협력사 API 인증·송신: Hana-OmniLens-API
+- KIS·KRX·Naver·OpenDART 수집과 협력사 API 인증·송신: Hana-Omni-Connect-API
 - 사용자·계좌·모의 원장·세무 파일 저장·알림 매칭: Stock-exchange-BE
 - iOS/Android 화면과 파일 선택: Stock-exchange-FE
 - 실제 주문·체결·정산·세무 신고·정부 승인·환급 지급·환수: 외부 거래·세무·지급 시스템
