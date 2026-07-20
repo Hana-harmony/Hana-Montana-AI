@@ -12,7 +12,7 @@ services:
     security_opt:
       - no-new-privileges:true
     pids_limit: 256
-    mem_limit: 6g
+    mem_limit: 10g
     cpus: 1.75
     command:
       - --model
@@ -24,7 +24,7 @@ services:
       - --port
       - "8080"
       - --ctx-size
-      - "8192"
+      - "4096"
       - --threads
       - "4"
       - --parallel
