@@ -542,6 +542,8 @@ class AlertAnalyzer:
         response_content = request.content.strip() if has_full_content else analysis_content
         if request_stock_mismatch:
             translations = self._request_stock_mismatch_translations()
+        elif request.translation_mode == "DEFERRED":
+            translations = self._deferred_analysis_translations()
         else:
             translations = self._translate_analysis_fields(
                 request,
@@ -714,6 +716,20 @@ class AlertAnalyzer:
                 quality_flags=[],
             )
             for field, value in values.items()
+        }
+
+    def _deferred_analysis_translations(self) -> dict[str, KoreanTranslationResult]:
+        # 수집 처리량을 전체 본문 생성형 번역 지연과 분리한다.
+        return {
+            field: KoreanTranslationResult(
+                translated_text="",
+                provider="deferred-full-text-translation",
+                model_version=self.model.version,
+                status=STATUS_SOURCE_LANGUAGE_FALLBACK,
+                prompt_version="",
+                quality_flags=[],
+            )
+            for field in ("TITLE", "SUMMARY", "CONTENT")
         }
 
     def _translate_analysis_fields(
