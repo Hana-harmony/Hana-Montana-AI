@@ -144,6 +144,23 @@ Samsung Electronics said operating profit increased as semiconductor demand reco
     assert results["TITLE"].translated_text.startswith("Samsung Electronics")
 
 
+def test_long_body_retry_count_is_bounded() -> None:
+    source = "삼성전자는 반도체 투자 계획과 공급망 현황을 상세히 설명했다. " * 30
+    client = FakeTranslationClient(json.dumps({"translation": "번역 실패"}))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        max_concurrency=2,
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source))
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert len(generator._chunks(source)) == 2
+    assert len(client.calls) == 4
+
+
 def test_ant_surface_is_not_rewritten_to_retail_investor() -> None:
     generator = KoreanTranslationGenerator()
     glossary = [_term("개미", "개미", "Ant")]

@@ -12,7 +12,8 @@
 - provider: `local-llm`
 - 입력: 원문, `NEWS`/`DISCLOSURE` 유형, 제목, 검증 glossary
 - 출력: 번역문, provider, model version, 상태, prompt version, 품질 플래그
-- 뉴스 전문은 길이에 따라 분할하고 제목·본문의 문맥과 문장 완결성을 검증한다.
+- 뉴스 전문 분할은 AI 서비스가 단독으로 담당한다. 본문은 최대 700자 단위로 나누고 llama.cpp의 병렬 슬롯 2개를 사용해 순서를 보존한 채 처리한다.
+- 각 조각의 품질 재시도는 최대 2회로 제한하고, 900자를 넘는 본문은 전체 본문 재시도를 하지 않아 중복 추론 적재를 방지한다.
 - OpenDART 공시는 표·항목 구조를 보존하는 structured 경로를 사용한다.
 - 단일 금융 용어 사전의 표면형을 prompt와 후처리에 적용한다.
 - endpoint 오류, 누락, 반복, 미번역 한글, 잘린 문장 등 품질 gate 실패는 원문과 `SOURCE_LANGUAGE_FALLBACK`으로 반환한다.
