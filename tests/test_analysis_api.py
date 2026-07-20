@@ -9,7 +9,9 @@ from fastapi.testclient import TestClient
 from hannah_montana_ai.api import routes
 from hannah_montana_ai.api.routes import get_analyzer, get_audit_logger
 from hannah_montana_ai.core.config import Settings, get_settings
+from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate
 from hannah_montana_ai.main import _translation_provider_ready, app
+from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
@@ -50,6 +52,37 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert payload["data"]["stock_match_confidence"] == 1.0
     assert payload["data"]["content_availability"] == "SUMMARY_ONLY"
     assert payload["data"]["original_content"] == "반도체 수요 회복으로 실적 개선 기대가 커졌다."
+
+
+def test_deferred_analysis_does_not_call_generation_translation() -> None:
+    class TranslationMustNotRun:
+        def translate_alert_fields(self, *_args, **_kwargs):
+            raise AssertionError("deferred analysis must not invoke translation")
+
+        def translate(self, *_args, **_kwargs):
+            raise AssertionError("deferred analysis must not invoke translation")
+
+    analyzer = AlertAnalyzer(translation_generator=TranslationMustNotRun())
+    result = analyzer.analyze(AlertAnalysisRequest(
+        source_type="NEWS",
+        title="삼성전자 2분기 영업이익 증가",
+        snippet="반도체 수요 회복으로 실적 개선 기대가 커졌다.",
+        content="삼성전자는 HBM 수요 회복으로 영업이익 증가를 전망했다.",
+        original_url="https://example.com/news/deferred",
+        stock_universe=[StockCandidate(
+            stock_code="005930",
+            stock_name="삼성전자",
+            stock_name_en="Samsung Electronics",
+        )],
+        translation_mode="DEFERRED",
+    ))
+
+    assert result.stock_code == "005930"
+    assert result.summary_lines.what
+    assert result.translated_title == ""
+    assert result.translated_content == ""
+    assert result.translation_provider == "deferred-full-text-translation"
+    assert result.translation_status == "SOURCE_LANGUAGE_FALLBACK"
 
 
 def test_analyze_alert_accepts_full_disclosure_above_legacy_60000_chars() -> None:
