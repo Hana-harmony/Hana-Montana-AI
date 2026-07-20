@@ -8,6 +8,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
 from threading import BoundedSemaphore
@@ -23,11 +24,11 @@ QWEN_4B_TRANSLATION_MODEL = "Qwen3-4B-GGUF-Q4"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 STRUCTURED_DISCLOSURE_TRANSLATION_PROVIDER = "structured-dart-disclosure-ko-en-translation"
 SOURCE_LANGUAGE_FALLBACK_PROVIDER = "source-language-fallback"
-QWEN_CHUNK_MAX_ATTEMPTS = 3
-QWEN_BODY_CHUNK_MAX_CHARS = 360
-QWEN_FULL_TEXT_RETRY_MAX_CHARS = 1800
+QWEN_CHUNK_MAX_ATTEMPTS = 2
+QWEN_BODY_CHUNK_MAX_CHARS = 700
+QWEN_FULL_TEXT_RETRY_MAX_CHARS = 900
 QWEN_MIN_CHUNK_OUTPUT_TOKENS = 256
-QWEN_MAX_CHUNK_OUTPUT_TOKENS = 640
+QWEN_MAX_CHUNK_OUTPUT_TOKENS = 1150
 STATUS_TRANSLATED: TranslationStatus = "TRANSLATED"
 STATUS_PARTIAL_SOURCE_LANGUAGE_FALLBACK: TranslationStatus = "PARTIAL_SOURCE_LANGUAGE_FALLBACK"
 STATUS_SOURCE_LANGUAGE_FALLBACK: TranslationStatus = "SOURCE_LANGUAGE_FALLBACK"
@@ -670,9 +671,10 @@ class KoreanTranslationGenerator:
         self._client = client
         self._model_name = model_name
         self._max_tokens = max_tokens
+        self._max_concurrency = max(1, max_concurrency)
         self._rule_based_repairs_enabled = rule_based_repairs_enabled
         self._dictionary_glossary_terms = dictionary_glossary_terms
-        self._client_slots = BoundedSemaphore(max(1, max_concurrency))
+        self._client_slots = BoundedSemaphore(self._max_concurrency)
 
     @classmethod
     def from_settings(cls, settings: Settings) -> KoreanTranslationGenerator:
@@ -833,8 +835,15 @@ class KoreanTranslationGenerator:
         flags: list[str] = []
         providers: list[str] = []
         model_versions: list[str] = []
-        for chunk in chunks:
-            result = self._translate_chunk(chunk, context)
+        worker_count = min(self._max_concurrency, len(chunks))
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            results = list(
+                executor.map(
+                    lambda chunk: self._translate_chunk(chunk, context),
+                    chunks,
+                )
+            )
+        for chunk, result in zip(chunks, results, strict=True):
             translated_chunks.append(result.translated_text)
             flags.extend(result.quality_flags)
             if chunk.strip() and not result.translated_text.strip():
