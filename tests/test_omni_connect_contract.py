@@ -20,6 +20,7 @@ from hannah_montana_ai.main import app
 
 EXPECTED_REQUEST_FIELDS = {
     "source_type",
+    "translation_mode",
     "title",
     "snippet",
     "content",
@@ -131,6 +132,7 @@ def test_omni_connect_spring_client_schema_field_names_are_stable() -> None:
     stock_schema = request_schema["$defs"]["StockCandidate"]
 
     assert set(request_schema["properties"]) == EXPECTED_REQUEST_FIELDS
+    assert request_schema["properties"]["translation_mode"]["default"] == "FULL"
     assert set(stock_schema["properties"]) == EXPECTED_STOCK_CANDIDATE_FIELDS
     assert set(response_schema["properties"]) == EXPECTED_RESPONSE_FIELDS
 

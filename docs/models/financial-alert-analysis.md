@@ -12,6 +12,7 @@
 - 제목, snippet, 전문
 - 후보 종목 목록
 - 내부 한국 종목 universe
+- `translation_mode`: 기본 `FULL`. 스케줄러 초기 적재는 `DEFERRED`를 사용해 전체 본문 생성형 번역과 분석 처리량을 분리한다.
 
 ## 출력
 - 대표 종목
@@ -22,6 +23,7 @@
 - 중복 제거 키
 - confidence와 model version
 - 요약 품질 gate: 생략부호, 문장 중간 잘림, 중요도·감성 메타 문구를 사용자 payload에서 제거한다.
+- `DEFERRED` 응답은 종목 연결·이벤트·감성·중요도·시장영향·영문 What/Why/Impact를 동일하게 계산하고 번역 필드는 비워 `SOURCE_LANGUAGE_FALLBACK`으로 표시한다. `FULL` 응답만 Qwen 제목·요약·본문 번역을 수행한다.
 
 ## 모델
 - 서비스 표기명: `Hana Montana AI(KF-DeBERTa + K-FNSPID)`

@@ -15,6 +15,7 @@
 ## API 경계
 - 공개 endpoint: `GET /health`, `GET /ready`
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
+- 분석 요청의 `translation_mode=DEFERRED`는 ML 분석과 영문 What/Why/Impact를 완료한 뒤 생성형 전체 본문 번역을 생략한다. 기본 `FULL`은 기존 번역 계약을 유지한다.
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`
 - 내부 endpoint: `POST /api/v1/tax/documents/verify`
