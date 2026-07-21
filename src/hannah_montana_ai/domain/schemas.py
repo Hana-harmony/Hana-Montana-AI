@@ -151,6 +151,10 @@ class GlobalPeerMatchResponse(BaseModel):
     stock_code: str
     stock_name: str
     stock_name_en: str
+    source_sector: str = Field(min_length=1, max_length=120)
+    source_industry: str = Field(min_length=1, max_length=160)
+    source_business_model: str = Field(min_length=1, max_length=240)
+    source_business_tags: list[str] = Field(min_length=1, max_length=20)
     headline: str = Field(min_length=1, max_length=300)
     summary: str = Field(min_length=1, max_length=1200)
     primary_peer: GlobalPeerMatch

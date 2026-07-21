@@ -14,6 +14,7 @@ from hannah_montana_ai.training.global_peer_trainer import (
     CURATED_GLOBAL_BRAND_TIERS,
     KoreaCompanyProfile,
     clean_security_name,
+    infer_business_tags,
     infer_business_tags_from_company_summary,
     infer_business_tags_from_ksic,
     load_korea_company_profiles,
@@ -61,6 +62,57 @@ def test_global_peer_model_matches_core_korean_stocks() -> None:
         assert len(response.comparisons) == 3
         assert len(response.key_strengths) == 4
         assert response.primary_peer.matched_factors
+
+
+@pytest.mark.parametrize(
+    ("stock_code", "stock_name", "stock_name_en", "sector", "industry"),
+    [
+        ("003550", "LG", "LG", "Financials", "Investment Holding Companies"),
+        ("086790", "하나금융지주", "Hana Financial Group", "Financials", "Banks"),
+        ("316140", "우리금융지주", "Woori Financial Group", "Financials", "Banks"),
+        (
+            "373220",
+            "LG에너지솔루션",
+            "LG Energy Solution",
+            "Industrials",
+            "Battery and Energy Storage",
+        ),
+        ("000320", "노루홀딩스", "Noroo Holdings", "Materials", "Metals and Materials"),
+        (
+            "017670",
+            "SK텔레콤",
+            "SK Telecom",
+            "Communication Services",
+            "Telecommunications",
+        ),
+    ],
+)
+def test_global_peer_model_preserves_authoritative_comparison_domain(
+    stock_code: str,
+    stock_name: str,
+    stock_name_en: str,
+    sector: str,
+    industry: str,
+) -> None:
+    matcher = GlobalPeerMatcher(MODEL_PATH)
+    response = matcher.match(
+        GlobalPeerMatchRequest(
+            stock_code=stock_code,
+            stock_name=stock_name,
+            stock_name_en=stock_name_en,
+            market="KOSPI",
+        )
+    )
+    profile = matcher._korea_profiles[stock_code]
+
+    assert profile["sector"] == sector
+    assert profile["industry"] == industry
+    assert response.source_sector == sector
+    assert response.source_industry == industry
+    assert response.primary_peer.sector == sector
+    assert response.primary_peer.industry == industry
+    if stock_code != "017670":
+        assert response.primary_peer.ticker != "T"
 
 
 def test_alteogen_uses_the_same_dynamic_matching_path() -> None:
@@ -243,6 +295,59 @@ def test_business_summary_tagger_extracts_domain_without_noise() -> None:
     assert "semiconductors" not in tags
 
 
+def test_business_summary_tagger_does_not_treat_generic_network_as_telecom() -> None:
+    tags = infer_business_tags_from_company_summary(
+        "전세계 27개 지역의 글로벌 네트워크와 연구개발 네트워크를 운영한다."
+    )
+
+    assert "telecommunications" not in tags
+    assert "telecommunications" in infer_business_tags_from_company_summary(
+        "이동통신과 유무선 통신서비스 및 통신 네트워크를 운영한다."
+    )
+
+
+def test_business_summary_tagger_separates_telecom_operators_and_equipment() -> None:
+    operator_tags = infer_business_tags_from_company_summary(
+        "MVNO 알뜰폰 이동통신서비스를 제공한다."
+    )
+    equipment_tags = infer_business_tags_from_company_summary(
+        "이동통신 기지국 장비와 RF중계기, 광전송장비를 제조한다."
+    )
+    software_tags = infer_business_tags_from_company_summary(
+        "정보통신사업부를 양수해 IT 서비스와 시스템 구축, 디지털 전환을 제공한다."
+    )
+
+    assert operator_tags[0] == "telecommunications"
+    assert equipment_tags[0] == "telecom equipment"
+    assert "telecommunications" not in equipment_tags
+    assert software_tags[0] == "software platform"
+    assert "telecommunications" not in software_tags
+
+
+def test_business_summary_tagger_separates_airlines_from_aerospace_manufacturers() -> None:
+    airline_tags = infer_business_tags_from_company_summary(
+        "국내외 정기항공 여객운송과 화물 사업을 영위하며 42개 도시에 취항한다."
+    )
+    manufacturer_tags = infer_business_tags_from_company_summary(
+        "항공기 엔진과 우주발사체, 자주포 및 유도무기를 개발·생산한다."
+    )
+
+    assert airline_tags[0] == "passenger transportation"
+    assert "aerospace" not in airline_tags
+    assert manufacturer_tags[0] == "aerospace"
+    assert "passenger transportation" not in manufacturer_tags
+
+
+def test_company_name_tagger_requires_english_keyword_boundaries() -> None:
+    assert "battery" not in infer_business_tags("TransDigm Group", "TransDigm Group")
+    assert "aerospace" not in infer_business_tags("Fair Isaac", "Fair Isaac")
+    assert "energy" not in infer_business_tags("Las Vegas Sands", "Las Vegas Sands")
+    assert "holding company" not in infer_business_tags(
+        "Zimmer Biomet Holdings", "Zimmer Biomet Holdings"
+    )
+    assert "battery" in infer_business_tags("Samsung SDI", "Samsung SDI")
+
+
 def test_shipbuilding_summary_does_not_treat_offshore_platform_as_software() -> None:
     tags = infer_business_tags_from_company_summary(
         "LNG 운반선과 컨테이너선, FPSO, 해양플랫폼을 건조하고 해양플랜트를 수행한다."
@@ -318,6 +423,52 @@ def test_ksic_tags_cover_konex_business_domains_without_stock_overrides() -> Non
     assert infer_business_tags_from_ksic("213") == ("biotech",)
     assert infer_business_tags_from_ksic("58221") == ("software platform",)
     assert infer_business_tags_from_ksic("30399") == ("automotive",)
+    assert infer_business_tags_from_ksic("31321") == ("aerospace",)
+    assert infer_business_tags_from_ksic("51100") == ("passenger transportation",)
+
+
+@pytest.mark.parametrize(
+    ("stock_code", "expected_industry"),
+    [
+        ("003490", "Airlines"),
+        ("012450", "Aerospace and Defense"),
+        ("047810", "Aerospace and Defense"),
+    ],
+)
+def test_air_transport_and_aerospace_profiles_are_separated(
+    stock_code: str,
+    expected_industry: str,
+) -> None:
+    payload = joblib.load(MODEL_PATH)
+
+    assert payload["korea_profiles"][stock_code]["industry"] == expected_industry
+
+
+@pytest.mark.parametrize(
+    ("stock_code", "expected_industry"),
+    [
+        ("004920", "Software"),
+        ("025770", "Payments"),
+        ("030200", "Telecommunications"),
+        ("032500", "Communications Equipment"),
+        ("036630", "Construction and Engineering"),
+        ("039980", "Software"),
+        ("050890", "Communications Equipment"),
+        ("065530", "Communications Equipment"),
+        ("148250", "Communications Equipment"),
+        ("211270", "Communications Equipment"),
+        ("267850", "Software"),
+        ("356890", "Software"),
+        ("456010", "Semiconductors"),
+    ],
+)
+def test_telecom_operator_false_positives_use_company_operating_domain(
+    stock_code: str,
+    expected_industry: str,
+) -> None:
+    payload = joblib.load(MODEL_PATH)
+
+    assert payload["korea_profiles"][stock_code]["industry"] == expected_industry
 
 
 def test_artifact_covers_the_entire_active_kis_equity_universe() -> None:

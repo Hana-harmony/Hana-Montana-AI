@@ -547,10 +547,19 @@ class GlobalPeerMatcher:
                 confidence_score=confidence_score,
             )
         )
+        source_tags = stock_profile.get("business_tags", [])
         return GlobalPeerMatchResponse(
             stock_code=request.stock_code,
             stock_name=request.stock_name,
             stock_name_en=GlobalPeerExplanationGenerator._stock_display_name(request),
+            source_sector=str(stock_profile.get("sector") or "Unclassified"),
+            source_industry=str(stock_profile.get("industry") or "Unclassified"),
+            source_business_model=str(stock_profile.get("business_model") or "Operating company"),
+            source_business_tags=(
+                [str(tag) for tag in source_tags]
+                if isinstance(source_tags, list) and source_tags
+                else ["general listed company"]
+            ),
             headline=explanation.headline,
             summary=explanation.summary,
             primary_peer=primary_peer,
@@ -715,6 +724,19 @@ class GlobalPeerMatcher:
             index = self._eligible_us_index_by_ticker.get(ticker)
             if index is not None and index not in candidate_indices:
                 candidate_indices.append(index)
+        stock_industry = str(stock_profile.get("industry") or "Unclassified")
+        remaining_exact_industry_indices = {
+            index
+            for index in candidate_indices
+            if index not in selected_indices
+            and self._company_family(self._eligible_us_profiles[index]) not in selected_families
+            and str(self._eligible_us_profiles[index].get("industry") or "Unclassified")
+            == stock_industry
+        }
+        prefer_exact_industry = stock_industry not in {
+            "Unclassified",
+            GENERIC_LISTED_INDUSTRY,
+        } and bool(remaining_exact_industry_indices)
         for curated_only in (True, False):
             for strict in (True, False):
                 best_index: int | None = None
@@ -724,6 +746,8 @@ class GlobalPeerMatcher:
                         continue
                     profile = self._eligible_us_profiles[index]
                     if self._company_family(profile) in selected_families:
+                        continue
+                    if prefer_exact_industry and index not in remaining_exact_industry_indices:
                         continue
                     ticker = str(profile.get("identifier") or "")
                     brand_tier = CURATED_GLOBAL_BRAND_TIERS.get(ticker, 0.0)
@@ -785,7 +809,7 @@ class GlobalPeerMatcher:
         stock_profile: dict[str, object],
         peer_profile: dict[str, object],
     ) -> float:
-        if GlobalPeerMatcher._is_aviation_profile(stock_profile):
+        if GlobalPeerMatcher._is_airline_operator_profile(stock_profile):
             return GlobalPeerMatcher._dimension_fit("industrial", peer_profile)
         business_dimension = GlobalPeerMatcher._dimension_for(
             str(stock_profile.get("business_model") or "")
@@ -809,10 +833,12 @@ class GlobalPeerMatcher:
         )
 
     @staticmethod
-    def _is_aviation_profile(stock_profile: dict[str, object]) -> bool:
-        business_summary = str(stock_profile.get("business_summary") or "").lower()
-        return any(
-            term in business_summary for term in ("항공운송", "저비용항공사", "항공기", "여객기")
+    def _is_airline_operator_profile(stock_profile: dict[str, object]) -> bool:
+        raw_tags = stock_profile.get("business_tags", [])
+        tags = {str(tag).lower() for tag in raw_tags} if isinstance(raw_tags, list) else set()
+        return (
+            str(stock_profile.get("industry") or "") == "Airlines"
+            or "passenger transportation" in tags
         )
 
     @staticmethod
@@ -828,7 +854,7 @@ class GlobalPeerMatcher:
         peer_sector = str(peer_profile.get("sector") or "Unclassified")
         stock_industry = str(stock_profile.get("industry") or "Unclassified")
         peer_industry = str(peer_profile.get("industry") or "Unclassified")
-        if GlobalPeerMatcher._is_aviation_profile(stock_profile) and dimension in {
+        if GlobalPeerMatcher._is_airline_operator_profile(stock_profile) and dimension in {
             "overall_business",
             "industrial",
             "commerce",
