@@ -157,6 +157,37 @@ def test_qwen_summary_quality_failure_does_not_return_a_fallback() -> None:
     assert len(client.calls) == 2
 
 
+@pytest.mark.parametrize(
+    ("invalid_what", "expected_flag"),
+    [
+        ("Samsung Electronics expects stronger earnings", "INCOMPLETE_SUMMARY_SENTENCE"),
+        ("Earnings improved.", "FRAGMENTARY_SUMMARY_LINE"),
+        ("005930 reported stronger quarterly operating profit.", "STOCK_CODE_SUMMARY_SUBJECT"),
+        ("...Samsung Electronics reported stronger operating profit.", "SUMMARY_ELLIPSIS"),
+    ],
+)
+def test_qwen_summary_matches_api_complete_sentence_contract(
+    invalid_what: str,
+    expected_flag: str,
+) -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects stronger earnings",
+        "what": invalid_what,
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update matters to investors monitoring semiconductor earnings.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    with pytest.raises(QwenAlertSummaryError, match=expected_flag):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
 def _summary_context() -> QwenAlertSummaryContext:
     return QwenAlertSummaryContext(
         title="삼성전자 HBM 실적 개선 전망",
