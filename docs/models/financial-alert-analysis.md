@@ -34,7 +34,7 @@
 - 시장영향 보조 구조: 파일 기반 K-FNSPID의 실제 1·3·5거래일 반응으로 학습한 모델을 품질 gate 뒤에 결합한다.
 - stock linker: `stock_linker_ml.joblib`의 TF-IDF char n-gram nearest-neighbor entity linker와 선두 term 검증
 - 전문 v2: 제목/snippet 모델을 baseline으로 유지하고, 권리 확인된 전문이 있으면 full content summary와 content hash를 추가한다.
-- Qwen3가 한국어 원문과 KF-DeBERTa 감성·K-FNSPID 시장영향·이벤트·중요도 신호를 받아 영문 제목과 What/Why/Impact를 생성한다. 신호는 관점 설정에만 사용하고 원문 사실처럼 인용하지 않는다. 필수 필드 누락, 중복 문장, 한국어 잔존, 원문에 없는 숫자, 4단어 미만 조각 문장, 종결부호 누락, 종목코드로 시작하는 문장은 최대 1회 재생성 후 분석 실패로 처리하며 규칙 기반 요약으로 후퇴하지 않는다.
+- Qwen3가 한국어 원문과 KF-DeBERTa 감성·K-FNSPID 시장영향·이벤트·중요도 신호를 받아 영문 제목과 What/Why/Impact를 생성한다. 신호는 관점 설정에만 사용하고 원문 사실처럼 인용하지 않는다. 필수 필드 누락, 중복 문장, 한국어 잔존, 원문에 없는 숫자, 제목·요약 생략부호, 4단어 미만 조각 문장, 종결부호 누락, 종목코드로 시작하는 문장은 최대 1회 재생성 후 분석 실패로 처리하며 규칙 기반 요약으로 후퇴하지 않는다.
 - pseudo-label은 teacher confidence gate와 라벨 quota를 통과한 샘플만 사용한다.
 - 사람이 검수하지 않은 실제 공시 전문 약한 중요도 라벨은 Gold URL을 제거한 뒤 의미 중요도 후보 학습에만 사용한다. 감성 학습과 holdout Gold 정답에는 사용하지 않는다.
 - 실제 뉴스 Gold 80건과 OpenDART 기본 공시 Gold 600건, 스트레스 Gold 310건은 Codex 검수 상태, 검수 근거, 발표 시각, 원천 해시를 보존한다. 기본 Gold와 겹치는 원천 전문 401건은 모델 학습 입력에서 제외하고, 스트레스 Gold는 원천 전문과도 중복이 없다.
