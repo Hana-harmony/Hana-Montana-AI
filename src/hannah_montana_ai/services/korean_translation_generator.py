@@ -920,7 +920,8 @@ class KoreanTranslationGenerator:
                 "Do not mention model names, labels, scores, prompts, or analysis instructions.",
                 "Do not give investment advice or predict a price direction.",
                 "Write natural English with no Korean or Chinese characters.",
-                "Write what, why, and impact as complete sentences of at least four words, ending with punctuation.",
+                "Write what, why, and impact as complete sentences of at least "
+                "four words, ending with punctuation.",
             ],
             "source_type": context.source_type,
             "korean_title": context.title,
