@@ -163,7 +163,7 @@ def test_qwen_summary_quality_failure_does_not_return_a_fallback() -> None:
         ("Samsung Electronics expects stronger earnings", "INCOMPLETE_SUMMARY_SENTENCE"),
         ("Earnings improved.", "FRAGMENTARY_SUMMARY_LINE"),
         ("005930 reported stronger quarterly operating profit.", "STOCK_CODE_SUMMARY_SUBJECT"),
-        ("...Samsung Electronics reported stronger operating profit.", "SUMMARY_ELLIPSIS"),
+        ("...Samsung Electronics reported stronger operating profit.", "ELLIPSIS_REMAINS"),
     ],
 )
 def test_qwen_summary_matches_api_complete_sentence_contract(
@@ -183,6 +183,33 @@ def test_qwen_summary_matches_api_complete_sentence_contract(
     )
 
     with pytest.raises(QwenAlertSummaryError, match=expected_flag):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
+@pytest.mark.parametrize(
+    "invalid_title",
+    [
+        "Kia grants treasury shares...union objects",
+        "Kia grants treasury shares…union objects",
+        "Kia grants treasury shares···union objects",
+    ],
+)
+def test_qwen_title_rejects_every_api_ellipsis_form(invalid_title: str) -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": invalid_title,
+        "what": "Kia granted treasury shares only to executives.",
+        "why": "The source cites an employee-payment exception clause.",
+        "impact": "The decision prompted objections from the labor union.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    with pytest.raises(QwenAlertSummaryError, match="ELLIPSIS_REMAINS"):
         generator.generate_alert_summary(_summary_context())
 
     assert len(client.calls) == 2

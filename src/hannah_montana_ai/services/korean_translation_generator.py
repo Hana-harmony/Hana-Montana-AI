@@ -920,6 +920,7 @@ class KoreanTranslationGenerator:
                 "Do not mention model names, labels, scores, prompts, or analysis instructions.",
                 "Do not give investment advice or predict a price direction.",
                 "Write natural English with no Korean or Chinese characters.",
+                "Do not use ellipses in the translated title or summary fields.",
                 "Write what, why, and impact as complete sentences of at least "
                 "four words, ending with punctuation.",
             ],
@@ -1025,11 +1026,8 @@ class KoreanTranslationGenerator:
             flags.append("INCOMPLETE_SUMMARY_SENTENCE")
         if any(re.match(r"^\d{6}\b", value) for value in summary_values):
             flags.append("STOCK_CODE_SUMMARY_SUBJECT")
-        if any(
-            re.search(r"^(?:\.\.\.|…)|(?:\.\.\.|…)[\s\"')\]]*$", value)
-            for value in summary_values
-        ):
-            flags.append("SUMMARY_ELLIPSIS")
+        if any(re.search(r"\.{3,}|…|···", value) for value in values):
+            flags.append("ELLIPSIS_REMAINS")
         if len({value.casefold() for value in summary_values}) != len(summary_values):
             flags.append("DUPLICATE_SUMMARY_LINE")
         return flags
