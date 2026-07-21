@@ -62,8 +62,13 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache
+def get_korean_translation_service() -> KoreanTranslationGenerator:
+    return KoreanTranslationGenerator.from_settings(get_settings())
+
+
+@lru_cache
 def get_analyzer() -> AlertAnalyzer:
-    return AlertAnalyzer()
+    return AlertAnalyzer(translation_generator=get_korean_translation_service())
 
 
 @lru_cache
@@ -102,11 +107,6 @@ def get_korean_financial_term_service() -> KoreanFinancialTermExplanationService
         seed_path=settings.korean_financial_terms_seed_path,
         model_version=settings.korean_financial_term_model_version,
     )
-
-
-@lru_cache
-def get_korean_translation_service() -> KoreanTranslationGenerator:
-    return KoreanTranslationGenerator.from_settings(get_settings())
 
 
 def warm_runtime_dependencies() -> None:
@@ -253,6 +253,7 @@ def explain_korean_financial_term(
 def translate_korean_to_english(
     request: KoreanTranslationRequest,
 ) -> ApiResponse[KoreanTranslationResponse]:
+    started_at = perf_counter()
     source_hash = hashlib.sha256(request.text.encode("utf-8")).hexdigest()[:12]
     result = get_korean_translation_service().translate(
         KoreanTranslationContext(
@@ -264,10 +265,11 @@ def translate_korean_to_english(
     )
     logger.info(
         "Korean translation request completed: source_hash=%s source_len=%d "
-        "translated_len=%d status=%s provider=%s flags=%s",
+        "translated_len=%d elapsed_ms=%.1f status=%s provider=%s flags=%s",
         source_hash,
         len(request.text),
         len(result.translated_text),
+        _elapsed_ms(started_at),
         result.status,
         result.provider,
         ",".join(result.quality_flags[:5]),
