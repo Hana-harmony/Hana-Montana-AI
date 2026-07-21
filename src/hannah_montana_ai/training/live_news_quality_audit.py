@@ -9,7 +9,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol, cast
 
-from hannah_montana_ai.core.config import get_settings
 from hannah_montana_ai.domain.schemas import (
     AlertAnalysisRequest,
     AlertAnalysisResponse,
@@ -18,11 +17,7 @@ from hannah_montana_ai.domain.schemas import (
     StockCandidate,
 )
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
-from hannah_montana_ai.services.feature_contracts import (
-    FinancialTranslationModel,
-    IntelligenceEventService,
-)
-from hannah_montana_ai.services.korean_translation_generator import KoreanTranslationGenerator
+from hannah_montana_ai.services.feature_contracts import IntelligenceEventService
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 from hannah_montana_ai.training.collector import (
     ProviderCollectionStatus,
@@ -168,12 +163,7 @@ def build_live_news_quality_audit_batch(
     effective_analyzer: AnalyzerLike = cast(AnalyzerLike, created_analyzer)
     effective_event_builder = event_builder
     if effective_event_builder is None and analyzer is None:
-        effective_event_builder = IntelligenceEventService(
-            cast(AlertAnalyzer, created_analyzer),
-            translation_model=FinancialTranslationModel(
-                KoreanTranslationGenerator.from_settings(get_settings())
-            ),
-        )
+        effective_event_builder = IntelligenceEventService(cast(AlertAnalyzer, created_analyzer))
     queries = build_live_news_queries(
         stock_universe,
         stock_sample_size=stock_sample_size,

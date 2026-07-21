@@ -13,12 +13,14 @@ from hannah_montana_ai.api.routes import (
     get_korean_translation_service,
 )
 from hannah_montana_ai.core.config import Settings, get_settings
-from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate
+from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate, SummaryLines
 from hannah_montana_ai.main import _translation_provider_ready, app
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationResult,
+    QwenAlertSummaryContext,
+    QwenAlertSummaryResult,
 )
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
@@ -62,15 +64,18 @@ def test_analyze_alert_returns_financial_labels() -> None:
     assert payload["data"]["original_content"] == "반도체 수요 회복으로 실적 개선 기대가 커졌다."
 
 
-def test_deferred_analysis_does_not_call_generation_translation() -> None:
-    class TranslationMustNotRun:
-        def translate_alert_fields(self, *_args, **_kwargs):
-            raise AssertionError("deferred analysis must not invoke translation")
+def test_deferred_analysis_generates_qwen_summary_without_translating_content() -> None:
+    class SummaryOnlyTranslationGenerator:
+        def generate_alert_summary(
+            self,
+            _context: QwenAlertSummaryContext,
+        ) -> QwenAlertSummaryResult:
+            return _summary_result()
 
         def translate(self, *_args, **_kwargs):
-            raise AssertionError("deferred analysis must not invoke translation")
+            raise AssertionError("deferred analysis must not translate full content")
 
-    analyzer = AlertAnalyzer(translation_generator=TranslationMustNotRun())
+    analyzer = AlertAnalyzer(translation_generator=SummaryOnlyTranslationGenerator())
     result = analyzer.analyze(AlertAnalysisRequest(
         source_type="NEWS",
         title="삼성전자 2분기 영업이익 증가",
@@ -87,9 +92,9 @@ def test_deferred_analysis_does_not_call_generation_translation() -> None:
 
     assert result.stock_code == "005930"
     assert result.summary_lines.what
-    assert result.translated_title == ""
+    assert result.translated_title == "Samsung Electronics earnings improve"
     assert result.translated_content == ""
-    assert result.translation_provider == "deferred-full-text-translation"
+    assert result.translation_provider == "test-qwen"
     assert result.translation_status == "SOURCE_LANGUAGE_FALLBACK"
 
 
@@ -111,6 +116,12 @@ def test_full_analysis_translates_only_original_content() -> None:
                 prompt_version="test-prompt",
                 quality_flags=[],
             )
+
+        def generate_alert_summary(
+            self,
+            _context: QwenAlertSummaryContext,
+        ) -> QwenAlertSummaryResult:
+            return _summary_result()
 
     translation_generator = CountingTranslationGenerator()
     analyzer = AlertAnalyzer(translation_generator=translation_generator)
@@ -134,10 +145,24 @@ def test_full_analysis_translates_only_original_content() -> None:
     ))
 
     assert [context.text for context in translation_generator.contexts] == [source_content]
-    assert result.translated_title == result.summary_lines.what
+    assert result.translated_title == "Samsung Electronics earnings improve"
     assert result.translated_summary == result.summary
     assert result.translated_content.startswith("Samsung Electronics")
     assert result.translation_status == "TRANSLATED"
+
+
+def _summary_result() -> QwenAlertSummaryResult:
+    return QwenAlertSummaryResult(
+        translated_title="Samsung Electronics earnings improve",
+        summary_lines=SummaryLines(
+            what="Samsung Electronics expects earnings to improve.",
+            why="The source cites recovering HBM demand.",
+            impact="Investors can monitor the next earnings release.",
+        ),
+        provider="test-qwen",
+        model_version="test-qwen-v1",
+        prompt_version="test-summary-prompt",
+    )
 
 
 def test_analysis_and_translation_routes_share_one_qwen_capacity_guard() -> None:

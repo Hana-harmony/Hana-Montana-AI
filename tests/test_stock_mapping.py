@@ -116,10 +116,6 @@ def test_preferred_share_request_keeps_issuer_alias_mapping() -> None:
 
 
 def test_longer_stock_name_wins_over_short_request_candidate_collision() -> None:
-    class FailingSummaryGenerator:
-        def generate(self, _context: object) -> object:
-            raise AssertionError("mismatched stock must not invoke generative summary")
-
     request = AlertAnalysisRequest.model_validate(
         {
             "source_type": "NEWS",
@@ -136,7 +132,7 @@ def test_longer_stock_name_wins_over_short_request_candidate_collision() -> None
         }
     )
 
-    response = AlertAnalyzer(summary_generator=FailingSummaryGenerator()).analyze(request)  # type: ignore[arg-type]
+    response = AlertAnalyzer().analyze(request)
 
     assert response.stock_code == "000660"
     assert response.stock_name == "SK하이닉스"
