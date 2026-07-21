@@ -3,15 +3,183 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
-from collections import Counter
+from collections import Counter, defaultdict, deque
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from hannah_montana_ai.training.dataset import load_labeled_alerts, resolve_jsonl_paths
 
 LABEL_ORDER = ("NEGATIVE", "NEUTRAL", "POSITIVE")
 _NON_ALNUM = re.compile(r"[^0-9a-z가-힣]+")
+_TRACKING_QUERY_NAMES = frozenset(
+    {
+        "_ga",
+        "_gl",
+        "dclid",
+        "fbclid",
+        "gclid",
+        "igshid",
+        "mc_cid",
+        "mc_eid",
+        "msclkid",
+        "ref",
+        "referrer",
+        "sid",
+        "sid1",
+        "sid2",
+        "yclid",
+    }
+)
+_TRACKING_QUERY_PREFIXES = ("utm_",)
+ProvenanceGroupKey = tuple[str, str]
+
+
+@dataclass(frozen=True, slots=True)
+class SentimentProvenance:
+    canonical_url: str
+    normalized_text: str
+    content_hash: str
+    event_cluster_id: str
+
+    @property
+    def row_key(self) -> tuple[str, str, str, str]:
+        return (
+            self.canonical_url,
+            self.normalized_text,
+            self.content_hash,
+            self.event_cluster_id,
+        )
+
+    @property
+    def group_keys(self) -> frozenset[ProvenanceGroupKey]:
+        values = {
+            "canonical_url": self.canonical_url,
+            "normalized_text": self.normalized_text,
+            "content_hash": self.content_hash,
+            "event_cluster_id": self.event_cluster_id,
+        }
+        return frozenset((name, value) for name, value in values.items() if value)
+
+
+def canonical_sentiment_url(value: str) -> str:
+    raw = unicodedata.normalize("NFKC", value).strip()
+    if not raw:
+        return ""
+    try:
+        parsed = urlsplit(raw)
+        port = parsed.port
+    except ValueError:
+        return raw
+    if not parsed.scheme or not parsed.hostname:
+        return raw
+
+    scheme = parsed.scheme.casefold()
+    hostname = parsed.hostname.casefold().rstrip(".")
+    if ":" in hostname and not hostname.startswith("["):
+        hostname = f"[{hostname}]"
+    default_port = (scheme == "http" and port == 80) or (scheme == "https" and port == 443)
+    netloc = hostname if port is None or default_port else f"{hostname}:{port}"
+    path = parsed.path or "/"
+    if path != "/":
+        path = path.rstrip("/")
+    query = [
+        (name, query_value)
+        for name, query_value in parse_qsl(parsed.query, keep_blank_values=True)
+        if not _is_tracking_query_parameter(name)
+    ]
+    query.sort(key=lambda item: (item[0].casefold(), item[1]))
+    return urlunsplit((scheme, netloc, path, urlencode(query, doseq=True), ""))
+
+
+def _is_tracking_query_parameter(name: str) -> bool:
+    normalized = name.casefold()
+    return normalized in _TRACKING_QUERY_NAMES or normalized.startswith(_TRACKING_QUERY_PREFIXES)
+
+
+def sentiment_provenance(row: Mapping[str, Any]) -> SentimentProvenance:
+    source_url = row.get("canonical_url") or row.get("source_url") or row.get("original_url")
+    return SentimentProvenance(
+        canonical_url=canonical_sentiment_url(str(source_url or "")),
+        normalized_text=normalized_sentiment_text(str(row.get("text") or "")),
+        content_hash=_normalized_identity(row.get("content_hash")),
+        event_cluster_id=_normalized_identity(row.get("event_cluster_id")),
+    )
+
+
+def _normalized_identity(value: Any) -> str:
+    return unicodedata.normalize("NFKC", str(value or "")).strip().casefold()
+
+
+def purge_sentiment_group_overlap(
+    training_rows: list[dict[str, Any]],
+    protected_rows: Sequence[Mapping[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """보호 행과 연결된 provenance 그룹 전체를 학습 데이터에서 제거한다."""
+    provenance = [sentiment_provenance(row) for row in training_rows]
+    key_to_indices: dict[ProvenanceGroupKey, list[int]] = defaultdict(list)
+    for index, item in enumerate(provenance):
+        for key in item.group_keys:
+            key_to_indices[key].append(index)
+
+    protected_keys = {key for row in protected_rows for key in sentiment_provenance(row).group_keys}
+    queue = deque(sorted(protected_keys))
+    contaminated_keys = set(protected_keys)
+    removed_indices: set[int] = set()
+    trigger_counts: Counter[str] = Counter()
+    propagated_count = 0
+    while queue:
+        key = queue.popleft()
+        for index in key_to_indices.get(key, ()):
+            if index in removed_indices:
+                continue
+            removed_indices.add(index)
+            trigger_counts[key[0]] += 1
+            if key not in protected_keys:
+                propagated_count += 1
+            for connected_key in sorted(provenance[index].group_keys):
+                if connected_key not in contaminated_keys:
+                    contaminated_keys.add(connected_key)
+                    queue.append(connected_key)
+
+    cleaned = [row for index, row in enumerate(training_rows) if index not in removed_indices]
+    return cleaned, {
+        "input_count": len(training_rows),
+        "output_count": len(cleaned),
+        "removed_count": len(removed_indices),
+        "propagated_removed_count": propagated_count,
+        "protected_group_key_count": len(protected_keys),
+        "contaminated_group_key_count": len(contaminated_keys),
+        "removed_by_trigger_key": {
+            name: trigger_counts[name]
+            for name in (
+                "canonical_url",
+                "normalized_text",
+                "content_hash",
+                "event_cluster_id",
+            )
+        },
+    }
+
+
+def assert_sentiment_groups_disjoint(
+    partitions: Mapping[str, Sequence[Mapping[str, Any]]],
+) -> None:
+    keys = {
+        name: {key for row in rows for key in sentiment_provenance(row).group_keys}
+        for name, rows in partitions.items()
+    }
+    names = sorted(keys)
+    for index, left in enumerate(names):
+        for right in names[index + 1 :]:
+            overlap = keys[left] & keys[right]
+            if overlap:
+                counts = Counter(name for name, _ in overlap)
+                summary = ", ".join(f"{name}={counts[name]}" for name in sorted(counts))
+                raise ValueError(f"{left}-{right} provenance 그룹 중복: {summary}")
 
 
 def normalized_sentiment_text(text: str) -> str:
@@ -57,21 +225,14 @@ def decontaminate_public_partitions(
     for name in ("TRAIN", "VALIDATION", "TEST"):
         cleaned[name], internal[name] = conflict_safe_deduplicate(partitions[name])
 
-    test_keys = {normalized_sentiment_text(row["text"]) for row in cleaned["TEST"]}
     validation_before = len(cleaned["VALIDATION"])
-    cleaned["VALIDATION"] = [
-        row
-        for row in cleaned["VALIDATION"]
-        if normalized_sentiment_text(row["text"]) not in test_keys
-    ]
-    validation_keys = {normalized_sentiment_text(row["text"]) for row in cleaned["VALIDATION"]}
+    cleaned["VALIDATION"], validation_overlap_audit = purge_sentiment_group_overlap(
+        cleaned["VALIDATION"], cleaned["TEST"]
+    )
     train_before = len(cleaned["TRAIN"])
-    holdout_keys = test_keys | validation_keys
-    cleaned["TRAIN"] = [
-        row
-        for row in cleaned["TRAIN"]
-        if normalized_sentiment_text(row["text"]) not in holdout_keys
-    ]
+    cleaned["TRAIN"], train_overlap_audit = purge_sentiment_group_overlap(
+        cleaned["TRAIN"], [*cleaned["TEST"], *cleaned["VALIDATION"]]
+    )
     audit = {
         "normalization": "NFKC-casefold-alphanumeric/v1",
         "holdout_priority": ["TEST", "VALIDATION", "TRAIN"],
@@ -81,6 +242,10 @@ def decontaminate_public_partitions(
             "VALIDATION": validation_before - len(cleaned["VALIDATION"]),
             "TEST": 0,
         },
+        "group_overlap": {
+            "TRAIN": train_overlap_audit,
+            "VALIDATION": validation_overlap_audit,
+        },
         "final_count": {name: len(rows) for name, rows in cleaned.items()},
     }
     assert_disjoint_partitions(cleaned)
@@ -88,16 +253,7 @@ def decontaminate_public_partitions(
 
 
 def assert_disjoint_partitions(partitions: dict[str, list[dict[str, str]]]) -> None:
-    keys = {
-        name: {normalized_sentiment_text(row["text"]) for row in rows}
-        for name, rows in partitions.items()
-    }
-    names = sorted(keys)
-    for index, left in enumerate(names):
-        for right in names[index + 1 :]:
-            overlap = keys[left] & keys[right]
-            if overlap:
-                raise ValueError(f"{left}-{right} 정규화 문장 중복 {len(overlap)}건")
+    assert_sentiment_groups_disjoint(partitions)
 
 
 def stratified_hash_split(
@@ -118,6 +274,54 @@ def stratified_hash_split(
         result[right_name].extend(bucket[midpoint:])
     for values in result.values():
         values.sort(key=lambda row: normalized_sentiment_text(row["text"]))
+    return result
+
+
+def stratified_hash_three_way_split(
+    rows: list[dict[str, str]],
+    *,
+    checkpoint_name: str,
+    calibration_name: str,
+    selection_name: str,
+    minimum_per_label: int,
+) -> dict[str, list[dict[str, str]]]:
+    """라벨별 해시 정렬로 50/25/25 그룹 분할을 만든다."""
+    names = (checkpoint_name, calibration_name, selection_name)
+    if len(set(names)) != len(names) or minimum_per_label < 1:
+        raise ValueError("3-way 분할 이름 또는 최소 라벨 수가 올바르지 않습니다.")
+    result: dict[str, list[dict[str, str]]] = {name: [] for name in names}
+    for label in LABEL_ORDER:
+        bucket = [row for row in rows if row["label"] == label]
+        bucket.sort(
+            key=lambda row: sha256(
+                json.dumps(
+                    {
+                        "normalized_text": normalized_sentiment_text(row["text"]),
+                        "provenance": sentiment_provenance(row).row_key,
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).digest()
+        )
+        checkpoint_count = len(bucket) // 2
+        remaining = len(bucket) - checkpoint_count
+        calibration_count = remaining // 2
+        selection_count = remaining - calibration_count
+        counts = (checkpoint_count, calibration_count, selection_count)
+        if min(counts, default=0) < minimum_per_label:
+            raise ValueError(
+                f"{label} 3-way 분할 후 최소 {minimum_per_label}건을 보장할 수 없습니다: "
+                f"{dict(zip(names, counts, strict=True))}"
+            )
+        calibration_end = checkpoint_count + calibration_count
+        result[checkpoint_name].extend(bucket[:checkpoint_count])
+        result[calibration_name].extend(bucket[checkpoint_count:calibration_end])
+        result[selection_name].extend(bucket[calibration_end:])
+    for values in result.values():
+        values.sort(key=lambda row: normalized_sentiment_text(row["text"]))
+    assert_sentiment_groups_disjoint(result)
     return result
 
 
