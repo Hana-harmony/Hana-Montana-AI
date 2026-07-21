@@ -2,7 +2,7 @@
 
 ## 목적과 API
 
-한국 주식 뉴스·공시의 제목, 요약, 전문을 영어로 번역한다. `POST /api/v1/translation/ko-en`과 intelligence event 생성 경로에서 사용한다.
+한국 주식 뉴스·공시의 전문을 영어로 번역한다. `POST /api/v1/translation/ko-en`과 intelligence event 생성 경로에서 사용하며, 분석 경로의 제목·요약은 이미 영문으로 생성된 What/Why/Impact를 재사용해 중복 Qwen 호출을 피한다.
 
 ## 구현
 
@@ -14,7 +14,7 @@
 - 출력: 번역문, provider, model version, 상태, prompt version, 품질 플래그
 - 뉴스 전문 분할은 AI 서비스가 단독으로 담당한다. 본문은 최대 700자 단위로 나누고 llama.cpp의 병렬 슬롯 2개를 사용해 순서를 보존한 채 처리한다.
 - 각 조각의 품질 재시도는 최대 2회로 제한하고, 900자를 넘는 본문은 전체 본문 재시도를 하지 않아 중복 추론 적재를 방지한다.
-- 운영 HTTP timeout은 저사양 ARM CPU의 최악 지연을 수용하도록 600초로 두며 호출자는 번역을 요청-응답 수명과 분리한다.
+- 운영 HTTP timeout은 저사양 ARM CPU의 최악 지연을 수용하도록 600초로 둔다. 공개 API는 완성된 전문만 노출하고 상세 조회 요청 중에 번역하지 않는다.
 - OpenDART 공시는 표·항목 구조를 보존하는 structured 경로를 사용한다.
 - 단일 금융 용어 사전의 표면형을 prompt와 후처리에 적용한다.
 - endpoint 오류, 누락, 반복, 미번역 한글, 잘린 문장 등 품질 gate 실패는 원문과 `SOURCE_LANGUAGE_FALLBACK`으로 반환한다.

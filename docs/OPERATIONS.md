@@ -60,7 +60,7 @@ curl http://localhost:8000/ready
 ## 관측과 실패 처리
 
 - 분석 audit는 요청 원문 대신 SHA-256 hash, model version, latency, 성공·실패 사유를 기록한다.
-- 번역 로그는 원문 hash, 입력·출력 길이, provider, 상태와 제한된 품질 플래그를 기록한다.
+- 번역 로그는 원문 hash, 입력·출력 길이, 소요 시간, provider, 상태와 제한된 품질 플래그를 기록한다. 분석 API는 audit latency로 전체 소요 시간을 기록한다.
 - model version, provider, confidence와 fallback 상태는 API payload에 포함한다.
 - 번역 품질 실패는 `SOURCE_LANGUAGE_FALLBACK`, OCR 불가 입력은 수동 검수 또는 거절 상태, 모델 artifact 장애는 503으로 노출한다.
 - 글로벌 피어는 더미 peer를 생성하지 않는다.

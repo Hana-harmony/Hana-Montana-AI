@@ -23,7 +23,7 @@
 - 중복 제거 키
 - confidence와 model version
 - 요약 품질 gate: 생략부호, 문장 중간 잘림, 중요도·감성 메타 문구를 사용자 payload에서 제거한다.
-- `DEFERRED` 응답은 종목 연결·이벤트·감성·중요도·시장영향·영문 What/Why/Impact를 동일하게 계산하고 번역 필드는 비워 `SOURCE_LANGUAGE_FALLBACK`으로 표시한다. `FULL` 응답만 Qwen 제목·요약·본문 번역을 수행한다.
+- `DEFERRED` 응답은 종목 연결·이벤트·감성·중요도·시장영향·영문 What/Why/Impact를 동일하게 계산하고 번역 필드는 비워 `SOURCE_LANGUAGE_FALLBACK`으로 표시한다. `FULL` 응답은 영문 What/Why/Impact를 제목·요약으로 재사용하고 Qwen으로 원문 전문을 번역한다.
 
 ## 모델
 - 서비스 표기명: `Hana Montana AI(KF-DeBERTa + K-FNSPID)`
