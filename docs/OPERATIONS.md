@@ -23,7 +23,7 @@ curl http://localhost:8000/ready
 
 - 뉴스·공시 분류와 stock linker는 versioned joblib artifact를 startup에 로드한다. 누락·손상 시 503으로 종료한다.
 - What/Why/Impact는 검증 규칙으로 생성한다.
-- 한국어→영어 번역은 같은 Docker 내부망의 `http://hannah-qwen:8080` Qwen3-4B GGUF 서버를 사용한다.
+- 한국어→영어 번역은 같은 Docker 내부망의 `http://hannah-qwen:8080` Qwen3-4B GGUF 서버를 사용한다. Qwen은 3 OCPU 상한과 병렬 슬롯 2개로 운영하고 장문 요청 timeout은 600초로 둔다.
 - Qwen 모델은 공식 revision과 SHA-256을 고정해 최초 배포 시 내려받고, 병렬 번역의 실측 최대 사용량을 수용하는 10GB 메모리 한도와 번역 청크에 충분한 4K context로 운영한다.
 - 글로벌 피어는 동적 similarity artifact와 `grounded-template-structured-rag-v3` 설명 템플릿을 사용한다.
 - 한국 금융 용어는 `data/reference/korean_financial_terms_seed.json` 단일 사전을 사용한다.
