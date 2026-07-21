@@ -13,7 +13,7 @@ services:
       - no-new-privileges:true
     pids_limit: 256
     mem_limit: 10g
-    cpus: 1.75
+    cpus: 3.0
     command:
       - --model
       - /models/Qwen3-4B-Q4_K_M.gguf
