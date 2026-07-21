@@ -9,6 +9,8 @@ from hannah_montana_ai.services.analyzer import _contains_glossary_surface
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
+    QwenAlertSummaryContext,
+    QwenAlertSummaryError,
     QwenHttpKoreanTranslationClient,
 )
 
@@ -116,32 +118,58 @@ def test_http_client_calls_openai_compatible_qwen_endpoint(monkeypatch: object) 
     assert captured["body"]["model"] == "Qwen3-4B-GGUF-Q4"  # type: ignore[index]
 
 
-def test_alert_fields_use_one_qwen_generation_call() -> None:
-    translated = """<<<1>>>
-Samsung Electronics reports stronger earnings.
-<<<2>>>
-Earnings improved as semiconductor demand recovered.
-<<<3>>>
-Samsung Electronics said operating profit increased as semiconductor demand recovered."""
-    client = FakeTranslationClient(json.dumps({"translation": translated}))
+def test_qwen_generates_grounded_alert_title_and_what_why_impact() -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects stronger earnings",
+        "what": "Samsung Electronics expects operating profit to improve.",
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update is relevant to investors monitoring semiconductor earnings.",
+    }))
     generator = KoreanTranslationGenerator(
         client=client,
         model_name="fake-qwen",
         rule_based_repairs_enabled=False,
     )
-    results = generator.translate_alert_fields(
-        {
-            "TITLE": KoreanTranslationContext(text="삼성전자 실적 개선"),
-            "SUMMARY": KoreanTranslationContext(text="반도체 수요 회복으로 실적이 개선됐다."),
-            "CONTENT": KoreanTranslationContext(
-                text="삼성전자는 반도체 수요 회복으로 영업이익이 증가했다고 밝혔다."
-            ),
-        }
+    result = generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 1
+    assert result.translated_title.startswith("Samsung Electronics")
+    assert result.summary_lines.why == "The source cites recovering HBM demand."
+    assert result.provider == "local-open-source-qwen3-translation"
+
+
+def test_qwen_summary_quality_failure_does_not_return_a_fallback() -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects 999% growth",
+        "what": "Samsung Electronics expects 999% growth.",
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update is relevant to investors.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
     )
 
-    assert results is not None
-    assert len(client.calls) == 1
-    assert results["TITLE"].translated_text.startswith("Samsung Electronics")
+    with pytest.raises(QwenAlertSummaryError, match="UNSUPPORTED_NUMERIC_FACT"):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
+def _summary_context() -> QwenAlertSummaryContext:
+    return QwenAlertSummaryContext(
+        title="삼성전자 HBM 실적 개선 전망",
+        content="삼성전자는 HBM 수요 회복으로 영업이익 증가를 전망했다.",
+        source_type="NEWS",
+        importance="HIGH",
+        sentiment="POSITIVE",
+        event_tags=["EARNINGS"],
+        stock_code="005930",
+        stock_name="삼성전자",
+        stock_name_en="Samsung Electronics",
+        market_impact_importance="MEDIUM",
+    )
 
 
 def test_long_body_retry_count_is_bounded() -> None:

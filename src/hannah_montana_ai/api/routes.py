@@ -34,7 +34,6 @@ from hannah_montana_ai.observability import publish_business_event
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.audit import AnalysisAuditLogger
 from hannah_montana_ai.services.feature_contracts import (
-    FinancialTranslationModel,
     IntelligenceEventService,
     StockOrderStatusService,
     TaxDocumentVerificationService,
@@ -301,10 +300,7 @@ def build_intelligence_event(
             "ML model artifact is unavailable",
         ) from exception
     return success_response(
-        IntelligenceEventService(
-            analyzer,
-            translation_model=FinancialTranslationModel(get_korean_translation_service()),
-        ).build_response(request)
+        IntelligenceEventService(analyzer).build_response(request)
     )
 
 

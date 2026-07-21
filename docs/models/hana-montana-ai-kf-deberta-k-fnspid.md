@@ -8,7 +8,7 @@ Hana Montana AI(KF-DeBERTa + K-FNSPID)는 한국 뉴스·공시를 종목 인텔
 - 의미 중요도·이벤트: 공시 약지도 Validation 선택 Logistic Regression과 제한적 존속위험 정책
 - 시장영향 등급: K-FNSPID v4로 각각 학습한 뉴스·공시 KF-DeBERTa LoRA 전문가
 - 종목 연결: 한국 종목 master·alias 문맥 링커
-- 요약: What/Why/Impact 검증 규칙
+- 요약: Qwen3 원문 근거 기반 영문 제목·What/Why/Impact와 strict JSON 품질 gate
 
 ## 의도한 사용
 

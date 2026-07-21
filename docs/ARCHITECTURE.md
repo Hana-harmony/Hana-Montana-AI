@@ -15,7 +15,7 @@
 ## API 경계
 - 공개 endpoint: `GET /health`, `GET /ready`
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
-- 분석 요청의 `translation_mode=DEFERRED`는 ML 분석과 영문 What/Why/Impact를 완료한 뒤 생성형 전체 본문 번역을 생략한다. 기본 `FULL`은 이미 영문으로 생성된 What/Why/Impact를 제목·요약으로 재사용하고 Qwen은 원문 전문만 번역한다. 영문 생성문이 품질 gate를 통과하지 못한 경우만 제목·요약을 별도 번역한다.
+- 분석 요청의 `translation_mode=DEFERRED`는 ML 분석과 Qwen 영문 제목·What/Why/Impact를 완료한 뒤 전체 본문 번역만 생략한다. 기본 `FULL`은 Qwen 요약과 Qwen 전문 번역을 전역 추론 슬롯 2개 안에서 병렬 처리한다. 긴 원문은 Qwen 근거 추출을 계층적으로 축약한 뒤 최종 요약하며, 생성 품질이 gate를 통과하지 못하면 규칙 기반 대체값 없이 분석을 실패 처리한다.
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`
 - 내부 endpoint: `POST /api/v1/tax/documents/verify`

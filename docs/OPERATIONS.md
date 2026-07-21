@@ -22,9 +22,9 @@ curl http://localhost:8000/ready
 ## Serving 구성
 
 - 뉴스·공시 분류와 stock linker는 versioned joblib artifact를 startup에 로드한다. 누락·손상 시 503으로 종료한다.
-- What/Why/Impact는 검증 규칙으로 생성한다.
+- 영문 제목과 What/Why/Impact는 Qwen이 원문과 KF-DeBERTa/K-FNSPID 분류 신호를 입력받아 strict JSON으로 생성한다. 원문에 직접 원인이 없으면 그 사실을 명시하며, 품질 gate 실패 시 대체 문구 없이 분석을 실패 처리한다.
 - 한국어→영어 번역은 같은 Docker 내부망의 `http://hannah-qwen:8080` Qwen3-4B GGUF 서버를 사용한다. Qwen은 3 OCPU 상한과 병렬 슬롯 2개로 운영하고 장문 요청 timeout은 600초로 둔다.
-- Qwen 모델은 공식 revision과 SHA-256을 고정해 최초 배포 시 내려받고, 병렬 번역의 실측 최대 사용량을 수용하는 10GB 메모리 한도와 번역 청크에 충분한 4K context로 운영한다.
+- Qwen 모델은 공식 revision과 SHA-256을 고정해 최초 배포 시 내려받고, 병렬 추론의 실측 최대 사용량을 수용하는 10GB 메모리 한도와 번역 청크에 충분한 4K context로 운영한다. 요약과 전문 번역은 전역 슬롯 2개를 공유하며 `FULL` 분석에서는 둘을 겹쳐 처리한다.
 - 글로벌 피어는 동적 similarity artifact와 `grounded-template-structured-rag-v3` 설명 템플릿을 사용한다.
 - 한국 금융 용어는 `data/reference/korean_financial_terms_seed.json` 단일 사전을 사용한다.
 - 외국인 보유 예측은 제한 종목 allowlist와 보유수량 시계열 artifact를 사용한다.
@@ -60,7 +60,7 @@ curl http://localhost:8000/ready
 ## 관측과 실패 처리
 
 - 분석 audit는 요청 원문 대신 SHA-256 hash, model version, latency, 성공·실패 사유를 기록한다.
-- 번역 로그는 원문 hash, 입력·출력 길이, 소요 시간, provider, 상태와 제한된 품질 플래그를 기록한다. 분석 API는 audit latency로 전체 소요 시간을 기록한다.
+- 로그는 요약·전문 입력 길이, 요약 소요 시간, 전체 Qwen 처리 시간, provider, 상태와 제한된 품질 플래그를 기록한다. 분석 API는 audit latency로 전체 소요 시간을 기록하며 원문은 기록하지 않는다.
 - model version, provider, confidence와 fallback 상태는 API payload에 포함한다.
 - 번역 품질 실패는 `SOURCE_LANGUAGE_FALLBACK`, OCR 불가 입력은 수동 검수 또는 거절 상태, 모델 artifact 장애는 503으로 노출한다.
 - 글로벌 피어는 더미 peer를 생성하지 않는다.

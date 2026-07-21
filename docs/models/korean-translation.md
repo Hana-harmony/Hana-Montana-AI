@@ -2,7 +2,7 @@
 
 ## 목적과 API
 
-한국 주식 뉴스·공시의 전문을 영어로 번역한다. `POST /api/v1/translation/ko-en`과 intelligence event 생성 경로에서 사용하며, 분석 경로의 제목·요약은 이미 영문으로 생성된 What/Why/Impact를 재사용해 중복 Qwen 호출을 피한다.
+한국 주식 뉴스·공시의 전문을 영어로 번역한다. `POST /api/v1/translation/ko-en`과 intelligence event 생성 경로에서 사용하며, 같은 Qwen 런타임이 영문 제목과 What/Why/Impact도 strict JSON으로 생성한다.
 
 ## 구현
 
@@ -17,7 +17,7 @@
 - 운영 HTTP timeout은 저사양 ARM CPU의 최악 지연을 수용하도록 600초로 둔다. 공개 API는 완성된 전문만 노출하고 상세 조회 요청 중에 번역하지 않는다.
 - OpenDART 공시는 표·항목 구조를 보존하는 structured 경로를 사용한다.
 - 단일 금융 용어 사전의 표면형을 prompt와 후처리에 적용한다.
-- endpoint 오류, 누락, 반복, 미번역 한글, 잘린 문장 등 품질 gate 실패는 원문과 `SOURCE_LANGUAGE_FALLBACK`으로 반환한다.
+- 전문 번역의 endpoint 오류, 누락, 반복, 미번역 한글, 잘린 문장 등 품질 gate 실패는 원문과 `SOURCE_LANGUAGE_FALLBACK`으로 반환하고 공개 발행에서 제외한다. 제목·What/Why/Impact 실패는 대체 문구 없이 분석 요청 자체를 실패 처리한다.
 
 ## 보안과 한계
 
