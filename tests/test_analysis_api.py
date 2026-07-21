@@ -7,11 +7,19 @@ import pytest
 from fastapi.testclient import TestClient
 
 from hannah_montana_ai.api import routes
-from hannah_montana_ai.api.routes import get_analyzer, get_audit_logger
+from hannah_montana_ai.api.routes import (
+    get_analyzer,
+    get_audit_logger,
+    get_korean_translation_service,
+)
 from hannah_montana_ai.core.config import Settings, get_settings
 from hannah_montana_ai.domain.schemas import AlertAnalysisRequest, StockCandidate
 from hannah_montana_ai.main import _translation_provider_ready, app
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
+from hannah_montana_ai.services.korean_translation_generator import (
+    KoreanTranslationContext,
+    KoreanTranslationResult,
+)
 from hannah_montana_ai.services.model import ModelArtifactNotFoundError
 
 
@@ -83,6 +91,62 @@ def test_deferred_analysis_does_not_call_generation_translation() -> None:
     assert result.translated_content == ""
     assert result.translation_provider == "deferred-full-text-translation"
     assert result.translation_status == "SOURCE_LANGUAGE_FALLBACK"
+
+
+def test_full_analysis_translates_only_original_content() -> None:
+    class CountingTranslationGenerator:
+        def __init__(self) -> None:
+            self.contexts: list[KoreanTranslationContext] = []
+
+        def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
+            self.contexts.append(context)
+            return KoreanTranslationResult(
+                translated_text=(
+                    "Samsung Electronics expects operating profit to improve as HBM demand "
+                    "recovers. Investors should monitor the next earnings release."
+                ),
+                provider="test-qwen",
+                model_version="test-qwen-v1",
+                status="TRANSLATED",
+                prompt_version="test-prompt",
+                quality_flags=[],
+            )
+
+    translation_generator = CountingTranslationGenerator()
+    analyzer = AlertAnalyzer(translation_generator=translation_generator)
+    source_content = (
+        "삼성전자는 HBM 수요 회복으로 영업이익 증가를 전망했다. "
+        "투자자는 다음 실적 발표를 확인해야 한다."
+    )
+
+    result = analyzer.analyze(AlertAnalysisRequest(
+        source_type="NEWS",
+        title="삼성전자 HBM 실적 개선 전망",
+        snippet="HBM 수요 회복으로 실적 개선 기대가 커졌다.",
+        content=source_content,
+        original_url="https://example.com/news/full-translation",
+        stock_universe=[StockCandidate(
+            stock_code="005930",
+            stock_name="삼성전자",
+            stock_name_en="Samsung Electronics",
+        )],
+        translation_mode="FULL",
+    ))
+
+    assert [context.text for context in translation_generator.contexts] == [source_content]
+    assert result.translated_title == result.summary_lines.what
+    assert result.translated_summary == result.summary
+    assert result.translated_content.startswith("Samsung Electronics")
+    assert result.translation_status == "TRANSLATED"
+
+
+def test_analysis_and_translation_routes_share_one_qwen_capacity_guard() -> None:
+    get_analyzer.cache_clear()
+    get_korean_translation_service.cache_clear()
+
+    analyzer = get_analyzer()
+
+    assert analyzer.translation_generator is get_korean_translation_service()
 
 
 def test_analyze_alert_accepts_full_disclosure_above_legacy_60000_chars() -> None:

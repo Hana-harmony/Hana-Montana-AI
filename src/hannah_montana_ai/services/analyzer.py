@@ -739,33 +739,57 @@ class AlertAnalyzer:
         summary: str,
         response_content: str,
     ) -> dict[str, KoreanTranslationResult]:
-        source_fields = {
-            "TITLE": request.title,
-            "SUMMARY": summary,
-            "CONTENT": response_content,
-        }
-        contexts = {
-            field: KoreanTranslationContext(
-                text=text,
-                source_type=request.source_type,
-                title=request.title,
-                glossary_terms=glossary_terms,
-            )
-            for field, text in source_fields.items()
-        }
-        # 구조화 번역이 실패하면 기존 필드별 경로로 복구해 본문 누락을 막는다.
-        batched = self.translation_generator.translate_alert_fields(contexts)
-        if batched is not None:
-            return batched
-        return {
-            field: self._translate_analysis_text(
-                text,
+        summary_headline = next(
+            (line.strip() for line in summary.splitlines() if line.strip()),
+            "",
+        )
+        title = (
+            self._generated_english_translation(summary_headline)
+            if self._is_usable_generated_english(summary_headline)
+            else self._translate_analysis_text(
+                request.title,
                 request,
                 glossary_terms,
                 title=request.title,
             )
-            for field, text in source_fields.items()
+        )
+        translated_summary = (
+            self._generated_english_translation(summary)
+            if self._is_usable_generated_english(summary)
+            else self._translate_analysis_text(
+                summary,
+                request,
+                glossary_terms,
+                title=request.title,
+            )
+        )
+        translated_content = self._translate_analysis_text(
+            response_content,
+            request,
+            glossary_terms,
+            title=request.title,
+        )
+        return {
+            "TITLE": title,
+            "SUMMARY": translated_summary,
+            "CONTENT": translated_content,
         }
+
+    def _generated_english_translation(self, text: str) -> KoreanTranslationResult:
+        return KoreanTranslationResult(
+            translated_text=text.strip(),
+            provider="hannah-english-summary",
+            model_version=self.model.version,
+            status=STATUS_TRANSLATED,
+            prompt_version="",
+            quality_flags=[],
+        )
+
+    @staticmethod
+    def _is_usable_generated_english(text: str) -> bool:
+        normalized = text.strip()
+        return bool(normalized and re.search(r"[A-Za-z]", normalized)) \
+            and re.search(r"[가-힣\u3400-\u4dbf\u4e00-\u9fff]", normalized) is None
 
     def _analysis_translation_quality_flags(
         self,
