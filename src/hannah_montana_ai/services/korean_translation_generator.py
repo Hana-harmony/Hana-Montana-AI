@@ -920,6 +920,8 @@ class KoreanTranslationGenerator:
                 "Do not mention model names, labels, scores, prompts, or analysis instructions.",
                 "Do not give investment advice or predict a price direction.",
                 "Write natural English with no Korean or Chinese characters.",
+                "Write what, why, and impact as complete sentences of at least "
+                "four words, ending with punctuation.",
             ],
             "source_type": context.source_type,
             "korean_title": context.title,
@@ -1011,6 +1013,23 @@ class KoreanTranslationGenerator:
         if self._has_unsupported_year_fact(source_text, combined):
             flags.append("UNSUPPORTED_YEAR_FACT")
         summary_values = values[1:]
+        if any(
+            len(re.findall(r"[A-Za-z]{2,}", value)) < 4
+            for value in summary_values
+        ):
+            flags.append("FRAGMENTARY_SUMMARY_LINE")
+        if any(
+            re.search(r"[.!?][\"')\]]*$", value) is None
+            for value in summary_values
+        ):
+            flags.append("INCOMPLETE_SUMMARY_SENTENCE")
+        if any(re.match(r"^\d{6}\b", value) for value in summary_values):
+            flags.append("STOCK_CODE_SUMMARY_SUBJECT")
+        if any(
+            re.search(r"^(?:\.\.\.|…)|(?:\.\.\.|…)[\s\"')\]]*$", value)
+            for value in summary_values
+        ):
+            flags.append("SUMMARY_ELLIPSIS")
         if len({value.casefold() for value in summary_values}) != len(summary_values):
             flags.append("DUPLICATE_SUMMARY_LINE")
         return flags
