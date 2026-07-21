@@ -421,7 +421,11 @@ class IntelligenceEventService:
             published_at=request.published_at,
             translation_provider=analysis.translation_provider,
             translation_model_version=analysis.translation_model_version,
-            translation_status=analysis.translation_status,
+            translation_status=(
+                "TRANSLATED"
+                if analysis.translation_status == "TRANSLATED"
+                else "SOURCE_LANGUAGE_FALLBACK"
+            ),
             model_version=analysis.model_version,
             event_confidence=analysis.event_confidence,
             sentiment_confidence=analysis.sentiment_confidence,
