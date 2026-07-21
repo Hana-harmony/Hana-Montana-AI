@@ -44,11 +44,13 @@ def test_qwen_is_pinned_and_private() -> None:
     assert "llama.cpp:server@sha256:" in compose
     assert 'user: "65532:65532"' in compose
     assert "mem_limit: 10g" in compose
+    assert "cpus: 3.0" in compose
     assert '- "4096"' in compose
     assert "127.0.0.1:18081:8080" in compose
     assert "external: true" in compose
     assert "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5" in downloader
     assert "http://hannah-qwen:8080" in workflow
+    assert "HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS=600" in workflow
     assert "secrets.HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT" not in workflow
     assert "http://hannah-qwen:8080" in local_compose
     assert "host.docker.internal" not in local_compose
