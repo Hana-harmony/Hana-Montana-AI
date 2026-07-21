@@ -6,22 +6,29 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
-from hannah_montana_ai.domain.schemas import GlobalPeerMatchRequest, MarketType
+from hannah_montana_ai.domain.schemas import GlobalPeerMatch, GlobalPeerMatchRequest, MarketType
 from hannah_montana_ai.services.global_peer_matcher import GlobalPeerMatcher
 from hannah_montana_ai.training.global_peer_trainer import (
     GENERIC_LISTED_INDUSTRY,
     GENERIC_LISTED_SECTOR,
+    KoreaIndustryProfile,
+    ground_industry_profiles_with_company_summaries,
+    inherit_preferred_share_issuer_profiles,
+    load_korea_company_profiles,
+    load_korea_industry_profiles,
     normalize_profile_text,
 )
 from hannah_montana_ai.training.stock_universe import StockUniverseEntry, load_stock_universe
 
-GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION = "global-peer-full-coverage/v2"
+GLOBAL_PEER_FULL_COVERAGE_SCHEMA_VERSION = "global-peer-full-coverage/v3"
 _VALID_MARKETS: set[str] = {"KOSPI", "KOSDAQ", "KONEX", "OTHER"}
 
 
 def build_global_peer_full_coverage_report(
     *,
     stock_universe_path: Path,
+    korea_industry_path: Path,
+    korea_company_profile_path: Path,
     model_path: Path,
     report_path: Path,
     sample_limit: int | None = None,
@@ -29,6 +36,19 @@ def build_global_peer_full_coverage_report(
     stocks = load_stock_universe(stock_universe_path)
     selected_stocks = stocks[:sample_limit] if sample_limit else stocks
     matcher = GlobalPeerMatcher(model_path)
+    authoritative_profiles = load_korea_industry_profiles(korea_industry_path)
+    authoritative_company_profiles = load_korea_company_profiles(korea_company_profile_path)
+    authoritative_profiles, authoritative_company_profiles = (
+        inherit_preferred_share_issuer_profiles(
+            stocks,
+            authoritative_profiles,
+            authoritative_company_profiles,
+        )
+    )
+    authoritative_profiles = ground_industry_profiles_with_company_summaries(
+        authoritative_profiles,
+        authoritative_company_profiles,
+    )
     rows: list[dict[str, Any]] = []
     failures: list[dict[str, str]] = []
 
@@ -51,6 +71,16 @@ def build_global_peer_full_coverage_report(
         source_sector = str(stock_profile.get("sector") or "Unclassified")
         source_industry = str(stock_profile.get("industry") or "Unclassified")
         source_business_model = str(stock_profile.get("business_model") or "Operating company")
+        raw_source_tags = stock_profile.get("business_tags", [])
+        source_business_tags = (
+            [str(tag) for tag in raw_source_tags] if isinstance(raw_source_tags, list) else []
+        )
+        authoritative_profile = authoritative_profiles.get(stock.stock_code)
+        source_profile_matches_authority = _source_profile_matches_authority(
+            source_sector=source_sector,
+            source_industry=source_industry,
+            authoritative_profile=authoritative_profile,
+        )
         comparison_tickers = [comparison.peer.ticker for comparison in response.comparisons]
         comparison_dimensions = [comparison.dimension for comparison in response.comparisons]
         comparison_descriptions = [comparison.description for comparison in response.comparisons]
@@ -61,6 +91,15 @@ def build_global_peer_full_coverage_report(
             for ticker in comparison_tickers
             if ticker in matcher._eligible_us_index_by_ticker
         ]
+        peer_domain_valid = all(
+            _peer_matches_source_domain(
+                source_sector=source_sector,
+                source_industry=source_industry,
+                source_business_tags=source_business_tags,
+                peer=peer,
+            )
+            for peer in [primary_peer, *[comparison.peer for comparison in response.comparisons]]
+        )
         rows.append(
             {
                 "stock_code": stock.stock_code,
@@ -73,6 +112,15 @@ def build_global_peer_full_coverage_report(
                 "source_sector": source_sector,
                 "source_industry": source_industry,
                 "source_business_model": source_business_model,
+                "source_business_tags": source_business_tags,
+                "authoritative_sector": (
+                    authoritative_profile.sector if authoritative_profile else "Unclassified"
+                ),
+                "authoritative_industry": (
+                    authoritative_profile.industry if authoritative_profile else "Unclassified"
+                ),
+                "source_profile_matches_authority": source_profile_matches_authority,
+                "peer_domain_valid": peer_domain_valid,
                 "confidence_root_cause": _confidence_root_cause(
                     confidence_level=response.confidence_level,
                     source_sector=source_sector,
@@ -125,6 +173,8 @@ def build_global_peer_full_coverage_report(
         rows=rows,
         failures=failures,
         stock_universe_path=stock_universe_path,
+        korea_industry_path=korea_industry_path,
+        korea_company_profile_path=korea_company_profile_path,
         model_path=model_path,
     )
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -133,6 +183,43 @@ def build_global_peer_full_coverage_report(
         encoding="utf-8",
     )
     return report
+
+
+def _source_profile_matches_authority(
+    *,
+    source_sector: str,
+    source_industry: str,
+    authoritative_profile: KoreaIndustryProfile | None,
+) -> bool | None:
+    if authoritative_profile is None:
+        return None
+    if authoritative_profile.sector in {"Unclassified", GENERIC_LISTED_SECTOR}:
+        return None
+    if authoritative_profile.industry in {"Unclassified", GENERIC_LISTED_INDUSTRY}:
+        return None
+    return (
+        source_sector == authoritative_profile.sector
+        and source_industry == authoritative_profile.industry
+    )
+
+
+def _peer_matches_source_domain(
+    *,
+    source_sector: str,
+    source_industry: str,
+    source_business_tags: list[str],
+    peer: GlobalPeerMatch,
+) -> bool:
+    generic_sectors = {"Unclassified", GENERIC_LISTED_SECTOR}
+    generic_industries = {"Unclassified", GENERIC_LISTED_INDUSTRY}
+    if source_sector not in generic_sectors and peer.sector != source_sector:
+        return False
+    if source_industry in generic_industries or peer.industry == source_industry:
+        return True
+    primary_source_tag = source_business_tags[0].lower() if source_business_tags else ""
+    return bool(
+        primary_source_tag and primary_source_tag in {tag.lower() for tag in peer.business_tags}
+    )
 
 
 def _confidence_root_cause(
@@ -203,6 +290,8 @@ def _report(
     rows: list[dict[str, Any]],
     failures: list[dict[str, str]],
     stock_universe_path: Path,
+    korea_industry_path: Path,
+    korea_company_profile_path: Path,
     model_path: Path,
 ) -> dict[str, Any]:
     confidence_counts = Counter(str(row["confidence_level"]) for row in rows)
@@ -232,6 +321,15 @@ def _report(
         or not bool(row["strength_descriptions_unique"])
         or not bool(row["strength_copy_clean"])
     )
+    authority_checked_rows = [
+        row for row in rows if row["source_profile_matches_authority"] is not None
+    ]
+    source_profile_mismatch_rows = [
+        row for row in authority_checked_rows if not bool(row["source_profile_matches_authority"])
+    ]
+    source_profile_mismatch_count = len(source_profile_mismatch_rows)
+    invalid_peer_domain_rows = [row for row in rows if not bool(row["peer_domain_valid"])]
+    invalid_peer_domain_count = len(invalid_peer_domain_rows)
     low_confidence_count = confidence_counts["LOW"]
     success_count = len(rows)
     specific_profile_rows = [
@@ -268,6 +366,10 @@ def _report(
         "actual_invalid_comparison_count": invalid_comparison_count,
         "maximum_invalid_strength_count": 0,
         "actual_invalid_strength_count": invalid_strength_count,
+        "maximum_source_profile_mismatch_count": 0,
+        "actual_source_profile_mismatch_count": source_profile_mismatch_count,
+        "maximum_invalid_peer_domain_count": 0,
+        "actual_invalid_peer_domain_count": invalid_peer_domain_count,
     }
     quality_gate["status"] = (
         "pass"
@@ -279,6 +381,8 @@ def _report(
         <= float(quality_gate["maximum_matched_factor_missing_ratio"])
         and invalid_comparison_count == 0
         and invalid_strength_count == 0
+        and source_profile_mismatch_count == 0
+        and invalid_peer_domain_count == 0
         else "fail"
     )
     confidence_monitoring = {
@@ -310,6 +414,8 @@ def _report(
         "generated_at": datetime.now(UTC).isoformat(),
         "model_version": matcher.version,
         "stock_universe_path": str(stock_universe_path),
+        "korea_industry_path": str(korea_industry_path),
+        "korea_company_profile_path": str(korea_company_profile_path),
         "model_path": str(model_path),
         "attempted_count": attempted_count,
         "success_count": success_count,
@@ -329,6 +435,9 @@ def _report(
         "matched_factor_missing_count": matched_factor_missing_count,
         "invalid_comparison_count": invalid_comparison_count,
         "invalid_strength_count": invalid_strength_count,
+        "source_profile_authority_checked_count": len(authority_checked_rows),
+        "source_profile_mismatch_count": source_profile_mismatch_count,
+        "invalid_peer_domain_count": invalid_peer_domain_count,
         "quality_gate": quality_gate,
         "confidence_monitoring": confidence_monitoring,
         "specific_profile_quality": specific_profile_quality,
@@ -338,4 +447,6 @@ def _report(
             row for row in rows if row["sector"] in {GENERIC_LISTED_SECTOR, "Unclassified"}
         ][:50],
         "same_company_noise_samples": [row for row in rows if bool(row["same_company_noise"])][:50],
+        "source_profile_mismatch_samples": source_profile_mismatch_rows[:50],
+        "invalid_peer_domain_samples": invalid_peer_domain_rows[:50],
     }
