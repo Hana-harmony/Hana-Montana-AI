@@ -254,3 +254,144 @@ jobs:
           ssh production 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
           ssh production 'chmod 700 /opt/hannah-montana-ai/bootstrap-qwen.sh /opt/hannah-montana-ai/download-qwen-model.sh && /opt/hannah-montana-ai/bootstrap-qwen.sh'
           ssh production 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
+
+  deploy-runtime-overlay:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: hannah-montana-ai-production
+      cancel-in-progress: false
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+      - name: 활성 감성 릴리스 확인
+        id: sentiment_release
+        run: |
+          if [[ -f releases/sentiment/current.json ]]; then
+            echo 'active=true' >> "${GITHUB_OUTPUT}"
+          else
+            echo 'active=false' >> "${GITHUB_OUTPUT}"
+          fi
+      - name: 런타임 오버레이 secret 확인
+        if: steps.sentiment_release.outputs.active == 'false'
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
+          PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          : "${PROD_HOST:?}"
+          : "${PROD_USER:?}"
+          : "${PROD_SSH_KEY:?}"
+          : "${PROD_SSH_PASSWORD:?}"
+          : "${PROD_HOST_KEY:?}"
+          : "${GHCR_TOKEN:?}"
+      - name: SSH 설정
+        if: steps.sentiment_release.outputs.active == 'false'
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_HOST_KEY: ${{ secrets.PROD_HOST_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${PROD_SSH_KEY}" > ~/.ssh/prod_key
+          printf '%s\n' "${PROD_HOST_KEY}" > ~/.ssh/known_hosts
+          printf '%s\n' \
+            'Host production' \
+            "  HostName ${PROD_HOST}" \
+            "  User ${PROD_USER}" \
+            '  IdentityFile ~/.ssh/prod_key' \
+            '  IdentitiesOnly yes' \
+            '  IdentityAgent none' \
+            '  UserKnownHostsFile ~/.ssh/known_hosts' \
+            '  StrictHostKeyChecking yes' \
+            '  PreferredAuthentications publickey,password' \
+            '  PubkeyAuthentication yes' \
+            '  PasswordAuthentication yes' \
+            '  KbdInteractiveAuthentication no' \
+            '  NumberOfPasswordPrompts 1' \
+            '  ConnectTimeout 15' \
+            '  ServerAliveInterval 15' \
+            '  ServerAliveCountMax 3' \
+            > ~/.ssh/config
+          chmod 600 ~/.ssh/prod_key ~/.ssh/known_hosts ~/.ssh/config
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
+        if: steps.sentiment_release.outputs.active == 'false'
+      - name: 이미지 이름 설정
+        if: steps.sentiment_release.outputs.active == 'false'
+        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      - uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0
+        if: steps.sentiment_release.outputs.active == 'false'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 현재 운영 이미지 고정
+        id: current_image
+        if: steps.sentiment_release.outputs.active == 'false'
+        env:
+          PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
+          SSH_ASKPASS: ${{ github.workspace }}/scripts/ssh-askpass.sh
+          SSH_ASKPASS_REQUIRE: force
+          DISPLAY: github-actions:0
+        run: |
+          current_image="$(ssh production "docker inspect --format '{{.Config.Image}}' hannah-montana-ai")"
+          [[ "${current_image}" =~ ^ghcr\.io/hana-harmony/hana-montana-ai:[0-9a-f]{40}$ ]]
+          base_commit="${current_image##*:}"
+          git merge-base --is-ancestor "${base_commit}" "${GITHUB_SHA}"
+          digest="$(
+            docker buildx imagetools inspect "${current_image}" --format '{{json .Manifest.Digest}}' \
+              | jq --exit-status --raw-output 'select(test("^sha256:[0-9a-f]{64}$"))'
+          )"
+          echo "pinned=${current_image}@${digest}" >> "${GITHUB_OUTPUT}"
+      - name: ARM64 런타임 오버레이 이미지 빌드
+        if: steps.sentiment_release.outputs.active == 'false'
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a
+        with:
+          context: .
+          file: Dockerfile.runtime-overlay
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          build-args: |
+            BASE_IMAGE=${{ steps.current_image.outputs.pinned }}
+      - name: 런타임 오버레이 배포 설정 생성
+        if: steps.sentiment_release.outputs.active == 'false'
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          GHCR_USERNAME="$(
+            curl --fail --silent --show-error --proto '=https' --tlsv1.2 \
+              --retry 3 --retry-all-errors \
+              --header "Authorization: Bearer ${GHCR_TOKEN}" \
+              --header 'Accept: application/vnd.github+json' \
+              --header 'X-GitHub-Api-Version: 2022-11-28' \
+              https://api.github.com/user \
+              | jq --exit-status --raw-output \
+                  '.login | strings | select(length <= 39 and test("^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$"))'
+          )"
+          [[ -n "${GHCR_USERNAME}" ]]
+          printf '%s\n' \
+            "IMAGE=${IMAGE_NAME}:${GITHUB_SHA}" \
+            "GHCR_USERNAME=${GHCR_USERNAME}" \
+            "GHCR_TOKEN=${GHCR_TOKEN}" \
+            > deploy.env
+          chmod 600 deploy.env
+      - name: OCI 런타임 오버레이 배포
+        if: steps.sentiment_release.outputs.active == 'false'
+        env:
+          PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
+          SSH_ASKPASS: ${{ github.workspace }}/scripts/ssh-askpass.sh
+          SSH_ASKPASS_REQUIRE: force
+          DISPLAY: github-actions:0
+        run: |
+          ssh production 'test -s /opt/hannah-montana-ai/application.env && test -s /opt/hannah-montana-ai/sentiment-release-public-key.pem'
+          scp deploy.env scripts/deploy-prod.sh deploy/nginx/hannah-montana-ai.conf 'production:/opt/hannah-montana-ai/'
+          ssh production 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
