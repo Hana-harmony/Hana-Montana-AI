@@ -22,6 +22,7 @@ from hannah_montana_ai.observability import (
     HTTP_REQUESTS,
     configure_observability,
 )
+from hannah_montana_ai.runtime_workloads import tax_ocr_executor
 from hannah_montana_ai.services.model import ModelArtifactError
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,10 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         name="hannah-runtime-warmup",
         daemon=True,
     ).start()
-    yield
+    try:
+        yield
+    finally:
+        tax_ocr_executor.shutdown()
 
 
 def _warm_runtime_dependencies() -> None:
