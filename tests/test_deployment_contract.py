@@ -69,6 +69,12 @@ def test_production_preserves_current_model_for_runtime_only_deployment() -> Non
     assert "FROM ${BASE_IMAGE}" in overlay
     assert "COPY releases" not in overlay
     assert "COPY src ./src" in overlay
+    assert "VERIFY_SENTIMENT_RELEASE=true" in workflow
+    assert "VERIFY_SENTIMENT_RELEASE=false" in workflow
+    assert "verify_image_has_no_release" in _read("scripts/deploy-prod.sh")
+    assert "test ! -e /app/releases/sentiment/current.json" in _read(
+        "scripts/deploy-prod.sh"
+    )
 
 
 def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
