@@ -9,6 +9,7 @@ from hannah_montana_ai.services.analyzer import _contains_glossary_surface
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
+    OpenAIResponsesTranslationClient,
     QwenAlertSummaryContext,
     QwenAlertSummaryError,
     QwenHttpKoreanTranslationClient,
@@ -35,6 +36,20 @@ class FakeHttpResponse:
 
     def read(self) -> bytes:
         return b'{"choices":[{"message":{"content":"{\\"translation\\":\\"translated\\"}"}}]}'
+
+
+class FakeOpenAIHttpResponse:
+    def __enter__(self) -> "FakeOpenAIHttpResponse":
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return (
+            b'{"output":[{"type":"message","content":'
+            b'[{"type":"output_text","text":"{\\"translation\\":\\"translated\\"}"}]}]}'
+        )
 
 
 def _term(source: str, normalized: str, english: str) -> FinancialGlossaryTerm:
@@ -116,6 +131,46 @@ def test_http_client_calls_openai_compatible_qwen_endpoint(monkeypatch: object) 
     assert client.generate([{"role": "user", "content": "번역"}], 256)
     assert captured["url"] == "http://127.0.0.1:18081/v1/chat/completions"
     assert captured["body"]["model"] == "Qwen3-4B-GGUF-Q4"  # type: ignore[index]
+
+
+def test_openai_client_uses_responses_api_without_persistence(monkeypatch: object) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_urlopen(request: urllib.request.Request, timeout: float) -> FakeOpenAIHttpResponse:
+        captured["url"] = request.full_url
+        captured["timeout"] = timeout
+        captured["headers"] = dict(request.header_items())
+        assert isinstance(request.data, bytes)
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        return FakeOpenAIHttpResponse()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)  # type: ignore[attr-defined]
+    client = OpenAIResponsesTranslationClient(
+        endpoint="https://api.openai.com",
+        api_key="test-secret",
+        model="gpt-5.6-luna",
+        timeout_seconds=30,
+    )
+
+    result = client.generate([{"role": "user", "content": "번역"}], 256)
+
+    assert json.loads(result)["translation"] == "translated"
+    assert captured["url"] == "https://api.openai.com/v1/responses"
+    assert captured["headers"]["Authorization"] == "Bearer test-secret"  # type: ignore[index]
+    assert captured["body"]["model"] == "gpt-5.6-luna"  # type: ignore[index]
+    assert captured["body"]["reasoning"] == {"effort": "low"}  # type: ignore[index]
+    assert captured["body"]["store"] is False  # type: ignore[index]
+    assert captured["body"]["text"]["format"] == {"type": "json_object"}  # type: ignore[index]
+
+
+def test_openai_settings_factory_marks_initial_backfill_provider() -> None:
+    generator = KoreanTranslationGenerator.from_openai_settings(
+        Settings(openai_api_key="test-secret")
+    )
+
+    assert isinstance(generator._client, OpenAIResponsesTranslationClient)
+    assert generator._model_name == "openai:gpt-5.6-luna"
+    assert generator._provider_name == "openai-initial-backfill"
 
 
 def test_qwen_generates_grounded_alert_title_and_what_why_impact() -> None:
