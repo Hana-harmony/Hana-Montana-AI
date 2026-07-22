@@ -238,6 +238,7 @@ jobs:
             "IMAGE=${IMAGE_NAME}:${GITHUB_SHA}" \
             "GHCR_USERNAME=${GHCR_USERNAME}" \
             "GHCR_TOKEN=${GHCR_TOKEN}" \
+            'VERIFY_SENTIMENT_RELEASE=true' \
             > deploy.env
           chmod 600 application.env deploy.env
           chmod 444 sentiment-release-public-key.pem
@@ -382,6 +383,7 @@ jobs:
             "IMAGE=${IMAGE_NAME}:${GITHUB_SHA}" \
             "GHCR_USERNAME=${GHCR_USERNAME}" \
             "GHCR_TOKEN=${GHCR_TOKEN}" \
+            'VERIFY_SENTIMENT_RELEASE=false' \
             > deploy.env
           chmod 600 deploy.env
       - name: OCI 런타임 오버레이 배포
@@ -392,6 +394,6 @@ jobs:
           SSH_ASKPASS_REQUIRE: force
           DISPLAY: github-actions:0
         run: |
-          ssh production 'test -s /opt/hannah-montana-ai/application.env && test -s /opt/hannah-montana-ai/sentiment-release-public-key.pem'
+          ssh production 'test -s /opt/hannah-montana-ai/application.env'
           scp deploy.env scripts/deploy-prod.sh deploy/nginx/hannah-montana-ai.conf 'production:/opt/hannah-montana-ai/'
           ssh production 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'
