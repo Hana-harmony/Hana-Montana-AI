@@ -13,6 +13,24 @@ source "${APP_DIR}/runtime-secrets.sh"
 : "${IMAGE:?IMAGE is required}"
 : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
+: "${VERIFY_SENTIMENT_RELEASE:=true}"
+
+case "${VERIFY_SENTIMENT_RELEASE}" in
+  true)
+    test -s "${APP_DIR}/sentiment-release-public-key.pem"
+    release_mount_args=(
+      --mount
+      "type=bind,src=${APP_DIR}/sentiment-release-public-key.pem,dst=/run/secrets/sentiment-release-public-key.pem,readonly"
+    )
+    ;;
+  false)
+    release_mount_args=()
+    ;;
+  *)
+    echo 'VERIFY_SENTIMENT_RELEASE must be true or false' >&2
+    exit 1
+    ;;
+esac
 
 write_runtime_secret_env() {
   local ai_token temp_file
@@ -39,7 +57,7 @@ run_container() {
     --memory 7g \
     --cpus 1.5 \
     --env-file "${APP_DIR}/application.env" \
-    --mount "type=bind,src=${APP_DIR}/sentiment-release-public-key.pem,dst=/run/secrets/sentiment-release-public-key.pem,readonly" \
+    "${release_mount_args[@]}" \
     --env-file "${RUNTIME_APP_ENV}" \
     --network "${NETWORK}" \
     --tmpfs /tmp:rw,noexec,nosuid,size=512m \
@@ -69,6 +87,21 @@ verify_image_release() {
     --runtime-environment production \
     --attestation-mode dsse-ed25519-v1 \
     --public-key /run/secrets/sentiment-release-public-key.pem
+}
+
+verify_image_has_no_release() {
+  local image="$1"
+  docker run --rm \
+    --read-only \
+    --cap-drop ALL \
+    --security-opt no-new-privileges:true \
+    --network none \
+    --pids-limit 32 \
+    --memory 128m \
+    --cpus 0.25 \
+    --entrypoint /bin/sh \
+    "${image}" \
+    -eu -c 'test ! -e /app/releases/sentiment/current.json'
 }
 
 wait_until_ready() {
@@ -143,7 +176,11 @@ docker network inspect "${NETWORK}" >/dev/null 2>&1 \
   || docker network create "${NETWORK}" >/dev/null
 printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
 docker pull "${IMAGE}"
-verify_image_release "${IMAGE}"
+if [[ "${VERIFY_SENTIMENT_RELEASE}" == true ]]; then
+  verify_image_release "${IMAGE}"
+else
+  verify_image_has_no_release "${IMAGE}"
+fi
 
 install_nginx_config
 
