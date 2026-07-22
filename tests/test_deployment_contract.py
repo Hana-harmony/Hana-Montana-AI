@@ -27,6 +27,17 @@ def test_ci_installs_transformer_runtime_for_model_contracts() -> None:
     assert "uv sync --all-groups --extra transformer" in workflow
 
 
+def test_ci_restores_only_required_lfs_inputs_before_model_contracts() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+
+    assert "git lfs pull" in workflow
+    assert "data/k_fnspid/v4/documents.parquet" in workflow
+    assert "data/external/kf_deberta_benchmark/ratings_train.csv" in workflow
+    assert "data/external/kf_deberta_benchmark/ratings_val.csv" in workflow
+    assert '--exclude=""' in workflow
+    assert "CI LFS 포인터가 남아 있습니다" in workflow
+
+
 def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
     workflow = _read(".github/workflows/ci.yml")
     askpass = _read("scripts/ssh-askpass.sh")

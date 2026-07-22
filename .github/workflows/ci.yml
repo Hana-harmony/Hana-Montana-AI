@@ -17,6 +17,28 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
+      - name: CI 검증용 LFS 입력 복원
+        run: |
+          git lfs pull \
+            --include="data/k_fnspid/v4/documents.parquet,data/external/kf_deberta_benchmark/ratings_train.csv,data/external/kf_deberta_benchmark/ratings_val.csv" \
+            --exclude=""
+          python - <<'PY'
+          from pathlib import Path
+
+          expected_minimum_bytes = {
+              "data/k_fnspid/v4/documents.parquet": 270_000_000,
+              "data/external/kf_deberta_benchmark/ratings_train.csv": 14_000_000,
+              "data/external/kf_deberta_benchmark/ratings_val.csv": 1_700_000,
+          }
+          for raw_path, minimum_bytes in expected_minimum_bytes.items():
+              path = Path(raw_path)
+              if not path.is_file() or path.stat().st_size < minimum_bytes:
+                  raise SystemExit(f"CI LFS 입력 복원 실패: {path}")
+              with path.open("rb") as stream:
+                  prefix = stream.read(64)
+              if prefix.startswith(b"version https://git-lfs.github.com/spec"):
+                  raise SystemExit(f"CI LFS 포인터가 남아 있습니다: {path}")
+          PY
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.12'
