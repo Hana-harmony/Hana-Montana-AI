@@ -525,6 +525,38 @@ def test_readiness_requires_enabled_versioned_sentiment_release(
     )
 
 
+def test_production_requires_sentiment_release_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("HANNAH_RUNTIME_ENVIRONMENT", "production")
+    monkeypatch.delenv("HANNAH_SENTIMENT_RELEASE_REQUIRED", raising=False)
+
+    assert Settings().sentiment_release_required is True
+
+
+def test_runtime_overlay_can_use_existing_fallback_without_release(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("HANNAH_RUNTIME_ENVIRONMENT", "production")
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_REQUIRED", "false")
+
+    assert _sentiment_release_ready(
+        Settings(
+            sentiment_release_current_path=tmp_path / "missing-current.json",
+        )
+    )
+
+
+def test_sentiment_release_required_rejects_ambiguous_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_REQUIRED", "yes")
+
+    with pytest.raises(ValueError, match="must be true or false"):
+        Settings()
+
+
 def test_production_sentiment_release_environment_contract(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -545,6 +577,7 @@ def test_production_sentiment_release_environment_contract(
     settings = Settings()
 
     assert settings.runtime_environment == "production"
+    assert settings.sentiment_release_required is True
     assert settings.sentiment_release_current_path == Path(
         "/app/releases/sentiment/current.json"
     )

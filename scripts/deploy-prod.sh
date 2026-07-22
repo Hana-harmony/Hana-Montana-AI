@@ -38,7 +38,10 @@ write_runtime_secret_env() {
   temp_file="$(mktemp "${APP_DIR}/.runtime-application.XXXXXX")"
 
   umask 077
-  printf '%s\n' "HANNAH_AI_MAINTENANCE_TOKEN=${ai_token}" > "${temp_file}"
+  printf '%s\n' \
+    "HANNAH_AI_MAINTENANCE_TOKEN=${ai_token}" \
+    "HANNAH_SENTIMENT_RELEASE_REQUIRED=${VERIFY_SENTIMENT_RELEASE}" \
+    > "${temp_file}"
   chmod 600 "${temp_file}"
   mv "${temp_file}" "${RUNTIME_APP_ENV}"
 }
