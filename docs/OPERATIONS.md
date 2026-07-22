@@ -22,7 +22,7 @@ curl http://localhost:8000/ready
 ## Serving 구성
 
 - 뉴스·공시 분류와 stock linker는 versioned joblib artifact를 startup에 로드한다. 누락·손상 시 503으로 종료한다.
-- 영문 제목과 What/Why/Impact는 Qwen이 원문과 KF-DeBERTa/K-FNSPID 분류 신호를 입력받아 strict JSON으로 생성한다. 원문에 직접 원인이 없으면 그 사실을 명시하며, 품질 gate 실패 시 대체 문구 없이 분석을 실패 처리한다.
+- 영문 제목과 What/Why/Impact는 Qwen이 원문과 KF-DeBERTa/K-FNSPID 분류 신호를 입력받아 strict JSON으로 생성한다. 원문에 직접 원인이 없으면 그 사실을 명시한다. 첫 품질 gate 실패 시 이전 JSON과 실패 항목을 포함해 한 번 교정하고, 종결부호 누락만 형식 정규화한다. 그 외 실패는 대체 문구 없이 분석을 실패 처리한다.
 - 한국어→영어 번역은 같은 Docker 내부망의 `http://hannah-qwen:8080` Qwen3-4B GGUF 서버를 사용한다. Qwen은 3 OCPU 상한과 병렬 슬롯 2개로 운영하고 장문 요청 timeout은 600초로 둔다.
 - Qwen 모델은 공식 revision과 SHA-256을 고정해 최초 배포 시 내려받고, 병렬 추론의 실측 최대 사용량을 수용하는 10GB 메모리 한도와 번역 청크에 충분한 4K context로 운영한다. 요약과 전문 번역은 전역 슬롯 2개를 공유하며 `FULL` 분석에서는 둘을 겹쳐 처리한다.
 - 글로벌 피어는 동적 similarity artifact와 `grounded-template-structured-rag-v3` 설명 템플릿을 사용한다.
