@@ -17,7 +17,7 @@ CI는 Python 3.12와 uv를 사용한다. PR에서는 `verify_message_conventions
 
 | 영역 | 검증 내용 |
 | --- | --- |
-| API | health/readiness, 공통 envelope, validation, artifact 장애 시 503, OmniLens JSON 계약 |
+| API | health/readiness, 공통 envelope, validation, artifact 장애 시 503, OmniConnect JSON 계약 |
 | 뉴스·공시 | 이벤트·감성·중요도, 종목 linker, What/Why/Impact 품질, 전문·중복 키·glossary, audit 원문 비노출 |
 | 번역 | Qwen3 요청, 문서 유형별 prompt, 전문 분할·완결성, dictionary 표면형, source-language fallback |
 | 글로벌 피어 | 활성 종목 universe 일치, 전종목 추론, 비교 3개·강점 4개, 동적 순위, 중복·더미 방지 |

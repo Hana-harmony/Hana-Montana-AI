@@ -1,9 +1,12 @@
+import logging
 import re
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
+from time import perf_counter
 from typing import cast
 
 from hannah_montana_ai.core.config import get_settings
@@ -15,6 +18,7 @@ from hannah_montana_ai.domain.schemas import (
     Importance,
     Sentiment,
     StockCandidate,
+    SummaryLines,
     TranslationStatus,
 )
 from hannah_montana_ai.services.disclosure_importance_model import DisclosureImportanceModel
@@ -27,6 +31,8 @@ from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
     KoreanTranslationResult,
+    QwenAlertSummaryContext,
+    QwenAlertSummaryResult,
 )
 from hannah_montana_ai.services.market_impact_model import (
     KFnspidMarketImpactModel,
@@ -35,10 +41,6 @@ from hannah_montana_ai.services.market_impact_model import (
 from hannah_montana_ai.services.model import (
     MachineLearningFinancialNlpModel,
     ModelArtifactInvalidError,
-)
-from hannah_montana_ai.services.news_summary_generator import (
-    NewsSummaryContext,
-    NewsSummaryGenerator,
 )
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
 from hannah_montana_ai.services.sentiment_artifact_contract import (
@@ -63,6 +65,8 @@ from hannah_montana_ai.training.stock_universe import (
     load_stock_universe,
     normalize_stock_term,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _contains_glossary_surface(text: str, surface: str) -> bool:
@@ -369,7 +373,6 @@ class AlertAnalyzer:
 
     def __init__(
         self,
-        summary_generator: NewsSummaryGenerator | None = None,
         translation_generator: KoreanTranslationGenerator | None = None,
     ) -> None:
         settings = get_settings()
@@ -425,7 +428,6 @@ class AlertAnalyzer:
             ),
         }
         self.stock_linker = MachineLearningStockLinker(settings.stock_linker_model_path)
-        self.summary_generator = summary_generator or NewsSummaryGenerator()
         self.translation_generator = (
             translation_generator or KoreanTranslationGenerator.from_settings(settings)
         )
@@ -528,38 +530,9 @@ class AlertAnalyzer:
                 importance_confidence,
             )
         )
-        fallback_summary_lines = self.rule_engine.summarize_what_why_impact(
-            request.title,
-            request.snippet,
-            analysis_content,
-            importance,
-            sentiment,
-        )
         request_stock_mismatch = self._is_request_stock_mismatch(
             primary_stock,
             request.stock_universe,
-        )
-        if request_stock_mismatch:
-            # 폐기될 타 종목 기사는 생성형 요약과 번역 호출 전에 차단한다.
-            summary_lines = fallback_summary_lines
-        else:
-            summary_lines = self.summary_generator.generate(
-                NewsSummaryContext(
-                    title=request.title,
-                    snippet=request.snippet,
-                    content=analysis_content,
-                    source_type=request.source_type,
-                    importance=importance,
-                    sentiment=sentiment,
-                    event_tags=event_tags,
-                    stock_code=stock_code,
-                    stock_name=stock_name,
-                    stock_name_en=primary_stock.stock_name_en if primary_stock else "",
-                    fallback=fallback_summary_lines,
-                )
-            )
-        summary = "\n".join(
-            line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
         )
         glossary_terms = self._with_primary_stock_glossary(
             self._extract_financial_glossary_terms(text),
@@ -569,14 +542,29 @@ class AlertAnalyzer:
         duplicate_key = self._duplicate_key(request.source_type, request.title, stock_code)
         response_content = request.content.strip() if has_full_content else analysis_content
         if request_stock_mismatch:
+            # 요청 종목과 다른 기사는 Qwen 슬롯을 사용하지 않고 상위 서비스에서 폐기한다.
+            summary_lines = self._request_stock_mismatch_summary()
             translations = self._request_stock_mismatch_translations()
         else:
-            translations = self._translate_analysis_fields(
+            summary_result, translations = self._generate_analysis_fields(
                 request,
                 glossary_terms,
-                summary,
+                analysis_content,
                 response_content,
+                importance=importance,
+                sentiment=sentiment,
+                event_tags=event_tags,
+                stock_code=stock_code,
+                stock_name=stock_name,
+                stock_name_en=primary_stock.stock_name_en if primary_stock else "",
+                market_impact_importance=(
+                    market_impact_prediction.importance if market_impact_prediction else None
+                ),
             )
+            summary_lines = summary_result.summary_lines
+        summary = "\n".join(
+            line for line in (summary_lines.what, summary_lines.why, summary_lines.impact) if line
+        )
         translated_title = translations["TITLE"]
         translated_summary = translations["SUMMARY"]
         translated_content = translations["CONTENT"]
@@ -587,14 +575,14 @@ class AlertAnalyzer:
             translated_content,
         )
         translation_provider = self._first_translation_provider(
-            translated_content,
-            translated_summary,
             translated_title,
+            translated_summary,
+            translated_content,
         )
         translation_model_version = self._first_translation_model_version(
-            translated_content,
-            translated_summary,
             translated_title,
+            translated_summary,
+            translated_content,
         )
         translation_status = self._analysis_translation_status(
             response_content,
@@ -797,40 +785,109 @@ class AlertAnalyzer:
             for field, value in values.items()
         }
 
-    def _translate_analysis_fields(
+    @staticmethod
+    def _request_stock_mismatch_summary() -> SummaryLines:
+        return SummaryLines(
+            what="The article concerns a different listed company.",
+            why="The requested stock is not the primary issuer in the source.",
+            impact="The item is excluded from the requested stock feed.",
+        )
+
+    def _generate_analysis_fields(
         self,
         request: AlertAnalysisRequest,
         glossary_terms: list[FinancialGlossaryTerm],
-        summary: str,
+        analysis_content: str,
         response_content: str,
-    ) -> dict[str, KoreanTranslationResult]:
-        source_fields = {
-            "TITLE": request.title,
-            "SUMMARY": summary,
-            "CONTENT": response_content,
-        }
-        contexts = {
-            field: KoreanTranslationContext(
-                text=text,
-                source_type=request.source_type,
-                title=request.title,
-                glossary_terms=glossary_terms,
+        *,
+        importance: Importance,
+        sentiment: Sentiment,
+        event_tags: list[str],
+        stock_code: str | None,
+        stock_name: str | None,
+        stock_name_en: str,
+        market_impact_importance: Importance | None,
+    ) -> tuple[QwenAlertSummaryResult, dict[str, KoreanTranslationResult]]:
+        summary_context = QwenAlertSummaryContext(
+            title=request.title,
+            content=analysis_content or request.title,
+            source_type=request.source_type,
+            importance=importance,
+            sentiment=sentiment,
+            event_tags=event_tags,
+            stock_code=stock_code,
+            stock_name=stock_name,
+            stock_name_en=stock_name_en,
+            market_impact_importance=market_impact_importance,
+        )
+        started_at = perf_counter()
+        if request.translation_mode == "DEFERRED":
+            summary_result = self.translation_generator.generate_alert_summary(summary_context)
+            translated_content = KoreanTranslationResult(
+                translated_text="",
+                provider="deferred-full-text-translation",
+                model_version=summary_result.model_version,
+                status=STATUS_SOURCE_LANGUAGE_FALLBACK,
+                prompt_version=summary_result.prompt_version,
+                quality_flags=[],
             )
-            for field, text in source_fields.items()
-        }
-        # 구조화 번역이 실패하면 기존 필드별 경로로 복구해 본문 누락을 막는다.
-        batched = self.translation_generator.translate_alert_fields(contexts)
-        if batched is not None:
-            return batched
-        return {
-            field: self._translate_analysis_text(
-                text,
-                request,
-                glossary_terms,
-                title=request.title,
+        else:
+            # Qwen 서버의 동시 추론 한도 안에서 요약과 전문 번역을 겹쳐 처리한다.
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                summary_future = executor.submit(
+                    self.translation_generator.generate_alert_summary,
+                    summary_context,
+                )
+                content_future = executor.submit(
+                    self._translate_analysis_text,
+                    response_content,
+                    request,
+                    glossary_terms,
+                    title=request.title,
+                )
+                summary_result = summary_future.result()
+                translated_content = content_future.result()
+        translated_summary_text = "\n".join(
+            (
+                summary_result.summary_lines.what,
+                summary_result.summary_lines.why,
+                summary_result.summary_lines.impact,
             )
-            for field, text in source_fields.items()
+        )
+        logger.info(
+            "Qwen alert processing completed: source_type=%s translation_mode=%s "
+            "content_len=%d elapsed_ms=%d translation_status=%s",
+            request.source_type,
+            request.translation_mode,
+            len(response_content),
+            round((perf_counter() - started_at) * 1000),
+            translated_content.status,
+        )
+        return summary_result, {
+            "TITLE": self._qwen_summary_translation(
+                summary_result.translated_title,
+                summary_result,
+            ),
+            "SUMMARY": self._qwen_summary_translation(
+                translated_summary_text,
+                summary_result,
+            ),
+            "CONTENT": translated_content,
         }
+
+    @staticmethod
+    def _qwen_summary_translation(
+        text: str,
+        result: QwenAlertSummaryResult,
+    ) -> KoreanTranslationResult:
+        return KoreanTranslationResult(
+            translated_text=text.strip(),
+            provider=result.provider,
+            model_version=result.model_version,
+            status=STATUS_TRANSLATED,
+            prompt_version=result.prompt_version,
+            quality_flags=[],
+        )
 
     def _analysis_translation_quality_flags(
         self,

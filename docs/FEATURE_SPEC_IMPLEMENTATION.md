@@ -41,21 +41,21 @@
 ## 2. 한국 주식 정보 취득 및 분석
 - endpoint: `POST /api/v1/intelligence/events`
 - 입력 v1: Naver News/OpenDART가 수집한 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보.
-- 입력 v2: v1 필드에 Hana-OmniLens-API가 사용 허가 원문 URL과 OpenDART document에서 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
+- 입력 v2: v1 필드에 Hana-Omni-Connect-API가 사용 허가 원문 URL과 OpenDART document에서 수집한 전문, 이미지 URL 목록, canonical URL, content hash, source license policy를 추가한다.
 - 파서:
   - `parse_naver_news_row`: Naver News Search API row의 제목, snippet, 원문 링크, 발행시각, 언론사, 종목 후보와 사용 허가된 전문·이미지·canonical URL·본문 hash를 정규화한다.
   - `parse_opendart_disclosure_row`: OpenDART 공시검색 row의 접수번호, 공시 제목, 회사명, 종목코드, 제출일자와 공시 전문을 정규화하고 DART 원문 링크를 구성한다.
   - `build_intelligence_event_request`: provider row를 `IntelligenceEventRequest`로 변환한다.
-  - `build_omnilens_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
+  - `build_omni_connect_websocket_event`: 분석·번역 완료 응답을 협력사/종목 단위 WebSocket 이벤트 JSON으로 패킹한다.
   - provider 파서는 유효하지 않은 원문 URL과 잘못된 종목코드를 거부한다.
 - 처리:
   - 기존 ML 분석 엔진으로 종목 매핑, 중복키, 이벤트, 감성, 중요도, holder/watchlist target을 산출한다.
-  - v2에서는 전문을 우선 사용해 이벤트/감성/중요도 모델 입력과 자연어 What/Why/Impact 3줄 요약을 만든다. 전문이 없으면 제목/snippet 기반 v1 요약으로 fallback하고 `content_availability`를 명시한다.
+  - 전문을 우선 사용해 이벤트/감성/중요도 모델 입력을 만들고, Qwen이 원문과 모델 신호를 근거로 영문 제목 및 What/Why/Impact 3줄 요약을 생성한다. 전문이 없으면 제목/snippet을 원문 범위로 사용하며, Qwen 품질 gate 실패를 정적 문구로 대체하지 않는다.
   - 학습은 `data/training/financial_alert_full_content_gold.jsonl`의 실제 원문 전문 export를 포함해 수행하고, 각 row는 `FULL_TEXT`, `source_license_policy`, `content_hash` lineage를 가져야 한다.
   - 중복 제거는 canonical URL, normalized title, content hash, 전문 기반 duplicate key를 함께 사용한다.
-  - 현재 로컬 하네스에서는 `FinancialTranslationModel`의 `local-financial-glossary` 번역 보조 모델을 사용한다.
+  - 로컬·운영 하네스 모두 고정된 Qwen3-4B GGUF와 동일한 금융 용어 사전을 사용한다.
   - 금융 용어집은 종목명, 공시 이벤트, 재무 지표, 세무 용어의 alias를 canonical term으로 정규화하고 긴 용어부터 번역해 부분 치환 오류를 줄인다.
-  - `local-financial-glossary-v2`는 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 우선 치환한다.
+  - 단일 금융 용어 사전은 실공시에서 자주 오역되는 매매거래정지, 상장폐지 사유, 소송 청구, 타법인 주식 취득, 자기주식, 전환사채, 관리·투자주의 환기 용어를 Qwen prompt와 품질 gate에 동일하게 제공한다.
   - 번역 결과에는 적용된 `glossary_terms`와 `translation_quality_flags`를 포함해 현지 거래소가 품질 검수나 fallback 표시 여부를 판단할 수 있게 한다.
   - 한국어 전문 번역은 Hannah의 로컬 Qwen3-4B GGUF endpoint를 사용한다.
   - 한국 금융 용어는 단일 dictionary 표면형을 번역 품질 gate에 전달한다.

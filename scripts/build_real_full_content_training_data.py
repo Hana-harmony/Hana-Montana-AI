@@ -848,7 +848,7 @@ def fetch_bytes(url: str, max_bytes: int = MAX_FETCH_BYTES) -> bytes:
     )
     request = Request(  # noqa: S310
         url,
-        headers={"User-Agent": ("Hana-OmniLensTrainingBot/1.0 (+https://github.com/Hana-harmony)")},
+        headers={"User-Agent": ("Hana-Omni-ConnectTrainingBot/1.0 (+https://github.com/Hana-harmony)")},
     )
     with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS, context=context) as response:  # noqa: S310
         payload = cast(bytes, response.read(max_bytes + 1))

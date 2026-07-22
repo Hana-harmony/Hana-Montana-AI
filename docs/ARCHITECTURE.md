@@ -1,7 +1,7 @@
 # 아키텍처
 
 ## 목적
-- Hana-OmniLens-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
+- Hana-Omni-Connect-API가 수집한 뉴스·공시 제목과 snippet을 분석한다.
 - v2에서는 권리 확인이 끝난 뉴스·공시 전문을 추가 입력으로 받아 What/Why/Impact 3줄 요약과 전문 기반 중복 키를 생성한다.
 - 뉴스·공시 분석, 종목 링커, 외국인 보유 예측, 글로벌 피어 매칭, 한국 금융 용어 해설을 독립 모델 또는 검증된 룰 조합으로 제공한다.
 
@@ -15,12 +15,13 @@
 ## API 경계
 - 공개 endpoint: `GET /health`, `GET /ready`
 - 내부 endpoint: `POST /api/v1/alerts/analyze`
+- 분석 요청의 `translation_mode=DEFERRED`는 ML 분석과 Qwen 영문 제목·What/Why/Impact를 완료한 뒤 전체 본문 번역만 생략한다. 기본 `FULL`은 Qwen 요약과 Qwen 전문 번역을 전역 추론 슬롯 2개 안에서 병렬 처리한다. 긴 원문은 Qwen 근거 추출을 계층적으로 축약한 뒤 최종 요약하며, 생성 품질이 gate를 통과하지 못하면 규칙 기반 대체값 없이 분석을 실패 처리한다.
 - 내부 endpoint: `POST /api/v1/stocks/order-status`
 - 내부 endpoint: `POST /api/v1/intelligence/events`
 - 내부 endpoint: `POST /api/v1/tax/documents/verify`
 - 내부 endpoint: `POST /api/v1/tax/refund-status`
 - 모든 내부 비즈니스 endpoint는 `ApiResponse` 공통 envelope로 성공/상태/코드/메시지/본문을 함께 반환한다.
-- AI 서비스는 협력사용 `OMNILENS_API_KEY`를 요구하지 않는다.
+- AI 서비스는 협력사용 `OMNI_CONNECT_API_KEY`를 요구하지 않는다.
 - AI 서비스는 별도 토큰을 검증하지 않고 Spring 컨테이너 전용 내부 네트워크에서만 접근 가능해야 한다.
 
 ## 현재 구현 상태

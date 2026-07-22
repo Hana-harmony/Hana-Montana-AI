@@ -9,6 +9,8 @@ from hannah_montana_ai.services.analyzer import _contains_glossary_surface
 from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationContext,
     KoreanTranslationGenerator,
+    QwenAlertSummaryContext,
+    QwenAlertSummaryError,
     QwenHttpKoreanTranslationClient,
 )
 
@@ -116,32 +118,133 @@ def test_http_client_calls_openai_compatible_qwen_endpoint(monkeypatch: object) 
     assert captured["body"]["model"] == "Qwen3-4B-GGUF-Q4"  # type: ignore[index]
 
 
-def test_alert_fields_use_one_qwen_generation_call() -> None:
-    translated = """<<<1>>>
-Samsung Electronics reports stronger earnings.
-<<<2>>>
-Earnings improved as semiconductor demand recovered.
-<<<3>>>
-Samsung Electronics said operating profit increased as semiconductor demand recovered."""
-    client = FakeTranslationClient(json.dumps({"translation": translated}))
+def test_qwen_generates_grounded_alert_title_and_what_why_impact() -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects stronger earnings",
+        "what": "Samsung Electronics expects operating profit to improve.",
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update is relevant to investors monitoring semiconductor earnings.",
+    }))
     generator = KoreanTranslationGenerator(
         client=client,
         model_name="fake-qwen",
         rule_based_repairs_enabled=False,
     )
-    results = generator.translate_alert_fields(
-        {
-            "TITLE": KoreanTranslationContext(text="삼성전자 실적 개선"),
-            "SUMMARY": KoreanTranslationContext(text="반도체 수요 회복으로 실적이 개선됐다."),
-            "CONTENT": KoreanTranslationContext(
-                text="삼성전자는 반도체 수요 회복으로 영업이익이 증가했다고 밝혔다."
-            ),
-        }
+    result = generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 1
+    assert result.translated_title.startswith("Samsung Electronics")
+    assert result.summary_lines.why == "The source cites recovering HBM demand."
+    assert result.provider == "local-open-source-qwen3-translation"
+
+
+def test_qwen_summary_quality_failure_does_not_return_a_fallback() -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects 999% growth",
+        "what": "Samsung Electronics expects 999% growth.",
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update is relevant to investors.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
     )
 
-    assert results is not None
-    assert len(client.calls) == 1
-    assert results["TITLE"].translated_text.startswith("Samsung Electronics")
+    with pytest.raises(QwenAlertSummaryError, match="UNSUPPORTED_NUMERIC_FACT"):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
+@pytest.mark.parametrize(
+    ("invalid_what", "expected_flag"),
+    [
+        ("Samsung Electronics expects stronger earnings", "INCOMPLETE_SUMMARY_SENTENCE"),
+        ("Earnings improved.", "FRAGMENTARY_SUMMARY_LINE"),
+        ("005930 reported stronger quarterly operating profit.", "STOCK_CODE_SUMMARY_SUBJECT"),
+        ("...Samsung Electronics reported stronger operating profit.", "ELLIPSIS_REMAINS"),
+    ],
+)
+def test_qwen_summary_matches_api_complete_sentence_contract(
+    invalid_what: str,
+    expected_flag: str,
+) -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": "Samsung Electronics expects stronger earnings",
+        "what": invalid_what,
+        "why": "The source cites recovering HBM demand.",
+        "impact": "The update matters to investors monitoring semiconductor earnings.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    with pytest.raises(QwenAlertSummaryError, match=expected_flag):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
+@pytest.mark.parametrize(
+    "invalid_title",
+    [
+        "Kia grants treasury shares...union objects",
+        "Kia grants treasury shares…union objects",
+        "Kia grants treasury shares···union objects",
+    ],
+)
+def test_qwen_title_rejects_every_api_ellipsis_form(invalid_title: str) -> None:
+    client = FakeTranslationClient(json.dumps({
+        "translated_title": invalid_title,
+        "what": "Kia granted treasury shares only to executives.",
+        "why": "The source cites an employee-payment exception clause.",
+        "impact": "The decision prompted objections from the labor union.",
+    }))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        rule_based_repairs_enabled=False,
+    )
+
+    with pytest.raises(QwenAlertSummaryError, match="ELLIPSIS_REMAINS"):
+        generator.generate_alert_summary(_summary_context())
+
+    assert len(client.calls) == 2
+
+
+def _summary_context() -> QwenAlertSummaryContext:
+    return QwenAlertSummaryContext(
+        title="삼성전자 HBM 실적 개선 전망",
+        content="삼성전자는 HBM 수요 회복으로 영업이익 증가를 전망했다.",
+        source_type="NEWS",
+        importance="HIGH",
+        sentiment="POSITIVE",
+        event_tags=["EARNINGS"],
+        stock_code="005930",
+        stock_name="삼성전자",
+        stock_name_en="Samsung Electronics",
+        market_impact_importance="MEDIUM",
+    )
+
+
+def test_long_body_retry_count_is_bounded() -> None:
+    source = "삼성전자는 반도체 투자 계획과 공급망 현황을 상세히 설명했다. " * 30
+    client = FakeTranslationClient(json.dumps({"translation": "번역 실패"}))
+    generator = KoreanTranslationGenerator(
+        client=client,
+        model_name="fake-qwen",
+        max_concurrency=2,
+        rule_based_repairs_enabled=False,
+    )
+
+    result = generator.translate(KoreanTranslationContext(text=source))
+
+    assert result.status == "SOURCE_LANGUAGE_FALLBACK"
+    assert len(generator._chunks(source)) == 2
+    assert len(client.calls) == 4
 
 
 def test_ant_surface_is_not_rewritten_to_retail_investor() -> None:

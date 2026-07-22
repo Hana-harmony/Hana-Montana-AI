@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 SourceType = Literal["NEWS", "DISCLOSURE"]
+AnalysisTranslationMode = Literal["FULL", "DEFERRED"]
 Sentiment = Literal["POSITIVE", "NEUTRAL", "NEGATIVE"]
 Importance = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 ContentAvailability = Literal["FULL_TEXT", "SUMMARY_ONLY", "UNAVAILABLE"]
@@ -150,6 +151,10 @@ class GlobalPeerMatchResponse(BaseModel):
     stock_code: str
     stock_name: str
     stock_name_en: str
+    source_sector: str = Field(min_length=1, max_length=120)
+    source_industry: str = Field(min_length=1, max_length=160)
+    source_business_model: str = Field(min_length=1, max_length=240)
+    source_business_tags: list[str] = Field(min_length=1, max_length=20)
     headline: str = Field(min_length=1, max_length=300)
     summary: str = Field(min_length=1, max_length=1200)
     primary_peer: GlobalPeerMatch
@@ -215,6 +220,7 @@ class AlertAnalysisRequest(BaseModel):
     source_license_policy: str = Field(default="DISCOVERY_ONLY", max_length=80)
     original_url: HttpUrl
     stock_universe: list[StockCandidate] = Field(default_factory=list, max_length=50)
+    translation_mode: AnalysisTranslationMode = "FULL"
 
 
 class SummaryLines(BaseModel):

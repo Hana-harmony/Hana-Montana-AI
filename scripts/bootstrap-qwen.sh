@@ -12,8 +12,8 @@ fi
 
 "${APP_DIR}/download-qwen-model.sh" "${MODEL_DIR}"
 
-docker network inspect hana-omnilens-internal >/dev/null 2>&1 \
-  || docker network create hana-omnilens-internal >/dev/null
+docker network inspect hana-omni-connect-internal >/dev/null 2>&1 \
+  || docker network create hana-omni-connect-internal >/dev/null
 docker compose -f "${COMPOSE_FILE}" pull
 docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
 

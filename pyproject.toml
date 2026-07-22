@@ -1,7 +1,7 @@
 [project]
 name = "hannah-montana-ai"
 version = "0.1.0"
-description = "Financial NLP analysis API for Hana OmniLens alerts"
+description = "Financial NLP analysis API for Hana Omni-Connect alerts"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

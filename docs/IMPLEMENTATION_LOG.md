@@ -22,6 +22,38 @@
 - 전체 DAPT는 3,908 update·warmup 196, 128 update 단위 atomic safetensors checkpoint, 최종 FP32 merge로 실행 중이다. 완료 artifact는 전체 파일 hash tree·현재 입력·소스·의존성·예비실험·학습 report가 모두 일치할 때만 감성 v6 base로 인정한다.
 - 감성 v6는 all-12 rank-16 LoRA, 공유 head와 NEWS·DISCLOSURE residual head, R-Drop, target-aware head-tail 입력, 고정 cell-mass 손실을 사용한다. 원본 KR-FinBERT-SC, K-FNSPID 도입 전 모델, 동일 자료·분할·seed·selection budget의 KR-FinBERT-SC full-FT, no-K ablation을 NEWS·DISCLOSURE에서 따로 비교한다. 원격 Git 잠금 뒤 600 NEWS·600 DISCLOSURE를 한 번 평가했으며, 설계가중 Accuracy/Macro-F1은 각각 0.7503/0.5530과 0.8646/0.6024이다. 공동 우월성이 확인되지 않아 배포 판정은 `KEEP_CURRENT_MODEL`이다.
 
+## 2026-07-21 · Qwen 원문 근거 What/Why/Impact
+
+- 규칙 기반 영문 요약 생성기와 관련 fallback·테스트를 제거하고 Qwen3-4B가 영문 제목과 What/Why/Impact를 strict JSON으로 생성하게 변경했다.
+- KF-DeBERTa 감성, K-FNSPID 시장영향, 의미 중요도와 이벤트 태그를 관점 신호로 전달하되 원문 사실처럼 인용하지 않도록 prompt와 품질 gate를 고정했다.
+- API 공개 품질 계약과 동일하게 영문 제목과 What/Why/Impact의 생략부호를 금지하고, 각 요약 문장은 영문 4단어 이상, 종결부호 포함, 종목코드 시작 금지를 Qwen 재생성 gate에 적용했다.
+- 누락 필드·한국어 잔존·중복 문장·원문에 없는 숫자는 한 번 재생성한 뒤 분석을 실패 처리한다. 긴 원문은 Qwen 근거 추출을 계층적으로 수행하며 정적 요약으로 후퇴하지 않는다.
+- `FULL` 분석은 전역 Qwen 슬롯 2개 안에서 요약과 전문 번역을 병렬 처리하고, `DEFERRED`는 Qwen 요약만 완료한 뒤 전문 번역을 보강 작업으로 넘긴다.
+
+## 2026-07-21 · OCI 전문 번역 처리량 보정
+
+- 운영 실측에서 Qwen 1.75 OCPU 제한 시 생성 속도가 약 1.2~1.7 token/s로 떨어져 장문 청크가 300초 제한을 넘는 문제를 확인했다.
+- 4 OCPU 호스트에서 Qwen 상한을 3 OCPU로 조정하고 장문 HTTP timeout을 600초로 늘렸다.
+- 전문 번역은 수집·보강 경로에서 완료하고, 완료 전 레코드를 공개 API에서 숨겨 사용자 상세 HTTP 연결이 Qwen 추론을 점유하지 않게 했다.
+- 당시에는 규칙 기반 영문 What/Why/Impact를 제목·요약으로 재사용해 전문 외 Qwen 호출을 제거했다. 현재는 위의 Qwen 원문 근거 요약으로 대체했으며 같은 2-slot 병렬 제어기를 공유한다.
+
+## 2026-07-21 · Qwen 병렬 번역 OOM 방지
+
+- 운영에서 2개 병렬 번역 시 Qwen의 실측 메모리가 6GB 제한을 초과해 재시작되는 원인을 확인했다.
+- 번역 청크와 최대 출력에 충분한 context를 4K로 제한하고 컨테이너 메모리 상한을 10GB로 높여 중간 결과 유실과 반복 재처리를 방지했다.
+
+## 2026-07-20 · 분석과 전체 본문 번역의 처리 경계 분리
+
+- `/api/v1/alerts/analyze`에 하위 호환 기본값 `FULL`과 수집용 `DEFERRED` 번역 모드를 추가했다.
+- `DEFERRED`에서도 종목 연결·이벤트·감성·중요도·시장영향·영문 What/Why/Impact를 계산하고 Qwen 번역 호출만 생략한다.
+- 번역 지연이나 timeout이 초기 뉴스·공시 적재 전체를 직렬로 막지 않도록 했다.
+
+## 2026-07-20 · OCI SSH 키·비밀번호 연속 인증
+
+- 운영 배포 SSH가 고정 private key 인증 뒤 계정 비밀번호를 추가로 요구하는 OCI 정책을 지원한다.
+- 비밀번호는 GitHub `production` 환경의 `PROD_SSH_PASSWORD`로만 받아 OpenSSH `SSH_ASKPASS`에 전달하며 파일·명령 인자·로그에 기록하지 않는다.
+- 고정 host key, 전용 identity와 단일 password prompt를 강제한다. Docker 그룹 변경 뒤 새 로그인 권한이 반영되도록 SSH·SCP 연결은 재사용하지 않는다.
+
 ## 2026-07-15 · 감성 비교 누수 감사와 fail-closed 재학습
 
 - 공개 감성 Train/Validation/Test를 NFKC·대소문자·영숫자 정규화 기준으로 재감사해 내부 중복·충돌을 제거하고 Test→Validation→Train 우선순위로 분할 간 중복 13건을 Train에서 제외했다. 최종 분할은 7,407 / 932 / 932건이다.

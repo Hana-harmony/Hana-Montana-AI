@@ -10,7 +10,7 @@ from hannah_montana_ai.services.feature_contracts import (
 from hannah_montana_ai.services.provider_parsers import (
     ProviderParseError,
     build_intelligence_event_request,
-    build_omnilens_websocket_event,
+    build_omni_connect_websocket_event,
     build_stock_order_status_request,
     parse_kis_master_csv,
     parse_kis_realtime_packet,
@@ -249,7 +249,7 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
 
     request = build_intelligence_event_request(record)
     response = IntelligenceEventService(get_analyzer()).build_response(request)
-    websocket_event = build_omnilens_websocket_event(
+    websocket_event = build_omni_connect_websocket_event(
         response,
         partner_id="US_BROKER",
     )
@@ -268,16 +268,15 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert request.source_license_policy == "PROVIDER_LICENSED_FULL_TEXT"
     assert response.stock_code == "005930"
     assert response.duplicate_key
-    assert response.translated_title == ""
+    assert response.translated_title == "Financial event update"
     assert response.original_body == record.content
     assert response.translated_body == response.translated_content
-    assert response.translated_body == ""
+    assert response.translated_body == "The complete source reports a financial event."
     assert response.body_source_type == "FULL_TEXT"
     assert response.content_availability == "FULL_TEXT"
-    assert response.glossary_terms == []
+    assert [term.normalized_term for term in response.glossary_terms] == ["삼성전자"]
     assert "FINANCIAL_GLOSSARY_APPLIED" not in response.translation_quality_flags
-    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in response.translation_quality_flags
-    assert "CONTENT_TRANSLATION_UNAVAILABLE" in response.translation_quality_flags
+    assert response.translation_quality_flags == []
     assert "EARNINGS" in response.event_tags
     assert websocket_event["channel"] == "stock:005930"
     assert websocket_event["partner_id"] == "US_BROKER"
@@ -287,9 +286,9 @@ def test_naver_news_provider_parser_builds_intelligence_event_packet() -> None:
     assert websocket_event["translated_body"] == response.translated_body
     assert websocket_event["body_source_type"] == "FULL_TEXT"
     assert websocket_event["content_availability"] == "FULL_TEXT"
-    assert websocket_event["glossary_terms"] == []
+    assert [term["normalized_term"] for term in websocket_event["glossary_terms"]] == ["삼성전자"]
     assert "FINANCIAL_GLOSSARY_APPLIED" not in websocket_event["translation_quality_flags"]
-    assert "FINANCIAL_TRANSLATION_TERMS_APPLIED" in websocket_event["translation_quality_flags"]
+    assert websocket_event["translation_quality_flags"] == []
     assert websocket_event["data_source"] == "Naver/OpenDART/NLP/QwenTranslationAdapter"
 
 

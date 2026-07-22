@@ -7,27 +7,37 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from collections.abc import Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
 from threading import BoundedSemaphore
 from typing import Any, Protocol, cast
 
 from hannah_montana_ai.core.config import Settings
-from hannah_montana_ai.domain.schemas import FinancialGlossaryTerm, SourceType, TranslationStatus
+from hannah_montana_ai.domain.schemas import (
+    FinancialGlossaryTerm,
+    Importance,
+    Sentiment,
+    SourceType,
+    SummaryLines,
+    TranslationStatus,
+)
 from hannah_montana_ai.services.korean_financial_terms import load_financial_term_entries
 
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
+QWEN_ALERT_SUMMARY_PROMPT_VERSION = "ko-en-qwen3-grounded-alert-summary-v1"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
 QWEN_4B_TRANSLATION_MODEL = "Qwen3-4B-GGUF-Q4"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 STRUCTURED_DISCLOSURE_TRANSLATION_PROVIDER = "structured-dart-disclosure-ko-en-translation"
 SOURCE_LANGUAGE_FALLBACK_PROVIDER = "source-language-fallback"
-QWEN_CHUNK_MAX_ATTEMPTS = 3
-QWEN_BODY_CHUNK_MAX_CHARS = 360
-QWEN_FULL_TEXT_RETRY_MAX_CHARS = 1800
+QWEN_CHUNK_MAX_ATTEMPTS = 2
+QWEN_BODY_CHUNK_MAX_CHARS = 700
+QWEN_FULL_TEXT_RETRY_MAX_CHARS = 900
 QWEN_MIN_CHUNK_OUTPUT_TOKENS = 256
-QWEN_MAX_CHUNK_OUTPUT_TOKENS = 640
+QWEN_MAX_CHUNK_OUTPUT_TOKENS = 1150
+QWEN_SUMMARY_SOURCE_MAX_CHARS = 2_600
+QWEN_SUMMARY_MAX_ATTEMPTS = 2
 STATUS_TRANSLATED: TranslationStatus = "TRANSLATED"
 STATUS_PARTIAL_SOURCE_LANGUAGE_FALLBACK: TranslationStatus = "PARTIAL_SOURCE_LANGUAGE_FALLBACK"
 STATUS_SOURCE_LANGUAGE_FALLBACK: TranslationStatus = "SOURCE_LANGUAGE_FALLBACK"
@@ -50,6 +60,33 @@ class KoreanTranslationResult:
     status: TranslationStatus
     prompt_version: str
     quality_flags: list[str]
+
+
+@dataclass(frozen=True)
+class QwenAlertSummaryContext:
+    title: str
+    content: str
+    source_type: SourceType
+    importance: Importance
+    sentiment: Sentiment
+    event_tags: list[str]
+    stock_code: str | None
+    stock_name: str | None
+    stock_name_en: str
+    market_impact_importance: Importance | None
+
+
+@dataclass(frozen=True)
+class QwenAlertSummaryResult:
+    translated_title: str
+    summary_lines: SummaryLines
+    provider: str
+    model_version: str
+    prompt_version: str
+
+
+class QwenAlertSummaryError(RuntimeError):
+    pass
 
 
 class TranslationClient(Protocol):
@@ -122,13 +159,6 @@ class QwenHttpKoreanTranslationClient:
 
 
 class KoreanTranslationGenerator:
-    _ALERT_FIELD_ORDER = ("TITLE", "SUMMARY", "CONTENT")
-    _ALERT_FIELD_MARKERS = {
-        "TITLE": "<<<1>>>",
-        "SUMMARY": "<<<2>>>",
-        "CONTENT": "<<<3>>>",
-    }
-
     _HANGUL_PATTERN = re.compile("[가-힣]")
     _CJK_PATTERN = re.compile("[\u3400-\u4dbf\u4e00-\u9fff]")
     _BAD_OUTPUT_TERMS = (
@@ -670,9 +700,10 @@ class KoreanTranslationGenerator:
         self._client = client
         self._model_name = model_name
         self._max_tokens = max_tokens
+        self._max_concurrency = max(1, max_concurrency)
         self._rule_based_repairs_enabled = rule_based_repairs_enabled
         self._dictionary_glossary_terms = dictionary_glossary_terms
-        self._client_slots = BoundedSemaphore(max(1, max_concurrency))
+        self._client_slots = BoundedSemaphore(self._max_concurrency)
 
     @classmethod
     def from_settings(cls, settings: Settings) -> KoreanTranslationGenerator:
@@ -704,6 +735,317 @@ class KoreanTranslationGenerator:
                 for surface in dict.fromkeys((entry.normalized_term, *entry.aliases))
             ),
         )
+
+    def generate_alert_summary(
+        self,
+        context: QwenAlertSummaryContext,
+    ) -> QwenAlertSummaryResult:
+        source_text = self._normalize_text(context.content)
+        if self._client is None:
+            raise QwenAlertSummaryError("Qwen summary client is not configured")
+        if not source_text:
+            raise QwenAlertSummaryError("Qwen summary source is empty")
+
+        started_at = time.perf_counter()
+        evidence = self._summary_evidence(source_text, context)
+        last_flags: list[str] = []
+        messages = self._alert_summary_messages(evidence, context)
+        for attempt in range(1, QWEN_SUMMARY_MAX_ATTEMPTS + 1):
+            try:
+                output = self._generate_with_client(messages, 640)
+                result = self._parse_alert_summary(output)
+                last_flags = self._alert_summary_quality_flags(
+                    f"{context.title}\n{source_text}",
+                    result,
+                )
+                if not last_flags:
+                    logger.info(
+                        "Qwen alert summary completed: source_type=%s source_len=%d "
+                        "evidence_len=%d elapsed_ms=%d",
+                        context.source_type,
+                        len(source_text),
+                        len(evidence),
+                        round((time.perf_counter() - started_at) * 1000),
+                    )
+                    return result
+            except Exception as exception:
+                last_flags = [type(exception).__name__]
+                logger.warning(
+                    "Qwen alert summary attempt failed: source_type=%s source_len=%d "
+                    "attempt=%d error_type=%s error=%s",
+                    context.source_type,
+                    len(source_text),
+                    attempt,
+                    type(exception).__name__,
+                    str(exception)[:240],
+                )
+            if attempt < QWEN_SUMMARY_MAX_ATTEMPTS:
+                messages = [
+                    *self._alert_summary_messages(evidence, context),
+                    {
+                        "role": "user",
+                        "content": (
+                            "The previous JSON failed these quality checks: "
+                            f"{','.join(last_flags)}. Regenerate all four fields from the "
+                            "provided evidence only. Return one strict JSON object."
+                        ),
+                    },
+                ]
+        raise QwenAlertSummaryError(
+            "Qwen summary failed quality checks: " + ",".join(last_flags)
+        )
+
+    def _summary_evidence(
+        self,
+        source_text: str,
+        context: QwenAlertSummaryContext,
+    ) -> str:
+        evidence = source_text
+        for _ in range(4):
+            if len(evidence) <= QWEN_SUMMARY_SOURCE_MAX_CHARS:
+                return evidence
+            chunks = self._split_summary_source(evidence)
+            worker_count = min(self._max_concurrency, len(chunks))
+            with ThreadPoolExecutor(max_workers=worker_count) as executor:
+                reduced = list(
+                    executor.map(
+                        lambda chunk: self._extract_summary_evidence(chunk, context),
+                        chunks,
+                    )
+                )
+            next_evidence = "\n".join(reduced)
+            if not next_evidence or len(next_evidence) >= len(evidence):
+                raise QwenAlertSummaryError("Qwen evidence reduction did not converge")
+            evidence = next_evidence
+        raise QwenAlertSummaryError("Qwen evidence exceeds the model context window")
+
+    def _split_summary_source(self, source_text: str) -> list[str]:
+        chunks: list[str] = []
+        remaining = source_text.strip()
+        while remaining:
+            if len(remaining) <= QWEN_SUMMARY_SOURCE_MAX_CHARS:
+                chunks.append(remaining)
+                break
+            split = max(
+                remaining.rfind("\n", 0, QWEN_SUMMARY_SOURCE_MAX_CHARS),
+                remaining.rfind(". ", 0, QWEN_SUMMARY_SOURCE_MAX_CHARS),
+                remaining.rfind(" ", 0, QWEN_SUMMARY_SOURCE_MAX_CHARS),
+            )
+            if split < QWEN_SUMMARY_SOURCE_MAX_CHARS // 2:
+                split = QWEN_SUMMARY_SOURCE_MAX_CHARS
+            else:
+                split += 1
+            chunks.append(remaining[:split].strip())
+            remaining = remaining[split:].strip()
+        return chunks
+
+    def _extract_summary_evidence(
+        self,
+        source_text: str,
+        context: QwenAlertSummaryContext,
+    ) -> str:
+        payload = {
+            "task": "Extract grounded facts for a financial alert summary.",
+            "schema": {"evidence": ["English factual sentence"]},
+            "rules": [
+                "Return only compact JSON.",
+                "Return at most four concise sentences.",
+                "Preserve facts needed to explain what happened, why, and investor impact.",
+                "Do not infer a cause when the source does not state one.",
+                "Do not add companies, dates, numbers, or claims absent from source_text.",
+            ],
+            "source_type": context.source_type,
+            "title": context.title,
+            "source_text": source_text,
+        }
+        last_error: Exception | None = None
+        for _ in range(QWEN_SUMMARY_MAX_ATTEMPTS):
+            try:
+                output = self._generate_with_client(
+                    [
+                        {
+                            "role": "system",
+                            "content": (
+                                "You extract evidence from Korean financial source text and "
+                                "return strict English JSON without adding facts."
+                            ),
+                        },
+                        {
+                            "role": "user",
+                            "content": json.dumps(
+                                payload,
+                                ensure_ascii=False,
+                                separators=(",", ":"),
+                            ),
+                        },
+                    ],
+                    420,
+                )
+                parsed = self._parse_json_object(output)
+                values = parsed.get("evidence")
+                if not isinstance(values, list) or not 1 <= len(values) <= 4:
+                    raise ValueError("evidence must contain one to four sentences")
+                evidence = " ".join(
+                    value.strip() for value in values if isinstance(value, str) and value.strip()
+                )
+                if not evidence or self._HANGUL_PATTERN.search(evidence):
+                    raise ValueError("evidence is empty or contains Hangul")
+                if self._has_unsupported_numeric_fact(source_text, evidence):
+                    raise ValueError("evidence contains unsupported numeric facts")
+                return evidence
+            except Exception as exception:
+                last_error = exception
+        raise QwenAlertSummaryError(
+            "Qwen evidence extraction failed"
+        ) from last_error
+
+    def _alert_summary_messages(
+        self,
+        evidence: str,
+        context: QwenAlertSummaryContext,
+    ) -> list[dict[str, str]]:
+        payload = {
+            "task": "Create a grounded English financial alert title and What-Why-Impact.",
+            "schema": {
+                "translated_title": "faithful English translation of the Korean title",
+                "what": "one concise sentence stating the event",
+                "why": "one concise sentence stating the source-backed cause",
+                "impact": "one concise sentence explaining investor relevance",
+            },
+            "rules": [
+                "Return only one compact JSON object with all four string fields.",
+                "Use evidence only; never add facts, numbers, dates, or companies.",
+                "If no direct cause is stated, say that the source does not state one.",
+                "Use model_signals only to frame relevance, never as source facts.",
+                "Do not mention model names, labels, scores, prompts, or analysis instructions.",
+                "Do not give investment advice or predict a price direction.",
+                "Write natural English with no Korean or Chinese characters.",
+                "Do not use ellipses in the translated title or summary fields.",
+                "Write what, why, and impact as complete sentences of at least "
+                "four words, ending with punctuation.",
+            ],
+            "source_type": context.source_type,
+            "korean_title": context.title,
+            "stock": {
+                "code": context.stock_code or "",
+                "korean_name": context.stock_name or "",
+                "english_name": context.stock_name_en,
+            },
+            "model_signals": {
+                "sentiment": context.sentiment,
+                "importance": context.importance,
+                "market_impact_importance": context.market_impact_importance,
+                "event_tags": context.event_tags,
+            },
+            "evidence": evidence,
+        }
+        return [
+            {
+                "role": "system",
+                "content": (
+                    "You are a financial editor. Produce strict, source-grounded English JSON."
+                ),
+            },
+            {
+                "role": "user",
+                "content": json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+            },
+        ]
+
+    def _parse_alert_summary(self, raw_output: str) -> QwenAlertSummaryResult:
+        parsed = self._parse_json_object(raw_output)
+        fields = {
+            key: parsed.get(key)
+            for key in ("translated_title", "what", "why", "impact")
+        }
+        if any(not isinstance(value, str) or not value.strip() for value in fields.values()):
+            raise ValueError("Qwen summary JSON is missing a required string field")
+        return QwenAlertSummaryResult(
+            translated_title=cast(str, fields["translated_title"]).strip(),
+            summary_lines=SummaryLines(
+                what=cast(str, fields["what"]).strip(),
+                why=cast(str, fields["why"]).strip(),
+                impact=cast(str, fields["impact"]).strip(),
+            ),
+            provider=LOCAL_TRANSLATION_PROVIDER,
+            model_version=self._model_name,
+            prompt_version=QWEN_ALERT_SUMMARY_PROMPT_VERSION,
+        )
+
+    def _parse_json_object(self, raw_output: str) -> dict[str, Any]:
+        cleaned = self._clean_qwen_translation_output(raw_output)
+        decoder = json.JSONDecoder()
+        for index, character in enumerate(cleaned):
+            if character != "{":
+                continue
+            try:
+                parsed, _ = decoder.raw_decode(cleaned[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict):
+                return cast(dict[str, Any], parsed)
+        raise ValueError("Qwen output does not contain a JSON object")
+
+    def _alert_summary_quality_flags(
+        self,
+        source_text: str,
+        result: QwenAlertSummaryResult,
+    ) -> list[str]:
+        values = (
+            result.translated_title,
+            result.summary_lines.what,
+            result.summary_lines.why,
+            result.summary_lines.impact,
+        )
+        flags: list[str] = []
+        if any(len(value) > 500 for value in values):
+            flags.append("SUMMARY_FIELD_TOO_LONG")
+        if any(self._HANGUL_PATTERN.search(value) for value in values):
+            flags.append("HANGUL_REMAINS")
+        if any(self._CJK_PATTERN.search(value) for value in values):
+            flags.append("CJK_REMAINS")
+        if any(not re.search(r"[A-Za-z]", value) for value in values):
+            flags.append("ENGLISH_TEXT_MISSING")
+        combined = " ".join(values)
+        if any(term in combined.lower() for term in self._BAD_OUTPUT_TERMS):
+            flags.append("META_OR_REFUSAL_TEXT")
+        if self._has_unsupported_summary_numeric_fact(source_text, combined):
+            flags.append("UNSUPPORTED_NUMERIC_FACT")
+        if self._has_unsupported_year_fact(source_text, combined):
+            flags.append("UNSUPPORTED_YEAR_FACT")
+        summary_values = values[1:]
+        if any(
+            len(re.findall(r"[A-Za-z]{2,}", value)) < 4
+            for value in summary_values
+        ):
+            flags.append("FRAGMENTARY_SUMMARY_LINE")
+        if any(
+            re.search(r"[.!?][\"')\]]*$", value) is None
+            for value in summary_values
+        ):
+            flags.append("INCOMPLETE_SUMMARY_SENTENCE")
+        if any(re.match(r"^\d{6}\b", value) for value in summary_values):
+            flags.append("STOCK_CODE_SUMMARY_SUBJECT")
+        if any(re.search(r"\.{3,}|…|···", value) for value in values):
+            flags.append("ELLIPSIS_REMAINS")
+        if len({value.casefold() for value in summary_values}) != len(summary_values):
+            flags.append("DUPLICATE_SUMMARY_LINE")
+        return flags
+
+    @staticmethod
+    def _has_unsupported_summary_numeric_fact(
+        source_text: str,
+        generated_text: str,
+    ) -> bool:
+        source_numbers = {
+            token.replace(",", "").lstrip("0") or "0"
+            for token in re.findall(r"\d+(?:[.,]\d+)*", source_text)
+        }
+        generated_numbers = {
+            token.replace(",", "").lstrip("0") or "0"
+            for token in re.findall(r"\d+(?:[.,]\d+)*", generated_text)
+        }
+        return bool(generated_numbers.difference(source_numbers))
 
     def translate(self, context: KoreanTranslationContext) -> KoreanTranslationResult:
         source_text = self._normalize_text(context.text)
@@ -753,74 +1095,6 @@ class KoreanTranslationGenerator:
             return client_result
         return self._fallback("", ["QWEN_TRANSLATION_FAILED"])
 
-    def translate_alert_fields(
-        self,
-        contexts: Mapping[str, KoreanTranslationContext],
-    ) -> dict[str, KoreanTranslationResult] | None:
-        if tuple(contexts) != self._ALERT_FIELD_ORDER:
-            return None
-        first_context = contexts[self._ALERT_FIELD_ORDER[0]]
-        composite_text = "\n".join(
-            part
-            for field in self._ALERT_FIELD_ORDER
-            for part in (
-                self._ALERT_FIELD_MARKERS[field],
-                contexts[field].text,
-            )
-        )
-        result = self.translate(
-            KoreanTranslationContext(
-                text=composite_text,
-                source_type=first_context.source_type,
-                title=first_context.title,
-                glossary_terms=first_context.glossary_terms,
-            )
-        )
-        if result.status != STATUS_TRANSLATED:
-            return None
-        parsed = self._parse_alert_field_translation(result.translated_text)
-        if parsed is None:
-            return None
-        if any(
-            self._quality_flags(
-                self._normalize_text(contexts[field].text),
-                parsed[field],
-            )
-            for field in self._ALERT_FIELD_ORDER
-        ):
-            return None
-        return {
-            field: KoreanTranslationResult(
-                translated_text=parsed[field],
-                provider=result.provider,
-                model_version=result.model_version,
-                status=result.status,
-                prompt_version=result.prompt_version,
-                quality_flags=list(result.quality_flags),
-            )
-            for field in self._ALERT_FIELD_ORDER
-        }
-
-    def _parse_alert_field_translation(self, translated_text: str) -> dict[str, str] | None:
-        marker_pattern = "|".join(
-            re.escape(self._ALERT_FIELD_MARKERS[field])
-            for field in self._ALERT_FIELD_ORDER
-        )
-        matches = list(re.finditer(marker_pattern, translated_text, flags=re.IGNORECASE))
-        if len(matches) != len(self._ALERT_FIELD_ORDER):
-            return None
-        parsed: dict[str, str] = {}
-        for index, field in enumerate(self._ALERT_FIELD_ORDER):
-            expected_marker = self._ALERT_FIELD_MARKERS[field]
-            if matches[index].group(0).upper() != expected_marker:
-                return None
-            end = matches[index + 1].start() if index + 1 < len(matches) else len(translated_text)
-            value = translated_text[matches[index].end() : end].strip()
-            if not value or re.search(r"[가-힣]", value):
-                return None
-            parsed[field] = value
-        return parsed
-
     def _translate_chunks_with_generation_client(
         self,
         source_text: str,
@@ -833,8 +1107,15 @@ class KoreanTranslationGenerator:
         flags: list[str] = []
         providers: list[str] = []
         model_versions: list[str] = []
-        for chunk in chunks:
-            result = self._translate_chunk(chunk, context)
+        worker_count = min(self._max_concurrency, len(chunks))
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            results = list(
+                executor.map(
+                    lambda chunk: self._translate_chunk(chunk, context),
+                    chunks,
+                )
+            )
+        for chunk, result in zip(chunks, results, strict=True):
             translated_chunks.append(result.translated_text)
             flags.extend(result.quality_flags)
             if chunk.strip() and not result.translated_text.strip():
@@ -1207,12 +1488,6 @@ class KoreanTranslationGenerator:
             "When glossary includes Korean market slang, use the glossary surface exactly.",
             "Do not leave Korean Hangul characters in the translation.",
         ]
-        if all(marker in context.text for marker in self._ALERT_FIELD_MARKERS.values()):
-            rules.insert(
-                1,
-                "Preserve any section marker <<<1>>>, <<<2>>>, or <<<3>>> that appears in "
-                "source_text exactly.",
-            )
         payload = {
             "task": "Translate Korean financial news or disclosures into English.",
             "schema": {"translation": "complete English translation of source_text"},

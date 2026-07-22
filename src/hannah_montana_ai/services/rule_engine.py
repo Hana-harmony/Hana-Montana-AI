@@ -1,6 +1,6 @@
 import re
 
-from hannah_montana_ai.domain.schemas import Importance, Sentiment, SummaryLines
+from hannah_montana_ai.domain.schemas import Importance, Sentiment
 
 
 class FinancialRuleEngine:
@@ -61,60 +61,6 @@ class FinancialRuleEngine:
         "지수",
         "쏠림",
     )
-    reason_keywords = (
-        "때문",
-        "영향",
-        "배경",
-        "목적",
-        "위해",
-        "따라",
-        "증가",
-        "감소",
-        "계약",
-        "실적",
-        "공시",
-        "수주",
-        "소송",
-        "주주가치",
-        "주주환원",
-        "가격 반등",
-        "수요",
-        "랠리",
-        "상승을 이끌",
-    )
-    strong_reason_keywords = (
-        "때문",
-        "영향",
-        "배경",
-        "목적",
-        "위해",
-        "주주가치",
-        "주주환원",
-        "가격 반등",
-        "수요",
-    )
-    impact_keywords = (
-        "주가",
-        "매출",
-        "영업이익",
-        "손익",
-        "리스크",
-        "전망",
-        "시장",
-        "투자자",
-        "거래",
-        "코스피",
-        "코스닥",
-        "지수",
-        "쏠림",
-        "상장폐지",
-        "거래정지",
-        "지분 희석",
-        "배당",
-        "일정",
-        "확인",
-    )
-    investor_action_keywords = ("투자자는", "사용자는", "확인해야", "점검해야")
     summary_meta_keywords = (
         "classified",
         "importance",
@@ -215,13 +161,6 @@ class FinancialRuleEngine:
         "투표하러 가기",
         "돈 되는 뉴스",
     )
-    roundup_title_keywords = (
-        "오늘의 주요공시",
-        "오늘의 공시",
-        "오늘의 증시일정",
-        "오늘의 상승종목",
-        "상승종목",
-    )
     generic_title_terms = {
         "오늘의",
         "주요공시",
@@ -249,141 +188,6 @@ class FinancialRuleEngine:
         if len(text) > 80:
             return "MEDIUM"
         return "LOW"
-
-    def summarize(self, title: str, snippet: str) -> str:
-        normalized = re.sub(r"\s+", " ", f"{title}. {snippet}").strip()
-        sentences = self._article_sentences(normalized)
-        if sentences:
-            return self._line(sentences[0])
-        return self._fallback_what_sentence(title)
-
-    def summarize_what_why_impact(
-        self,
-        title: str,
-        snippet: str,
-        content: str,
-        importance: Importance,
-        sentiment: Sentiment,
-    ) -> SummaryLines:
-        content_sentences = self._article_sentences(content)
-        article_sentences = (
-            content_sentences if content_sentences else self._article_sentences(snippet)
-        )
-        is_roundup_title = self._is_roundup_title(title)
-        context_text = f"{title} {snippet}" if is_roundup_title else title
-        ranked_sentences = self._ranked_article_sentences(article_sentences, context_text)
-        title_terms = self._title_terms(context_text)
-        related_ranked_sentences = [
-            sentence
-            for sentence in ranked_sentences
-            if any(term in sentence for term in title_terms)
-        ]
-        summary_candidates = (
-            related_ranked_sentences if len(related_ranked_sentences) >= 2 else ranked_sentences
-        )
-        what = self._first_title_context_sentence(
-            article_sentences,
-            context_text,
-            prefer_title_match=not is_roundup_title,
-        )
-        if not what:
-            fallback_title = "" if is_roundup_title else title
-            what = (
-                summary_candidates[0]
-                if summary_candidates
-                else self.summarize(fallback_title, snippet)
-            )
-        why = self._first_semantic_sentence(
-            summary_candidates,
-            self.strong_reason_keywords,
-            excluded={what},
-            reject_keywords=self.investor_action_keywords,
-        )
-        if not why:
-            why = self._first_semantic_sentence(
-                summary_candidates,
-                self.reason_keywords,
-                excluded={what},
-                reject_keywords=self.investor_action_keywords,
-            )
-        if not why or self._line(why) == self._line(what):
-            why = self._first_semantic_sentence(
-                ranked_sentences,
-                self.strong_reason_keywords,
-                excluded={what},
-                reject_keywords=self.investor_action_keywords,
-            )
-        if not why or self._line(why) == self._line(what):
-            why = self._first_semantic_sentence(
-                ranked_sentences,
-                self.reason_keywords,
-                excluded={what},
-                reject_keywords=self.investor_action_keywords,
-            )
-        if not why or self._line(why) == self._line(what):
-            why = self._first_distinct_sentence(summary_candidates, excluded={what})
-        impact_sentence = self._first_semantic_sentence(
-            summary_candidates,
-            self.impact_keywords,
-            excluded={what, why},
-        )
-        if not impact_sentence or self._line(impact_sentence) in {
-            self._line(what),
-            self._line(why),
-        }:
-            impact_sentence = self._first_semantic_sentence(
-                ranked_sentences,
-                self.impact_keywords,
-                excluded={what, why},
-            )
-        if not impact_sentence or self._line(impact_sentence) in {
-            self._line(what),
-            self._line(why),
-        }:
-            impact_sentence = self._first_distinct_sentence(
-                summary_candidates,
-                excluded={what, why},
-            )
-        article_backed_summary = self._article_backed_summary_lines(
-            article_sentences,
-            (what, why, impact_sentence),
-        )
-        if article_backed_summary:
-            return article_backed_summary
-        fallback_subject = (
-            "해당 공시·뉴스"
-            if is_roundup_title
-            else self._subject_fragment(title) or "해당 공시·뉴스"
-        )
-        if not why:
-            why = (
-                f"{fallback_subject}{self._josa(fallback_subject, '과', '와')} 관련된 핵심 배경은 "
-                "원문에서 확인된 최신 공시·뉴스 맥락입니다."
-            )
-        if not impact_sentence:
-            impact_sentence = self._investor_check_sentence(fallback_subject)
-        if self._line(why) == self._line(what):
-            why = f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
-        if self._line(impact_sentence) in {self._line(what), self._line(why)}:
-            impact_sentence = self._investor_check_sentence(fallback_subject)
-        what_line = self._line(what)
-        if not what_line:
-            what_line = self._line(self.summarize(fallback_subject, snippet))
-        if not what_line:
-            what_line = self._fallback_what_sentence(fallback_subject)
-        why_line = self._line(why)
-        if not why_line or why_line == what_line:
-            why_line = self._line(
-                f"{fallback_subject}의 배경은 원문에서 확인된 최신 시장·기업 이벤트입니다."
-            )
-        impact_line = self._line(impact_sentence)
-        if not impact_line or impact_line in {what_line, why_line}:
-            impact_line = self._line(self._investor_check_sentence(fallback_subject))
-        return SummaryLines(
-            what=what_line,
-            why=why_line,
-            impact=impact_line,
-        )
 
     def clean_article_text(self, content: str, title: str) -> str:
         sentences = self._article_sentences(content)
@@ -445,53 +249,6 @@ class FinancialRuleEngine:
             if (candidate := self._article_sentence_candidate(sentence))
         ]
 
-    def _ranked_article_sentences(self, sentences: list[str], title: str) -> list[str]:
-        sentences = [sentence for sentence in sentences if self._is_article_sentence(sentence)]
-        title_terms = self._title_terms(title)
-        return sorted(
-            sentences,
-            key=lambda sentence: self._sentence_score(sentence, title_terms),
-            reverse=True,
-        )
-
-    def _first_title_context_sentence(
-        self,
-        sentences: list[str],
-        title: str,
-        *,
-        prefer_title_match: bool = True,
-    ) -> str:
-        title_terms = self._title_terms(title)
-        title_match_threshold = min(2, len(title_terms))
-        if prefer_title_match and title_match_threshold:
-            for sentence in sentences[:6]:
-                matched_terms = sum(1 for term in title_terms if term in sentence)
-                if matched_terms >= title_match_threshold:
-                    return sentence
-        market_axis_terms = {
-            term
-            for term in title_terms
-            if term in {"기관", "외국인", "개인", "매수세", "매도세", "회복", "반등"}
-            or term.endswith("선")
-        }
-        if market_axis_terms:
-            for sentence in sentences[:8]:
-                if any(term in sentence for term in market_axis_terms) and self._contains_any(
-                    sentence,
-                    self.financial_context_keywords,
-                ):
-                    return sentence
-        for sentence in sentences:
-            if any(term in sentence for term in title_terms) and self._contains_any(
-                sentence,
-                self.financial_context_keywords,
-            ):
-                return sentence
-        for sentence in sentences:
-            if self._contains_any(sentence, self.financial_context_keywords):
-                return sentence
-        return ""
-
     def _is_article_sentence(self, sentence: str) -> bool:
         return bool(self._article_sentence_candidate(sentence))
 
@@ -529,9 +286,6 @@ class FinancialRuleEngine:
         score -= self._count_keywords(sentence, self.boilerplate_keywords) * 120
         return score
 
-    def _is_roundup_title(self, title: str) -> bool:
-        return self._contains_any(title, self.roundup_title_keywords)
-
     def _title_terms(self, title: str) -> set[str]:
         return {
             token
@@ -539,107 +293,6 @@ class FinancialRuleEngine:
             if token not in {"단독", "종합", "속보", "특징주"}
             and token not in self.generic_title_terms
         }
-
-    def _first_matching_sentence(self, sentences: list[str], keywords: tuple[str, ...]) -> str:
-        for sentence in sentences:
-            if self._contains_any(sentence, keywords):
-                return sentence
-        return ""
-
-    def _first_semantic_sentence(
-        self,
-        sentences: list[str],
-        keywords: tuple[str, ...],
-        *,
-        excluded: set[str],
-        reject_keywords: tuple[str, ...] = (),
-    ) -> str:
-        excluded_lines = {self._line(text) for text in excluded if text}
-        for sentence in sentences:
-            line = self._line(sentence)
-            if not line:
-                continue
-            if line in excluded_lines:
-                continue
-            if reject_keywords and self._contains_any(sentence, reject_keywords):
-                continue
-            if self._contains_any(sentence, keywords):
-                return sentence
-        return ""
-
-    def _first_distinct_sentence(self, sentences: list[str], excluded: set[str]) -> str:
-        excluded_lines = {self._line(text) for text in excluded if text}
-        for sentence in sentences:
-            line = self._line(sentence)
-            if line and line not in excluded_lines:
-                return sentence
-        return ""
-
-    def _article_backed_summary_lines(
-        self,
-        article_sentences: list[str],
-        candidates: tuple[str, str, str],
-    ) -> SummaryLines | None:
-        article_lines = [line for sentence in article_sentences if (line := self._line(sentence))]
-        if len(article_lines) < 3:
-            return None
-
-        selected: list[str] = []
-        article_line_set = set(article_lines)
-        for candidate in candidates:
-            line = self._line(candidate)
-            if line and line in article_line_set and line not in selected:
-                selected.append(line)
-
-        for line in article_lines:
-            if line not in selected:
-                selected.append(line)
-            if len(selected) == 3:
-                return SummaryLines(
-                    what=selected[0],
-                    why=selected[1],
-                    impact=selected[2],
-                )
-        return None
-
-    def _investor_check_sentence(self, subject: str) -> str:
-        display_subject = self._subject_fragment(subject) or "해당 이슈"
-        return (
-            f"투자자는 {display_subject}{self._josa(display_subject, '이', '가')} "
-            "보유·관심 종목의 수급, 실적 전망, "
-            "변동성에 미치는 영향을 확인해야 합니다."
-        )
-
-    def _fallback_what_sentence(self, subject: str) -> str:
-        display_subject = self._subject_fragment(subject) or "해당 공시·뉴스"
-        return f"원문은 {display_subject} 관련 최신 시장·기업 이벤트를 다룹니다."
-
-    def _subject_fragment(self, text: str) -> str:
-        normalized = re.sub(r"\s+", " ", text).strip()
-        normalized = normalized.replace("...", " ").replace("…", " ")
-        normalized = re.sub(r"\S+@\S+", "", normalized).strip()
-        normalized = self._strip_photo_credit(normalized)
-        normalized = self._strip_byline(normalized)
-        normalized = re.sub(r"^[.·ㆍ•▲△▶▷\-\s]+", "", normalized).strip()
-        normalized = re.sub(r"\s+", " ", normalized).strip()
-        if not normalized:
-            return ""
-        lower = normalized.lower()
-        if any(keyword in lower for keyword in self.summary_meta_keywords):
-            return ""
-        return self._truncate_fragment(normalized, 80)
-
-    def _line(self, text: str) -> str:
-        normalized = re.sub(r"\s+", " ", text).strip()
-        normalized = re.sub(r"\S+@\S+", "", normalized).strip()
-        normalized = self._strip_photo_credit(normalized)
-        normalized = self._strip_byline(normalized)
-        normalized = re.sub(r"^[.·ㆍ•▲△▶▷/\-\s]+", "", normalized).strip()
-        if self._is_low_quality_summary_line(normalized):
-            return ""
-        if not self._has_sentence_completion(normalized):
-            return ""
-        return self._truncate_sentence_boundary(normalized, 300)
 
     def _strip_photo_credit(self, text: str) -> str:
         return re.sub(r"^\(?/?사진\s*=[^)]+\)?\s*", "", text).strip()
@@ -679,34 +332,3 @@ class FinancialRuleEngine:
                 normalized,
             )
         )
-
-    def _truncate_sentence_boundary(self, text: str, max_length: int) -> str:
-        if len(text) <= max_length:
-            return text
-        boundary_positions = [
-            match.end()
-            for match in re.finditer(r"[.!?。]|다(?=\s|$)|요(?=\s|$)", text)
-            if match.end() <= max_length
-        ]
-        if not boundary_positions:
-            return ""
-        return text[: boundary_positions[-1]].strip()
-
-    def _truncate_fragment(self, text: str, max_length: int) -> str:
-        if len(text) <= max_length:
-            return text
-        boundary_positions = [
-            match.start() for match in re.finditer(r"\s+", text) if match.start() <= max_length
-        ]
-        if not boundary_positions:
-            return ""
-        return text[: boundary_positions[-1]].strip()
-
-    def _josa(self, text: str, with_final: str, without_final: str) -> str:
-        subject = text.strip()
-        if not subject:
-            return without_final
-        last_char = subject[-1]
-        if "가" <= last_char <= "힣":
-            return with_final if (ord(last_char) - ord("가")) % 28 else without_final
-        return without_final

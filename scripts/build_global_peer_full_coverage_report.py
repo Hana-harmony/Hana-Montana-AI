@@ -7,6 +7,8 @@ if __name__ == "__main__":
     settings = get_settings()
     report = build_global_peer_full_coverage_report(
         stock_universe_path=settings.stock_universe_path,
+        korea_industry_path=settings.global_peer_korea_industry_path,
+        korea_company_profile_path=settings.global_peer_korea_company_profile_path,
         model_path=settings.global_peer_model_path,
         report_path=settings.global_peer_full_coverage_report_path,
     )

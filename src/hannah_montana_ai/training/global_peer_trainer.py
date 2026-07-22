@@ -112,30 +112,40 @@ CURATED_GLOBAL_BRAND_TIERS: dict[str, float] = {
     "AAPL": 1.0,
     "ALB": 0.85,
     "AMD": 0.9,
+    "ANET": 0.9,
     "AMZN": 1.0,
     "BAC": 0.9,
     "BIIB": 0.85,
+    "BN": 0.85,
+    "BRK.A": 1.0,
     "BRK.B": 1.0,
     "C": 0.85,
     "CAT": 0.9,
+    "CIEN": 0.8,
     "COST": 0.95,
     "CRM": 0.9,
+    "CSCO": 0.95,
     "CVX": 0.9,
     "DAL": 0.9,
     "DIS": 0.95,
     "DOW": 0.85,
+    "EBAY": 0.9,
+    "ETSY": 0.85,
     "F": 0.9,
     "GM": 0.9,
     "GOOG": 1.0,
     "GOOGL": 1.0,
     "HALO": 0.8,
     "INTC": 0.95,
+    "IEP": 0.75,
     "JPM": 0.95,
     "JNJ": 0.95,
     "KO": 0.95,
+    "L": 0.8,
     "LLY": 0.95,
     "MA": 0.95,
     "META": 1.0,
+    "MKL": 0.8,
     "MSFT": 1.0,
     "MU": 0.85,
     "NFLX": 0.95,
@@ -330,12 +340,23 @@ class PeerAnchor:
 US_ANCHORS: dict[str, PeerAnchor] = {
     "AAL": PeerAnchor(
         profile_text="American Airlines passenger cargo aviation fleet global route network",
-        business_tags=("aerospace", "passenger transportation"),
+        business_tags=("passenger transportation",),
         sector="Industrials",
         industry="Airlines",
         business_model="Passenger and cargo airline operations",
         scale_bucket="LARGE_CAP",
         positioning_title="Global Airline",
+    ),
+    "ANET": PeerAnchor(
+        profile_text=(
+            "Arista Networks cloud data center ethernet switching routing network equipment"
+        ),
+        business_tags=("telecom equipment",),
+        sector="Information Technology",
+        industry="Communications Equipment",
+        business_model="Network and communications equipment manufacturing",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Cloud Networking Equipment Provider",
     ),
     "AAPL": PeerAnchor(
         profile_text=(
@@ -357,6 +378,102 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         business_model="Banking, spread income, fees, and capital-market services",
         scale_bucket="MEGA_CAP",
         positioning_title="Diversified Banking Group",
+    ),
+    "BN": PeerAnchor(
+        profile_text=(
+            "Brookfield diversified investment holding alternative assets infrastructure "
+            "renewable power real estate private equity"
+        ),
+        business_tags=("holding company", "financials"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Global Investment Holding Group",
+    ),
+    "BRK.A": PeerAnchor(
+        profile_text=(
+            "Berkshire Hathaway diversified investment holding insurance railroad energy "
+            "manufacturing consumer businesses"
+        ),
+        business_tags=("holding company", "insurance"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Diversified Investment Holding Company",
+    ),
+    "BRK.B": PeerAnchor(
+        profile_text=(
+            "Berkshire Hathaway diversified investment holding insurance railroad energy "
+            "manufacturing consumer businesses"
+        ),
+        business_tags=("holding company", "insurance"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Diversified Investment Holding Company",
+    ),
+    "IEP": PeerAnchor(
+        profile_text=(
+            "Icahn Enterprises diversified investment holding energy automotive food "
+            "packaging real estate portfolio"
+        ),
+        business_tags=("holding company", "financials"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="MID_CAP",
+        positioning_title="Diversified Investment Holding Company",
+    ),
+    "L": PeerAnchor(
+        profile_text=(
+            "Loews diversified investment holding insurance energy hotels packaging "
+            "portfolio management"
+        ),
+        business_tags=("holding company", "insurance"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Diversified Investment Holding Company",
+    ),
+    "MKL": PeerAnchor(
+        profile_text=(
+            "Markel specialty insurance investment holding diversified industrial portfolio "
+            "long term capital allocation"
+        ),
+        business_tags=("holding company", "insurance"),
+        sector="Financials",
+        industry="Investment Holding Companies",
+        business_model="Investment holding and portfolio management",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Insurance Investment Holding Company",
+    ),
+    "EBAY": PeerAnchor(
+        profile_text=(
+            "eBay global online auction marketplace collectibles resale buyer seller "
+            "transaction platform"
+        ),
+        business_tags=("art auction", "retail"),
+        sector="Consumer Discretionary",
+        industry="Art and Collectibles Marketplace",
+        business_model="Auction and marketplace transaction fees",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Global Online Auction Marketplace",
+    ),
+    "ETSY": PeerAnchor(
+        profile_text=(
+            "Etsy online marketplace handmade vintage art collectibles creators buyers "
+            "transaction platform"
+        ),
+        business_tags=("art auction", "retail"),
+        sector="Consumer Discretionary",
+        industry="Art and Collectibles Marketplace",
+        business_model="Auction and marketplace transaction fees",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Art and Collectibles Marketplace",
     ),
     "BIIB": PeerAnchor(
         profile_text="Biogen biologics biotechnology neurology pharmaceutical therapy developer",
@@ -543,7 +660,7 @@ US_ANCHORS: dict[str, PeerAnchor] = {
     ),
     "UAL": PeerAnchor(
         profile_text="United Airlines passenger cargo aviation fleet global route network",
-        business_tags=("aerospace", "passenger transportation"),
+        business_tags=("passenger transportation",),
         sector="Industrials",
         industry="Airlines",
         business_model="Passenger and cargo airline operations",
@@ -580,6 +697,24 @@ US_ANCHORS: dict[str, PeerAnchor] = {
         scale_bucket="LARGE_CAP",
         positioning_title="Industrial Machinery Leader",
     ),
+    "CIEN": PeerAnchor(
+        profile_text="Ciena optical networking transport routing communications equipment",
+        business_tags=("telecom equipment",),
+        sector="Information Technology",
+        industry="Communications Equipment",
+        business_model="Network and communications equipment manufacturing",
+        scale_bucket="LARGE_CAP",
+        positioning_title="Optical Networking Equipment Provider",
+    ),
+    "CSCO": PeerAnchor(
+        profile_text="Cisco network switches routers wireless communications equipment security",
+        business_tags=("telecom equipment",),
+        sector="Information Technology",
+        industry="Communications Equipment",
+        business_model="Network and communications equipment manufacturing",
+        scale_bucket="MEGA_CAP",
+        positioning_title="Global Networking Equipment Provider",
+    ),
     "DIS": PeerAnchor(
         profile_text="Walt Disney media entertainment streaming studios theme parks content",
         business_tags=("media entertainment", "content"),
@@ -591,7 +726,7 @@ US_ANCHORS: dict[str, PeerAnchor] = {
     ),
     "DAL": PeerAnchor(
         profile_text="Delta Air Lines passenger cargo aviation fleet global route network",
-        business_tags=("aerospace", "passenger transportation"),
+        business_tags=("passenger transportation",),
         sector="Industrials",
         industry="Airlines",
         business_model="Passenger and cargo airline operations",
@@ -1373,7 +1508,7 @@ def train_korea_business_profile_classifier(
     min_confidence: float = 0.55,
     summary_aligned_min_confidence: float = 0.35,
 ) -> KoreaBusinessProfileClassifierResult:
-    industry_profiles = _ground_industry_profiles_with_company_summaries(
+    industry_profiles = ground_industry_profiles_with_company_summaries(
         industry_profiles,
         company_profiles,
     )
@@ -1623,7 +1758,7 @@ def train_korea_business_profile_classifier(
     )
 
 
-def _ground_industry_profiles_with_company_summaries(
+def ground_industry_profiles_with_company_summaries(
     industry_profiles: dict[str, KoreaIndustryProfile],
     company_profiles: dict[str, KoreaCompanyProfile],
 ) -> dict[str, KoreaIndustryProfile]:
@@ -1642,17 +1777,88 @@ def _ground_industry_profiles_with_company_summaries(
             for tag in profile.business_tags
             if tag in {"art auction", "drug delivery"} and tag not in grounded_tags
         }
-        if not grounded_tags or (
-            grounded_tags[0] in profile.business_tags[:1] and not unsupported_narrow_tags
-        ):
+        existing_tags = tuple(
+            tag for tag in profile.business_tags if tag not in unsupported_narrow_tags
+        )
+        primary_existing_tag = _primary_operating_tag(existing_tags)
+        primary_grounded_tag = _primary_operating_tag(grounded_tags)
+        protected_existing_domain = primary_existing_tag in {
+            "banking",
+            "holding company",
+            "insurance",
+        }
+        promote_grounded_domain = (
+            bool(grounded_tags)
+            and not protected_existing_domain
+            and (
+                primary_grounded_tag
+                in {
+                    "aerospace",
+                    "passenger transportation",
+                    "payments",
+                    "telecom equipment",
+                }
+                or (primary_grounded_tag == "semiconductors" and "semiconductors" in summary_tags)
+                or (
+                    primary_grounded_tag in existing_tags
+                    and primary_grounded_tag != primary_existing_tag
+                )
+                or bool(unsupported_narrow_tags)
+                or (
+                    primary_existing_tag == "telecommunications"
+                    and bool(summary_tags)
+                    and "telecommunications" not in summary_tags
+                )
+            )
+        )
+        if promote_grounded_domain:
+            # 회사별 사업 근거가 동종업계 이름에서 섞인 부수 키워드보다 우선한다.
+            grounded_sector = infer_sector(grounded_tags)
+            compatible_existing_tags = tuple(
+                tag for tag in existing_tags if infer_sector((tag,)) == grounded_sector
+            )
+            tags = _merge_business_tags(compatible_existing_tags, grounded_tags)
+            grounded[stock_code] = KoreaIndustryProfile(
+                stock_code=profile.stock_code,
+                stock_name=profile.stock_name,
+                industry_code=profile.industry_code,
+                peer_stock_codes=profile.peer_stock_codes,
+                peer_stock_names=profile.peer_stock_names,
+                business_tags=tags,
+                sector=infer_sector(tags),
+                industry=infer_industry(tags),
+                business_model=infer_business_model(tags),
+                source=f"{profile.source}+COMPANY_DOMAIN_GROUNDED",
+            )
             continue
-        # 실제 회사 설명의 구체적인 사업 근거가 비교업종 추정값과 충돌하면 설명을 우선한다.
+        if _is_specific_korea_industry_profile(profile):
+            # 업종 비교 데이터의 분류를 회사 소개의 부수 사업 표현으로 덮어쓰지 않는다.
+            source_sector = infer_sector(existing_tags)
+            compatible_grounded_tags = tuple(
+                tag for tag in grounded_tags if infer_sector((tag,)) == source_sector
+            )
+            tags = tuple(dict.fromkeys([*existing_tags, *compatible_grounded_tags]))
+            if tags == profile.business_tags:
+                continue
+            grounded[stock_code] = KoreaIndustryProfile(
+                stock_code=profile.stock_code,
+                stock_name=profile.stock_name,
+                industry_code=profile.industry_code,
+                peer_stock_codes=profile.peer_stock_codes,
+                peer_stock_names=profile.peer_stock_names,
+                business_tags=tags,
+                sector=infer_sector(tags),
+                industry=infer_industry(tags),
+                business_model=infer_business_model(tags),
+                source=f"{profile.source}+COMPANY_SUMMARY_VALIDATED",
+            )
+            continue
+        if not grounded_tags:
+            continue
+        # 기존 분류가 일반 종목인 경우에만 회사 설명과 KSIC로 비교 도메인을 확정한다.
         grounded_sector = infer_sector(grounded_tags)
         compatible_existing_tags = tuple(
-            tag
-            for tag in profile.business_tags
-            if tag not in unsupported_narrow_tags
-            if infer_sector((tag,)) == grounded_sector
+            tag for tag in existing_tags if infer_sector((tag,)) == grounded_sector
         )
         tags = _merge_business_tags(compatible_existing_tags, grounded_tags)
         grounded[stock_code] = KoreaIndustryProfile(
@@ -2661,12 +2867,27 @@ def infer_business_tags(stock_name: str, stock_name_en: str) -> list[str]:
             ),
             "leisure",
         ),
-        (("holding", "holdings", "investment", "홀딩스", "지주", "투자"), "holding company"),
+        (("investment holding", "홀딩스", "지주", "투자"), "holding company"),
         (("paper", "packaging", "제지", "포장"), "materials"),
         (("textile", "fiber", "섬유"), "consumer brands"),
     ]
-    tags = [tag for keywords, tag in rules if any(keyword in text for keyword in keywords)]
+    tags = [
+        tag
+        for keywords, tag in rules
+        if any(_contains_business_keyword(text, keyword) for keyword in keywords)
+    ]
     return list(dict.fromkeys(tags or ["general listed company"]))
+
+
+def _contains_business_keyword(text: str, keyword: str) -> bool:
+    if re.search(r"[a-z0-9]", keyword):
+        return bool(
+            re.search(
+                rf"(?<![a-z0-9]){re.escape(keyword.lower())}(?![a-z0-9])",
+                text,
+            )
+        )
+    return keyword in text
 
 
 def infer_business_tags_from_ksic(industry_code: str) -> tuple[str, ...]:
@@ -2683,12 +2904,14 @@ def infer_business_tags_from_ksic(industry_code: str) -> tuple[str, ...]:
         (("27",), ("biotech", "industrial machinery")),
         (("28",), ("electrical equipment", "industrial machinery")),
         (("29",), ("industrial machinery",)),
+        (("252", "313"), ("aerospace",)),
         (("30", "452"), ("automotive",)),
         (("33",), ("consumer brands", "industrial machinery")),
         (("41", "42"), ("construction", "industrial machinery")),
         (("45",), ("automotive", "retail")),
         (("46", "47"), ("retail",)),
         (("49", "52"), ("logistics",)),
+        (("511",), ("passenger transportation",)),
         (("58", "62"), ("software platform",)),
         (("59",), ("media entertainment",)),
         (("64",), ("financials",)),
@@ -2725,12 +2948,28 @@ def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
             ("유통", "커머스", "전자상거래", "구매대행", "mro", "렌탈", "도매", "마켓", "새벽배송"),
         ),
         (
+            "payments",
+            ("금융van", "결제서비스", "결제 서비스", "전자결제", "카드 결제", "pg서비스"),
+        ),
+        (
             "software platform",
             (
                 "소프트웨어",
                 "sw개발",
                 "it서비스",
+                "it 서비스",
+                "it솔루션",
+                "it 솔루션",
+                "si사업",
+                "si 사업",
                 "시스템 통합",
+                "시스템 구축",
+                "디지털 전환",
+                "정보보안",
+                "보안관제",
+                "보안컨설팅",
+                "보안솔루션",
+                "모바일 어플리케이션",
                 "온라인 플랫폼",
                 "디지털 플랫폼",
                 "플랫폼 서비스",
@@ -2759,12 +2998,76 @@ def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
             ),
         ),
         ("financials", ("기업금융", "회사채", "대출", "금융서비스")),
-        ("telecommunications", ("통신장비", "정보통신", "유무선", "네트워크")),
+        (
+            "telecom equipment",
+            (
+                "통신장비",
+                "통신 장비",
+                "기지국 장비",
+                "기지국용",
+                "기지국",
+                "중계망",
+                "통신중계기",
+                "rf중계기",
+                "광중계기",
+                "광분배기",
+                "광트랜시버",
+                "통신단말기",
+                "통신 단말기",
+                "네트워크 장비",
+                "광전송장비",
+                "open ran",
+            ),
+        ),
+        (
+            "telecommunications",
+            (
+                "이동통신서비스",
+                "유무선 통신사업",
+                "유무선 통신서비스",
+                "무선통신사업",
+                "무선통신서비스",
+                "유선통신서비스",
+                "알뜰폰",
+                "mvno",
+                "mno",
+                "기간통신",
+            ),
+        ),
         ("semiconductors", ("반도체", "hbm", "dram", "nand", "파운드리", "웨이퍼")),
         ("consumer electronics", ("가전", "전자제품", "oa기기")),
+        (
+            "passenger transportation",
+            (
+                "정기항공운송",
+                "항공 여객",
+                "여객운송",
+                "여객 운송",
+                "여객·화물",
+                "여객 및 화물",
+                "저비용항공사",
+                "lcc",
+                "취항",
+            ),
+        ),
+        (
+            "aerospace",
+            (
+                "항공우주",
+                "항공기",
+                "우주발사체",
+                "위성시스템",
+                "방위산업",
+                "방산",
+                "군사장비",
+                "자주포",
+                "유도무기",
+                "무인항공기",
+            ),
+        ),
         ("leisure", ("호텔", "리조트", "레저", "호스피탈리티")),
         ("art auction", ("미술품 경매", "작품 경매")),
-        ("construction", ("건설", "플랜트", "토목", "시공")),
+        ("construction", ("건설", "플랜트", "토목", "시공", "전기공사", "인프라 구축")),
         ("energy", ("석유", "가스", "태양광", "발전", "전력", "에너지")),
         ("logistics", ("물류", "운송", "해운", "배송")),
     ]
@@ -2774,6 +3077,24 @@ def infer_business_tags_from_company_summary(summary: str) -> tuple[str, ...]:
         if score > 0:
             scored.append((-score, order, tag))
     ordered_tags = [tag for _, _, tag in sorted(scored)]
+    priority_tag = next(
+        (
+            tag
+            for tag in (
+                "passenger transportation",
+                "telecommunications",
+                "telecom equipment",
+                "payments",
+            )
+            if tag in ordered_tags
+        ),
+        None,
+    )
+    if priority_tag:
+        ordered_tags = [
+            priority_tag,
+            *[tag for tag in ordered_tags if tag != priority_tag],
+        ]
     return tuple(dict.fromkeys(ordered_tags))
 
 
@@ -2790,12 +3111,14 @@ def infer_sector(tags: Sequence[str]) -> str:
         "insurance": "Financials",
         "holding company": "Financials",
         "financials": "Financials",
+        "payments": "Financials",
         "automotive": "Consumer Discretionary",
         "battery": "Industrials",
         "energy": "Energy",
         "materials": "Materials",
         "gaming": "Communication Services",
         "software platform": "Information Technology",
+        "telecom equipment": "Information Technology",
         "construction": "Industrials",
         "industrial machinery": "Industrials",
         "food and beverage": "Consumer Staples",
@@ -2804,6 +3127,7 @@ def infer_sector(tags: Sequence[str]) -> str:
         "retail": "Consumer Discretionary",
         "art auction": "Consumer Discretionary",
         "aerospace": "Industrials",
+        "passenger transportation": "Industrials",
         "shipbuilding": "Industrials",
         "chemicals": "Materials",
         "telecommunications": "Communication Services",
@@ -2828,12 +3152,14 @@ def infer_industry(tags: Sequence[str]) -> str:
         "insurance": "Insurance",
         "holding company": "Investment Holding Companies",
         "financials": "Financial Services",
+        "payments": "Payments",
         "automotive": "Automobiles",
         "battery": "Battery and Energy Storage",
         "energy": "Energy Infrastructure",
         "materials": "Metals and Materials",
         "gaming": "Interactive Entertainment",
         "software platform": "Software",
+        "telecom equipment": "Communications Equipment",
         "construction": "Construction and Engineering",
         "industrial machinery": "Machinery and Industrial Equipment",
         "food and beverage": "Food and Beverage",
@@ -2842,6 +3168,7 @@ def infer_industry(tags: Sequence[str]) -> str:
         "retail": "Retail",
         "art auction": "Art and Collectibles Marketplace",
         "aerospace": "Aerospace and Defense",
+        "passenger transportation": "Airlines",
         "shipbuilding": "Shipbuilding",
         "chemicals": "Specialty Chemicals",
         "telecommunications": "Telecommunications",
@@ -2863,6 +3190,8 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Banking, spread income, fees, and capital-market services"
     if "insurance" in tags:
         return "Insurance underwriting and financial services"
+    if "payments" in tags:
+        return "Payment network and transaction processing services"
     if "memory chips" in tags:
         return "Memory semiconductor manufacturing"
     if "consumer electronics" in tags or "home appliances" in tags:
@@ -2883,6 +3212,12 @@ def infer_business_model(tags: Sequence[str]) -> str:
         return "Metals, materials, and industrial inputs"
     if "shipbuilding" in tags:
         return "Shipbuilding, marine engineering, and offshore plant construction"
+    if "passenger transportation" in tags:
+        return "Passenger and cargo airline operations"
+    if "aerospace" in tags:
+        return "Aerospace and defense systems manufacturing"
+    if "telecom equipment" in tags:
+        return "Network and communications equipment manufacturing"
     if "software platform" in tags:
         return "Platform software and recurring services"
     if "construction" in tags:
