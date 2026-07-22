@@ -1,0 +1,49 @@
+{
+  "schema_version": "kf-deberta-sentiment-artifact/v2",
+  "version": "hana-montana-kf-deberta-k-fnspid-sentiment-seed17-20260715174223",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "max_length": 256,
+  "input_feature_version": "source-target-prefix-head-tail/v2",
+  "logit_bias_by_domain": {
+    "NEWS_UNTARGETED": [
+      -0.33333333,
+      0.56666667,
+      -0.23333333
+    ],
+    "NEWS_TARGETED": [
+      -0.76666667,
+      0.73333333,
+      0.03333333
+    ],
+    "DISCLOSURE_TARGETED": [
+      1.36666667,
+      0.06666667,
+      -1.43333333
+    ]
+  },
+  "trained_at": "2026-07-15T17:42:23.995007+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1172,
+      "sha256": "0fd8b9dd7f68f83f4a9718abf16cb2f3d895d40420f482aff2459eb59d84cf1c"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 10345092,
+      "sha256": "f3f0ad32c7e403d322682162061d8d2d126025618b60d07db65db48ee9e68c83"
+    },
+    "tokenizer.json": {
+      "bytes": 3191920,
+      "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+    },
+    "tokenizer_config.json": {
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  }
+}

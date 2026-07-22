@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 9453,
+      "path": "data/gold/review_v2/news-auxiliary/adjudication/part-a.jsonl",
+      "sample_count": 18,
+      "sha256": "d723f274d4ab557c49b07bb9a1f24b957ce165bd95eb66878315cef8a7f0d5a6"
+    },
+    "packet": {
+      "bytes": 58541,
+      "path": "data/gold/review_v2/news-auxiliary/adjudication-packet.jsonl",
+      "sample_count": 29,
+      "sha256": "a0f3b8a3cd13e039c31812212c03cca833a18d44c2c63d848579bc59e720e589"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "reviewer_decision_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "149c657f3bf8f4c3dc5c028ecef51ae51e776f8213533f796eb0e0acfdf5944c::006400",
+    "input_field_sets_sha256": "850c1d9b5d80782d7c9c083301c206f098d3014a2a8250c68053d2240f92c85f",
+    "item_count": 18,
+    "item_id_order_sha256": "ea894ce4d06dfbd8a5427be561914140899512d67b1b83a141cf7d7e435b9e0d",
+    "item_id_set_sha256": "610cb31c097b4de5272a3bffce033805e8116fce8cde8da713e6eefd977389d7",
+    "last_item_id": "ffc5b00ec07becc9e021fe4643d15a70b7942ce1693b05057e90f84975648209::039490",
+    "row_end_inclusive": 29,
+    "row_start_inclusive": 6,
+    "selected_item_ids": [
+      "149c657f3bf8f4c3dc5c028ecef51ae51e776f8213533f796eb0e0acfdf5944c::006400",
+      "12accd73b7169c163ce2feb6fce28065837de221fde10e2389c23dbb9c79a87a::001450",
+      "0403a93b19967e6d2149ed015ab2a901dd5f1154392995bfb735f1d5c0644805::011070",
+      "7e66472450c3905d427d22d824590f0457647ab073d51cf42109f4621d6cc875::293490",
+      "270f961e0682e39037af6f9b312060ab98770d79bddab20bfdead3f32a6db3ba::068270",
+      "2c74291c2ddf7ee82e71150fbdd1b64ab53eda9d8ba76b949c0bd35c380a47a4::028260",
+      "49f3dcca6ed42cf82a71fdcef8c817c9a6f85c81c79b1c4ceca17faa9ce1b0cb::047040",
+      "7e8600a5921f779d9c8189fc76115e484542048a0ebe96e60819ce41b6f47c45::316140",
+      "ab6ef9daa8080f1a4a4930dece3a2db8e571bb71ee7d6a7f1c86d84a71638ec9::103140",
+      "19ee5d8566e833816b6b90d1674fa7ac92ce9146c8b9e67ff1c11dee0e6db5b9::010690",
+      "9e46d22346c4832210d900f22ae889fd6fd1cc2a46642471fd20aa792099f204::373220",
+      "a90b6db83f5b73e12984e46290b5f883a46af206d6eaadb23e7703a1de9fae81::000250",
+      "d76496c62dd4bf44bf6a16c5d9ad33e4468594cbee41c33501c71b85f3630191::001740",
+      "82b04cce13ceb4ddd8afb6dfb35a830c23da7a1dd246286b229461116a4ac6ea::005380",
+      "fb763f62c5fcaf633faaf911874552f64a7f6459dea3ccaceb9cf1db86b3fdb8::001260",
+      "785654dd0a04630841c15a9486e0f8338216a238ae6f29454da10d94cb29e973::032800",
+      "c59fc311c52da4178c7a9328c0836a732a890e6196370563630db2163b2b9633::103140",
+      "ffc5b00ec07becc9e021fe4643d15a70b7942ce1693b05057e90f84975648209::039490"
+    ],
+    "source_type_distribution": {
+      "UNSPECIFIED": 18
+    }
+  },
+  "packet_kind": "BLIND_ADJUDICATION_DISAGREEMENTS",
+  "receipt_payload_sha256": "775feca55e7d39847ea23cd2eba994b771f4244377a0fecde5d69a37c11a4e14",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-2026-07-17",
+    "reviewer_id": "codex:news-auxiliary-blind-adjudicator-part-a-20260717",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "ADJUDICATOR",
+  "run": {
+    "completed_at": "2026-07-17T00:11:01Z",
+    "context_id": "E346FF57-F59D-46F4-B2FB-E36A20E34D17",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "2B3666F6-078C-4F67-BFE4-7FAC949C7B20",
+    "started_at": "2026-07-17T00:07:50Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

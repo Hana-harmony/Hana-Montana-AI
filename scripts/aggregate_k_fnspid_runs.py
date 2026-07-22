@@ -54,6 +54,9 @@ def aggregate_reports(
                 "postprocessing_protocol": _postprocessing_protocol(report),
                 "base_model": report["base_model"],
                 "base_model_revision": report["base_model_revision"],
+                "base_model_safetensors_sha256": report.get(
+                    "base_model_safetensors_sha256"
+                ),
                 "max_length": report["max_length"],
             },
             sort_keys=True,

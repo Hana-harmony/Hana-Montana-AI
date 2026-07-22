@@ -1,0 +1,704 @@
+{
+  "schema_version": "kf-deberta-sentiment-training/v2",
+  "version": "hana-montana-kf-deberta-k-fnspid-sentiment-seed17-20260715174223",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "max_length": 256,
+  "input_feature_version": "source-target-prefix-head-tail/v2",
+  "logit_bias_by_domain": {
+    "NEWS_UNTARGETED": [
+      -0.33333333,
+      0.56666667,
+      -0.23333333
+    ],
+    "NEWS_TARGETED": [
+      -0.76666667,
+      0.73333333,
+      0.03333333
+    ],
+    "DISCLOSURE_TARGETED": [
+      1.36666667,
+      0.06666667,
+      -1.43333333
+    ]
+  },
+  "trained_at": "2026-07-15T17:42:23.995007+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1172,
+      "sha256": "0fd8b9dd7f68f83f4a9718abf16cb2f3d895d40420f482aff2459eb59d84cf1c"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 10345092,
+      "sha256": "f3f0ad32c7e403d322682162061d8d2d126025618b60d07db65db48ee9e68c83"
+    },
+    "tokenizer.json": {
+      "bytes": 3191920,
+      "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+    },
+    "tokenizer_config.json": {
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  },
+  "seed": 17,
+  "dataset_revision": "K-FNSPID-v4",
+  "public_dataset_revision": "7a8dc8cf6548a08e0a5dab3a12ad0fb8dccfd23f",
+  "base_model_provenance": {
+    "repository": "kakaobank/kf-deberta-base",
+    "revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+    "source_weight_filename": "pytorch_model.bin",
+    "source_weights_format": "pytorch_model.bin",
+    "source_weight_sha256": "3cd6cd7811b3c9190e97cae7eb41571c2bc0076431baae7d41d449a8c1c18c6c",
+    "deserialization": "torch_weights_only",
+    "trust_remote_code": false,
+    "weights_only": true
+  },
+  "input_artifacts": {
+    "disclosure_auxiliary_training_gold": {
+      "path": "data/training/k_fnspid_disclosure_sentiment_auxiliary_gold_v2.jsonl",
+      "bytes": 2070067,
+      "sha256": "ee55c7d2760bcaf9cce84fd66d807d58b4baafac9270cfb11bb210bdd737c16a"
+    },
+    "disclosure_auxiliary_training_report": {
+      "path": "reports/k-fnspid-disclosure-sentiment-training-reclassification-v2.json",
+      "bytes": 2617,
+      "sha256": "fb5f2fd5ffefedea63f87858a6405bf514aa9f931c73f84941f63fd623164da4"
+    },
+    "disclosure_development_gold": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold.jsonl",
+      "bytes": 1842451,
+      "sha256": "8527d567c303d91c45d6e1dbe55a28e7725bef8bfb28f60f7962016c071c1e07"
+    },
+    "disclosure_sealed_review_reservation": {
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "bytes": 680705,
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "disclosure_silver": {
+      "path": "data/training/k_fnspid_disclosure_sentiment_silver.jsonl",
+      "bytes": 3026710,
+      "sha256": "0e25f7d5c4499d8e823e512d1d7df143958a3ac13bc669448d608e6c771e8a2b"
+    },
+    "legacy_evaluation_1": {
+      "path": "data/evaluation/financial_alert_eval.jsonl",
+      "bytes": 220122,
+      "sha256": "7c9fb5bd00aa71dac92cd5d8f8abacf6b2abb713b91559c2d032586ccb728441"
+    },
+    "legacy_evaluation_2": {
+      "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+      "bytes": 489358,
+      "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+    },
+    "legacy_evaluation_3": {
+      "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+      "bytes": 52115,
+      "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+    },
+    "legacy_evaluation_4": {
+      "path": "data/evaluation/financial_alert_stock_review_gold.jsonl",
+      "bytes": 584036,
+      "sha256": "80ffcaa61dcbe7756dccd813a3195d1ff7f52237bfb307098a9f01e5923ede36"
+    },
+    "news_auxiliary_training_gold": {
+      "path": "data/training/k_fnspid_news_sentiment_auxiliary_gold_v2.jsonl",
+      "bytes": 2243751,
+      "sha256": "ee27ee1eeaab19794ad6f66798b03741fde07d62a361e543a31f06a6cfc5360e"
+    },
+    "news_auxiliary_training_report": {
+      "path": "reports/k-fnspid-news-sentiment-training-reclassification-v2.json",
+      "bytes": 2679,
+      "sha256": "068ccb095e39272abf3794448e09396c36bed3b130b31af3673cd056893758a2"
+    },
+    "news_development_gold": {
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold.jsonl",
+      "bytes": 2011168,
+      "sha256": "f433e4cdc5372594d54de19083519278aae51b0385e310410b2e738d4c7d0f55"
+    },
+    "news_sealed_review_reservation": {
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "bytes": 969809,
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "news_silver": {
+      "path": "data/training/k_fnspid_sentiment_silver.jsonl",
+      "bytes": 47467897,
+      "sha256": "56e3dc2c641990e44ba4d72143d8c4336727b1f96a406c8232b3a59abc6c203e"
+    },
+    "public_train": {
+      "path": "data/external/kf_deberta_benchmark/ratings_train.csv",
+      "bytes": 14535505,
+      "sha256": "aab3329efb94b49828d68ecaa3b9bba795c954d9625950057ab9f9add541bf13"
+    },
+    "public_validation": {
+      "path": "data/external/kf_deberta_benchmark/ratings_val.csv",
+      "bytes": 1789206,
+      "sha256": "7bc31a5ae598413cbdac50aa1c78ea1c42561ab4ed7f14fca5d09b36935709d1"
+    },
+    "sealed_sampling_design": {
+      "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design.json",
+      "bytes": 33713,
+      "sha256": "67da67ebc1ddf0df648064074101f0220a2fa379d4a5926dd24e6b72f04a03e0"
+    },
+    "train_gold": {
+      "path": "data/training/k_fnspid_sentiment_codex_gold.jsonl",
+      "bytes": 2672256,
+      "sha256": "f2d5fca9a68961cc16d7203bdf422c10bbec98783feefa471d24ccb0647f267f"
+    }
+  },
+  "training_code": {
+    "sentiment_input": {
+      "path": "src/hannah_montana_ai/services/sentiment_input.py",
+      "bytes": 3932,
+      "sha256": "1f773fee3b70591379720da564e62f87f3336a1cc496ba779c93fad95d311855"
+    },
+    "sentiment_protocol": {
+      "path": "src/hannah_montana_ai/training/sentiment_protocol.py",
+      "bytes": 14783,
+      "sha256": "96c7ce7c85ec8f29c1feb4e9d3ddb4a20c6ec64c103bd456896ff828aeabb576"
+    },
+    "sentiment_sampling": {
+      "path": "src/hannah_montana_ai/training/sentiment_sampling.py",
+      "bytes": 3558,
+      "sha256": "47c02b2effa6c0bebf269a12941e25b734491e80fd1667f791e93cb523baa6a0"
+    },
+    "model_artifact_integrity": {
+      "path": "src/hannah_montana_ai/services/model_artifact_integrity.py",
+      "bytes": 2025,
+      "sha256": "eca72c8ab2040e6d51c468a24c8ae5b46e5a9b624689d43574ed0620fe62f1b8"
+    },
+    "trainer": {
+      "path": "scripts/train_kf_deberta_sentiment_v2.py",
+      "bytes": 84127,
+      "sha256": "93c98cc1d97c9a139a8fa9cfb3734fb49526ceea38be91b942669e3b67de4acd"
+    }
+  },
+  "dependency_artifacts": {
+    "pyproject": {
+      "path": "pyproject.toml",
+      "bytes": 1672,
+      "sha256": "cdd0906d6392823c7d83ba09440d9cfff9b44fb9e587c25e2f42db3fdfc17a91"
+    },
+    "uv_lock": {
+      "path": "uv.lock",
+      "bytes": 644077,
+      "sha256": "0c1a5604adc8ce7d85fe2da01a4c4bafb37e145e9c647d024b46d32b0e59306c"
+    }
+  },
+  "training_environment": {
+    "python": "3.12.13 (main, May  8 2026, 18:24:29) [Clang 22.1.3 ]",
+    "platform": "macOS-26.3.1-arm64-arm-64bit",
+    "torch": "2.6.0",
+    "transformers": "5.13.1",
+    "peft": "0.19.1",
+    "numpy": "2.4.6",
+    "mps_available": true,
+    "cuda_available": false,
+    "trainer_device": "mps",
+    "bitwise_deterministic_guaranteed": false,
+    "reproducibility_limit": "동일 seed라도 MPS/CUDA 커널과 라이브러리 버전에 따라 bitwise 결과가 달라질 수 있음"
+  },
+  "training_arguments": {
+    "seed": 17,
+    "data_selection_seed": 20260715,
+    "max_length": 256,
+    "epochs": 1.5,
+    "batch_size": 8,
+    "gradient_accumulation_steps": 2,
+    "early_stopping_patience": 1,
+    "learning_rate": 0.0001,
+    "lr_scheduler_type": "cosine",
+    "warmup_fraction": 0.08,
+    "weight_decay": 0.01,
+    "silver_per_label": 6000,
+    "disclosure_per_label": 900,
+    "target_swap_per_source": 1500,
+    "rdrop_alpha": 0.35,
+    "max_train_rows": null,
+    "gradient_checkpointing": false
+  },
+  "training_strategy": "group-purged-three-way-dual-gold-target-swap-rdrop-hierarchical-upper6-lora/v5",
+  "lora_layers": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "loss": {
+    "method": "effective-mass-class-balanced-focal-plus-hierarchical-boundary/v2",
+    "focal_gamma": 1.5,
+    "directional_weight": 0.35,
+    "polarity_weight": 0.2,
+    "rdrop_alpha": 0.35,
+    "class_weights": [
+      1.0271151065826416,
+      0.9570948481559753,
+      1.0157899856567383
+    ]
+  },
+  "partition_count": {
+    "TRAIN": 32907,
+    "CHECKPOINT": 912,
+    "CALIBRATION": 458,
+    "SELECTION": 461,
+    "PUBLIC_TEST_NOT_LOADED": 0
+  },
+  "training_source_distribution": {
+    "K_FNSPID_CODEX_GOLD": 596,
+    "K_FNSPID_DISCLOSURE_AUXILIARY_CODEX_GOLD": 600,
+    "K_FNSPID_DISCLOSURE_RULE_SILVER": 2700,
+    "K_FNSPID_NEWS_AUXILIARY_CODEX_GOLD": 598,
+    "K_FNSPID_RULE_SILVER": 18000,
+    "K_FNSPID_TARGET_SWAP_HARD_NEGATIVE": 3000,
+    "PUBLIC_TRAIN": 7413
+  },
+  "training_label_distribution": {
+    "NEGATIVE": 9539,
+    "NEUTRAL": 13639,
+    "POSITIVE": 9729
+  },
+  "training_weight_audit": {
+    "total": {
+      "raw_count": 32907,
+      "effective_weight_sum": 18173.112
+    },
+    "by_source_and_label": {
+      "DISCLOSURE": {
+        "NEGATIVE": {
+          "raw_count": 952,
+          "effective_weight_sum": 342.05400000000003
+        },
+        "NEUTRAL": {
+          "raw_count": 2826,
+          "effective_weight_sum": 1728.6000000000001
+        },
+        "POSITIVE": {
+          "raw_count": 1022,
+          "effective_weight_sum": 435.29400000000004
+        }
+      },
+      "NEWS": {
+        "NEGATIVE": {
+          "raw_count": 8587,
+          "effective_weight_sum": 4591.537
+        },
+        "NEUTRAL": {
+          "raw_count": 10813,
+          "effective_weight_sum": 6321.0
+        },
+        "POSITIVE": {
+          "raw_count": 8707,
+          "effective_weight_sum": 4754.627
+        }
+      }
+    },
+    "by_dataset_source_and_label": {
+      "K_FNSPID_CODEX_GOLD": {
+        "NEWS": {
+          "NEGATIVE": {
+            "raw_count": 62,
+            "effective_weight_sum": 93.0
+          },
+          "NEUTRAL": {
+            "raw_count": 421,
+            "effective_weight_sum": 631.5
+          },
+          "POSITIVE": {
+            "raw_count": 113,
+            "effective_weight_sum": 169.5
+          }
+        }
+      },
+      "K_FNSPID_DISCLOSURE_AUXILIARY_CODEX_GOLD": {
+        "DISCLOSURE": {
+          "NEGATIVE": {
+            "raw_count": 52,
+            "effective_weight_sum": 78.0
+          },
+          "NEUTRAL": {
+            "raw_count": 426,
+            "effective_weight_sum": 639.0
+          },
+          "POSITIVE": {
+            "raw_count": 122,
+            "effective_weight_sum": 183.0
+          }
+        }
+      },
+      "K_FNSPID_DISCLOSURE_RULE_SILVER": {
+        "DISCLOSURE": {
+          "NEGATIVE": {
+            "raw_count": 900,
+            "effective_weight_sum": 264.05400000000003
+          },
+          "NEUTRAL": {
+            "raw_count": 900,
+            "effective_weight_sum": 264.59999999999997
+          },
+          "POSITIVE": {
+            "raw_count": 900,
+            "effective_weight_sum": 252.294
+          }
+        }
+      },
+      "K_FNSPID_NEWS_AUXILIARY_CODEX_GOLD": {
+        "NEWS": {
+          "NEGATIVE": {
+            "raw_count": 72,
+            "effective_weight_sum": 108.0
+          },
+          "NEUTRAL": {
+            "raw_count": 417,
+            "effective_weight_sum": 625.5
+          },
+          "POSITIVE": {
+            "raw_count": 109,
+            "effective_weight_sum": 163.5
+          }
+        }
+      },
+      "K_FNSPID_RULE_SILVER": {
+        "NEWS": {
+          "NEGATIVE": {
+            "raw_count": 6000,
+            "effective_weight_sum": 1937.537
+          },
+          "NEUTRAL": {
+            "raw_count": 6000,
+            "effective_weight_sum": 1764.0
+          },
+          "POSITIVE": {
+            "raw_count": 6000,
+            "effective_weight_sum": 1936.627
+          }
+        }
+      },
+      "K_FNSPID_TARGET_SWAP_HARD_NEGATIVE": {
+        "DISCLOSURE": {
+          "NEGATIVE": {
+            "raw_count": 0,
+            "effective_weight_sum": 0.0
+          },
+          "NEUTRAL": {
+            "raw_count": 1500,
+            "effective_weight_sum": 825.0000000000001
+          },
+          "POSITIVE": {
+            "raw_count": 0,
+            "effective_weight_sum": 0.0
+          }
+        },
+        "NEWS": {
+          "NEGATIVE": {
+            "raw_count": 0,
+            "effective_weight_sum": 0.0
+          },
+          "NEUTRAL": {
+            "raw_count": 1500,
+            "effective_weight_sum": 825.0000000000001
+          },
+          "POSITIVE": {
+            "raw_count": 0,
+            "effective_weight_sum": 0.0
+          }
+        }
+      },
+      "PUBLIC_TRAIN": {
+        "NEWS": {
+          "NEGATIVE": {
+            "raw_count": 2453,
+            "effective_weight_sum": 2453.0
+          },
+          "NEUTRAL": {
+            "raw_count": 2475,
+            "effective_weight_sum": 2475.0
+          },
+          "POSITIVE": {
+            "raw_count": 2485,
+            "effective_weight_sum": 2485.0
+          }
+        }
+      }
+    }
+  },
+  "prepared_partition_commitments": {
+    "TRAIN": {
+      "row_count": 32907,
+      "sha256": "37588bb7476d6e80133ed447c5540385d6e8f1c3931b41770685c1a1cc4fb93c"
+    },
+    "CHECKPOINT": {
+      "row_count": 912,
+      "sha256": "5c85a2afe062472909d9252e5ec3dce35af97c472ba298017cdbc0d96b31b578"
+    },
+    "CALIBRATION": {
+      "row_count": 458,
+      "sha256": "25e6a035b35a8b8129eb228865ec68772ecde024b7e63c9b1fdac009e20b38a4"
+    },
+    "SELECTION": {
+      "row_count": 461,
+      "sha256": "7b9ef055a2d02eb6ca9a4bcc1d8762fddcc187ab24cd231a05309f7408f52c33"
+    },
+    "NEWS_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+    },
+    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+    }
+  },
+  "public_partition_leakage_audit": {
+    "normalization": "NFKC-casefold-alphanumeric/v1",
+    "holdout_priority": [
+      "TEST",
+      "VALIDATION",
+      "TRAIN"
+    ],
+    "internal": {
+      "TRAIN": {
+        "input_count": 7464,
+        "output_count": 7420,
+        "duplicate_count": 41,
+        "conflicting_text_count": 3,
+        "empty_normalized_text_count": 0
+      },
+      "VALIDATION": {
+        "input_count": 933,
+        "output_count": 932,
+        "duplicate_count": 1,
+        "conflicting_text_count": 0,
+        "empty_normalized_text_count": 0
+      },
+      "TEST": {
+        "input_count": 0,
+        "output_count": 0,
+        "duplicate_count": 0,
+        "conflicting_text_count": 0,
+        "empty_normalized_text_count": 0
+      }
+    },
+    "cross_partition_removed": {
+      "TRAIN": 7,
+      "VALIDATION": 0,
+      "TEST": 0
+    },
+    "group_overlap": {
+      "TRAIN": {
+        "input_count": 7420,
+        "output_count": 7413,
+        "removed_count": 7,
+        "propagated_removed_count": 0,
+        "protected_group_key_count": 932,
+        "contaminated_group_key_count": 932,
+        "removed_by_trigger_key": {
+          "canonical_url": 0,
+          "normalized_text": 7,
+          "content_hash": 0,
+          "event_cluster_id": 0
+        }
+      },
+      "VALIDATION": {
+        "input_count": 932,
+        "output_count": 932,
+        "removed_count": 0,
+        "propagated_removed_count": 0,
+        "protected_group_key_count": 0,
+        "contaminated_group_key_count": 0,
+        "removed_by_trigger_key": {
+          "canonical_url": 0,
+          "normalized_text": 0,
+          "content_hash": 0,
+          "event_cluster_id": 0
+        }
+      }
+    },
+    "final_count": {
+      "TRAIN": 7413,
+      "VALIDATION": 932,
+      "TEST": 0
+    }
+  },
+  "silver_audit": {
+    "path": "data/training/k_fnspid_sentiment_silver.jsonl",
+    "sha256": "56e3dc2c641990e44ba4d72143d8c4336727b1f96a406c8232b3a59abc6c203e",
+    "input_count": 30000,
+    "group_overlap_purge": {
+      "input_count": 30000,
+      "output_count": 30000,
+      "removed_count": 0,
+      "propagated_removed_count": 0,
+      "protected_group_key_count": 13084,
+      "contaminated_group_key_count": 13084,
+      "removed_by_trigger_key": {
+        "canonical_url": 0,
+        "normalized_text": 0,
+        "content_hash": 0,
+        "event_cluster_id": 0
+      }
+    },
+    "selected_count": 18000,
+    "selected_label_distribution": {
+      "NEGATIVE": 6000,
+      "NEUTRAL": 6000,
+      "POSITIVE": 6000
+    },
+    "label_role": "low_weight_silver_not_gold"
+  },
+  "disclosure_silver_audit": {
+    "path": "data/training/k_fnspid_disclosure_sentiment_silver.jsonl",
+    "sha256": "0e25f7d5c4499d8e823e512d1d7df143958a3ac13bc669448d608e6c771e8a2b",
+    "input_count": 2700,
+    "group_overlap_purge": {
+      "input_count": 2700,
+      "output_count": 2700,
+      "removed_count": 0,
+      "propagated_removed_count": 0,
+      "protected_group_key_count": 13084,
+      "contaminated_group_key_count": 13084,
+      "removed_by_trigger_key": {
+        "canonical_url": 0,
+        "normalized_text": 0,
+        "content_hash": 0,
+        "event_cluster_id": 0
+      }
+    },
+    "selected_count": 2700,
+    "selected_label_distribution": {
+      "NEGATIVE": 900,
+      "NEUTRAL": 900,
+      "POSITIVE": 900
+    },
+    "label_role": "low_weight_silver_not_gold"
+  },
+  "final_group_overlap_purge": {
+    "input_count": 29907,
+    "output_count": 29907,
+    "removed_count": 0,
+    "propagated_removed_count": 0,
+    "protected_group_key_count": 13084,
+    "contaminated_group_key_count": 13084,
+    "removed_by_trigger_key": {
+      "canonical_url": 0,
+      "normalized_text": 0,
+      "content_hash": 0,
+      "event_cluster_id": 0
+    }
+  },
+  "target_swap_hard_negative_augmentation": {
+    "method": "deterministic-name-code-alias-absent-target-swap/v2",
+    "sample_weight": 0.55,
+    "requested_per_source": 1500,
+    "selected_count": 3000,
+    "source_distribution": {
+      "DISCLOSURE": 1500,
+      "NEWS": 1500
+    },
+    "label_distribution": {
+      "NEGATIVE": 0,
+      "NEUTRAL": 3000,
+      "POSITIVE": 0
+    },
+    "holdout_rows_used": false,
+    "donor_absence_fields": [
+      "stock_name",
+      "stock_code",
+      "stock_aliases"
+    ],
+    "donor_alias_provenance_preserved": true
+  },
+  "candidate_selection": {
+    "locked_candidate": "kf_deberta_lora",
+    "selection_partition": "PUBLIC_AND_K_FNSPID_DEVELOPMENT_SELECTION",
+    "selection_score": 0.5390034462405514,
+    "test_used_for_selection": false,
+    "operational_gold_used_for_selection": false,
+    "sealed_test_evaluated": false
+  },
+  "calibration": {
+    "accuracy": 0.8231441048034934,
+    "macro_f1": 0.8199847477505124,
+    "sample_count": 458
+  },
+  "decision_calibration": {
+    "method": "validation-only-domain-logit-offset-grid/v1",
+    "fit_partition": "CALIBRATION_ONLY",
+    "offset_range": [
+      -1.5,
+      1.5
+    ],
+    "offset_step": 0.1,
+    "minimum_domain_rows": 30,
+    "minimum_rows_per_label": 5,
+    "selection_used_for_fit": false,
+    "public_test_used_for_fit": false,
+    "sealed_gold_used_for_fit": false,
+    "uncalibrated_metrics": {
+      "accuracy": 0.759825327510917,
+      "macro_f1": 0.7636127257734809
+    },
+    "domain_sample_count": {
+      "DISCLOSURE_TARGETED": 112,
+      "NEWS_TARGETED": 113,
+      "NEWS_UNTARGETED": 233
+    },
+    "logit_bias_by_domain": {
+      "NEWS_UNTARGETED": [
+        -0.33333333,
+        0.56666667,
+        -0.23333333
+      ],
+      "NEWS_TARGETED": [
+        -0.76666667,
+        0.73333333,
+        0.03333333
+      ],
+      "DISCLOSURE_TARGETED": [
+        1.36666667,
+        0.06666667,
+        -1.43333333
+      ]
+    }
+  },
+  "selection": {
+    "accuracy": 0.8026030368763557,
+    "macro_f1": 0.8038888697990424,
+    "sample_count": 461
+  },
+  "selection_breakdown": {
+    "K_FNSPID_DEVELOPMENT_SELECTION": {
+      "accuracy": 0.5663716814159292,
+      "macro_f1": 0.5390034462405514,
+      "sample_count": 113
+    },
+    "K_FNSPID_DISCLOSURE_DEVELOPMENT_SELECTION": {
+      "accuracy": 0.8333333333333334,
+      "macro_f1": 0.7641119564196487,
+      "sample_count": 114
+    },
+    "PUBLIC_SELECTION": {
+      "accuracy": 0.9017094017094017,
+      "macro_f1": 0.902120239469637,
+      "sample_count": 234
+    }
+  },
+  "training_runtime": {
+    "trainer_device": "mps",
+    "global_step": 3086,
+    "train_runtime": 5430.4311,
+    "train_samples_per_second": 9.09,
+    "train_steps_per_second": 0.568
+  },
+  "test": {
+    "sample_count": 0,
+    "status": "SEALED_UNTIL_CANDIDATE_LOCK"
+  },
+  "trainable_parameter_count": 2583555,
+  "total_parameter_count": 188467206
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "kr-finbert-sc-shared-residual-sentiment-artifact-manifest/v2",
+  "status": "ATOMIC_COMPLETE",
+  "generated_at": "2026-07-18T09:16:28.986261+00:00",
+  "artifact_files": {
+    "encoder/config.json": {
+      "bytes": 954,
+      "sha256": "13b0dab37dcd3e4545a49f2ddc58045e25531e97afb14060823a9379b0ddecf9"
+    },
+    "encoder/model.safetensors": {
+      "bytes": 405627704,
+      "sha256": "865d6b11fe273d3327880704910cd8d2f99fc3588f1157b1f4bc1d0071291f09"
+    },
+    "hannah_metadata.json": {
+      "bytes": 5362,
+      "sha256": "45c4c066240d47947ea8b05c2986cb17db5a508c83ef7564de25eb7168044d72"
+    },
+    "source_hierarchical_residual_heads.safetensors": {
+      "bytes": 35244,
+      "sha256": "740f9793d0d928bfc391e66e93e31dd5d92a45db746ec70a65bea16e1d2003c9"
+    },
+    "tokenizer.json": {
+      "bytes": 454732,
+      "sha256": "de747c47fd5301af6343e6d27ea6ecafbe3f65212ba848fc329b20dd9f48227e"
+    },
+    "tokenizer_config.json": {
+      "bytes": 623,
+      "sha256": "6fe83f9239e25bcbd56374520a0c1a40570d382a6c1104b517e14420f476ea48"
+    }
+  },
+  "artifact_manifest_sha256": "b706c5243ec3af6080b8aea542aeb224ac16f7380912e625890011a73da31d87",
+  "safe_serialization_only": true,
+  "symlinks_allowed": false,
+  "overwrite_allowed": false
+}

@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 40258,
+      "path": "data/gold/review_v2/train/stage1/part-0201-0300.jsonl",
+      "sample_count": 100,
+      "sha256": "af03068b16b95651ee1d7a52d2933df51989b0195d5ac14265d9d92f71d41e9b"
+    },
+    "packet": {
+      "bytes": 954737,
+      "path": "data/curation/k_fnspid_sentiment/train_review.jsonl",
+      "sample_count": 600,
+      "sha256": "af82d375b3566e914d20c6c40064f8a79ce373ad9db9c1cd5ba9b1b17e10647d"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "0952040c3fa5945031ebe51f164070141cfd603ae24f5bdad91446e035c492bc::005930",
+    "input_field_sets_sha256": "0dcd1c1fbed2958c3e82eaa06b423f6faaa434fdc10aaedf55bc2b139c08879c",
+    "item_count": 100,
+    "item_id_order_sha256": "ac058c38a97b19bcba78b1d807b05415f80aac85a9e77c4d2199e86a0e906bbe",
+    "item_id_set_sha256": "3d9eee90a7d437d5c324c69f252dd13c81fa3fd962dbcb12dea200cfc833033f",
+    "last_item_id": "829903fab9a2092f4cf6a3d453237d11798382e92700bca03d9d4ba9ac7356ef::123330",
+    "row_end_inclusive": 300,
+    "row_start_inclusive": 201,
+    "source_type_distribution": {
+      "NEWS": 100
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "c06926a4e842e34d0e5933a06502c2b13d9f7351a6252ee0d2c95a60de0dd294",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-high-2026-07-17",
+    "reviewer_id": "codex:gold-train-s1-0201-0300",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-16T15:20:28Z",
+    "context_id": "7ef385fa-1094-4a9a-b168-9c3aa1c5e37f",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "536de778-bbf5-4396-9d40-d86c3be95c4b",
+    "started_at": "2026-07-16T15:13:35Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

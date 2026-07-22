@@ -1,0 +1,13 @@
+# 대용량 원천·파생 데이터는 Git 이력에 LFS 포인터와 객체 해시로 고정한다.
+data/external/** filter=lfs diff=lfs merge=lfs -text
+data/market/*.parquet filter=lfs diff=lfs merge=lfs -text
+data/market/*.csv filter=lfs diff=lfs merge=lfs -text
+data/k_fnspid/*/*.parquet filter=lfs diff=lfs merge=lfs -text
+data/processed/*.part-*.jsonl filter=lfs diff=lfs merge=lfs -text
+
+# 재현에 필요한 외부 기준 모델 가중치도 동일하게 버전 고정한다.
+models/kr-finbert-sc-raw-reference/model.safetensors filter=lfs diff=lfs merge=lfs -text
+
+# 재현·배포용 최종 모델은 LFS 객체 hash로 고정한다.
+artifacts/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+releases/**/*.safetensors filter=lfs diff=lfs merge=lfs -text

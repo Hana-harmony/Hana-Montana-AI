@@ -1,0 +1,92 @@
+{
+  "adjudication_manifest_payload_sha256": "95a7c52650c2d3168f9e6291621c81fd1ae81c18319a1783999351a36187acfa",
+  "adjudicator_count": 1,
+  "artifacts": {
+    "adjudication_packet": {
+      "bytes": 9438,
+      "path": "data/gold/review_v2/disclosure-development/adjudication-packet.jsonl",
+      "sample_count": 6,
+      "sha256": "d62ccd8567c18e6c8cb7702bd7decc7359c3f0eaca7dceef6be5ae8973679c99"
+    },
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "merged_decision": {
+      "bytes": 2997,
+      "path": "data/gold/review_v2/disclosure-development/adjudication/merged.jsonl",
+      "sample_count": 6,
+      "sha256": "53ee3be45872a207cf105946b8b611818d0974c4966318852f933f859c0a7550"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "reviewer_decision_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+  "exact_item_set": true,
+  "item_order_preserved": true,
+  "label_distribution": {
+    "NEUTRAL": 1,
+    "POSITIVE": 2,
+    "UNRESOLVED": 3
+  },
+  "part_chain": [
+    {
+      "decision": {
+        "bytes": 2997,
+        "path": "data/gold/review_v2/disclosure-development/adjudication/part-all.jsonl",
+        "sample_count": 6,
+        "sha256": "53ee3be45872a207cf105946b8b611818d0974c4966318852f933f859c0a7550"
+      },
+      "input_scope": {
+        "first_item_id": "95f01806b8d303afdcf88eeced8e4cc740a39a4524553b106c174e36fc8fc22f::196170",
+        "input_field_sets_sha256": "e269e871130521fa999c11d6b10773daafbd812c221862baf1da8cce2241e5c9",
+        "item_count": 6,
+        "item_id_order_sha256": "1c9b786baf592597d7bafed6b73e75f0bc43d00dc10772805c5a7827b0d411e4",
+        "item_id_set_sha256": "0326bacce12ed239b3b8c7ceb93876d2c8731f5002f435ea8d00b336c3eeece3",
+        "last_item_id": "46d8d4830c7ef556ff5a5df8d6a8702db6f914a273b3e8839ab62221b8a3eed1::177830",
+        "row_end_inclusive": 6,
+        "row_start_inclusive": 1,
+        "source_type_distribution": {
+          "UNSPECIFIED": 6
+        }
+      },
+      "receipt": {
+        "bytes": 2708,
+        "path": "data/gold/review_v2/disclosure-development/adjudication/part-all.receipt.json",
+        "sha256": "2a6b1b0eb8a75d0b2cf8d94958836a5be89f04b9e7428098cbab8f14849060e5"
+      },
+      "receipt_payload_sha256": "37782c916ba40836f17ae43bf7e4c5db5616bebefb6ca93aaa2a27713d84bf41",
+      "reviewer": {
+        "model_name": "GPT-5",
+        "model_version": "codex-high-2026-07-17",
+        "reviewer_id": "codex:disclosure-development-blind-adjudicator-all",
+        "reviewer_type": "CODEX_AI"
+      },
+      "run": {
+        "completed_at": "2026-07-16T23:53:11Z",
+        "context_id": "9c0ee1a0-5951-4e03-93f2-af86237ddd25",
+        "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+        "context_parent_id": null,
+        "independent_run_id": "fe0fd7c2-5e8d-44db-a8e0-4904665b6bc0",
+        "started_at": "2026-07-16T23:51:00Z"
+      }
+    }
+  ],
+  "participant_receipt_payload_sha256": [
+    "37782c916ba40836f17ae43bf7e4c5db5616bebefb6ca93aaa2a27713d84bf41"
+  ],
+  "role": "ADJUDICATOR",
+  "sample_count": 6,
+  "schema_version": "k-fnspid-sentiment-adjudication-provenance/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

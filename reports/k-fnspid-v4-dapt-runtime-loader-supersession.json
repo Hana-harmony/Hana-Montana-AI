@@ -1,0 +1,39 @@
+{
+  "schema_version": "k-fnspid-dapt-runtime-loader-supersession/v1",
+  "status": "SUPERSEDED_AFTER_FAIL_CLOSED_PRECISION_PILOT",
+  "trigger": {
+    "action": "precision_pilot",
+    "error_type": "pyarrow.lib.ArrowInvalid",
+    "error_message": "Zero copy conversions not possible with boolean types",
+    "training_updates_executed": 0,
+    "pilot_report_created": false
+  },
+  "superseded_semantic_recipe_sha256": "b54ff68dd7420586389f8f71b8d26bb98eea113e05ecf3ce95f0a0415b7c60a8",
+  "superseded_inventory": {
+    "derivation_report": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v3.json",
+    "review_receipt": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v3.json",
+    "review_receipt_sha256": "24cd954fecb3a69e4f047264b89cba0506caa9c1a7ddc1e47a37e39d4ee23b08"
+  },
+  "superseded_pack": {
+    "derivation_report": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v2.json",
+    "review_receipt": "reports/k-fnspid-v4-dapt-pack-oracle-review-v2.json",
+    "review_receipt_sha256": "feccbd7fda20382ce5526f59c33f49b9c374d7afa89b44f5b6cf8f60751181a6"
+  },
+  "superseded_prepared_manifest": {
+    "path": "data/k_fnspid/v4_dapt_temporal/manifest.json",
+    "sha256": "6befac869125c46792dd052fbe38a8dc771a50583bdb353a279d8da0024fff3a"
+  },
+  "fix": {
+    "description": "Arrow boolean value buffer를 NumPy로 읽을 때 zero_copy_only=False를 명시하고 bool dtype·shape·row 복원을 회귀 테스트한다.",
+    "new_semantic_recipe_sha256": "4d62557b1c6c02d25b410de3e9bc827228b4a80607fdeef68f68d8928421e7c4",
+    "regression_test": "test_load_pack_store_copies_arrow_boolean_values"
+  },
+  "replacement_contract": {
+    "inventory_derivation_report": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v4.json",
+    "inventory_review_receipt": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v4.json",
+    "pack_derivation_report": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+    "pack_review_receipt": "reports/k-fnspid-v4-dapt-pack-oracle-review-v3.json",
+    "prepared_directory": "data/k_fnspid/v4_dapt_temporal_v2",
+    "must_be_rederived_and_independently_reviewed": true
+  }
+}

@@ -5,6 +5,11 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 
+def _optional_path_env(name: str) -> Path | None:
+    value = os.getenv(name, "").strip()
+    return Path(value) if value else None
+
+
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -21,7 +26,14 @@ class Settings(BaseModel):
     market_impact_disclosure_training_report_path: Path = Path(
         "reports/k-fnspid-impact-disclosure-training-report.json"
     )
-    transformer_base_model_path: Path = Path("/app/models/kf-deberta-base")
+    transformer_base_model_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_SENTIMENT_BASE_MODEL_PATH",
+                "/app/models/kf-deberta-base",
+            )
+        )
+    )
     sentiment_transformer_path: Path = Path(
         "src/hannah_montana_ai/model_store/kf_deberta_sentiment"
     )
@@ -30,6 +42,40 @@ class Settings(BaseModel):
     )
     sentiment_transformer_benchmark_report_path: Path = Path(
         "reports/korean-finance-sentiment-benchmark.json"
+    )
+    sentiment_release_current_path: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "HANNAH_SENTIMENT_RELEASE_CURRENT_PATH",
+                "releases/sentiment/current.json",
+            )
+        )
+    )
+    sentiment_release_project_root: Path = Field(
+        default_factory=lambda: Path(os.getenv("HANNAH_PROJECT_ROOT", "."))
+    )
+    sentiment_release_attestation_mode: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_SENTIMENT_RELEASE_ATTESTATION_MODE",
+            "local-untrusted",
+        )
+    )
+    sentiment_release_public_key_path: Path | None = Field(
+        default_factory=lambda: _optional_path_env(
+            "HANNAH_SENTIMENT_RELEASE_PUBLIC_KEY_PATH"
+        )
+    )
+    sentiment_release_signer_key_id: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_SENTIMENT_RELEASE_SIGNER_KEY_ID", "")
+    )
+    sentiment_release_expected_id: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_SENTIMENT_RELEASE_EXPECTED_ID", "")
+    )
+    sentiment_release_expected_git_commit: str = Field(
+        default_factory=lambda: os.getenv(
+            "HANNAH_SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT",
+            "",
+        )
     )
     sentiment_stacker_path: Path = Path(
         "src/hannah_montana_ai/model_store/sentiment_stacker.joblib"

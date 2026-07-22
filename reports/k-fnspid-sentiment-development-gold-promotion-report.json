@@ -1,0 +1,1417 @@
+{
+  "artifacts": {
+    "codex_decisions_input": "data/curation/k_fnspid_sentiment/development_codex_decisions_dual.jsonl",
+    "gold_output": "data/evaluation/k_fnspid_sentiment_development_gold.jsonl",
+    "review_input": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+    "teacher_silver_input": "data/curation/k_fnspid_sentiment/development_qwen_silver.jsonl"
+  },
+  "coverage": {
+    "document_count": 449,
+    "effective_trade_date_max": "2025-12-29",
+    "effective_trade_date_min": "2025-01-02",
+    "event_count": 449,
+    "partition_distribution": {
+      "DEVELOPMENT_REVIEW": 449
+    },
+    "provider_count": 1,
+    "provider_distribution": {
+      "UNKNOWN": 450
+    },
+    "published_at_kst_max": "2025-12-29T10:46:00+09:00",
+    "published_at_kst_min": "2025-01-02T09:58:00+09:00",
+    "source_type_count": 1,
+    "source_type_distribution": {
+      "NEWS": 449
+    },
+    "stock_count": 253,
+    "year_distribution": {
+      "2025": 450
+    }
+  },
+  "file_sha256": {
+    "codex_decisions_input": "b454d5e8d10d1978917d88ccf3730ecf7785326589cd030c871159e3b8b90fa4",
+    "gold_output": "f433e4cdc5372594d54de19083519278aae51b0385e310410b2e738d4c7d0f55",
+    "review_input": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa",
+    "teacher_silver_input": "5da047b81cdc3b44030126cf92a709d71d4c8d062e9772217c396325cc6cbc52"
+  },
+  "generated_at_utc": "2026-07-15T14:28:25.598976+00:00",
+  "independent_reviewer_agreement": {
+    "adjudicated_count": 52,
+    "agreement_count": 397,
+    "agreement_rate": 0.882222,
+    "disagreement_count": 53,
+    "unresolved_count": 1
+  },
+  "integrity": {
+    "codebook_file_hash_exact": true,
+    "item_id_set_sha256": "017a6a9a93bc7004df721e624abf404c4dd5e0d4bbbe2dc2c321f6fca9d9b23d",
+    "provenance_sha256": "96c6ed48c4b9ed39ab61dc494c0d127ebcab7491287fbc3479b04a635adc86e3",
+    "review_decision_item_sets_exact": true,
+    "review_teacher_item_sets_exact": true,
+    "source_record_hashes_exact": true,
+    "source_record_set_sha256": "3131b0821b982f0a36cdfdeffed44b8eb24b758ffc449aec1ee1898f0619b426",
+    "source_records_exact": true,
+    "teacher_input_hashes_exact": true
+  },
+  "label_distribution": {
+    "NEGATIVE": 55,
+    "NEUTRAL": 279,
+    "POSITIVE": 115
+  },
+  "promotion_policy": "Qwen teacher SILVER는 참고 신호로만 보존하며, 모든 행에 유효한 CODEX_REVIEW_APPROVED 결정을 요구한다.",
+  "provenance": {
+    "codex_review": {
+      "automatic_teacher_gold_promotion": false,
+      "candidate_manifest_sha256": "NOT_APPLICABLE_PRE_LOCK_DEVELOPMENT",
+      "minimum_independent_reviewers": 2,
+      "protocol": "two-independent-codex-reviewers-plus-adjudication/v1",
+      "required_status": "CODEX_REVIEW_APPROVED",
+      "reviewer_distribution": {
+        "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev": 136,
+        "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev": 133,
+        "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev": 128,
+        "codex-gpt5-news-dev-adjudicator": 53
+      },
+      "teacher_is_advisory_only": true,
+      "unresolved_excluded_from_gold": true
+    },
+    "review": {
+      "codebook_version": "k-fnspid-sentiment-codebook/v1",
+      "dataset_version": "K-FNSPID-v4",
+      "partition": "DEVELOPMENT_REVIEW",
+      "schema_version": "k-fnspid-sentiment-review-row/v1"
+    },
+    "teacher": {
+      "codebook_path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "codebook_sha256": "deffc649ce81cfb4abd8e06f65acb3af59e8d71c46c11646dd9dbaf18c44ea04",
+      "generated_at_utc_max": "2026-07-15T14:13:02.938539+00:00",
+      "generated_at_utc_min": "2026-07-15T13:25:35.826353+00:00",
+      "market_blind": true,
+      "model_blind": true,
+      "model_requested": "Qwen3-4B-GGUF-Q4",
+      "model_served": "Qwen3-4B-GGUF-Q4",
+      "operational_rules_sha256": "13263e52e948678a16573db80f3b050e52ddc2cfdc35a6ffd71a6a9e437fc3a1",
+      "prompt_version": "k-fnspid-sentiment-qwen-silver-v2",
+      "provider": "local-open-source-qwen3",
+      "sampling_seed": 20260715,
+      "schema_version": "k-fnspid-sentiment-teacher-silver/v1"
+    }
+  },
+  "qwen_final_agreement": {
+    "agreement_count": 287,
+    "agreement_percentage": 63.92,
+    "agreement_rate": 0.639198,
+    "disagreement_count": 162,
+    "disagreements": [
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "de396c59800d7c708ca01a8c25df95ebc50386d597d954dc4d2d87b747e64d39::012800",
+        "review_note": "독립 검수 일치: 대창솔루션 관련 기사로 대상 대창의 효과가 확인되지 않음. / 입력의 ‘대창’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "56459cdbe5adbc0891d82c63b803935a8510037ba2088a13f4a587fb007f2e52::042660",
+        "review_note": "독립 판독에서 식별 가능한 증권사 분석이 한화오션의 추가 수주 모멘텀 지속을 직접 전망한다. 검수자 1의 업종 일반론 해석보다 대상·출처·방향이 명확하다고 본 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "98dd3aa4c3bf6919d6465e0c5ec0676bddd5a88c8307e98efb113f2a412e8584::403550",
+        "review_note": "독립 검수 일치: 대상 기업이 나열됐지만 구체적 실적 방향은 다른 기업에만 연결됨. / 쏘카 관련 사실은 있으나 비교 기준이나 대상별 경제 효과 방향이 명시되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "164952aeca4e12fd2e0fc82bca043bf8b3bb05b21f608455ac207978e1fcd2fd::008930",
+        "review_note": "독립 검수 일치: 대상 기업 이름 뒤 핵심 내용이 없어 경제 방향을 확인할 수 없음. / 한미사이언스이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "7b6a9af70c81f2d33b075eb722810e9dd9969c00080196c03d3f8ac331654a38::027580",
+        "review_note": "독립 검수 일치: 기사 형식 표지인 상보로 등장해 대상 기업과 무관함. / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c5f878e0302b7fc16535bab6d85c265417ae946cea65d16abeaf7a8598385350::005300",
+        "review_note": "독립 검수 일치: 영업이익 증가와 매출 감소가 충돌해 우세 방향이 불명확함. / 롯데칠성의 긍정·부정 핵심 근거가 함께 있어 문서 자체로 우세 방향을 확정할 수 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "5fb3ad9bbaeee1ac2a9e4995306015d3b18302c69f4eeeafc2b6f0d3f1b437b1::259960",
+        "review_note": "독립 검수 일치: 2분기 실적 감소와 상반기 사상 최고 실적이 충돌함. / 크래프톤의 긍정·부정 핵심 근거가 함께 있어 문서 자체로 우세 방향을 확정할 수 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "01dab99aa5ccc9186c78aded89cd2a74cea70d28a69c6295bf91b18b54c148c6::000880",
+        "review_note": "독립 판독에서 사망사고 발생 법인은 별도 상장사 한화오션이고 지정 증권 한화의 직접 재무·법적 효과는 없다. 검수자 2의 계열사 위험 전이보다 검수자 1의 대상 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c63a9d2b888084f912e8b2f27e21cd623dc82e36dd4da0d54bd830e319ea1dba::048430",
+        "review_note": "독립 검수 일치: 정치 테마 추측과 주가 변화만 제시됨. / 유라테크의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e7efb04cbee8b939c314eca6cbcf7ea8a15b1650947aa9e1ebdf34db3e007cad::003090",
+        "review_note": "독립 판독에서 최종 패소와 판매업무 정지 대상은 별도 상장사 대웅제약이고 지정 증권 대웅의 직접 영향은 명시되지 않았다. 검수자 2의 계열 위험 전이보다 검수자 1을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e5398a4fe582ccdb9d9890b7f6ac7f194d5d5dc13b28e1a0d7224cd5703766df::285800",
+        "review_note": "독립 검수 일치: 정치 진영이라는 일반 명사로 등장함. / 입력의 ‘진영’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0eb9cde182f79944294edbc161760915114d037f65c5a4e81b2d8fb1b9305804::462860",
+        "review_note": "독립 검수 일치: 영업이익 증가와 매출·순이익 감소가 충돌함. / 더즌의 긍정·부정 핵심 근거가 함께 있어 문서 자체로 우세 방향을 확정할 수 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "96e2a3e8be358553f8f8bdede955761c3deb4a0d9066cecfa47fcfb9be498036::000880",
+        "review_note": "독립 검수 일치: 대표 내정과 향후 개선 계획만 제시됨. / 한화의 자본·지배구조·행정 절차만 확인되어 순경제 방향이 확정되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a9d5507949125e595b5947002721ddda47777f838a6bf0ce72e384f32336c6a9::028260",
+        "review_note": "독립 검수 일치: 사망 중대재해 발생과 전국 현장 작업중지가 확정됨. / 원문 근거 “현장 사망사고와 전국 작업중지”가 삼성물산의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0b05266d68844bf3c286b4bf460152ce6a132e0564142186ebca892ff001eb86::033290",
+        "review_note": "독립 검수 일치: 다른 기업명 일부로 등장해 대상 기업이 식별되지 않음. / 입력의 ‘로젠’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "38cb0a315a01de2955f7b4bdcb2c91975b6a8da4e808565d3758cae7fb70ba75::012800",
+        "review_note": "독립 검수 일치: 대창솔루션 기사로 대상 대창의 효과가 확인되지 않음. / 입력의 ‘대창’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "25059f093eda3bff25715d1bfbfae4285dd38c7627f067ea1faf7089c041416b::069080",
+        "review_note": "독립 검수 일치: 주력 IP 실적 부진과 시장점유율 하락이 명시됨. / 원문 근거 “뮤 IP 실적 부진과 매출 감소”가 웹젠의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a0fe83e1e0069eca6cb6ae217674d3e0cafc4573a794bb43756625defab0a21d::011930",
+        "review_note": "독립 검수 일치: 당기순손실과 적자전환이 확정돼 향후 사업 기대보다 우선함. / 원문 근거 “1분기 순손실 62억원으로 적자전환”가 신성이엔지의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e35dbab02eeab0e341bfca972f62c50dbd948ecb93a5b6f89940ee5a8b7eba16::006800",
+        "review_note": "독립 검수 일치: 대상 기업이 금융위원회 사업자 인가를 취득함. / 원문 근거 “금융위가 IMA 사업자 인가”가 미래에셋증권의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "125534fb912622349595879a3b86a573c736d298addb812f4602954e036add52::005610",
+        "review_note": "독립 검수 일치: 공장 가동 중단 여파로 영업이익이 67.5% 급감함. / 원문 근거 “공장 가동중단 여파로 영업이익 67.5% 급감”가 삼립의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "f78cb639fa2a71bbd5bc5fe4647e219c92ee209a19d7260acb46a513b9484f54::348370",
+        "review_note": "독립 검수 일치: 투자회사의 회수 성과와 주가 맥락뿐 대상 기업 영업 방향이 없음. / 엔켐이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "7619f2973a64bbc8803c8c20d281a79f2880d37689625dd022aef35092667dd3::124500",
+        "review_note": "독립 판독에서 아이티센글로벌이 에스원 고객센터 콜시스템 사업을 수주한 대상별 확정 영업기회가 제시된다. 검수자 1의 수주 주체 불명 의견보다 문맥상 대상 연결을 인정한 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "b652a6b5353c8ffaa38890c3031fbb0c9baea02447759e36ffe0c0926131b7a1::397810",
+        "review_note": "독립 검수 일치: 여행 플랫폼사 대상 매출이 연평균 500% 성장했다고 명시됨. / 원문 근거 “여행 플랫폼사 매출이 연평균 500% 성장”가 애드포러스의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "96da456bcb89abf80b7546ac73380f45eb7992e4f5777fa6b424074d2a92c9ff::015760",
+        "review_note": "독립 검수 일치: 대상 기업이 참여한 태양광 사업 수주와 금융지원이 확정됨. / 원문 근거 “괌 태양광 사업 수주와 금융지원 확정”가 한국전력의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "bbe47e3be4a4f2dc05d3ea45fe811e432e7ab3b7ce5aed3f0c71b820490c5f44::027580",
+        "review_note": "독립 검수 일치: 기사 형식 표지인 상보로 등장해 대상 기업과 무관함. / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4ecc8da2d2bac2ab54eb336d4e9b0076994cefcdec8226b176faa526bcce796f::001470",
+        "review_note": "독립 검수 일치: 감사의견 거절로 상장폐지 위험이 발생함. / 원문 근거 “감사의견 거절로 상장폐지 위기”가 삼부토건의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2f3b5644256dd506d87cc95a372c1d1866d44d2ca0f887f1dfe3c25f94509196::000080",
+        "review_note": "독립 검수 일치: 매출과 영업이익이 모두 감소함. / 원문 근거 “매출 소폭 감소와 영업이익 22.5% 감소”가 하이트진로의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "35b6c673ffc4132889a87c469aff02a7c9fec12b4dc2d8094977749d2fb636e0::005610",
+        "review_note": "독립 판독에서 DS투자증권이 SPC삼립을 프로야구 인기의 수혜주로 특정하고 협업 상품 판매 확대 경로를 제시한다. 단순 목록으로 본 검수자 1보다 출처·대상·방향이 명확하다고 본 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "12e3bc9388adccffed191547ec9fce47284140c3fd4215beef2e395e15b5fe0a::145020",
+        "review_note": "독립 검수 일치: 영업이익 11% 감소가 중심이며 매출 증가는 0.8%에 그침. / 원문 근거 “3분기 영업이익 11% 감소”가 휴젤의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e02f104a2eb79b9d7bbea50d128e3f6710d4e2209b5c9b6f985394eb81c0f2c3::319400",
+        "review_note": "독립 검수 일치: 수주잔고를 기반으로 매출 성장이 이어진다고 명시됨. / 원문 근거 “급증한 수주 잔고를 기반으로 매출 성장 지속”가 현대무벡스의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "332665e86746fda8068883ac578d98e2e5311148f616d6f6d99f72a14c2fd526::480370",
+        "review_note": "독립 검수 일치: 473억원 규모 공사 수주 계약을 체결함. / 원문 근거 “미국 StarPlus Energy와 473억원 공사수주 계약”가 씨케이솔루션의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5ce2a6dc3f5d1a819f3bb32bb91c4244e5cbacb57017136e31441d76c7b56483::103140",
+        "review_note": "독립 검수 일치: 현대로템 대상 추가 포탄 수주가 확정됨. / 원문 근거 “현대로템향 추가 포탄 수주”가 풍산의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "13f983d4f446873a543c09ce1b8bb3e3bed997813f35b9f6f70913da5913cad8::051910",
+        "review_note": "독립 판독에서 LG화학이 저수익 NCC 설비를 줄이고 고부가 제품으로 전환하는 실행 계획과 수익성 개선 경로가 명시된다. 검수자 1의 계획 중립 의견을 검토했으나 대상·방향이 구체적이라는 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "88cccddd911c5aaf1d8f57d2d7425bd911ce018df7968fdb10e2ad55ab033475::161890",
+        "review_note": "독립 검수 일치: 3분기 역대 최대 실적과 순이익 76.7% 증가가 확정됨. / 원문 근거 “3분기 역대 최대 실적과 당기순이익 76.7% 증가”가 한국콜마의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "51a30b8b2383653b4d63d543169f807158b9bbbddd95bf1e89ba88ea7e20eb2d::005610",
+        "review_note": "독립 검수 일치: 안전 비용 증가로 영업이익이 58% 감소함. / 원문 근거 “3분기 영업이익 58% 감소”가 삼립의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "974c53bfd27712bc3a9a022d79abe138bb934fc64fcf77e83f84611bef3d5975::011170",
+        "review_note": "독립 검수 일치: 3년간 적자가 지속됐고 추가 자금조달은 계획 단계임. / 원문 근거 “3년 연속 적자”가 롯데케미칼의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "54da502450192b9bde5eee3ec816ed8c5c40298490febd217f44570d1ca4e32e::017810",
+        "review_note": "독립 검수 일치: 장기 기업가치 제고 계획만 있고 비교 가능한 목표 방향이 완결되지 않음. / 풀무원 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "b626a53a37dae7caa2849e936826501e458b5fab5d3bcbdfe00111bb59a4fc3d::001500",
+        "review_note": "독립 판독에서 현대자동차가 현대차증권의 MMT 500억원을 매수한 확정 금융상품 거래가 대상 기업에 직접 연결된다. 검수자 1의 계열사 절차 해석보다 확정 사업거래로 본 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d364a56d42c1f454fa337d595518f104a15da744788af3a7daf147ca8b204a37::001470",
+        "review_note": "독립 검수 일치: 대상 기업의 기업회생 신청 사실이 명시됨. / 원문 근거 “기업회생 신청”가 삼부토건의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "552657fb6a015874f95c8eb331a96dfdaeb9ae73d93351b225f92f16f09b55a1::228670",
+        "review_note": "독립 검수 일치: 타사 서비스명 일부로 등장해 대상 기업과 무관함. / 입력의 ‘레이’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4c2d7c52e313372c62ba204514d8e9a0d83a383bc4e26d63aea84aeadf6ae6de::069080",
+        "review_note": "독립 검수 일치: 매출·영업이익·순이익이 모두 크게 감소함. / 원문 근거 “상반기 매출·영업이익·순이익 모두 큰 폭 감소”가 웹젠의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "9c3ff7b70db73c868de0ccc934d1b63cb783d81125d8d929b85d62eb3d37ce21::004140",
+        "review_note": "독립 검수 일치: 동방선기 기사로 대상 동방과 무관함. / 입력의 ‘동방’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "fccb66f6b7220777299deac226a839789b1b3b09df254ace49f12252add796e1::044490",
+        "review_note": "독립 검수 일치: 대상 기업의 해상풍력 기자재 수출과 금융지원이 확정됨. / 원문 근거 “대만 해상풍력 기자재 수출”가 태웅의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "21df062021491e835dcc8878ee022f1bb66f0c07a479d4adaa8f7fd0cd6cccd4::027580",
+        "review_note": "독립 검수 일치: 기사 형식 표지인 상보로 등장해 대상 기업과 무관함. / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "1d297fbf171d6bc4dcf512e56636794e9b2eba0281af4e9bf463ba3cc0f4bbc7::027580",
+        "review_note": "독립 검수 일치: 기사 형식 표지인 상보로 등장해 대상 기업과 무관함. / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-a+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "d18ae1af03d6ee5e000c9e6faccb44e1a76a8add9f30db52a588c8096265e931::103840",
+        "review_note": "독립 검수 일치: 우양의 주가 상승과 업종 수출 호조만 제시되어 기업 경제 효과가 확정되지 않는다. / 우양이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0377d629a1c927e21ccae09685bfd26007309adc44c6f16c86435c34e6740b71::016360",
+        "review_note": "독립 판독에서 IPO 고평가 비판과 다른 주관 종목의 상장 후 주가 손실만 제시되고 삼성증권의 손실·제재는 없다. 검수자 2의 평판 부정 해석보다 검수자 1의 직접 경제 방향 부재 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e83fa9bc97967d6b5257cc5a9f1e44935160635a114392d4c54c885b5deb83b5::450330",
+        "review_note": "독립 검수 일치: 식품기업 이노하스의 실적으로 대상 기업 하스와 연결되는 근거가 없다. / 입력의 ‘하스’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "be4342f8030c67044aab6cd97654a3b7f03d17b91f8a5c76fe883c32ec5d7d0c::000150",
+        "review_note": "독립 검수 일치: 두산로보틱스의 인수 결정만 제시되어 대상 기업 두산의 순효과가 명시되지 않는다. / 두산의 자본·지배구조·행정 절차만 확인되어 순경제 방향이 확정되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "f6b4bd01dfbc3d41873f914c9f9cd9b6bf8c97bb51c3eede899ef9065c3641fe::259960",
+        "review_note": "독립 검수 일치: 2분기 부진과 상반기 사상 최대 영업이익이 함께 제시되어 우세 방향이 불명확하다. / 크래프톤의 긍정·부정 핵심 근거가 함께 있어 문서 자체로 우세 방향을 확정할 수 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "721794436ac485b775e191f8ff1db06387704dcca23f272eb6f747fc92e8e7fa::000150",
+        "review_note": "독립 검수 일치: 인수 우선협상자 선정과 미확정 자금조달 우려 및 주가 하락만 제시된다. / 두산의 긍정·부정 핵심 근거가 함께 있어 문서 자체로 우세 방향을 확정할 수 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "cc29156b97c225fc822900870c95e06bb97fbbcb07a093511145c21d3b033eba::293490",
+        "review_note": "독립 판독에서 비핵심 사업 매각과 투자 유치로 약 1562억원 현금을 확보한 정량적 유동성 개선이 확인된다. 단순 자본절차로 본 검수자 2보다 명시적 재무 효과를 인정한 검수자 1을 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "05144b925ffd6500c74d63b700334bcdf74e7de0bfdf47afd4bde30b5f46c002::000670",
+        "review_note": "독립 검수 일치: 원문은 영풍제지의 과거 거래정지와 주가 변동으로 대상 기업 영풍과 다르다. / 입력의 ‘영풍’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "93b6e40b08a39972d72eab5caf55a32b3eb9733ebd5694b4f3af60bb621c2b29::060250",
+        "review_note": "독립 검수 일치: 테마 소식에 따른 NHN KCP의 주가 움직임만 있어 기업 효과가 확인되지 않는다. / NHN KCP의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "edfdfe79153e4658fa7b70620da52909d9c6226d02c32ebeef02186053f311e7::010820",
+        "review_note": "독립 검수 일치: 퍼스텍은 관련주 목록에만 있고 수주 가능성도 조건부라 방향을 확정할 수 없다. / 퍼스텍 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0496b73589d7895bced269b0cb808d7cadabc905a8135a9f6bc3415f85a13889::187790",
+        "review_note": "독립 검수 일치: 원문의 나노는 반도체 공정 단위로 대상 기업 나노와 관련이 없다. / 입력의 ‘나노’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "24515cc301c7242b328355003abd878dcefd28c3993c689ab52b78b6917d07dd::001470",
+        "review_note": "독립 검수 일치: 삼부토건이 법정관리 기업으로 명시되어 존속과 재무 위험이 확인된다. / 원문 근거 “법정관리 진입”가 삼부토건의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "efcf077eaeb05f6832dc63fce824264d58289c09eef0341f31205beebb1bbfd3::066130",
+        "review_note": "독립 검수 일치: 하츠투하츠는 가수명으로 사용되어 대상 기업 하츠와 관련이 없다. / 입력의 ‘하츠’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "f81736f4ff310e10ddef01c59be7fb8418058be6d8428eafafd405326491f677::122350",
+        "review_note": "독립 검수 일치: 흑자전환 전망은 별도 기업 삼기에너지솔루션즈에 관한 것으로 대상 기업 효과가 명시되지 않는다. / 삼기이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "515a052b27fd1d956db3cf76c2c2aab8637699be083b91d45ea4ac241586ad27::012450",
+        "review_note": "독립 검수 일치: 장비 자체 보유로 연간 대여비가 절감되고 해외 수주 지원 효과가 명시된다. / 원문 근거 “장비 대여비 절감과 해외 수주 확대”가 한화에어로스페이스의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c246e346dfe9c5a95cd1da66b61000b78a81fb09c357d8f2a4b14afa236b9d6c::187790",
+        "review_note": "독립 검수 일치: 나노실리콘은 소재명으로 대상 기업 나노의 실적이나 사건이 아니다. / 입력의 ‘나노’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "106cb15e80e406369e7fc2b10be96bf9d58e71dc44b118117d259ac2d12bdfb4::375500",
+        "review_note": "독립 검수 일치: 저마진 현장 종료로 주택건축 이익률이 회복되고 실적 회복 전망이 명시된다. / 원문 근거 “실적 회복이 확실하다는 증권사 전망”가 DL이앤씨의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "39e29119f1bab9b2f092c58d26f20644b18c80a2010fed0f1b9e43e65b215229::042370",
+        "review_note": "독립 판독에서 비츠로테크 연결 그룹의 핵심 자회사 비츠로넥스텍이 기수주 물량을 근거로 흑자전환을 전망한다. 검수자 1의 별도 법인 한계를 검토했으나 연결 사업 방향을 인정한 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0ce7c399595aabb0408468b481824f4f13a5dbc7647f08e3767e051ffd280a21::058820",
+        "review_note": "독립 검수 일치: 제목에서 CMG제약의 미국 시장 진출 성과가 확정적으로 제시된다. / 원문 근거 “CMG제약 미국 진출”가 CMG제약의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "5e929279230a0e19fd8450ac212a30867b0c6fcc1f8817760b00ad0f9977c4f1::000880",
+        "review_note": "독립 검수 일치: 한화는 주요 공시 종목 목록에만 있고 대상 기업의 실질 내용은 제시되지 않는다. / 한화이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "6a4e26d92c9e265927bd662300316d4c036624af976254103d44a1f9e6cc727e::064350",
+        "review_note": "독립 검수 일치: 공급계약과 실적 개선 전망은 공급자인 풍산에 관한 것으로 현대로템의 순효과는 명시되지 않는다. / 현대로템이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3730fd45b8874409440af34bcf98315cab3f6c6de7937182fa01b1cdfcc72ac9::475230",
+        "review_note": "독립 판독에서 한국거래소의 신규 상장 승인을 취득해 엔알비의 자본시장 진입이라는 공식 법적·사업 기회가 확정됐다. 단순 절차로 본 검수자 2보다 승인 취득을 인정한 검수자 1을 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "cdc465ed3623263984765fbc5e9dee07192ba7f726ed149592b17b79009f9aa8::246710",
+        "review_note": "독립 검수 일치: 유상증자 완료로 재무구조가 안정화되고 화장품 부문 실적 개선이 명시된다. / 원문 근거 “유상증자 완료로 재무구조 안정화와 화장품 실적 개선”가 티앤알바이오팹의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "e160d5ccb86c8b4be1bc10c6247d2c7f9dc9ad67c469c448eccef1cbbadf8fc9::000270",
+        "review_note": "독립 검수 일치: 매출 증가에도 관세 영향으로 영업이익이 49.2% 감소한 것이 기사의 중심 결과다. / 원문 근거 “영업이익 49.2% 감소”가 기아의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "88227eee685396bbbf39d070da3dfe9785fcb4810ae6ff2d24e4534119316d70::060370",
+        "review_note": "독립 판독에서 LS마린솔루션이 MS·AWS 등이 주도하는 한일 해저통신망 구축 프로젝트에 공동 참여하기로 확정했다. 행정 절차로 본 검수자 2보다 구체적 사업기회를 인정한 검수자 1을 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "198e923c6f7d4f9f1f381e959a8faa45d4106db99ca4ed95e458f1a0a1f44fc6::064350",
+        "review_note": "독립 검수 일치: 현대로템이 차륜형장갑차 공급 사업을 수주해 첫 수출 영업기회를 확보했다. / 원문 근거 “페루 장갑차 공급계약과 첫 수출”가 현대로템의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2a96232cc2284985161c0b94c1b3345930553f3848cf66b0fb334702b69ac3e5::285130",
+        "review_note": "독립 검수 일치: 공정위 시정명령 위반으로 검찰 고발과 과징금 등 공식 제재 위험이 발생했다. / 원문 근거 “가습기살균제 광고 시정명령 위반으로 검찰 송치”가 SK케미칼의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6fa270ea6e0cc7a27832b2ce081c4dab3c8aa718a7ed26a9bd58a70160e3449e::036200",
+        "review_note": "독립 검수 일치: 유니셈이 실적 악화 공시를 낸 사실이 직접 명시된다. / 원문 근거 “실적 악화를 공시”가 유니셈의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6c27908c56c13736c9e22495a1efd82ddefa8642da5e93c73328d668fe99c55a::060540",
+        "review_note": "독립 검수 일치: 전년 영업이익 감소와 현금배당 중단이 확정됐고 신사업 성과는 아직 목표 단계다. / 원문 근거 “영업이익 감소와 무배당 결정”가 에스에이티의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "f9141451521fc0cd1a6a711e6eaeec346ffacf187c6bc39c10fdc20242773774::039130",
+        "review_note": "독립 검수 일치: 하나투어가 396억원 규모 자기주식 취득을 확정 결정했다. / 원문 근거 “자사주 매입 결정”가 하나투어의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "90bdf1b18b52009cc7e6503efe50153533ef7bca2b99f15d5c9d78c8f3c91b9a::001840",
+        "review_note": "독립 검수 일치: 이화공영이 회생절차 개시를 신청해 기업 존속과 재무 위험이 확정적으로 발생했다. / 원문 근거 “기업회생 신청”가 이화공영의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "3069c2c343eacbae488ce4cce65682fb4c779da4aa49e1db59da1a992bcf98eb::294630",
+        "review_note": "독립 검수 일치: 원문의 서남은 지역명으로 쓰여 대상 기업 서남과 관련이 없다. / 입력의 ‘서남’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0afd95f155a41c6bd6fd9a26bb4a0c1b1c5f7894a82df56c441bbbd03736f203::019680",
+        "review_note": "독립 검수 일치: 저출산 영향으로 핵심 교육서비스 매출이 정체·감소했고 실버 사업 반전은 아직 추진 단계다. / 원문 근거 “저출산 영향으로 교육서비스 매출이 정체”가 대교의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c667daa55473bdc55c5a86fcf8a248d79800a219d488210066478cf3137b214d::008060",
+        "review_note": "독립 검수 일치: 원문의 대덕은 지역구 명칭으로 대상 기업 대덕과 관련이 없다. / 입력의 ‘대덕’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "b316c8d782d4e5b6336a2ca3fb4f5c27ac5e4036289702e79cb986f77b4c47fd::006980",
+        "review_note": "독립 검수 일치: 원문의 우성은 아파트 단지명으로 대상 기업 우성과 관련이 없다. / 입력의 ‘우성’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1661bf6389a28b8b7bd58d8710d5d0dc0bc55d1b22568cf787febb926278e2cf::352480",
+        "review_note": "독립 검수 일치: 대규모 제3자배정 증자와 오너 일가 지분 매각, 주문 흐름 약화가 함께 제시된다. / 원문 근거 “대규모 유상증자와 오너 일가 엑시트 및 수주 둔화”가 씨앤씨인터내셔널의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "00b50e2d73e993bc1b3eadea1594df32177cab8f43fd8dfb1e8a852adddbd166::247540",
+        "review_note": "독립 판독에서 2분기 흑자전환과 코스피 입성은 기대·예고 단계이고 정량 지침이나 식별 가능한 분석 근거가 없다. 검수자 1의 긍정 전망보다 검수자 2의 미확정 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "7e4a20653c38bf1ebcc6a98e215b46fd77d70b923360ff16f7af99c426aa2f02::000670",
+        "review_note": "독립 검수 일치: 손실 내용은 서진캠과 영풍기계 사업에 관한 것으로 대상 기업 영풍과 연결되지 않는다. / 입력의 ‘영풍’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e60475f2fec7506fa9cefa21bec0231393d493b1b4adda2013ee0abdbce2c2d0::419120",
+        "review_note": "독립 판독에서 무상증자는 기계적 가치 이동이고 회사의 AI 성장·주주가치 제고 언급은 정량 효과가 없는 의지다. 검수자 2의 긍정 목적 해석보다 검수자 1의 무상증자 중립 규칙을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8f788bddb2e6119357af9e40f5481b3e8445a8650bc3ab7af3af57e88bb3cdab::037440",
+        "review_note": "독립 검수 일치: 특검이 희림 사무소를 압수수색해 공식 수사에 따른 법적 위험이 발생했다. / 원문 근거 “특검 압수수색과 수주 청탁 의혹”가 희림의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "f024e24c66551377cc77569df697279e7c8df79a47983bfa2634d80288ea7766::141080",
+        "review_note": "독립 검수 일치: 중동 위기 속 리가켐바이오의 주가 하락만 제시되어 기업 경제 사건이 없다. / 리가켐바이오의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0ad1fe151ae84890cd7d4e5ca7ec10dffeed5dd72b30026f93cba0f100987e4d::006800",
+        "review_note": "독립 검수 일치: 4분기 실적이 시장 예상에 부합했다는 사실만 있어 개선이나 악화 방향이 없다. / 미래에셋증권 관련 사실은 있으나 비교 기준이나 대상별 경제 효과 방향이 명시되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7a3021402f8904c3b01a2526c3ee3eca09f43a3edd59896d2ecbdb0185be20d5::037440",
+        "review_note": "독립 검수 일치: 특검이 희림 사무소를 압수수색해 공식 수사에 따른 법적 위험이 발생했다. / 원문 근거 “특검 압수수색과 수주 청탁 의혹”가 희림의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "bf5ef37c79d29b1576a87840145a0dbe24c9fcc450d552fd7713a5303f4e3164::001530",
+        "review_note": "독립 판독에서 주가조작 연루는 미확정 의혹이고 확인되는 결과는 주가 급락뿐이다. 검수자 2의 의혹·가격 기반 부정 해석보다 검수자 1의 공식 절차 부재 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "59e42dedca77cc09719795bbd6699fd89fd7dbd3fd7ea78600c50f1a44097978::047040",
+        "review_note": "독립 검수 일치: 재건축 사업에 대한 경영진의 포부와 제안 조건만 있어 수주 결과는 확정되지 않았다. / 대우건설 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "1c387f2e7e12155b7cc125ef336dc5da2d2eed08e72b690529c78ac917824809::000490",
+        "review_note": "독립 검수 일치: 원문의 대동은 축제 프로그램 명칭으로 대상 기업 대동과 관련이 없다. / 입력의 ‘대동’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "06f4936c5b99de277925cfffe09ee088b4917782126cc04c02a3fbe66b278bab::064260",
+        "review_note": "독립 검수 일치: 다날은 스테이블코인 관련주 목록에만 있고 실적 전망은 LG CNS에 관한 것이다. / 다날이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9f53781f4e564df31a11bacbbbfb95ce151cb0b5f7133db9c9badce358c5de42::258790",
+        "review_note": "독립 검수 일치: 자기자본의 8.01%에 해당하는 직원 횡령 혐의 발생과 거래정지가 확정됐다. / 원문 근거 “직원 횡령 발생과 주식 거래정지”가 소프트캠프의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "7073ca83c451def73a312e15014bc3e0b75299cb80ad8001f304619a166edae2::027580",
+        "review_note": "독립 검수 일치: 제목의 상보는 기사 형식을 뜻하며 대상 기업 상보와 관련이 없다. / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "c0ee463cddb3aee5942c73f45e6c1de924d02d78034dcd20f33a5511f036fc6e::009240",
+        "review_note": "독립 검수 일치: 3분기 매출과 영업이익이 모두 전년 동기 대비 감소했다. / 원문 근거 “매출과 영업이익 감소”가 한샘의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2b02465c777c8060bc6187932d31c79bb1a0badd4397f6d188fdde9052cfd3a7::003670",
+        "review_note": "독립 검수 일치: 영업이익이 전년 및 전 분기 대비 감소해 실적 악화가 확인된다. / 원문 근거 “영업이익이 전 분기보다 크게 축소”가 포스코퓨처엠의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-b+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "5efb6d0ffb8be0698081cf54db241f8f53b8cb4b3fb961f7c80a9534a097a235::018000",
+        "review_note": "독립 검수 일치: 유상증자 발행가액 사실만으로 경제적 순효과를 확정할 수 없음 / 유니슨의 자본·지배구조·행정 절차만 확인되어 순경제 방향이 확정되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "571f149ad3bae6aa54a6a62b1db2e3fc05b6ba4550c5fd1977aff104acbee939::063760",
+        "review_note": "독립 검수 일치: 수주·매출 성장 가능성 평가만 있고 확정된 성과가 없음 / 이엘피 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a0ca2c203baea2a043925cb7e74bc267cac8a91da2c462bafdfb311483ad0ea7::277410",
+        "review_note": "독립 검수 일치: 오너 일가 출신 전 임원이 배임 혐의로 구속 기소됨 / 원문 근거 “2세 경영진의 배임 혐의 구속기소”가 인산가의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "304c2fed83c19a19b8d3b378e0ad215a2317c8c4d0177cf17c05e008538e01de::002210",
+        "review_note": "독립 검수 일치: 경영진 피고소와 자기자본 30.6% 규모 혐의로 거래가 정지됨 / 원문 근거 “자기자본 30.6% 규모 횡령·배임 고소와 거래정지”가 동성제약의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "e2c989af12f3ad17bd00a677f3bad183a38ff6987e7af49aa3bf7b6dd02cdc6a::003670",
+        "review_note": "독립 검수 일치: 매출 감소와 대규모 순손실·적자전환이 확인됨 / 원문 근거 “매출 22.3% 감소와 순손실 적자전환”가 포스코퓨처엠의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "80a24d38919f7492ba7fac40a8382729cb1bc22d91d01f6be94be6fca330d348::007680",
+        "review_note": "독립 검수 일치: 그룹 사례에 이름만 포함돼 대상 기업의 직접 효과가 없음 / 입력의 ‘대원’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "066c47f0558a5c35c5edc05005685bc3754e7ec9f5da3f7953560b2ea2ae6106::348370",
+        "review_note": "독립 검수 일치: 주가 상승과 산업 수요 증가만으로 대상 기업 효과가 확정되지 않음 / 엔켐의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e3249d6b6e065ea0e5069da3cdaeb4fb7372e9356b2be28343edd176c74a8778::004800",
+        "review_note": "독립 검수 일치: 타사 공시 위반 사례만 제시돼 대상 기업 사건이 없음 / 효성이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "bfa90cd8f85c3d638c5e57b5390bf2f17960abbac8890d6d583fe8636e318b10::005610",
+        "review_note": "독립 판독에서 영업이익 8.1% 증가는 긍정이나 매출은 전년 대비 감소했다. 검수자 2의 이익 단독 긍정보다 핵심 지표 충돌 규칙을 적용한 검수자 1을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "0b11e8a9e0ef0d37a924fcb42f24cf56683db02bde544daf686022919ca6ba66::196170",
+        "review_note": "독립 검수 일치: 합작사 설립이 업계 관측과 추진 단계여서 결과가 미확정임 / 알테오젠 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "8e43d19eac4a09e2a8011fa91b041ef48409b703a45b3f7779d6b75d279c9ef8::009240",
+        "review_note": "독립 판독에서 순이익 흑자전환·영업이익 증가는 긍정이나 매출 3% 감소가 함께 제시된다. 검수자 2의 이익 우세 해석보다 순효과 불명으로 본 검수자 1을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b20d919f07789312814bd090a2a735c385cd035698c166652557827d5e8420e5::001570",
+        "review_note": "독립 판독에서 감사의견 거절과 상장폐지 위험은 계속되고 1년 개선기간은 확정 위험의 유예일 뿐 해소가 아니다. 검수자 2의 유예 긍정보다 존속 위험 우선 규칙을 적용한 검수자 1을 채택해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "abe883c223bb56dac46d9144295c3acb4533653131bede43625b97ec2ba37536::316140",
+        "review_note": "독립 검수 일치: 대상 기업은 과거 사례로만 언급돼 현재 방향이 없음 / 우리금융지주이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "895b518f446b9a70b104952a38d693b58265af71de819436286ba59aed172cde::004800",
+        "review_note": "독립 검수 일치: 시장 과열과 주가 정보만 있어 대상 기업 효과가 확정되지 않음 / 입력의 ‘효성’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "115a108d53ac8cb7c50ebeaf7c87179a269dc834b8ef83b95d79a93b7db5b872::002870",
+        "review_note": "독립 판독에서 검찰 압수수색 대상은 신풍제약이고 지정 증권 신풍은 동명이지만 별도 법인이다. 검수자 1의 부정 전이는 대상 오류이므로 검수자 2의 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "13233e79503ae6eabc9c33839ef1fc22856dd69b632ab9652443b94d7f86825c::007210",
+        "review_note": "독립 검수 일치: 회생 신청 기업들과 대상 기업의 직접 연결이 확인되지 않음 / 입력의 ‘벽산’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a50d063a74fb86c254be010ae1f17bc56ccaf2ad3e95613ee09e542083a4ceff::001790",
+        "review_note": "독립 검수 일치: 대상 기업이 담합 관련 검찰 압수수색 대상에 포함됨 / 원문 근거 “입찰담합 관련 검찰 압수수색”가 대한제당의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6d66f7c06803e8fe4b49cbb43287fe6cf51ece96feb9d970b3e458bcf8d7d296::009240",
+        "review_note": "독립 검수 일치: 공정위가 대상 기업의 장기간 입찰담합을 제재함 / 원문 근거 “8년간 입찰담합으로 공정위 제재”가 한샘의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "ae11db069ef9acbb8afdba9b5ef803d5cde7031b07f9a6769f7553d61a4e734e::002870",
+        "review_note": "독립 검수 일치: 주가 하락과 입증 전 혐의의 조건부 설명만 제시됨 / 입력의 ‘신풍’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "38e177e23412f1578627585c5b0d573b6eb7bc3612eaeaef4b1c9e9898a80af4::000520",
+        "review_note": "독립 검수 일치: 2분기 적자전환과 제품 행정처분 악재가 확인됨 / 원문 근거 “2분기 적자전환과 행정처분”가 삼일제약의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "9193d9b7141edc7900a9e62663c3671b1252e9b80625213662000417bc91a9a0::032940",
+        "review_note": "독립 검수 일치: 상한가와 업황 기대만 있고 확정된 경제 성과가 없음 / 입력의 ‘원익’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "29d26f44d678e0dbdd68e26025f3f17f879b4ed1543e4fe2769179252a16b834::027580",
+        "review_note": "독립 검수 일치: 대상 기업에 대한 실적 명제가 원문에 없음 / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "94ae87408f647de383a9a7c872201d1e3494d92da8f6b5610e3fda088aa60fd6::048430",
+        "review_note": "독립 검수 일치: 정치 테마 추측과 주가 변동만 있어 경제적 방향이 없음 / 유라테크의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "765c08c140935629700d1bec2f3913af162caeb490d6fa0e4253bfce0ec839f8::012800",
+        "review_note": "독립 판독에서 53억원 수주 주체는 대창솔루션이고 지정 증권 대창과 다른 법인이다. 검수자 1의 수주 긍정 전이를 기각하고 검수자 2의 대상 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "cb41209ec1720e356ef493212769b3071f5f1b7079deed632e5cec7fcdbed675::027580",
+        "review_note": "독립 검수 일치: 대상 기업에 관한 명시적 경제적 명제가 없음 / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "36ef10b72e55b1e28721a523798985472e541f064d74bb4d24e68b143189922c::044490",
+        "review_note": "독립 판독에서 매출·이익 증가 주체는 태웅로직스이고 지정 증권 태웅과 다른 법인이다. 검수자 1의 실적 긍정 전이를 기각하고 검수자 2의 대상 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "2e1bd0e12221ac47a52f0f580ee599784be6ecc4b2e9271bbccfddf38fcfe210::322000",
+        "review_note": "독립 검수 일치: 대상 기업은 주가 강세만 언급돼 경제적 사건이 없음 / HD현대에너지솔루션의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "bb36914bdf9451be5ede0e0aca0cb9c727c3e4076a4722186505dc1954fd13c6::054780",
+        "review_note": "독립 검수 일치: 타사 상장폐지 기사에 대상 기업의 직접 사건이 없음 / 키이스트이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "564f122ae2bc0656ecccab87757657105beccfe9ab944b40f96cafe8894161d3::384470",
+        "review_note": "독립 검수 일치: 주가 상승과 막연한 실적 개선 기대만 제시됨 / 코어라인소프트 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "8979d23bc961f57aff15ab1a0bc36d645b7adf57a47cc8da25ae88cf4c5204d1::084850",
+        "review_note": "독립 검수 일치: 업종 동반 주가 하락만 있어 대상 기업 경제 사건이 없음 / 아이티엠반도체의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "21f7d6e217ff773134625b783422af7932ed39febb8df3995f634d461446746b::229640",
+        "review_note": "독립 검수 일치: 수출 추진과 지원 가능성만 있고 확정 수주는 없음 / LS에코에너지 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "38fcbf92a8231618f62200c9768ad3a36074b1b1e2dd9c2a9ad39efd08716148::003230",
+        "review_note": "독립 판독에서 라면 수출 역대 최고는 산업 지표이고 불닭볶음면 인기는 제시되지만 삼양식품의 비교 실적은 없다. 검수자 2의 산업 결과 전이보다 검수자 1의 대상 실적 부재 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "a268802bf7635e4632e0a46d3d3f8fe18affa01f4a7682f9f36b8fd131e78b5f::000670",
+        "review_note": "독립 검수 일치: 대상 기업이 제기한 가처분 신청으로 결과는 미확정임 / 영풍의 자본·지배구조·행정 절차만 확인되어 순경제 방향이 확정되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "830e3d243719f1a1c7cd7d169f99a661cb117a3d4ab21359662d69b1d9f2ebac::228670",
+        "review_note": "독립 검수 일치: 관세 협상 칼럼에 대상 기업의 직접 명제가 없음 / 입력의 ‘레이’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "dd92922eedcad9eeac2e3c1a3b2a421e49710bf1fb1ab3f35280a4e693f46aba::039490",
+        "review_note": "독립 검수 일치: 대상 기업은 타사 분석의 인용 주체일 뿐 직접 영향이 없음 / 키움증권이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e1b2eca8d7f7bfefa68fadb805c49861912c46dea26cbb0c415c8d42645b65ff::004270",
+        "review_note": "독립 검수 일치: 의류 표현이 대상 기업과 연결되지 않아 직접 명제가 없음 / 입력의 ‘남성’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "29bae6d2e8a3c9f74668fc176c527cb7c2628f51cac810962bf8a953e5f89322::187790",
+        "review_note": "독립 검수 일치: 공정 단위 표현만 있을 뿐 대상 기업의 사건이 없음 / 입력의 ‘나노’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "f5c63154efe482f23c2745b6c991d4f0ff453ffad6d29d5f4ea7b6844a754ac8::005930",
+        "review_note": "독립 판독에서 삼성전자 부회장 별세는 인사 사건이고 스니펫의 제재는 업비트 대상이다. 검수자 2의 별세 부정 해석보다 검수자 1의 경제 방향 부재 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "76a11b49374ca6dd6e926ce256aa90ca590e92e2d94a2d783ba090fc533b588f::217500",
+        "review_note": "독립 검수 일치: 해외 인물 이름만 겹치며 대상 기업의 직접 사건은 없음 / 입력의 ‘러셀’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e1410e7dea6b4cc93c048a4049448ade9da254e820458fd72f133b40b6e2d910::012450",
+        "review_note": "독립 검수 일치: 유상증자 제동과 주가 반응만으로 회사 순효과가 불명확함 / 한화에어로스페이스의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "ac156485832f8797e1a1d985cd78342bf010333a79bd96b695dbd5872e859a34::001530",
+        "review_note": "독립 판독에서 DI동일은 주가조작 타깃으로 지목됐지만 회사의 위법은 확정되지 않았고 하한가·조건부 시장조치만 확인된다. 검수자 2의 의혹·가격 부정보다 검수자 1을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "5af07c4a22d417bc29f2c7decd15cc68982a80997203c2377d2f3910e36e5486::028260",
+        "review_note": "독립 검수 일치: 도시정비 수주 경쟁 단계로 계약 결과가 확정되지 않음 / 삼성물산 관련 검토·계획·조건부 전망만 제시되어 확정된 경제 방향이 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "a5444215756a4cc43a9136e427dad83f23928a32292a6dd067c4d6564e3b035e::354320",
+        "review_note": "독립 검수 일치: 관계사 추가 지분투자 자체로 경제적 순효과를 확정할 수 없음 / 알멕의 자본·지배구조·행정 절차만 확인되어 순경제 방향이 확정되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "6b71e0c1c66e907071318478baafe7b15a41590cb5dc449597e1b15ae235d5d7::079650",
+        "review_note": "독립 판독에서 수주 당사자는 그린플러스이고 '서산'은 농협·지역명으로 사용돼 지정 증권 서산과 무관하다. 검수자 1의 수주 전이를 기각하고 검수자 2의 대상 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "e0d5fb8bd0baeaa29092e19ef3bec0e586fdc9d98090cbe4328867730a6dfd7c::459550",
+        "review_note": "독립 검수 일치: 타사 실적 기사로 대상 기업에 관한 명제가 없음 / 입력의 ‘알트’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "607b117b76e208a8c61c960b35ad6a892e1dcea067ae7305ddda2fe2aba4e77d::101670",
+        "review_note": "독립 검수 일치: 주가와 원자재 가격 기대만 있어 대상 기업 효과가 미확정임 / 하이드로리튬의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "9b8a29990cf7814d08c3c069a8b01792244139db53ba297211db16ad1cb6bc1d::030530",
+        "review_note": "독립 판독에서 원익홀딩스는 연간 주가 수익률로 평가되고 스마트 액추에이터 수주는 주체·시점이 불명확하다. 검수자 2의 성장 긍정보다 검수자 1의 가격 중심 보도 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "948253ada1f6a3893b607bc17b5fe29b69e02ee8493377f43a67b09cd912cf0d::145170",
+        "review_note": "독립 검수 일치: 타사 공장 재가동 기사로 대상 기업의 직접 사건이 없음 / 입력의 ‘노브랜드’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "613887f72282256df711fab59f91a2e3ffc65114e5cc6e6db8b5ea74870638cb::053210",
+        "review_note": "독립 검수 일치: 대상 기업의 실적 전망치가 71% 상향됨 / 원문 근거 “실적 전망 71% 상향”가 스카이라이프의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "18e50cf2a654d0ac0823dd5cf249f5f46af3826990eb8d5ffab69ec4564d5a09::049950",
+        "review_note": "독립 검수 일치: 수술로봇의 필리핀 의료기기 인허가를 획득함 / 원문 근거 “필리핀 의료기기 인허가 획득”가 미래컴퍼니의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c5525e6e17b8efb4b0b3c061d3373ae0bcecbaa74d5d54f61919bb9544ba5065::403550",
+        "review_note": "독립 판독에서 4개 분기 영업흑자 유지는 긍정이나 매출은 전년 대비 3.0% 감소했다. 검수자 2의 흑자 단독 긍정보다 핵심 지표 충돌로 본 검수자 1을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "cf11561d7de13baf8adda7925ef1d356fd664e2a17dc990cf639c19b866c0d43::066570",
+        "review_note": "독립 검수 일치: 100조원 수주잔고 확보와 인도법인 상장 완료가 확인됨 / 원문 근거 “100조원 수주잔고와 인도법인 상장 완료”가 LG전자의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "963d6133dcd1913dd534a6ea403563df72a7b960462275343ef5ac2655585bf4::217270",
+        "review_note": "독립 검수 일치: 합병 자체는 중립이고 배임 논란은 공식 확정 사실이 아님 / 입력의 ‘넵튠’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "6b35cf8957e1ed362ee5bc6ac4816541071bb3d4b3212ddcf62fbf2e0fc0386e::000990",
+        "review_note": "독립 검수 일치: 주주제안 사례일 뿐 대상 기업의 확정 결과는 없음 / DB하이텍이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "5294bc0d38b532a2f4e2935ac27e857c6233202ed7d25652dab643ece1840f04::034020",
+        "review_note": "독립 검수 일치: 시장 수급과 주가 정보만 있어 대상 기업 경제 사건이 없음 / 두산에너빌리티의 주가·거래 동향만 제시되어 기업 경제 방향을 확정할 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "fc224140dd3c6e2904b584ec6f2e395fa024053cab64e1ab358dc3c115630dce::439090",
+        "review_note": "독립 검수 일치: 화장품 산업 수출과 유통 경쟁만으로 대상 기업 효과가 불명확함 / 마녀공장이 목록 또는 주변 맥락에만 등장해 대상별 경제 방향이 확인되지 않음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "56cca5f6febadb780461b7adb12c6bbb0695dbf0f72c890f2da89afe5752b49f::034020",
+        "review_note": "독립 검수 일치: 대상 기업의 대규모 프로젝트 수주 증가가 직접 명시됨 / 원문 근거 “대규모 프로젝트 수주 증가”가 두산에너빌리티의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6a465e447816422cf3a75c1e69c82c17968a94ba12b22503fca48aeb33927265::006800",
+        "review_note": "독립 검수 일치: 대상 증권사가 종가 관여 행위로 거래소 제재를 받음 / 원문 근거 “종가 시세 개입 행위로 거래소 제재”가 미래에셋증권의 경제적 악화 또는 법적·존속 위험을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0ea72ffae543a8648551230afbd7e1119f127d52e53afe813a6b85afac44a22f::002390",
+        "review_note": "독립 검수 일치: 영업이익 흑자전환과 매출 9.71% 증가가 확인됨 / 원문 근거 “영업이익 흑자전환과 매출 9.71% 증가”가 한독의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEGATIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "28aa5ea6c588f726cd1b08a1edbde271f20b82e27f58332c4f1e3ba07c751d9d::019680",
+        "review_note": "독립 판독에서 대교가 소각 대상이 될 자기주식을 교환사채로 발행해 자회사 증자 재원으로 활용하며 소액주주의 소각 이익과 지분가치를 구조적으로 약화시킨다. 검수자 1의 순효과 불명보다 검수자 2의 주주가치 훼손을 채택해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "59facdfc44a8740e1d572c8b38f3540ec7d5bb4dbbbf71f242cf8f95974fa5f1::010140",
+        "review_note": "독립 검수 일치: LNG운반선 2.1조원 수주로 확정된 영업기회를 확보함 / 원문 근거 “LNG운반선 2.1조원 수주”가 삼성중공업의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "1a5ac208c5d6d094a2cd0692e0b2eea36fe222a83a75b1cb15a8cb492a26bac1::171090",
+        "review_note": "독립 검수 일치: NH투자증권이 실적 성장과 대규모 수주를 명확히 전망함 / 원문 근거 “대규모 수주와 실적 성장 전망”가 선익시스템의 경제적 개선 방향을 명시함.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "268d5dfc7678aaa02fb50cfe4ca7ea21396dd7a431f0c5ef4189f5a3c1b57a1a::019680",
+        "review_note": "독립 검수 일치: 교량 명칭과 이름이 겹칠 뿐 대상 기업의 사건이 없음 / 입력의 ‘대교’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c95e6a882d963ce421e0174d3e111d600eace201d75d4e53eff1afbfe7afb66e::000150",
+        "review_note": "독립 판독에서 식별 가능한 증권사 분석이 유상증자·자사주 교환사채 없이 SK실트론 인수자금을 조달해 재무 우려를 해소할 것으로 전망한다. 검수자 1의 미확정 의견보다 출처·대상·방향 요건을 충족한 검수자 2를 채택해 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "fa57328b2a82571f16ccaa5c0a901a00a4f67d7a1bccfd20e1dda71e508716da::396300",
+        "review_note": "독립 판독에서 대규모 수주는 고객사 LG에너지솔루션의 사건이고 세아메카닉스에는 동반 성장 기대만 제시된다. 검수자 2의 고객사 효과 전이보다 검수자 1의 대상 직접성 판단을 채택해 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:43:29Z",
+        "reviewer_id": "codex-gpt5-news-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "8f4b00eb1aeda002f64d6484c7648b49650176150ff782b668cb4a875d8b6b5a::027580",
+        "review_note": "독립 검수 일치: 타사 실적 기사로 대상 기업의 경제적 명제가 없음 / 입력의 ‘상보’ 표현은 대상 기업이 아닌 동명이인·일반명사·다른 법인으로 쓰여 기업 근거가 없음.",
+        "reviewed_at": "2026-07-15T13:32:34.722Z",
+        "reviewer_id": "codex-blind-reviewer-news-dev-c+codex-blind-stage2-news-dev",
+        "teacher_sentiment": "POSITIVE"
+      }
+    ],
+    "transition_distribution": {
+      "NEGATIVE->NEUTRAL": 29,
+      "NEGATIVE->POSITIVE": 1,
+      "NEUTRAL->NEGATIVE": 31,
+      "NEUTRAL->POSITIVE": 30,
+      "POSITIVE->NEGATIVE": 2,
+      "POSITIVE->NEUTRAL": 69
+    }
+  },
+  "reviewed_item_count": 450,
+  "sample_count": 449,
+  "schema_version": "k-fnspid-sentiment-gold-promotion-report/v1",
+  "status": "pass",
+  "unresolved_excluded_count": 1
+}

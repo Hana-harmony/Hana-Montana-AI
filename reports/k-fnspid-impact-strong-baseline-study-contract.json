@@ -1,0 +1,244 @@
+{
+  "schema_version": "k-fnspid-impact-strong-baseline-study-contract/v1",
+  "state": "LOCKED_BEFORE_STRONG_BASELINE_TRAINING",
+  "claim_scope": "same K-FNSPID temporal Test and named public strong baselines; not a global SOTA leaderboard",
+  "task": {
+    "name": "market-impact ordinal four-class classification",
+    "label_order": [
+      "LOW",
+      "MEDIUM",
+      "HIGH",
+      "CRITICAL"
+    ],
+    "sources": [
+      "NEWS",
+      "DISCLOSURE"
+    ],
+    "dataset_manifest": {
+      "path": "data/k_fnspid/v4/manifest.json",
+      "bytes": 12648,
+      "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+    },
+    "test_role": "final paired evaluation only",
+    "seed_selection": "NEWS reuses fixed shared seed 42 to mirror the candidate; DISCLOSURE selects its fine-tuning seed by validation macro F1 only",
+    "pipeline": [
+      "train shared NEWS+DISCLOSURE market-impact adapters for seeds 17/42/73",
+      "evaluate frozen shared seed 42 adapter on NEWS",
+      "fine-tune DISCLOSURE seeds 17/42/73 from shared seed 42 adapter"
+    ]
+  },
+  "candidate": {
+    "name": "Hana Montana AI(KF-DeBERTa + K-FNSPID)",
+    "frozen_existing_runs": {
+      "NEWS": {
+        "evaluation_report": {
+          "path": "reports/k-fnspid-impact-news-transformer-training-report.json",
+          "bytes": 6140,
+          "sha256": "86f0957e4f4ee554a0b706bf1a3d888dc2cd3982e091338003af6f470874d468"
+        },
+        "frozen_shared_adapter_seed": 42,
+        "evaluation_seed": 73,
+        "frozen_shared_adapter": {
+          "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer",
+          "files": {
+            "README.md": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/README.md",
+              "bytes": 2859,
+              "sha256": "7cdce19ab18911b934d7421fb0a18c78391e024ff9771dbe9b19622cb736ee8e"
+            },
+            "adapter_config.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/adapter_config.json",
+              "bytes": 1111,
+              "sha256": "89cac3091a1990a3a7c013875c945066cdc43fb584a8d2e3232704ee06ba2f10"
+            },
+            "adapter_model.safetensors": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/adapter_model.safetensors",
+              "bytes": 5924696,
+              "sha256": "b04789a6112615a876842d5423ad0bd2a79671d7aaf95ab8e686470d5f08e2f5"
+            },
+            "hannah_metadata.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/hannah_metadata.json",
+              "bytes": 1751,
+              "sha256": "354f2b868f50638c1214f4fae17495edddcad8b5c6e57d71d560b4395539f663"
+            },
+            "tokenizer.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/tokenizer.json",
+              "bytes": 3192018,
+              "sha256": "e1be54e29a04d7e61ed1435af0506f425dcc639d066d44ccb2b7c454c59ae957"
+            },
+            "tokenizer_config.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_transformer/tokenizer_config.json",
+              "bytes": 451,
+              "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+            }
+          }
+        },
+        "selected_predictions": {
+          "path": "reports/k-fnspid-impact-news-transformer-test-predictions.jsonl",
+          "bytes": 2999411,
+          "sha256": "956e3871a93166037ef307dbba9fe053bb602b88a985da2610c44f7ec7516645"
+        }
+      },
+      "DISCLOSURE": {
+        "aggregate": {
+          "path": "reports/k-fnspid-impact-disclosure-transformer-multiseed-report.json",
+          "bytes": 4799,
+          "sha256": "77a562d086777d96f2c783b26757af9780558dfb709aac9e9b5c2d9fad77cd14"
+        },
+        "initial_shared_adapter_seed": 42,
+        "selected_seed_by_validation": 17,
+        "selected_artifact": {
+          "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17",
+          "files": {
+            "README.md": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/README.md",
+              "bytes": 628,
+              "sha256": "b032b6ecc7f928256c5771b7f23c045d8b065d0bee32e820115878aaeb56c20d"
+            },
+            "adapter_config.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/adapter_config.json",
+              "bytes": 1142,
+              "sha256": "d4e75592e5273c12d1d5aea161a301362b2a805748464a709ee6c0c7e9236355"
+            },
+            "adapter_model.safetensors": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/adapter_model.safetensors",
+              "bytes": 5924696,
+              "sha256": "a59f3f17b7c709554a21ead716725e5560ab314193d06f9aa60d27033315f962"
+            },
+            "hannah_metadata.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/hannah_metadata.json",
+              "bytes": 1976,
+              "sha256": "d36af24c82b8a01cb3ea6996abace214781920e098c9c9ced9d7b302088544f9"
+            },
+            "tokenizer.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/tokenizer.json",
+              "bytes": 3192018,
+              "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+            },
+            "tokenizer_config.json": {
+              "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_disclosure_transformer_seed17/tokenizer_config.json",
+              "bytes": 452,
+              "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+            }
+          }
+        },
+        "selected_predictions": {
+          "path": "reports/k-fnspid-impact-disclosure-transformer-test-predictions-seed17.jsonl",
+          "bytes": 1476078,
+          "sha256": "4ed25b54783636395fed41cbeca8d0d89812411e0e8c106e2265472f847664f5"
+        }
+      }
+    }
+  },
+  "public_strong_baselines": {
+    "KR_FINBERT_SC": {
+      "base_model": "models/kr-finbert-sc-raw-reference",
+      "revision": "36b3d36898bc9925ca58c3508b1048e4449f1370",
+      "model_safetensors_sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a",
+      "comparison_only": true,
+      "safe_serialization_only": true,
+      "trust_remote_code": false
+    },
+    "KLUE_ROBERTA_LARGE": {
+      "base_model": "klue/roberta-large",
+      "revision": "28d911204e9022eda172571ca8cc61eaffd942f7",
+      "model_safetensors_sha256": "e0c7520e0e5c5e6c0f8f6b0767574c51fd5cdfb332f28168ad6f1bb9d1b9716a",
+      "comparison_only": true,
+      "safe_serialization_only": true,
+      "trust_remote_code": false
+    }
+  },
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "recipes": {
+    "SHARED": {
+      "max_length": 256,
+      "epochs": 3,
+      "effective_batch_size": 32,
+      "learning_rate": 0.0002,
+      "focal_gamma": 1.5,
+      "ordinal_loss_weight": 0.3,
+      "label_smoothing": 0.02
+    },
+    "NEWS_EVALUATION": {
+      "source": "NEWS",
+      "evaluation_only": true,
+      "initialization": "same-preset shared seed 42 adapter",
+      "evaluation_seed": 73,
+      "max_length": 256,
+      "effective_batch_size": 64,
+      "learning_rate": 0.0002,
+      "focal_gamma": 1.5,
+      "ordinal_loss_weight": 0.3,
+      "label_smoothing": 0.02
+    },
+    "DISCLOSURE": {
+      "max_length": 128,
+      "epochs": 1,
+      "effective_batch_size": 32,
+      "learning_rate": 5e-05,
+      "focal_gamma": 1.0,
+      "ordinal_loss_weight": 0.2,
+      "label_smoothing": 0.01,
+      "initialization": "same-preset shared seed 42 adapter"
+    }
+  },
+  "statistics": {
+    "primary_metric": "Macro-F1",
+    "ordinal_metric": "quadratic weighted kappa",
+    "paired_accuracy_test": "exact McNemar",
+    "uncertainty": "trade-date clustered paired bootstrap 2000 samples",
+    "multiplicity": "Holm correction over four source-by-baseline comparisons",
+    "superiority_gate": [
+      "clustered Macro-F1 difference 95% CI low > 0",
+      "clustered QWK difference 95% CI low >= 0",
+      "Holm-adjusted exact McNemar p < 0.05"
+    ]
+  },
+  "artifact_reuse": {
+    "mode": "exact-only",
+    "required_identity": [
+      "model preset and pinned revision",
+      "source and seed",
+      "K-FNSPID manifest SHA-256",
+      "training recipe",
+      "artifact file byte size and SHA-256",
+      "prediction file byte size and SHA-256"
+    ]
+  },
+  "code": {
+    "scripts/lock_k_fnspid_impact_strong_baseline_study.py": {
+      "path": "scripts/lock_k_fnspid_impact_strong_baseline_study.py",
+      "bytes": 8632,
+      "sha256": "d44aa134020b189804dc02e4dd8d53be1346a282ce69d8dfbeec76f54b7914a4"
+    },
+    "scripts/train_k_fnspid_transformer.py": {
+      "path": "scripts/train_k_fnspid_transformer.py",
+      "bytes": 36373,
+      "sha256": "1377ffe0c08f517d1b13d1547d02dbeeef08007a56bcb8e268aa19a5d4f9c67e"
+    },
+    "scripts/aggregate_k_fnspid_runs.py": {
+      "path": "scripts/aggregate_k_fnspid_runs.py",
+      "bytes": 5856,
+      "sha256": "37b3009848de1b27b36d68b5a918c41fc9ba3e31ee9c86bfd51eba594ba431ca"
+    },
+    "scripts/verify_k_fnspid_impact_baseline_artifact.py": {
+      "path": "scripts/verify_k_fnspid_impact_baseline_artifact.py",
+      "bytes": 8380,
+      "sha256": "2a9fd44d3d4d4ea16456b7e99d3f989eb67098363d48de27992cb99faeec4c5d"
+    },
+    "scripts/evaluate_k_fnspid_impact_strong_baselines.py": {
+      "path": "scripts/evaluate_k_fnspid_impact_strong_baselines.py",
+      "bytes": 14672,
+      "sha256": "7801610916551bca0684df6d76464ccad3a5724b24dd64c9c1b275fc9191f902"
+    },
+    "scripts/run_impact_strong_baseline_study.sh": {
+      "path": "scripts/run_impact_strong_baseline_study.sh",
+      "bytes": 5223,
+      "sha256": "e7498440861714f9edfffc4f57b6c04a8a60ecc8d979a97829be78eb3a25432f"
+    }
+  }
+}

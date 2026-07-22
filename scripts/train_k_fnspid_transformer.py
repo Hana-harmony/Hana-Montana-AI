@@ -4,6 +4,7 @@ import argparse
 import json
 import random
 from collections import Counter
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
 from importlib.metadata import version as package_version
@@ -12,7 +13,11 @@ from typing import Any, cast
 
 import numpy as np
 from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
-from train_k_fnspid_impact_model import LABEL_ORDER, load_rows
+
+try:
+    from scripts.train_k_fnspid_impact_model import LABEL_ORDER, load_rows
+except ModuleNotFoundError:  # 직접 실행 시 scripts 디렉터리가 import root다.
+    from train_k_fnspid_impact_model import LABEL_ORDER, load_rows
 
 from hannah_montana_ai.services.impact_model_features import IMPACT_INPUT_FEATURE_VERSION
 from hannah_montana_ai.services.model_artifact_integrity import build_artifact_manifest
@@ -25,6 +30,50 @@ DEFAULT_OUTPUT = PROJECT_ROOT / "src/hannah_montana_ai/model_store/k_fnspid_impa
 DEFAULT_REPORT = PROJECT_ROOT / "reports/k-fnspid-transformer-training-report.json"
 DEFAULT_PREDICTIONS = PROJECT_ROOT / "reports/k-fnspid-transformer-test-predictions.jsonl"
 DEFAULT_BASELINE_REPORT = PROJECT_ROOT / "reports/k-fnspid-impact-training-report.json"
+
+
+@dataclass(frozen=True)
+class ModelPreset:
+    model_id: str
+    revision: str
+    lora_target_modules: tuple[str, ...]
+    modules_to_save: tuple[str, ...]
+    ignore_mismatched_sizes: bool = False
+    local_files_only: bool = False
+    comparison_only: bool = False
+    model_safetensors_sha256: str | None = None
+
+
+MODEL_PRESETS = {
+    "HANA_KF_DEBERTA": ModelPreset(
+        model_id=BASE_MODEL,
+        revision=BASE_MODEL_REVISION,
+        lora_target_modules=("query_proj", "key_proj", "value_proj"),
+        modules_to_save=("pooler", "classifier"),
+    ),
+    "KR_FINBERT_SC": ModelPreset(
+        model_id="models/kr-finbert-sc-raw-reference",
+        revision="36b3d36898bc9925ca58c3508b1048e4449f1370",
+        lora_target_modules=("query", "key", "value"),
+        modules_to_save=("pooler", "classifier"),
+        ignore_mismatched_sizes=True,
+        local_files_only=True,
+        comparison_only=True,
+        model_safetensors_sha256=(
+            "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a"
+        ),
+    ),
+    "KLUE_ROBERTA_LARGE": ModelPreset(
+        model_id="klue/roberta-large",
+        revision="28d911204e9022eda172571ca8cc61eaffd942f7",
+        lora_target_modules=("query", "key", "value"),
+        modules_to_save=("classifier",),
+        comparison_only=True,
+        model_safetensors_sha256=(
+            "e0c7520e0e5c5e6c0f8f6b0767574c51fd5cdfb332f28168ad6f1bb9d1b9716a"
+        ),
+    ),
+}
 
 
 class EncodedImpactDataset:
@@ -57,6 +106,7 @@ class EncodedImpactDataset:
 def main() -> None:
     from peft import LoraConfig, PeftModel, TaskType, get_peft_model
     from transformers import (
+        AutoConfig,
         AutoModelForSequenceClassification,
         AutoTokenizer,
         DataCollatorWithPadding,
@@ -74,6 +124,12 @@ def main() -> None:
     parser.add_argument("--predictions-path", type=Path, default=DEFAULT_PREDICTIONS)
     parser.add_argument("--baseline-report-path", type=Path, default=DEFAULT_BASELINE_REPORT)
     parser.add_argument("--source-type", choices=("NEWS", "DISCLOSURE"))
+    parser.add_argument(
+        "--model-preset",
+        choices=tuple(MODEL_PRESETS),
+        default="HANA_KF_DEBERTA",
+        help="고정 revision과 LoRA 계약이 등록된 시장영향 비교 모델을 선택한다.",
+    )
     parser.add_argument(
         "--initial-adapter-path",
         type=Path,
@@ -113,6 +169,12 @@ def main() -> None:
         default="none",
         help="학습 가속기가 지원하는 mixed precision을 선택한다.",
     )
+    parser.add_argument(
+        "--device",
+        choices=("auto", "cpu"),
+        default="auto",
+        help="재현 검증에서는 CPU를 강제할 수 있다.",
+    )
     args = parser.parse_args()
     for attribute in (
         "dataset_dir",
@@ -126,6 +188,30 @@ def main() -> None:
         value = getattr(args, attribute)
         if value is not None:
             setattr(args, attribute, _project_path(value))
+
+    preset = MODEL_PRESETS[args.model_preset]
+    if preset.comparison_only and (
+        args.output_dir == DEFAULT_OUTPUT
+        or args.report_path == DEFAULT_REPORT
+        or args.predictions_path == DEFAULT_PREDICTIONS
+    ):
+        raise SystemExit(
+            "공개 비교군은 운영 artifact를 덮어쓰지 않도록 "
+            "output/report/predictions 경로를 모두 별도로 지정해야 합니다."
+        )
+    if preset.comparison_only and args.initial_adapter_path is not None:
+        _validate_comparison_initial_adapter(
+            args.initial_adapter_path,
+            model_preset=args.model_preset,
+            preset=preset,
+        )
+    model_source = (
+        str(_project_path(Path(preset.model_id)))
+        if preset.local_files_only
+        else preset.model_id
+    )
+    if preset.comparison_only:
+        _verify_base_model_safetensors(preset, model_source=model_source)
 
     _set_seed(args.seed)
     if args.evaluation_only and not args.initial_adapter_path:
@@ -150,17 +236,29 @@ def main() -> None:
         raise SystemExit("각 시간 분할에 최소 100개의 비혼입 시장영향 라벨이 필요하다.")
 
     tokenizer = AutoTokenizer.from_pretrained(
-        BASE_MODEL,
-        revision=BASE_MODEL_REVISION,
+        model_source,
+        revision=None if preset.local_files_only else preset.revision,
         trust_remote_code=False,
+        local_files_only=preset.local_files_only,
     )
-    model = AutoModelForSequenceClassification.from_pretrained(
-        BASE_MODEL,
-        revision=BASE_MODEL_REVISION,
-        num_labels=len(LABEL_ORDER),
-        id2label={index: label for index, label in enumerate(LABEL_ORDER)},
-        label2id={label: index for index, label in enumerate(LABEL_ORDER)},
+    model_config = AutoConfig.from_pretrained(
+        model_source,
+        revision=None if preset.local_files_only else preset.revision,
         trust_remote_code=False,
+        local_files_only=preset.local_files_only,
+    )
+    model_config.num_labels = len(LABEL_ORDER)
+    model_config.id2label = {index: label for index, label in enumerate(LABEL_ORDER)}
+    model_config.label2id = {label: index for index, label in enumerate(LABEL_ORDER)}
+    model_config.problem_type = "single_label_classification"
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_source,
+        revision=None if preset.local_files_only else preset.revision,
+        config=model_config,
+        trust_remote_code=False,
+        local_files_only=preset.local_files_only,
+        ignore_mismatched_sizes=preset.ignore_mismatched_sizes,
+        use_safetensors=True,
     )
     if args.initial_adapter_path:
         model = PeftModel.from_pretrained(
@@ -177,8 +275,8 @@ def main() -> None:
                 r=16,
                 lora_alpha=32,
                 lora_dropout=0.1,
-                target_modules=["query_proj", "key_proj", "value_proj"],
-                modules_to_save=["pooler", "classifier"],
+                target_modules=list(preset.lora_target_modules),
+                modules_to_save=list(preset.modules_to_save),
             ),
         )
     if args.gradient_checkpointing:
@@ -216,8 +314,8 @@ def main() -> None:
             "rank": 16,
             "alpha": 32,
             "dropout": 0.1,
-            "target_modules": ["query_proj", "key_proj", "value_proj"],
-            "modules_to_save": ["pooler", "classifier"],
+            "target_modules": list(preset.lora_target_modules),
+            "modules_to_save": list(preset.modules_to_save),
             "initial_adapter_path": (
                 str(args.initial_adapter_path.relative_to(PROJECT_ROOT))
                 if args.initial_adapter_path
@@ -253,6 +351,7 @@ def main() -> None:
             report_to="none",
             dataloader_num_workers=0,
             dataloader_pin_memory=False,
+            use_cpu=args.device == "cpu",
         ),
         train_dataset=train_dataset,
         eval_dataset=validation_dataset,
@@ -349,15 +448,18 @@ def main() -> None:
     )
     source_slug = str(args.source_type or "shared").lower()
     version = (
-        f"kfi-{source_slug}-kfd-lora-"
+        f"kfi-{source_slug}-{args.model_preset.casefold().replace('_', '-')}-lora-"
         f"{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
         f"-p{float(postprocessing['selected_strength']):.2f}"
         f"-t{float(postprocessing['selected_temperature']):.2f}"
     )
     metadata = {
         "version": version,
-        "base_model": BASE_MODEL,
-        "base_model_revision": BASE_MODEL_REVISION,
+        "model_preset": args.model_preset,
+        "base_model": preset.model_id,
+        "base_model_revision": preset.revision,
+        "base_model_safetensors_sha256": preset.model_safetensors_sha256,
+        "comparison_only": preset.comparison_only,
         "label_order": LABEL_ORDER,
         "max_length": args.max_length,
         "trained_at": datetime.now(UTC).isoformat(),
@@ -377,7 +479,11 @@ def main() -> None:
         encoding="utf-8",
     )
     report = {
-        "schema_version": "k-fnspid-transformer-training/v1",
+        "schema_version": (
+            "k-fnspid-impact-strong-baseline-training/v1"
+            if preset.comparison_only
+            else "k-fnspid-transformer-training/v1"
+        ),
         **metadata,
         "dataset_dir": str(args.dataset_dir.resolve().relative_to(PROJECT_ROOT)),
         "dataset_manifest": dataset_manifest,
@@ -431,9 +537,15 @@ def main() -> None:
             "maximum_expected_calibration_error_15_bin": 0.20,
             "must_match_or_improve_baseline_calibration": True,
             "must_match_or_exceed_baseline": f"k-fnspid-impact-{source_slug}-tfidf-logreg",
-            "eligible": deployment_eligible,
+            "eligible": deployment_eligible and not preset.comparison_only,
             "decision": (
-                "DEPLOY_KF_DEBERTA_IMPACT" if deployment_eligible else "KEEP_TFIDF_IMPACT"
+                "RESEARCH_BASELINE_ONLY"
+                if preset.comparison_only
+                else (
+                    "DEPLOY_KF_DEBERTA_IMPACT"
+                    if deployment_eligible
+                    else "KEEP_TFIDF_IMPACT"
+                )
             ),
         },
     }
@@ -691,6 +803,77 @@ def _dataset_manifest(dataset_dir: Path) -> dict[str, str | int]:
         "bytes": path.stat().st_size,
         "sha256": sha256(path.read_bytes()).hexdigest(),
     }
+
+
+def _validate_comparison_initial_adapter(
+    adapter_dir: Path,
+    *,
+    model_preset: str,
+    preset: ModelPreset,
+) -> None:
+    metadata_path = adapter_dir / "hannah_metadata.json"
+    if not metadata_path.is_file():
+        raise SystemExit("공개 비교군 초기 adapter의 검증 metadata가 없습니다.")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    expected = {
+        "schema_version": "k-fnspid-transformer-artifact/v1",
+        "model_preset": model_preset,
+        "base_model": preset.model_id,
+        "base_model_revision": preset.revision,
+        "comparison_only": True,
+        "source_type": None,
+        "seed": 42,
+    }
+    for field, value in expected.items():
+        if metadata.get(field) != value:
+            raise SystemExit(f"공개 비교군 초기 adapter 계약이 다릅니다: {field}")
+    artifact_files = metadata.get("artifact_files")
+    if not isinstance(artifact_files, dict) or not artifact_files:
+        raise SystemExit("공개 비교군 초기 adapter 파일 manifest가 없습니다.")
+    for name, raw_manifest in artifact_files.items():
+        if not isinstance(raw_manifest, dict):
+            raise SystemExit("공개 비교군 초기 adapter 파일 manifest가 올바르지 않습니다.")
+        path = adapter_dir / str(name)
+        if not path.is_file():
+            raise SystemExit(f"공개 비교군 초기 adapter 파일이 없습니다: {name}")
+        if path.stat().st_size != int(raw_manifest.get("bytes", -1)):
+            raise SystemExit(f"공개 비교군 초기 adapter 크기가 다릅니다: {name}")
+        if sha256(path.read_bytes()).hexdigest() != raw_manifest.get("sha256"):
+            raise SystemExit(f"공개 비교군 초기 adapter SHA-256이 다릅니다: {name}")
+
+
+def _verify_base_model_safetensors(
+    preset: ModelPreset,
+    *,
+    model_source: str,
+) -> None:
+    expected = preset.model_safetensors_sha256
+    if expected is None:
+        raise SystemExit("공개 비교군 base safetensors SHA-256 계약이 없습니다.")
+    if preset.local_files_only:
+        model_path = Path(model_source) / "model.safetensors"
+    else:
+        from huggingface_hub import hf_hub_download
+
+        model_path = Path(
+            hf_hub_download(
+                repo_id=preset.model_id,
+                filename="model.safetensors",
+                revision=preset.revision,
+            )
+        )
+    if not model_path.is_file():
+        raise SystemExit("공개 비교군 base model.safetensors가 없습니다.")
+    if _streaming_sha256(model_path) != expected:
+        raise SystemExit("공개 비교군 base model.safetensors SHA-256이 다릅니다.")
+
+
+def _streaming_sha256(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _stratified_limit(rows: list[dict[str, Any]], limit: int, seed: int) -> list[dict[str, Any]]:

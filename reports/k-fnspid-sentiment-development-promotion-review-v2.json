@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-07-16T23:40:40.886360+00:00",
+  "integrity": {
+    "candidate_predictions_not_provided_to_review_context": true,
+    "confirmatory_group_overlap_count": 0,
+    "confirmatory_sampling_commitments_verified": true,
+    "exact_item_set": true,
+    "independent_dual_review_required": true,
+    "market_blind": true,
+    "model_blind": true,
+    "promotion_after_confirmatory_reservation": true,
+    "review_context_ids_independent": true,
+    "review_provenance_manifest_sha256": "43b250210335cc7f6fbe670ba5fea89d11890d222638903de3865acb40dd6cec",
+    "review_provenance_status": "VERIFIED_BLIND_PROVENANCE",
+    "review_receipt_chain_exact": true,
+    "source_review_protected_at_confirmatory_reservation": true,
+    "teacher_predictions_not_provided_to_review_context": true,
+    "unresolved_rows_excluded": true,
+    "write_once": true
+  },
+  "lineage": {
+    "confirmatory_reservations": {
+      "DISCLOSURE": {
+        "bytes": 680705,
+        "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+        "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+      },
+      "NEWS": {
+        "bytes": 969809,
+        "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+        "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+      }
+    },
+    "confirmatory_sampling_design": {
+      "bytes": 34695,
+      "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design-v2.json",
+      "sha256": "9fb25b568d38d7613bcb011b8a45a43e31d81ceadfe06606fad5e44ee0f3b9f6"
+    },
+    "dual_decisions": {
+      "bytes": 723249,
+      "path": "data/gold/review_v2/news-development/final-v2.jsonl",
+      "sha256": "9170e76e5bdf89f639d08f5431b030cf79469e05a7406f570d74bd91fd2148e3"
+    },
+    "dual_review_provenance": {
+      "bytes": 4134,
+      "path": "data/gold/review_v2/news-development/dual-review-manifest-v2.json",
+      "sha256": "4dc88be355fc0a23db7714fccdca073fd9374686174da1721d605af31829aa50"
+    },
+    "output": {
+      "bytes": 1590417,
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold_review_v2.jsonl",
+      "sha256": "16049eadb74b7d2ea9585e4cc960d4c102559edd6c832b6ca8dd5154bab92692"
+    },
+    "review": {
+      "bytes": 719730,
+      "path": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+      "sha256": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa"
+    },
+    "review_codebook": {
+      "bytes": 29036,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "review_prompt": {
+      "bytes": 2948,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "reclassification": {
+    "confirmatory_created_before_reclassification": true,
+    "eligible_for_confirmatory_metrics": false,
+    "eligible_for_evaluation": true,
+    "eligible_for_model_selection": true,
+    "eligible_for_superiority_claims": false,
+    "new_role": "DEVELOPMENT_MODEL_SELECTION_NOT_CLAIM_EVIDENCE",
+    "previous_role": "REPEATEDLY_EXPOSED_DIAGNOSTIC_NOT_CLAIM_EVIDENCE"
+  },
+  "schema_version": "k-fnspid-sentiment-development-promotion/v1",
+  "source": {
+    "adjudicated_count": 14,
+    "agreement_count": 434,
+    "excluded_unresolved_count": 2,
+    "label_distribution": {
+      "NEGATIVE": 53,
+      "NEUTRAL": 290,
+      "POSITIVE": 105
+    },
+    "partition": "DEVELOPMENT_REVIEW",
+    "review_sample_count": 450,
+    "sample_count": 448,
+    "source_type": "NEWS"
+  }
+}

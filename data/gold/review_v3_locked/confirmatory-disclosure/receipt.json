@@ -1,0 +1,37 @@
+{
+  "schema_version": "k-fnspid-sentiment-adjudication-receipt/v1",
+  "source_type": "DISCLOSURE",
+  "adjudicator_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+  "adjudication_status": "CODEX_ADJUDICATION_APPROVED",
+  "adjudication_run_uuid": "50D0CDD6-7114-4851-BB22-8BF93096F595",
+  "isolation_context_uuid": "CA432885-33A2-4EB8-83BE-1589FCF8DF4A",
+  "started_at": "2026-07-22T15:32:32+09:00",
+  "completed_at": "2026-07-22T15:43:32+09:00",
+  "input": {
+    "packet_path": "data/gold/review_v3_locked/confirmatory-disclosure/adjudication-packet.jsonl",
+    "packet_row_count": 24,
+    "packet_byte_count": 37600,
+    "packet_sha256": "3bc60825fb37986b843a8b8127987d61f1320f2a305c309c1837de38537f9e41",
+    "input_row_range_1_based": "1-24",
+    "item_order_sha256": "0c2b430d74375962d66ae02e3d026e5f84340df947ed28b518b4f190a28c5ebc",
+    "prompt_path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+    "prompt_byte_count": 2948,
+    "prompt_sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5",
+    "codebook_path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+    "codebook_byte_count": 29036,
+    "codebook_sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+  },
+  "output": {
+    "decision_path": "data/gold/review_v3_locked/confirmatory-disclosure/adjudication-decision.jsonl",
+    "decision_row_count": 24,
+    "decision_byte_count": 9636,
+    "decision_sha256": "bf912a2b8d3b0c5fe52423cc87ba991ee7c9baf9c12bc913a59d45548ee137f8",
+    "label_distribution": {
+      "POSITIVE": 0,
+      "NEUTRAL": 17,
+      "NEGATIVE": 7
+    }
+  },
+  "forbidden_information_non_exposure_commitment": "REVIEWER_LABELS_MODEL_PREDICTIONS_TEACHER_OUTPUTS_PRIOR_DECISIONS_AND_MARKET_REACTIONS_NOT_EXPOSED",
+  "non_exposure_declaration": "허용된 패킷의 source_record, 고정 프롬프트, 코드북 외 정보는 판정 context에 노출되지 않았다."
+}

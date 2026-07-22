@@ -1,66 +1,62 @@
 {
   "schema_version": "k-fnspid-impact-training/v1",
-  "version": "k-fnspid-impact-tfidf-logreg-20260713144017",
-  "dataset_dir": "data/k_fnspid/v3",
+  "version": "kfi-shared-tfidf-20260718154005",
+  "source_type": null,
+  "dataset_dir": "data/k_fnspid/v4",
   "dataset_manifest": {
-    "path": "data/k_fnspid/v3/manifest.json",
-    "dataset_version": "k-fnspid-v3",
-    "bytes": 9280,
-    "sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df"
+    "path": "data/k_fnspid/v4/manifest.json",
+    "dataset_version": "k-fnspid-v4",
+    "bytes": 12648,
+    "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
   },
   "artifact": {
     "path": "src/hannah_montana_ai/model_store/k_fnspid_impact_ml.joblib",
-    "bytes": 12615890,
-    "sha256": "e4dba95067c6b6bdc50bab9c3043b57568354061e0ab79b4151c9f4cd913f363"
+    "bytes": 12635347,
+    "sha256": "4206ecb204e7716380af6ca95ea7468c4531aff8d98d1b8251b5c9fbad18632f"
   },
   "input_feature_version": "k-fnspid-text-v2",
   "partition_count": {
-    "TRAIN": 107175,
+    "TRAIN": 218972,
     "VALIDATION": 6975,
-    "TEST": 10750
+    "TEST": 14175
   },
-  "final_training_count": 114150,
-  "evaluation_training_count": 107175,
+  "final_training_count": 225947,
+  "evaluation_training_count": 218972,
   "evaluation_protocol": "TRAIN fit, VALIDATION selection, frozen TEST evaluation",
   "label_distribution": {
-    "LOW": 76953,
-    "MEDIUM": 32685,
-    "HIGH": 11004,
-    "CRITICAL": 5507
+    "LOW": 156962,
+    "MEDIUM": 59809,
+    "HIGH": 17094,
+    "CRITICAL": 7506
   },
   "validation": {
     "sample_count": 6975,
-    "accuracy": 0.4626523297491039,
-    "macro_f1": 0.3490499797688153,
-    "quadratic_kappa": 0.3331793571739069
+    "accuracy": 0.43913978494623657,
+    "macro_f1": 0.3456609655394147,
+    "quadratic_kappa": 0.32026338405404164,
+    "expected_calibration_error_15_bin": 0.03597832879480466,
+    "multiclass_brier_score": 0.6651119857638387
   },
   "test": {
-    "sample_count": 10750,
-    "accuracy": 0.4642790697674419,
-    "macro_f1": 0.34289600363077616,
-    "quadratic_kappa": 0.31405511670470976
+    "sample_count": 14175,
+    "accuracy": 0.4361199294532628,
+    "macro_f1": 0.33005368510882666,
+    "quadratic_kappa": 0.27071888193065696,
+    "expected_calibration_error_15_bin": 0.03449498775760005,
+    "multiclass_brier_score": 0.6623932371217783
   },
   "test_predictions": {
     "path": "reports/k-fnspid-impact-test-predictions.jsonl",
-    "sample_count": 10750,
-    "bytes": 3379983,
-    "sha256": "33191a98e1bee47a9d2db05bf92d8b60dd0a0be81915a43890664e866cb3a31d"
+    "sample_count": 14175,
+    "bytes": 4482675,
+    "sha256": "a33574618ec55d477b6e36aece3ba44e0f1fb8f90e59f6d5a73b0a106691a996"
   },
-  "provenance_refresh": [
-    {
-      "refreshed_at": "2026-07-13T18:29:46.724555+00:00",
-      "reason": "JSONL shard 재배치 후 동일 Parquet·분할의 원천 manifest 정정",
-      "previous_manifest_sha256": "3d62fa1694f3996477da3836ef5be1ebca44e337c892d5123382cdd53bb836d3",
-      "current_manifest_sha256": "687d7a9fef618449b168016440c21de4d66f7dd83981beefb38c69e0f31ec8df",
-      "identity_checks": {
-        "partition_count": {
-          "TRAIN": 107175,
-          "VALIDATION": 6975,
-          "TEST": 10750
-        },
-        "test_document_id_and_label_count": 10750,
-        "test_predictions_sha256": "33191a98e1bee47a9d2db05bf92d8b60dd0a0be81915a43890664e866cb3a31d"
-      }
-    }
-  ]
+  "deployment_gate": {
+    "minimum_test_sample_count": 1000,
+    "minimum_macro_f1": 0.3,
+    "minimum_quadratic_kappa": 0.2,
+    "maximum_expected_calibration_error_15_bin": 0.2,
+    "eligible": true,
+    "decision": "DEPLOY_SOURCE_BASELINE"
+  }
 }

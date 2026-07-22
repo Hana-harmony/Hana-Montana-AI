@@ -1,10 +1,11 @@
 [project]
 name = "hannah-montana-ai"
 version = "0.1.0"
-description = "Financial NLP analysis API for Hana Omni-Connect alerts"
+description = "Financial NLP analysis API for Hana OmniLens alerts"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cryptography>=45,<48",
     "defusedxml>=0.7.1",
     "fastapi==0.136.1",
     "joblib>=1.5.1",
@@ -50,7 +51,7 @@ package = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 
 [tool.ruff]
 line-length = 100

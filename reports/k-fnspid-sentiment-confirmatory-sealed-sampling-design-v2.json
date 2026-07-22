@@ -1,0 +1,760 @@
+{
+  "candidate_predictions_available": false,
+  "candidate_source_audit": {
+    "candidate_disclosure_negative": 4467,
+    "candidate_disclosure_neutral": 290502,
+    "candidate_disclosure_positive": 25959,
+    "candidate_news_negative": 25313,
+    "candidate_news_neutral": 309797,
+    "candidate_news_positive": 48898,
+    "eligible_candidates": 704936,
+    "excluded_quality_contract": 9639,
+    "excluded_without_unique_primary_entity": 533110,
+    "input_documents": 1247685,
+    "unique_primary_entities": 2724
+  },
+  "codebook_version": "k-fnspid-sentiment-codebook/v1",
+  "component_audit": {
+    "canonical_disclosure_sampling_unit_count": 5878,
+    "canonical_disclosure_sampling_unit_count_before_cross_source_exclusion": 5878,
+    "canonical_news_sampling_unit_count": 57022,
+    "date_source_frame_component_count": 77208,
+    "date_source_frame_document_count": 88988,
+    "disclosure_unit_count_excluded_by_news_selection": 0,
+    "input_candidate_count": 704936,
+    "protected_component_count": 14308,
+    "protected_component_document_count": 17755
+  },
+  "dataset_version": "K-FNSPID-v4",
+  "estimand_and_frame": {
+    "descriptive_secondary_estimand": "사후 Gold label로 기술하는 출처별 모집단 감성 비율",
+    "effective_trade_date_end_inclusive": "2026-07-13",
+    "effective_trade_date_start": "2026-04-01",
+    "eligible_unit": "품질 계약과 단일 PRIMARY 대상 조건을 만족하고 기존 provenance 구성요소와 겹치지 않는 canonical document-security unit",
+    "future_dates_after_snapshot_claimed": false,
+    "primary_estimands": "K-FNSPID-v4 snapshot의 적격 canonical 문서-증권 유한 모집단에서 출처별 후보·고정 기준선의 설계가중 plug-in Macro-F1과 후보-minus-기준선 paired contrast",
+    "sampling_strata_role": "Gold 감성이 아닌 사전 고정 weak-rule auxiliary strata",
+    "snapshot": {
+      "documents_bytes": 274855211,
+      "documents_path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/k_fnspid/v4/documents.parquet",
+      "documents_sha256": "045fb260f2145345f81f76f381d2631e884a1cbc8d6208758702b4564f582e03",
+      "observed_max_effective_trade_date": "2026-07-13",
+      "source_date_bounds": {
+        "DISCLOSURE": {
+          "max_effective_trade_date": "2026-07-13",
+          "min_effective_trade_date": "2020-06-05",
+          "row_count_with_effective_trade_date": 722989
+        },
+        "NEWS": {
+          "max_effective_trade_date": "2026-07-13",
+          "min_effective_trade_date": "2000-02-03",
+          "row_count_with_effective_trade_date": 524696
+        }
+      }
+    },
+    "snapshot_max_effective_trade_date_observed_at_generation": "2026-07-13",
+    "source_types": [
+      "NEWS",
+      "DISCLOSURE"
+    ]
+  },
+  "generated_at": "2026-07-15T14:29:21.197319+00:00",
+  "labels_available_at_reservation": false,
+  "partitions": {
+    "CONFIRMATORY_SEALED_TEST_REVIEW": {
+      "frame_sampling_unit_identity_set_sha256": "9866d72897be31af366848d58f7c51f67f52b3a2a8832beed23e9154d08ac209",
+      "output": {
+        "bytes": 969809,
+        "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+        "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+      },
+      "sample_count": 600,
+      "selected_sampling_unit_identity_set_sha256": "71501796e9fd9a5876a29190b0fdd3fe260674a06ece7aa791fad1b55502865a",
+      "source_type": "NEWS",
+      "strata": {
+        "NEGATIVE": {
+          "analysis_weight": 12.98,
+          "analysis_weight_exact": "2596/200",
+          "design_weight": 12.98,
+          "design_weight_exact": "2596/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 2596,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/2596",
+              "sampling_fraction_f_h": 0.07704160246533127
+            },
+            "standard_error_multiplier": 0.9607072382024967,
+            "variance_multiplier": 0.9229583975346687,
+            "variance_multiplier_exact": "2396/2596"
+          },
+          "frame_N_h": 2596,
+          "frame_sampling_unit_identity_set_sha256": "06c6dddce6809d09f6c959fe92def1388912ada547a732732658be5b763f695f",
+          "inclusion_probability": 0.07704160246533127,
+          "inclusion_probability_exact": "200/2596",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.07704160246533127,
+          "sampling_fraction_exact": "200/2596",
+          "selected_sampling_unit_identity_set_sha256": "b3f7a95734051c85501ffe6dca93af514c222835d072353f066e0dbeaa88d85c"
+        },
+        "NEUTRAL": {
+          "analysis_weight": 237.14,
+          "analysis_weight_exact": "47428/200",
+          "design_weight": 237.14,
+          "design_weight_exact": "47428/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 47428,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/47428",
+              "sampling_fraction_f_h": 0.004216918276123809
+            },
+            "standard_error_multiplier": 0.9978893133628981,
+            "variance_multiplier": 0.9957830817238762,
+            "variance_multiplier_exact": "47228/47428"
+          },
+          "frame_N_h": 47428,
+          "frame_sampling_unit_identity_set_sha256": "515859843594598a162167770c36f7b862c2fb62a7f4d553bdf031801a0cdbee",
+          "inclusion_probability": 0.004216918276123809,
+          "inclusion_probability_exact": "200/47428",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.004216918276123809,
+          "sampling_fraction_exact": "200/47428",
+          "selected_sampling_unit_identity_set_sha256": "d5190062bd55321b171d211098c7bc5c059f3952832ca450e054f312e730475c"
+        },
+        "POSITIVE": {
+          "analysis_weight": 34.99,
+          "analysis_weight_exact": "6998/200",
+          "design_weight": 34.99,
+          "design_weight_exact": "6998/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 6998,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/6998",
+              "sampling_fraction_f_h": 0.02857959416976279
+            },
+            "standard_error_multiplier": 0.9856066181952297,
+            "variance_multiplier": 0.9714204058302373,
+            "variance_multiplier_exact": "6798/6998"
+          },
+          "frame_N_h": 6998,
+          "frame_sampling_unit_identity_set_sha256": "1d5d71e91dd8dda8941468a4960d30320407ca967f7e48e32b951bd5baf6b99d",
+          "inclusion_probability": 0.02857959416976279,
+          "inclusion_probability_exact": "200/6998",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.02857959416976279,
+          "sampling_fraction_exact": "200/6998",
+          "selected_sampling_unit_identity_set_sha256": "de3daeb8963a992fae0ab364c6d16a91f854218fd63bbf78586ca03ac2d00023"
+        }
+      }
+    },
+    "DISCLOSURE_CONFIRMATORY_SEALED_TEST_REVIEW": {
+      "frame_sampling_unit_identity_set_sha256": "9f3648311829a2c63ef14ca5c6f405b25051d494825794050b6655e85edd276d",
+      "output": {
+        "bytes": 680705,
+        "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+        "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+      },
+      "sample_count": 600,
+      "selected_sampling_unit_identity_set_sha256": "90ae5c52a28473a0f9438c5d1ace2db768987887185b6dd5d5b2d79a2899830e",
+      "source_type": "DISCLOSURE",
+      "strata": {
+        "NEGATIVE": {
+          "analysis_weight": 3.19,
+          "analysis_weight_exact": "638/200",
+          "design_weight": 3.19,
+          "design_weight_exact": "638/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 638,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/638",
+              "sampling_fraction_f_h": 0.31347962382445144
+            },
+            "standard_error_multiplier": 0.8285652516100036,
+            "variance_multiplier": 0.6865203761755486,
+            "variance_multiplier_exact": "438/638"
+          },
+          "frame_N_h": 638,
+          "frame_sampling_unit_identity_set_sha256": "9e392533a1fa29ec58f120729c20c23e25c6e95e959fb8e76728a4c681403633",
+          "inclusion_probability": 0.31347962382445144,
+          "inclusion_probability_exact": "200/638",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.31347962382445144,
+          "sampling_fraction_exact": "200/638",
+          "selected_sampling_unit_identity_set_sha256": "3c1da36d6b25aee27c5d266a3a95686bc2b34869c3b28f6a43b0575f9d3a1bf2"
+        },
+        "NEUTRAL": {
+          "analysis_weight": 24.615,
+          "analysis_weight_exact": "4923/200",
+          "design_weight": 24.615,
+          "design_weight_exact": "4923/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 4923,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/4923",
+              "sampling_fraction_f_h": 0.040625634775543366
+            },
+            "standard_error_multiplier": 0.9794765771698967,
+            "variance_multiplier": 0.9593743652244566,
+            "variance_multiplier_exact": "4723/4923"
+          },
+          "frame_N_h": 4923,
+          "frame_sampling_unit_identity_set_sha256": "bfb8d5ff44a5d0046abf584773f0d3563ea8ea2076bd38e5709c0eb3f47ae41a",
+          "inclusion_probability": 0.040625634775543366,
+          "inclusion_probability_exact": "200/4923",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.040625634775543366,
+          "sampling_fraction_exact": "200/4923",
+          "selected_sampling_unit_identity_set_sha256": "f563c8c6b31c94c8a125dde89926bb6e2b84ff86d00d04aa4668b9958ce434c2"
+        },
+        "POSITIVE": {
+          "analysis_weight": 1.585,
+          "analysis_weight_exact": "317/200",
+          "design_weight": 1.585,
+          "design_weight_exact": "317/200",
+          "finite_population_correction": {
+            "inputs": {
+              "population_N_h": 317,
+              "sample_n_h": 200,
+              "sampling_fraction_exact": "200/317",
+              "sampling_fraction_f_h": 0.6309148264984227
+            },
+            "standard_error_multiplier": 0.6075238048846953,
+            "variance_multiplier": 0.36908517350157727,
+            "variance_multiplier_exact": "117/317"
+          },
+          "frame_N_h": 317,
+          "frame_sampling_unit_identity_set_sha256": "4f9394eb21c3d2c9f7da1224ca7f80065359d82e4d61a7d41203b464e1300ac2",
+          "inclusion_probability": 0.6309148264984227,
+          "inclusion_probability_exact": "200/317",
+          "sample_n_h": 200,
+          "sampling_fraction": 0.6309148264984227,
+          "sampling_fraction_exact": "200/317",
+          "selected_sampling_unit_identity_set_sha256": "6c2b49c128bba3d02978fc1e301b7dd631510b388d2db951875adfe2bb33e55e"
+        }
+      }
+    }
+  },
+  "protected_identity_sets": {
+    "categories": {
+      "curation_review_train_dev_test_prevalence_components": {
+        "group_key_count": 61434,
+        "identity_row_count": 25495,
+        "identity_set_sha256": "c897e6eaae8a67305fe27608ec753d97cf9c4cda4141b00200ab916181d4f664",
+        "paths": [
+          {
+            "bytes": 141028,
+            "path": "data/curation/k_fnspid_sentiment/development_adjudication_packet.jsonl",
+            "sha256": "ad096723c5a40f8828a0d0239561ab74515f691df693b4e1e0403aba24d6d8ea"
+          },
+          {
+            "bytes": 27913,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_adjudication.jsonl",
+            "sha256": "309e14c900bdb002a9b8ef1cd414152a3a01477268ef5af97b760059f242646f"
+          },
+          {
+            "bytes": 153288,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions.jsonl",
+            "sha256": "15aa181baea374cd75686b4a25890d3a27432545f627bc50bddfbcd3dac4c512"
+          },
+          {
+            "bytes": 755003,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions_dual.jsonl",
+            "sha256": "b454d5e8d10d1978917d88ccf3730ecf7785326589cd030c871159e3b8b90fa4"
+          },
+          {
+            "bytes": 49645,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions_part1.jsonl",
+            "sha256": "404567db2e0d45f7294918f965c649c17dfbe209ace3a6c672268fa41a87bd3c"
+          },
+          {
+            "bytes": 53802,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions_part2.jsonl",
+            "sha256": "70af4e1a89759a986297d7a7543850bd1ce5e5f70f1e1695ebba7687166df193"
+          },
+          {
+            "bytes": 49841,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions_part3.jsonl",
+            "sha256": "998f2ca6c8326219ae77e69ce2526cb2ce4b79c11673f48cc01fdbb257309809"
+          },
+          {
+            "bytes": 171045,
+            "path": "data/curation/k_fnspid_sentiment/development_codex_decisions_stage2.jsonl",
+            "sha256": "76fa18a7c559e0ae1efc53a9fc7e13090442aae1659ffe86d31568d7f9568870"
+          },
+          {
+            "bytes": 1489394,
+            "path": "data/curation/k_fnspid_sentiment/development_qwen_silver.jsonl",
+            "sha256": "5da047b81cdc3b44030126cf92a709d71d4c8d062e9772217c396325cc6cbc52"
+          },
+          {
+            "bytes": 719730,
+            "path": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+            "sha256": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa"
+          },
+          {
+            "bytes": 139047,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_adjudication_packet.jsonl",
+            "sha256": "1f7b48d42c68cbca581b0e5f7cd823f9171541948d67a0f53b930c811bdb9c7e"
+          },
+          {
+            "bytes": 28710,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_adjudication.jsonl",
+            "sha256": "c4946d97a69df1be117962c0b1dc7f2461871756740361f31a3c9a130159137e"
+          },
+          {
+            "bytes": 145295,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions.jsonl",
+            "sha256": "24551669775bcd41b8c2064f276ea36e713a42ab020aeb199fd6169e85d226ab"
+          },
+          {
+            "bytes": 794449,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_dual.jsonl",
+            "sha256": "a57cd1b8ad4690fbb26edc71746507aa7fb91a09ff6dac65c5ab6b59bef4eb61"
+          },
+          {
+            "bytes": 46678,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_part1.jsonl",
+            "sha256": "45cfb68a6b502300943a698f9dfde16b4daf177bf06458af7a9616cd579bb755"
+          },
+          {
+            "bytes": 50717,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_part2.jsonl",
+            "sha256": "4f0dd3ae4a42621e0220e7baba989fa8269661c5e7370d505969245b60491836"
+          },
+          {
+            "bytes": 47900,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_part3.jsonl",
+            "sha256": "ac2c64bbef0f2b3a6dd5f91169914b586f52915edd8e5dfb8cd5ee28a79c99e2"
+          },
+          {
+            "bytes": 201042,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_stage2.jsonl",
+            "sha256": "a920cd3aa7be3db8cbe002793b928037d49f7312a74f15a106608ea610d3fb2f"
+          },
+          {
+            "bytes": 218937,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_qwen_silver-codebook-20662343.jsonl",
+            "sha256": "9632b587353cf6575a0fd6585528633e50c49731f38da45e186f8d739790370f"
+          },
+          {
+            "bytes": 507080,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_review.jsonl",
+            "sha256": "c09d712e575182120e1be36bfcd2e659a10311e51374b0159bfc85699728d171"
+          },
+          {
+            "bytes": 226478,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_adjudication_packet.jsonl",
+            "sha256": "d7bdc1c027ceac35e8f01aa9372f8424ab81c4e850d92c021de64ca9d73f54d9"
+          },
+          {
+            "bytes": 44701,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_codex_adjudication.jsonl",
+            "sha256": "cf6df96321b85722b060cca1452a48d3d27fe4f2b7d43f65e12eea16e68f2f62"
+          },
+          {
+            "bytes": 270323,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_codex_decisions.jsonl",
+            "sha256": "f989520a7eee43a6e65755d45cb8ad4ff611805a6a123efa12971bcd9ca62fc6"
+          },
+          {
+            "bytes": 1201510,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_codex_decisions_dual.jsonl",
+            "sha256": "a72b4e014fe7fedd8e1b2af6398ba4bf49102860e041d1ff9a4f447b4a01f2ba"
+          },
+          {
+            "bytes": 267087,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_codex_decisions_stage2.jsonl",
+            "sha256": "01a8361e2052f1ada585353e4af83ca888fcf6ced180e27262a5daef80d2e7a6"
+          },
+          {
+            "bytes": 685383,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_review.jsonl",
+            "sha256": "be82dfccb5dc44204052a705a3cd0bbb1ff41d87c7cc8632624c6923f768852e"
+          },
+          {
+            "bytes": 75086,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_codex_decisions_part1.jsonl",
+            "sha256": "7687989573fc6da64e46386b78067f253ef0f9639c5a268035417a169d2c0db4"
+          },
+          {
+            "bytes": 96662,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_codex_decisions_part2.jsonl",
+            "sha256": "99c0e1a3bb76a5439d19b7948d71980202919e1898cb1c9238a867ecb9b2d980"
+          },
+          {
+            "bytes": 73448,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_codex_decisions_part3.jsonl",
+            "sha256": "1074b1ad72bed2b226968dd5b720ae5f6a619f0f1304f76b35df916751c44f29"
+          },
+          {
+            "bytes": 682008,
+            "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_review.jsonl",
+            "sha256": "59218879991137bc120ccd20d5dc79f3d26c0c742c77cea7231cac3a70db17a6"
+          },
+          {
+            "bytes": 198098,
+            "path": "data/curation/k_fnspid_sentiment/prevalence_sealed_test_codex_decisions.jsonl",
+            "sha256": "f8d2c3d06c5a343b1969ccd032a6061e08d0933d49ab09e2ff9efb185183851b"
+          },
+          {
+            "bytes": 218339,
+            "path": "data/curation/k_fnspid_sentiment/prevalence_sealed_test_codex_decisions_stage2.jsonl",
+            "sha256": "cecca19ee3368f9ddaf1e915f55cddc42d45b69306cd1bfafc34abceaa45f241"
+          },
+          {
+            "bytes": 968617,
+            "path": "data/curation/k_fnspid_sentiment/prevalence_sealed_test_review.jsonl",
+            "sha256": "2411b503eb4ba7fccae6c3995ce68e750433d3cf15846fc6fb578ab583ca042e"
+          },
+          {
+            "bytes": 72748,
+            "path": "data/curation/k_fnspid_sentiment/sealed_test_codex_decisions_part1.jsonl",
+            "sha256": "824f71c7ad3c117bd087cab60df23d35a4ccd99e9ec4178d9027ea4b0a861cbe"
+          },
+          {
+            "bytes": 77966,
+            "path": "data/curation/k_fnspid_sentiment/sealed_test_codex_decisions_part2.jsonl",
+            "sha256": "eaf09bf7dadd9009e0c5679bed1201e0758396e2e28f9d9351541e01880cccc1"
+          },
+          {
+            "bytes": 71155,
+            "path": "data/curation/k_fnspid_sentiment/sealed_test_codex_decisions_part3.jsonl",
+            "sha256": "818a03a274b6bab54b5ea2b0a1061314e278520ec29bf0380ce5e8aa1df4dc51"
+          },
+          {
+            "bytes": 961609,
+            "path": "data/curation/k_fnspid_sentiment/sealed_test_review.jsonl",
+            "sha256": "6bc8c03b95be9be139857a88ac1582ea2b3fedee1bf87ab3d708bdb757f48bdd"
+          },
+          {
+            "bytes": 132890,
+            "path": "data/curation/k_fnspid_sentiment/train_adjudication_packet.jsonl",
+            "sha256": "d7325a40932f1375c93f3e4f9fb7f14870fbc7382f997e72ff2b3db96ffe0223"
+          },
+          {
+            "bytes": 25964,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_adjudication.jsonl",
+            "sha256": "e7bf5b4bba6361541e84410befce2da76a192875d721a59615187f4ea1a889e0"
+          },
+          {
+            "bytes": 203816,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions.jsonl",
+            "sha256": "ddd14b936c6a876907c2d45a3005b65a7c130941957801383b264930336a1609"
+          },
+          {
+            "bytes": 1014941,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_dual.jsonl",
+            "sha256": "f35ec2b06fa8c5eaa8064dba05a9acf79901bdf418bd50d7e47327eafe5c86d1"
+          },
+          {
+            "bytes": 69879,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_part1.jsonl",
+            "sha256": "d4bf019ed4e450315d4edfab884225dcd60667aa6792b5b07a9f1465f20610e9"
+          },
+          {
+            "bytes": 68299,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_part2.jsonl",
+            "sha256": "b74f038d607d1c8669daede294ccb98ab0e26a6e63a4d880353a801951946997"
+          },
+          {
+            "bytes": 65638,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_part3.jsonl",
+            "sha256": "94b4d5fe1b2b79b70b3cb19d03bbbdea65f6cddeef3c549cdcb6cd5063ceffb1"
+          },
+          {
+            "bytes": 237569,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_stage2.jsonl",
+            "sha256": "8a42ba22a9330c51e820ca71b32aae282392e1ab55b35372b0a78bbc45c02d15"
+          },
+          {
+            "bytes": 124907,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_stage2_part1.jsonl",
+            "sha256": "4b1626f4cd4748108e52487274c78c8cb7b3b0da7b4e03cfd9199620e327fad6"
+          },
+          {
+            "bytes": 112662,
+            "path": "data/curation/k_fnspid_sentiment/train_codex_decisions_stage2_part2.jsonl",
+            "sha256": "341153a4598ef43b9ce96335a50ab789e605eb34e5f8fb8419be039b0db13985"
+          },
+          {
+            "bytes": 1980146,
+            "path": "data/curation/k_fnspid_sentiment/train_qwen_silver-codebook-20662343.jsonl",
+            "sha256": "707020226b3138d83b200d3128afa50fad77f22133f550e6f0578e8f1610a9b4"
+          },
+          {
+            "bytes": 474641,
+            "path": "data/curation/k_fnspid_sentiment/train_qwen_silver.jsonl",
+            "sha256": "833b17cb1c183881c129a4cc838fb1b50574426ca002cfbb9e12d68f9f148e89"
+          },
+          {
+            "bytes": 954737,
+            "path": "data/curation/k_fnspid_sentiment/train_review.jsonl",
+            "sha256": "af82d375b3566e914d20c6c40064f8a79ce373ad9db9c1cd5ba9b1b17e10647d"
+          },
+          {
+            "bytes": 252422,
+            "path": "data/curation/stock_collection_shard_plan.jsonl",
+            "sha256": "d0b8ffd574cdb6a38589f91161c30054639200af9d24374f10c4a417d9690676"
+          },
+          {
+            "bytes": 3321250,
+            "path": "data/curation/stock_gold_coverage_active_review_packet.jsonl",
+            "sha256": "66b9206814384dd672e8dfaf8607b66b8b5efcb7303d89dd61598dcc913ba58f"
+          },
+          {
+            "bytes": 2317996,
+            "path": "data/curation/stock_gold_coverage_review_plan.jsonl",
+            "sha256": "cc91f1efd524265fcef438c1ab57e25d89a184227f6753f6f65a5e9ebcd9b090"
+          },
+          {
+            "bytes": 100838,
+            "path": "data/curation/stock_gold_evaluation_review_batch.jsonl",
+            "sha256": "9da5945f9973364489d7533e2baf6a3b5687c5720b0069dc6318658157a11d64"
+          },
+          {
+            "bytes": 306992,
+            "path": "data/curation/stock_gold_training_review_batch.jsonl",
+            "sha256": "28acdad88a0c134307782e2a92d4fa64e23fe080af4d1947fad055f71d0c647b"
+          },
+          {
+            "bytes": 11814020,
+            "path": "data/curation/stock_training_candidate_queue.jsonl",
+            "sha256": "9d31736d2e397927be3c20e2eafb37ac3e2f2bd5f208006a65c9bd9e933a6b9e"
+          }
+        ],
+        "rows_without_provenance_identity": 11369
+      },
+      "evaluation_sets": {
+        "group_key_count": 7868,
+        "identity_row_count": 3358,
+        "identity_set_sha256": "d5669a4821d74c604f814e4d5c83e7c3b144141901e6e8b5b0282d9992ce7f21",
+        "paths": [
+          {
+            "bytes": 220122,
+            "path": "data/evaluation/financial_alert_eval.jsonl",
+            "sha256": "7c9fb5bd00aa71dac92cd5d8f8abacf6b2abb713b91559c2d032586ccb728441"
+          },
+          {
+            "bytes": 489358,
+            "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+            "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+          },
+          {
+            "bytes": 254585,
+            "path": "data/evaluation/financial_alert_real_disclosure_stress_gold.jsonl",
+            "sha256": "ae2c34f75067ae84b27f9c182a6acda1a32c103056a1b52dbe1ebe7fbe76e7ce"
+          },
+          {
+            "bytes": 52115,
+            "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+            "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+          },
+          {
+            "bytes": 584036,
+            "path": "data/evaluation/financial_alert_stock_review_gold.jsonl",
+            "sha256": "80ffcaa61dcbe7756dccd813a3195d1ff7f52237bfb307098a9f01e5923ede36"
+          },
+          {
+            "bytes": 241130,
+            "path": "data/evaluation/live_news_evaluation_batch.jsonl",
+            "sha256": "df437173eac9f1d320664e822e98b633cd6613de71ba400f0ea898a3a9b1642f"
+          },
+          {
+            "bytes": 3263627,
+            "path": "data/evaluation/live_news_quality_audit.jsonl",
+            "sha256": "4b3a13609263e06ea2ef85d8aab0f59bfdbbb075de0d27d51b06828f3696d2e3"
+          }
+        ],
+        "rows_without_provenance_identity": 0
+      },
+      "existing_gold_sets": {
+        "group_key_count": 0,
+        "identity_row_count": 0,
+        "identity_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "paths": [],
+        "rows_without_provenance_identity": 0
+      },
+      "other_training_sets": {
+        "group_key_count": 91131,
+        "identity_row_count": 64435,
+        "identity_set_sha256": "2729a5cbd71a5b09210c6645870ef757bd75517b177353003a3a23bbb1ce2b24",
+        "paths": [
+          {
+            "bytes": 514677,
+            "path": "data/training/financial_alert_augmented.jsonl",
+            "sha256": "85d9db6e0e95cdc25d92ff0a975c6e2c1f1842a9a155f5efc2601adf88d48b22"
+          },
+          {
+            "bytes": 3580,
+            "path": "data/training/financial_alert_corpus.jsonl",
+            "sha256": "8ab88c36b7f651624bc2e682bd5942e7b1ace25b639c4bf71212c6dc75346233"
+          },
+          {
+            "bytes": 1928,
+            "path": "data/training/financial_alert_full_content_gold.jsonl",
+            "sha256": "541d574f366c158eeb6fa21a49fc22c086b9ca636c291a874d1f31e2646a7984"
+          },
+          {
+            "bytes": 47993712,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0001.jsonl",
+            "sha256": "e7a11a33cda4b3e049728ac30d51b4e8485e4f1117382f0e3143f331ba1d34ce"
+          },
+          {
+            "bytes": 47967902,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0002.jsonl",
+            "sha256": "39b571741e740dba451aa5740f29bae6e23715765024586b298bb625850fb6e9"
+          },
+          {
+            "bytes": 47963288,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0003.jsonl",
+            "sha256": "a1c6178fdc92ce2f4a5d3191284841c964683e7dad9e1bf5fe5d5876d422e3cf"
+          },
+          {
+            "bytes": 47980116,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0004.jsonl",
+            "sha256": "8036418754b4a04919d8e319c95573487dd487be98979ee262bafd63a7bb3bf3"
+          },
+          {
+            "bytes": 47988608,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0005.jsonl",
+            "sha256": "1bc478fcdf9ed44ed19b82d4e572f3496759c5b9847b845a3cb35e2a47c32a46"
+          },
+          {
+            "bytes": 47999683,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0006.jsonl",
+            "sha256": "98eba85c88844f2dc0039f831e274c97e2d716b0c1501564f9d30c23ae325089"
+          },
+          {
+            "bytes": 22296198,
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0007.jsonl",
+            "sha256": "8fde133a107dd3b693a9583ed48f663893e933a68585ebb287477d52e889dddb"
+          },
+          {
+            "bytes": 544924,
+            "path": "data/training/financial_alert_news_style_augmented.jsonl",
+            "sha256": "70a55356fb9477bb1f19899583e8297955de85637acf193e6b9d8cce20cad285"
+          },
+          {
+            "bytes": 41486,
+            "path": "data/training/financial_alert_real_news_gold.jsonl",
+            "sha256": "94ca5b0b8f6db243f413bd03a831826b7ed8ae4b936a5a4c6bf1be777467a27a"
+          },
+          {
+            "bytes": 3598476,
+            "path": "data/training/financial_alert_stock_review_gold.jsonl",
+            "sha256": "dfd605acc4a69be829d85fc2f91bdf73f5efa8911530b3d21ce8617c64bdf51b"
+          },
+          {
+            "bytes": 49291,
+            "path": "data/training/korean_translation_sft.jsonl",
+            "sha256": "65632820bb5e3ad07234cabea57b0579f07f74bb805bf4beee55d8fbbc8e642f"
+          },
+          {
+            "bytes": 1073933,
+            "path": "data/training/stock_linker_training.jsonl",
+            "sha256": "c0dfe16bd9c786cd1299991c664638cf6ad2891ee065f7f51893ffade0d85541"
+          }
+        ],
+        "rows_without_provenance_identity": 7688
+      },
+      "silver_sets": {
+        "group_key_count": 130800,
+        "identity_row_count": 32700,
+        "identity_set_sha256": "7d3c24b2707249151bf94d8e52d70297803bd45a685ad68528b9be95c5d60301",
+        "paths": [
+          {
+            "bytes": 3026710,
+            "path": "data/training/k_fnspid_disclosure_sentiment_silver.jsonl",
+            "sha256": "0e25f7d5c4499d8e823e512d1d7df143958a3ac13bc669448d608e6c771e8a2b"
+          },
+          {
+            "bytes": 47467897,
+            "path": "data/training/k_fnspid_sentiment_silver.jsonl",
+            "sha256": "56e3dc2c641990e44ba4d72143d8c4336727b1f96a406c8232b3a59abc6c203e"
+          }
+        ],
+        "rows_without_provenance_identity": 0
+      }
+    },
+    "combined": {
+      "group_key_count": 276933,
+      "identity_set_sha256": "fbd006a78120898a70fbe24893d0104e58209576e4b13b31b1ee5b4177616ce9"
+    },
+    "identity_overlap_allowed": false,
+    "transitive_component_closure": true
+  },
+  "report_role": "UNLABELED_CONFIRMATORY_RESERVATION",
+  "reservation_state_at_generation": {
+    "annotation_allowed_before_candidate_lock": false,
+    "annotation_result_fields": {
+      "final_sentiment": "",
+      "review_note": "",
+      "reviewed_at": "",
+      "reviewer_id": ""
+    },
+    "candidate_predictions_available": false,
+    "labels_available_at_reservation": false,
+    "required_order": [
+      "BUILD_UNLABELED_RESERVATION",
+      "TRAIN_WITH_IDENTITY_ONLY_OVERLAP_PURGE",
+      "LOCK_CANDIDATE_AND_COMMIT_RESERVATION_REPORT",
+      "ANNOTATE_SEPARATE_DECISION_ARTIFACT"
+    ],
+    "workflow_status_field": "NEEDS_BLIND_REVIEW"
+  },
+  "sampling_design": {
+    "cross_source_rule": "NEWS-selected provenance components are removed from the DISCLOSURE frame before DISCLOSURE ranking",
+    "equal_probability_contract": "Within each final source/weak stratum, all N_h units receive one predeclared seeded SHA-256 rank and the first n_h units are selected; pi_h=f_h=n_h/N_h and design_weight_h=N_h/n_h.",
+    "finite_population_correction_contract": "Evaluator must use reported N_h, n_h and f_h. The SRSWOR variance multiplier is 1-f_h=(N_h-n_h)/N_h, with its square root applied to standard errors.",
+    "hash_function": "SHA-256",
+    "method": "stratified_equal_allocation_without_replacement_by_seeded_sha256_rank/v1",
+    "sample_per_stratum": 200,
+    "sampling_unit": "canonical representative of a transitive provenance component within the locked snapshot date/source frame",
+    "seed": "k-fnspid-confirmatory-sealed-v1:2026-07-15",
+    "source_selection_order": [
+      "NEWS",
+      "DISCLOSURE"
+    ],
+    "strata": [
+      "NEGATIVE",
+      "NEUTRAL",
+      "POSITIVE"
+    ],
+    "weak_rule_stratum": {
+      "gold_label_role": "none; sampling auxiliary only",
+      "review_packet_exposure": "omitted",
+      "version": "k-fnspid-confirmatory-weak-stratum/v1"
+    }
+  },
+  "schema_version": "k-fnspid-sentiment-confirmatory-sealed-sampling-design/v2",
+  "upgrade_provenance": {
+    "candidate_predictions_opened": false,
+    "change_scope": "estimand wording and SRSWOR jackknife FPC metadata only",
+    "gold_labels_opened": false,
+    "reservation_bytes_changed": false,
+    "sampling_units_changed": false,
+    "schema_version": "confirmatory-sampling-design-contract-upgrade/v1",
+    "source_bytes": 33713,
+    "source_path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design.json",
+    "source_schema_version": "k-fnspid-sentiment-confirmatory-sealed-sampling-design/v1",
+    "source_sha256": "67da67ebc1ddf0df648064074101f0220a2fa379d4a5926dd24e6b72f04a03e0",
+    "upgraded_at": "2026-07-15T21:12:31.171364+00:00"
+  },
+  "write_once_commitments": {
+    "CONFIRMATORY_SEALED_TEST_REVIEW": {
+      "bytes": 969809,
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "DISCLOSURE_CONFIRMATORY_SEALED_TEST_REVIEW": {
+      "bytes": 680705,
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "policy": "create-exclusive immutable outputs; overwrite and symlink refused"
+  }
+}

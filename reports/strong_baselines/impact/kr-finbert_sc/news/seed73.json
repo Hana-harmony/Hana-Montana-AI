@@ -1,0 +1,205 @@
+{
+  "schema_version": "k-fnspid-impact-strong-baseline-training/v1",
+  "version": "kfi-news-kr-finbert-sc-lora-20260719015943-p0.20-t0.75",
+  "model_preset": "KR_FINBERT_SC",
+  "base_model": "models/kr-finbert-sc-raw-reference",
+  "base_model_revision": "36b3d36898bc9925ca58c3508b1048e4449f1370",
+  "base_model_safetensors_sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a",
+  "comparison_only": true,
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 256,
+  "trained_at": "2026-07-19T01:59:43.700909+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1238,
+      "sha256": "75fd3f8fecfb9d185c107a40f7e5814cdb44f5e679059b7cca303dc7bc5eb70a"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924136,
+      "sha256": "a345c2ab25887a7a8a5949e1e45e43bc4031606537f3f87a0bdde5708736fdc2"
+    },
+    "tokenizer.json": {
+      "bytes": 454830,
+      "sha256": "2133863fb5146bf1b0fef64a21f2a5d88d2e63490927cb567bec2ae377fdf22b"
+    },
+    "tokenizer_config.json": {
+      "bytes": 621,
+      "sha256": "55c91fa221678f29d9112475d81fa9ef9dbba2be15c07c70e4d796c20bf1ed8c"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 73,
+  "source_type": "NEWS",
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.2,
+    "selected_temperature": 0.75,
+    "selected_validation_negative_log_likelihood": 1.1551887798565792,
+    "training_class_priors": {
+      "LOW": 0.6259090818023361,
+      "MEDIUM": 0.25106685633001424,
+      "HIGH": 0.08172219662212249,
+      "CRITICAL": 0.04130186524552722
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.4814583007354092,
+      "macro_f1": 0.3759688334271062,
+      "quadratic_kappa": 0.39578195016746776
+    }
+  },
+  "dataset_dir": "data/k_fnspid/v4",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v4/manifest.json",
+    "dataset_version": "k-fnspid-v4",
+    "bytes": 12648,
+    "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+  },
+  "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/news/seed73",
+  "evaluation_protocol": "frozen validated adapter; Validation selects source-specific log-prior correction; frozen TEST is evaluated once for deployment and non-regression gates",
+  "training_hyperparameters": {
+    "evaluation_only": true,
+    "epochs_requested": 3.0,
+    "per_device_train_batch_size": 16,
+    "per_device_eval_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "effective_batch_size": 64,
+    "learning_rate": 0.0002,
+    "lr_scheduler_type": "cosine",
+    "warmup_steps": 374,
+    "warmup_ratio_of_optimizer_steps": 0.08,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "early_stopping_patience_epochs": 1,
+    "gradient_checkpointing": false,
+    "mixed_precision": "none",
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.1,
+      "target_modules": [
+        "query",
+        "key",
+        "value"
+      ],
+      "modules_to_save": [
+        "pooler",
+        "classifier"
+      ],
+      "initial_adapter_path": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed42"
+    }
+  },
+  "training_state": {
+    "completed_epoch": 0.0,
+    "global_optimizer_steps": 0,
+    "best_validation_macro_f1": 0.0,
+    "evaluation_only": true
+  },
+  "runtime": {
+    "device": "mps",
+    "python_packages": {
+      "torch": "2.6.0",
+      "transformers": "5.13.1",
+      "peft": "0.19.1"
+    }
+  },
+  "training_objective": {
+    "name": "class-balanced-focal-plus-ordinal-cdf",
+    "focal_gamma": 1.5,
+    "ordinal_loss_weight": 0.3,
+    "label_smoothing": 0.02
+  },
+  "partition_count": {
+    "TRAIN": 99826,
+    "VALIDATION": 6391,
+    "TEST": 9560
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "LOW": 62482,
+      "MEDIUM": 25063,
+      "HIGH": 8158,
+      "CRITICAL": 4123
+    },
+    "VALIDATION": {
+      "LOW": 3129,
+      "CRITICAL": 493,
+      "MEDIUM": 1934,
+      "HIGH": 835
+    },
+    "TEST": {
+      "MEDIUM": 3104,
+      "HIGH": 1183,
+      "CRITICAL": 560,
+      "LOW": 4713
+    }
+  },
+  "trainable_parameter_count": 1478404,
+  "total_parameter_count": 102882824,
+  "validation": {
+    "accuracy": 0.4814583007354092,
+    "macro_f1": 0.3759688334271062,
+    "quadratic_kappa": 0.39578195016746776,
+    "expected_calibration_error_15_bin": 0.029555538853244204,
+    "multiclass_brier_score": 0.63452513036283,
+    "sample_count": 6391
+  },
+  "validation_raw": {
+    "accuracy": 0.4279455484274761,
+    "macro_f1": 0.3516753425704759,
+    "quadratic_kappa": 0.37177353175299477
+  },
+  "test": {
+    "accuracy": 0.4901673640167364,
+    "macro_f1": 0.35062014610780284,
+    "quadratic_kappa": 0.3962171035205021,
+    "expected_calibration_error_15_bin": 0.034040159719512825,
+    "multiclass_brier_score": 0.6198595077078606,
+    "sample_count": 9560
+  },
+  "test_raw": {
+    "accuracy": 0.4476987447698745,
+    "macro_f1": 0.34770467867469274,
+    "quadratic_kappa": 0.38355261158481546
+  },
+  "baseline_test": {
+    "sample_count": 9560,
+    "accuracy": 0.4715481171548117,
+    "macro_f1": 0.3483577785146375,
+    "quadratic_kappa": 0.3421430586065075,
+    "expected_calibration_error_15_bin": 0.0452950201880514,
+    "multiclass_brier_score": 0.6419866746172253
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 5000,
+    "minimum_macro_f1": 0.35,
+    "minimum_quadratic_kappa": 0.3,
+    "maximum_expected_calibration_error_15_bin": 0.2,
+    "must_match_or_improve_baseline_calibration": true,
+    "must_match_or_exceed_baseline": "k-fnspid-impact-news-tfidf-logreg",
+    "eligible": false,
+    "decision": "RESEARCH_BASELINE_ONLY"
+  },
+  "test_predictions": {
+    "path": "reports/strong_baselines/impact/kr-finbert_sc/news/seed73-predictions.jsonl",
+    "sample_count": 9560,
+    "bytes": 3000543,
+    "sha256": "059c2a05dc627d32ed05ad51ef4aa43ce005fb36364ae27bc7b6e2a625211408"
+  }
+}

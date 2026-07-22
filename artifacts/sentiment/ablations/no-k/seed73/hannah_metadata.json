@@ -1,0 +1,53 @@
+{
+  "schema_version": "kf-deberta-sentiment-ablation-artifact/v1",
+  "artifact_role": "RESEARCH_ABLATION_NOT_DEPLOYABLE",
+  "version": "hana-montana-kf-deberta-k-fnspid-sentiment-ablation-no_k-seed73-20260715202812",
+  "ablation_mode": "NO_K",
+  "seed": 73,
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "max_length": 256,
+  "input_feature_version": "source-target-prefix-head-tail/v2",
+  "logit_bias_by_domain": {
+    "NEWS_UNTARGETED": [
+      -0.33333333,
+      0.36666667,
+      -0.03333333
+    ],
+    "NEWS_TARGETED": [
+      0.43333333,
+      0.53333333,
+      -0.96666667
+    ],
+    "DISCLOSURE_TARGETED": [
+      -0.2,
+      0.6,
+      -0.4
+    ]
+  },
+  "trained_at": "2026-07-15T20:28:12.624972+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1172,
+      "sha256": "0377fe83008cbd3fa8df88dddfb11d55fdd1ccfeff17f03dad97450594884c6b"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 10345092,
+      "sha256": "7bc6694af2857abd03fbc3a68b9eec33620206062afd08f295d1bc470a83c1c4"
+    },
+    "tokenizer.json": {
+      "bytes": 3191920,
+      "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+    },
+    "tokenizer_config.json": {
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  },
+  "artifact_directory": "artifacts/sentiment/ablations/no-k/seed73"
+}

@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 224901,
+      "path": "data/gold/review_v3_locked/confirmatory-news/reviewer-2/decision.jsonl",
+      "sample_count": 600,
+      "sha256": "5f422c7d51a8b474a497b6474d796739f79161d330cb89d7cc040bfb0bae8f6c"
+    },
+    "packet": {
+      "bytes": 969809,
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "cd9845913372bb734b91f0b3e58e4af61185ea81fe82fc54d59a6e1113d018ff::267790",
+    "input_field_sets_sha256": "07474c54412852d1c0af0f11bd1756a8fa0320a4fc953a60d8c5fdbe82886ac2",
+    "item_count": 600,
+    "item_id_order_sha256": "850b81cbde21cf4487a14c6cfb32dc521798806827391a98967f6cbb195b4067",
+    "item_id_set_sha256": "ff676b905a0ec9270b6c20810e9fd7cf9d3a1a86137620650f5547684f799022",
+    "last_item_id": "4a1ece3124652a2934c2f30e1ca17aa3c03a5f2842c5a4666b41c78c369f0bf8::035420",
+    "row_end_inclusive": 600,
+    "row_start_inclusive": 1,
+    "source_type_distribution": {
+      "NEWS": 600
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "fb871a1bd774a79e46d845235705130a02e6a914fdb70adb27a84d16a369ca94",
+  "reviewer": {
+    "model_name": "OpenAI Codex",
+    "model_version": "GPT-5",
+    "reviewer_id": "CODEX_REVIEWER_2_LOCKED_V3",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-22T15:34:29+09:00",
+    "context_id": "a3db3aca-8e31-4209-8638-1e306b74c6fe",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "ddb83de4-1f00-483e-aa06-b16cbcac68da",
+    "started_at": "2026-07-22T15:29:00+09:00"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

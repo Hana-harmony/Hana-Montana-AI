@@ -1,0 +1,28 @@
+{
+  "schema_version": "k-fnspid-dapt-pack-oracle-derivation-rejection/v1",
+  "status": "REJECTED_SUPERSEDED_BEFORE_SOURCE_LOCK",
+  "rejected_report": {
+    "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation.json",
+    "bytes": 7371,
+    "sha256": "df3b2e13f3b5b94a69378350bf19e4ff20ffc8e9ee876a71f5835be5dc8d7a50",
+    "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+    "trainer_semantic_sha256": "c6fc54db00dd8e7942f74f39f678086d83484cc252fc6f247dab33dca04a93c7"
+  },
+  "independent_reproduction": {
+    "path": "/tmp/k-fnspid-v4-dapt-pack-oracle-repro-20260717.json",
+    "sha256": "0b8152a74cb007b346984ea8e8ead6e1c560e029b5994678e846bd36f32fb3fc",
+    "candidate_sha256_equal": true,
+    "counts_hashes_schedule_equal": true,
+    "scratch_artifacts_retained": false
+  },
+  "reason": "독립 reviewer가 codebook 현재 상태와 trainer 주석의 stale 표현을 발견했다. 두 표현을 수정하면 semantic recipe SHA-256이 바뀌므로, 기존 보고서와 재산출은 수치가 일치해도 source lock receipt의 대상으로 승격하지 않는다.",
+  "replacement_contract": {
+    "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v2.json",
+    "required_trainer_semantic_sha256": "b54ff68dd7420586389f8f71b8d26bb98eea113e05ecf3ce95f0a0415b7c60a8",
+    "must_be_rederived": true,
+    "must_receive_independent_review": true
+  },
+  "prepared_artifact_promoted": false,
+  "precision_pilot_executed": false,
+  "training_executed": false
+}

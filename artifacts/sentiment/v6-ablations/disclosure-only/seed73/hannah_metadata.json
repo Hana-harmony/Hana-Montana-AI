@@ -1,0 +1,465 @@
+{
+  "schema_version": "kf-deberta-compute-matched-sentiment-ablation-artifact/v3",
+  "artifact_role": "RESEARCH_ABLATION_NOT_DEPLOYABLE",
+  "model_family": "kf-deberta-shared-residual-hierarchical/v2",
+  "version": "hana-montana-kf-deberta-k-fnspid-sentiment-v6-ablation-disclosure-only-seed73-20260721222849",
+  "ablation_mode": "DISCLOSURE_ONLY",
+  "seed": 73,
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "base_source_kind": "DAPT_MERGED_FP32",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "runtime_loader_contract": {
+    "schema_version": "kf-deberta-shared-residual-runtime-loader/v2",
+    "base_source": {
+      "schema_version": "kf-deberta-dapt-base-source/v2",
+      "artifact_manifest": {
+        "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/manifest.json",
+        "bytes": 15832,
+        "sha256": "50155de739a7e27131adb49dd645eb66e56d6a1c3783872cef1595b77607ef2a"
+      },
+      "merged_fp32_artifact_files": {
+        "merged_fp32/config.json": {
+          "bytes": 956,
+          "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+        },
+        "merged_fp32/model.safetensors": {
+          "bytes": 744076256,
+          "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+        }
+      },
+      "training_report": {
+        "bytes": 593726,
+        "sha256": "82f2fbe7d6e0fedaabc70e5254f34139defd217ea698c91922dc8c4a6e068f1a"
+      },
+      "prepared_manifest": {
+        "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+        "bytes": 59646,
+        "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+      },
+      "pilot_report": {
+        "path": "reports/k-fnspid-v4-kf-deberta-dapt-pilot-v2.json",
+        "bytes": 8548,
+        "sha256": "b467d997c2dbdf73aa3c860b5d1fb857dbdf21ae7f4f43660cd60c0db2f104bf"
+      },
+      "inventory_oracle": {
+        "status": "LOCKED",
+        "expected_counts": {
+          "source_document_count": {
+            "NEWS": 524696,
+            "DISCLOSURE": 722989
+          },
+          "raw_cutoff_count": {
+            "NEWS": 419969,
+            "DISCLOSURE": 699813
+          },
+          "protected_component_document_count": 2826,
+          "protected_key_count": {
+            "document_id": 2826,
+            "canonical_url": 2679,
+            "content_hash": 2826,
+            "event_cluster_id": 2346,
+            "normalized_exact_text_hash": 2243
+          },
+          "purged_cutoff_count": {
+            "NEWS": 709,
+            "DISCLOSURE": 782
+          },
+          "eligible_count": {
+            "NEWS": 419260,
+            "DISCLOSURE": 699031
+          },
+          "split_count": {
+            "TRAIN": {
+              "NEWS": 415197,
+              "DISCLOSURE": 692015
+            },
+            "VALIDATION": {
+              "NEWS": 4063,
+              "DISCLOSURE": 7016
+            }
+          },
+          "eligible_component_count": 967550,
+          "duplicate_key_audit": {
+            "document_id": {
+              "eligible_duplicate_key_count": 0,
+              "train_only": 0,
+              "validation_only": 0,
+              "cross_split": 0
+            },
+            "canonical_url": {
+              "eligible_duplicate_key_count": 23597,
+              "train_only": 23391,
+              "validation_only": 206,
+              "cross_split": 0
+            },
+            "content_hash": {
+              "eligible_duplicate_key_count": 0,
+              "train_only": 0,
+              "validation_only": 0,
+              "cross_split": 0
+            },
+            "event_cluster_id": {
+              "eligible_duplicate_key_count": 57673,
+              "train_only": 57129,
+              "validation_only": 544,
+              "cross_split": 0
+            },
+            "normalized_exact_text_hash": {
+              "eligible_duplicate_key_count": 3837,
+              "train_only": 3816,
+              "validation_only": 21,
+              "cross_split": 0
+            }
+          }
+        },
+        "expected_hashes": {
+          "protected_key_set": "dc2d8749bb38826b405c893545722ec2bb968feb734b7e5ff3df93be515f5be8",
+          "eligible_ordered_document_ids": "09532e7d1e244e7e4c1a0a2a4c768b16d411cfba2ec1e691e9c95589cb05d09d",
+          "split_jsonl": "eb5fb296b8373e484ea25440ce2f3a637b2576b3066e73b593ffc13ee1a05342",
+          "row_assignments": "71b074d3ce597e2ea3ec2b76c5e4b05b4c4ebc852b523e1599d897e0f98f5176",
+          "exact_text_gate_audit": "0f079632cb9d02b46984b32e4b44edc6b6cefaab2eb103fa09b79ba5ef2de960",
+          "component_size_audit": "fe3ef7f345c5ea2684ba9b6e10c13f011da659e4da51d72014ba7659f2a233d0",
+          "fuzzy_near_duplicate_audit": "7151806bd337002dabde1b7243ced7ebe11148b76108e1c917d3d361d30331e3",
+          "allowed_random_token_ids": "ef31b0efc4cf81b95b596441d6e51732df68ead153ed8bce1d9499f8b13d273a"
+        },
+        "candidate_sha256": "24e678aee83dcde4b3ad7d74d5d22a14b6198ed957c80b27eb007c9d6922240d",
+        "derivation_report": {
+          "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v4.json",
+          "bytes": 53008,
+          "sha256": "ee3a65f51334f7d7667f07b9389dd86e0c334c760168e2daa7d1716f5fb816ba"
+        },
+        "independent_review_receipt": {
+          "path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v4.json",
+          "bytes": 7840,
+          "sha256": "3a58702712fd01960d18a42f9f8cd035339e69acc59c05b444b606f6cf90521f"
+        },
+        "reviewer_id": "codex:dapt-inventory-independent-review-v4-20260717"
+      },
+      "pack_oracle": {
+        "status": "LOCKED",
+        "expected_counts": {
+          "full_text_count": {
+            "NEWS": 3792,
+            "DISCLOSURE": 7104
+          },
+          "raw_token_count": {
+            "title": 18993463,
+            "snippet": 36556505,
+            "full": 28333791
+          },
+          "used_token_count": {
+            "title": 18991508,
+            "snippet": 36556460,
+            "full": 2183933
+          },
+          "pack_count": {
+            "TRAIN": {
+              "NEWS": 147532,
+              "DISCLOSURE": 102526
+            },
+            "VALIDATION": {
+              "NEWS": 1457,
+              "DISCLOSURE": 1050
+            }
+          },
+          "segment_token_count": 62215961,
+          "packed_non_padding_token_count": 62468526,
+          "padded_token_count": {
+            "TRAIN": 64014848,
+            "VALIDATION": 641792
+          }
+        },
+        "expected_hashes": {
+          "unmasked_packed_ids": "50087c5707dc03b00650ccf8e5d9a6bc498167da179d74a5e4cdda438364d63a",
+          "pack_lineage_jsonl": "89f21c7a4bd525623382e4b18348a9df87bfe5933a2f470683ce00202ecfe3e8",
+          "train_epoch0_masks": "0d169e23c920eb6533ed9a139ee0ed693525d712fd09110c68c92167707a4e36",
+          "validation_fixed_masks": "1b0a6d8103174288455c41c63aa202eff08ddd82af05aa117f37bc46ab5a5541"
+        },
+        "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+        "derivation_report": {
+          "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+          "bytes": 7374,
+          "sha256": "106fb01f2fb9c2b61640ec863d5a1a258fc77dd737dd632d2bac11b39e443b67"
+        },
+        "independent_review_receipt": {
+          "path": "reports/k-fnspid-v4-dapt-pack-oracle-review-v3.json",
+          "bytes": 6311,
+          "sha256": "fd3a51e4f464ba9a5a63a2997df21662a4e2c638703f11fb0f1bf10a5c520ff9"
+        },
+        "reviewer_id": "codex:dapt-pack-independent-review-v3-20260717"
+      },
+      "base_model": "kakaobank/kf-deberta-base",
+      "base_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+      "precision": "FP32",
+      "validation_nll": {
+        "frozen_base": 3.119393314941492,
+        "end_of_epoch": 1.3357852700875514
+      }
+    },
+    "adapter_path": "adapter",
+    "heads_path": "source_hierarchical_residual_heads.safetensors",
+    "tokenizer_source": "artifact-root",
+    "domain_order": [
+      "NEWS_UNTARGETED",
+      "NEWS_TARGETED",
+      "DISCLOSURE_TARGETED"
+    ],
+    "domain_required": true,
+    "unknown_domain_behavior": "FAIL_CLOSED",
+    "pooling": "last_hidden_state_cls",
+    "head_tensor_contract": {
+      "shared": {
+        "neutral_vs_directional": 1,
+        "negative_vs_positive": 2
+      },
+      "residual": {
+        "neutral_vs_directional": 1,
+        "negative_vs_positive": 2
+      }
+    },
+    "head_architecture": {
+      "version": "shared-hierarchical-zero-residual/v2",
+      "anchor_domain": "NEWS_UNTARGETED",
+      "residual_domains": [
+        "NEWS_TARGETED",
+        "DISCLOSURE_TARGETED"
+      ],
+      "residual_initialization": "EXACT_ZERO",
+      "known_untrained_domain_fallback": "SHARED_HEAD_ZERO_RESIDUAL",
+      "unknown_domain_behavior": "FAIL_CLOSED"
+    },
+    "composition": {
+      "NEGATIVE": "log_sigmoid(boundary)+log_softmax(direction)[0]",
+      "NEUTRAL": "log_sigmoid(-boundary)",
+      "POSITIVE": "log_sigmoid(boundary)+log_softmax(direction)[1]"
+    },
+    "calibration": {
+      "NEWS_UNTARGETED": {
+        "temperature": 1.0,
+        "neutral_threshold": 0.425,
+        "sample_count": 233,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      },
+      "NEWS_TARGETED": {
+        "temperature": 1.2,
+        "neutral_threshold": 0.35,
+        "sample_count": 111,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      },
+      "DISCLOSURE_TARGETED": {
+        "temperature": 1.05,
+        "neutral_threshold": 0.45,
+        "sample_count": 111,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      }
+    },
+    "input_feature_version": "source-target-prefix-head-tail/v2",
+    "max_length": 256
+  },
+  "prepared_partition_commitments": {
+    "TRAIN": {
+      "row_count": 12213,
+      "sha256": "fabd93bcd230c4f40f2c07e64c367097dac080dc79a1689b65afc87ddf6eb90a"
+    },
+    "CHECKPOINT": {
+      "row_count": 911,
+      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+    },
+    "CALIBRATION": {
+      "row_count": 455,
+      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+    },
+    "SELECTION": {
+      "row_count": 461,
+      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+    },
+    "NEWS_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+    },
+    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+    }
+  },
+  "compute_matching": {
+    "schema_version": "k-fnspid-compute-matched-training-plan/v1",
+    "stage1": {
+      "schema_version": "stable-hash-cyclic-stage1-exposure/v1",
+      "source_unique_rows_commitment": {
+        "row_count": 12213,
+        "sha256": "fabd93bcd230c4f40f2c07e64c367097dac080dc79a1689b65afc87ddf6eb90a"
+      },
+      "source_unique_row_count": 12213,
+      "stable_unique_order_commitment": {
+        "row_count": 12213,
+        "sha256": "384311e0a6fccca9759e38d62f302e15c5bf703f582cbad6f5f437d2db346ee8"
+      },
+      "stable_order": "SHA256(item_sha256||group_sha256)",
+      "cycling": "ROUND_ROBIN_OVER_STABLE_UNIQUE_ORDER",
+      "target_exposure_count_per_epoch": 32907,
+      "exposure_rows_commitment": {
+        "row_count": 32907,
+        "sha256": "b5facbf004f89d28a38263646ac87be2e70b0970f3d3e30a927280c4283a5383"
+      },
+      "exposure_sequence_commitment": {
+        "row_count": 32907,
+        "sha256": "b557133591c276e4e4d8c39c89ef109b68e01bb7da1e5d6bce3ebe2e3909c4b5"
+      },
+      "exposure_frequency_sha256": "3d1cff2d891df743c59cfed1afdd16fc4c32899b2c8d8730494128ccba6247ca",
+      "minimum_exposures_per_unique_row": 2,
+      "maximum_exposures_per_unique_row": 3,
+      "all_source_rows_exposed": true
+    },
+    "stage2": {
+      "schema_version": "compute-matched-stage2-refinement-control/v1",
+      "mode": "DISCLOSURE_ONLY",
+      "row_count": 1794,
+      "rows_commitment": {
+        "row_count": 1794,
+        "sha256": "d967fea4ce6c94512026f52c4459c06b769da7c04aeae22dd612c6fd84f641a2"
+      },
+      "row_sequence_commitment": {
+        "row_count": 1794,
+        "sha256": "b77023e6cf50af46a110d2c18cecbb9f4f4c2cae9114352fea75e335d47a9597"
+      },
+      "eligible_k_gold_row_count": 600,
+      "eligible_k_gold_rows_commitment": {
+        "row_count": 600,
+        "sha256": "920556237c99b51307413199462665c3fe65b6cf606bcb6232202bbce098d0be"
+      },
+      "eligible_k_gold_label_distribution": {
+        "NEGATIVE": 32,
+        "NEUTRAL": 458,
+        "POSITIVE": 110
+      },
+      "public_control_row_count": 1194,
+      "public_control_label_distribution": {
+        "NEGATIVE": 398,
+        "NEUTRAL": 398,
+        "POSITIVE": 398
+      },
+      "public_control": {
+        "selection": "FIRST_N_PER_LABEL_BY_STABLE_ITEM_GROUP_SHA",
+        "requested_per_label": {
+          "NEGATIVE": 398,
+          "NEUTRAL": 398,
+          "POSITIVE": 398
+        },
+        "selected_per_label": {
+          "NEGATIVE": 398,
+          "NEUTRAL": 398,
+          "POSITIVE": 398
+        },
+        "public_source_pool_commitment": {
+          "row_count": 7413,
+          "sha256": "341dd27fb25e4ac4689c0c1cf4439465b246b328488af4b983b3e7dbdecf12f0"
+        },
+        "selected_source_rows_commitment": {
+          "row_count": 1194,
+          "sha256": "06ca860df89f0a8a92b766401b4c7f4415182bfaabb8c5a419bb088deec673c2"
+        },
+        "selected_training_rows_commitment": {
+          "row_count": 1194,
+          "sha256": "819071829bec5f507ceb6ec861ffa474faf4ac68c67d17484fb452cce7db847c"
+        },
+        "label_sequence_commitments": {
+          "NEGATIVE": {
+            "row_count": 398,
+            "sha256": "cf4ae8345dae8d6918e9d8bf7950d76d1b433e987e882c5b8aecbf36741b6bd0"
+          },
+          "NEUTRAL": {
+            "row_count": 398,
+            "sha256": "e9d258d7a06e6b3b755739bf2f567f939a97e35024697d2579c57a7132520773"
+          },
+          "POSITIVE": {
+            "row_count": 398,
+            "sha256": "ce47f64aed6226a5415c122914014ac664f3fca76ca68c87a7c4f2f5453400bb"
+          }
+        }
+      },
+      "training_label_distribution": {
+        "NEGATIVE": 430,
+        "NEUTRAL": 856,
+        "POSITIVE": 508
+      },
+      "training_dataset_distribution": {
+        "K_FNSPID_DISCLOSURE_AUXILIARY_CODEX_GOLD": 600,
+        "PUBLIC_REFINEMENT_CONTROL": 1194
+      },
+      "domain_label_counts": {
+        "NEWS_UNTARGETED": {
+          "NEGATIVE": 398,
+          "NEUTRAL": 398,
+          "POSITIVE": 398
+        },
+        "DISCLOSURE_TARGETED": {
+          "NEGATIVE": 32,
+          "NEUTRAL": 458,
+          "POSITIVE": 110
+        }
+      },
+      "k_training_rows_used": 600,
+      "no_k_training_exposure": false
+    },
+    "optimizer_step_contract": {
+      "schema_version": "candidate-compute-matched-optimizer-steps/v1",
+      "stage1": {
+        "row_exposures_per_epoch": 32907,
+        "epochs": 2,
+        "optimizer_steps": 4114
+      },
+      "stage2": {
+        "refinement_rows": 1794,
+        "epochs": 4,
+        "optimizer_steps": 452
+      },
+      "batch_size": 8,
+      "gradient_accumulation_steps": 2,
+      "candidate_steps_exactly_matched": true
+    }
+  },
+  "estimand_contract": {
+    "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+    "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+    "intervention": "K_FNSPID_TRAINING_ROWS_BY_SOURCE",
+    "conditioned_on": "COMMON_K_DEVELOPMENT_CHECKPOINT_CALIBRATION_AND_ADAPTIVE_SELECTION",
+    "common_k_development_labels_used": true,
+    "interpretation": "K training-row intervention conditional on common K development selection",
+    "does_not_estimate_zero_k_exposure": true,
+    "zero_k_exposure_is_separate_exploratory_diagnostic": true
+  },
+  "statistical_analysis_plan": {
+    "schema_version": "k-fnspid-compute-matched-ablation-sap/v1",
+    "holm_family_modes": [
+      "NO_K",
+      "NEWS_ONLY",
+      "DISCLOSURE_ONLY",
+      "FULL"
+    ],
+    "holm_reference": "NO_K",
+    "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+    "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+    "matched_unit": "MODEL_SEED",
+    "fixed_model_seeds": [
+      17,
+      42,
+      73
+    ],
+    "primary_metric": "WEAKEST_SOURCE_DOMAIN_MACRO_F1",
+    "secondary_metric": "OVERALL_MACRO_F1",
+    "candidate_compute_matched": true,
+    "common_k_development_conditioning": true,
+    "zero_k_exposure_mode": "ZERO_K_EXPOSURE",
+    "zero_k_exposure_holm_eligible": false,
+    "independent_generalization_evidence": false
+  },
+  "selected_stage": "STAGE2_COMPUTE_MATCHED_REFINEMENT",
+  "stage2_status": "TRAINED_COMPUTE_MATCHED_REFINEMENT_CONTROL",
+  "trained_at": "2026-07-21T22:28:49.808048+00:00"
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "k-fnspid-transformer-artifact/v1",
+  "version": "kfi-disclosure-kr-finbert-sc-lora-20260719031141-p0.10-t0.55",
+  "model_preset": "KR_FINBERT_SC",
+  "base_model": "models/kr-finbert-sc-raw-reference",
+  "base_model_revision": "36b3d36898bc9925ca58c3508b1048e4449f1370",
+  "base_model_safetensors_sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a",
+  "comparison_only": true,
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-19T03:11:41.783793+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1238,
+      "sha256": "31b1727e4f306d4dcdd8a0a47d11e2a358bdb101935e98cb4424b59591c0104a"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924136,
+      "sha256": "218ec5fa653ebb5d55faa26624149d94c2dd538549e012669720a67fa9bf4416"
+    },
+    "tokenizer.json": {
+      "bytes": 454830,
+      "sha256": "ef57fb5d0c149b509bd181789aab255052ed1345108d4f1b62396b374fa46ba8"
+    },
+    "tokenizer_config.json": {
+      "bytes": 621,
+      "sha256": "55c91fa221678f29d9112475d81fa9ef9dbba2be15c07c70e4d796c20bf1ed8c"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 42,
+  "source_type": "DISCLOSURE",
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.1,
+    "selected_temperature": 0.55,
+    "selected_validation_negative_log_likelihood": 1.0778699149759592,
+    "training_class_priors": {
+      "LOW": 0.698177026505296,
+      "MEDIUM": 0.2313212361304618,
+      "HIGH": 0.05255736659224817,
+      "CRITICAL": 0.017944370771994025
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.5171232876712328,
+      "macro_f1": 0.27272682950611865,
+      "quadratic_kappa": 0.14744525547445264
+    }
+  }
+}

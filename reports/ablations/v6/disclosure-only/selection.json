@@ -1,0 +1,337 @@
+{
+  "schema_version": "k-fnspid-compute-matched-sentiment-ablation-selection/v3",
+  "artifact_role": "RESEARCH_ABLATION_NOT_DEPLOYABLE",
+  "model_family": "kf-deberta-shared-residual-hierarchical/v2",
+  "ablation_mode": "DISCLOSURE_ONLY",
+  "fixed_model_seeds": [
+    17,
+    42,
+    73
+  ],
+  "seed_results": {
+    "17": {
+      "weakest_source_domain_macro_f1": 0.6597038603913273,
+      "overall_macro_f1": 0.8629596482505143,
+      "training_report": {
+        "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/reports/ablations/v6/disclosure-only/kf-deberta-sentiment-v6-disclosure-only-seed17.json",
+        "bytes": 86164,
+        "sha256": "29bf93a080eec50596e3e5e076b0e959a0852984eab10d42a4bbe6e707bebdb3"
+      }
+    },
+    "42": {
+      "weakest_source_domain_macro_f1": 0.6369101486748546,
+      "overall_macro_f1": 0.8573080303316901,
+      "training_report": {
+        "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/reports/ablations/v6/disclosure-only/kf-deberta-sentiment-v6-disclosure-only-seed42.json",
+        "bytes": 86174,
+        "sha256": "488ef13648e45438f614d1881bf01e14e4fe4317a3327b72a577bf84a7ec7086"
+      }
+    },
+    "73": {
+      "weakest_source_domain_macro_f1": 0.5919124569428601,
+      "overall_macro_f1": 0.8423191558562738,
+      "training_report": {
+        "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/reports/ablations/v6/disclosure-only/kf-deberta-sentiment-v6-disclosure-only-seed73.json",
+        "bytes": 86178,
+        "sha256": "d43b7b9267e42eaee28f083928cc4ee04ccaf408063bf54d37ed9f8f5c01d979"
+      }
+    }
+  },
+  "winner": {
+    "schema_version": "k-fnspid-compute-matched-sentiment-ablation-winner/v3",
+    "artifact_role": "RESEARCH_ABLATION_NOT_DEPLOYABLE",
+    "model_family": "kf-deberta-shared-residual-hierarchical/v2",
+    "ablation_mode": "DISCLOSURE_ONLY",
+    "selected_seed": 17,
+    "selection_rule": "highest adaptive weakest-source macro-F1, then overall macro-F1, then lower seed",
+    "selection_score": {
+      "weakest_source_domain_macro_f1": 0.6597038603913273,
+      "overall_macro_f1": 0.8629596482505143
+    },
+    "selected_training_report": {
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/reports/ablations/v6/disclosure-only/kf-deberta-sentiment-v6-disclosure-only-seed17.json",
+      "bytes": 86164,
+      "sha256": "29bf93a080eec50596e3e5e076b0e959a0852984eab10d42a4bbe6e707bebdb3"
+    },
+    "artifact_directory": "artifacts/sentiment/v6-ablations/disclosure-only/seed17",
+    "artifact_files": {
+      "adapter/README.md": {
+        "bytes": 5414,
+        "sha256": "850c28949d054a19d8087c54b858035146cce8e2fe0800baa338e39482a9fd49"
+      },
+      "adapter/adapter_config.json": {
+        "bytes": 1312,
+        "sha256": "b7656aff9f192a9199f5aff0aaa6ba3164245be3a09cf080e9d636752ec3060a"
+      },
+      "adapter/adapter_model.safetensors": {
+        "bytes": 10636600,
+        "sha256": "daaa55b27158477a73c0bae19502facf2fd06acef439a51a362b31fe8aadd786"
+      },
+      "hannah_metadata.json": {
+        "bytes": 16910,
+        "sha256": "699c66f8500f22412ef0ea1acc6f9745f823997b5f6df6c93168f0faa3a5aa8d"
+      },
+      "manifest.json": {
+        "bytes": 1313,
+        "sha256": "afd8b672706f5b93ffb9add2259f1763eacef5c5a268728d7bd68399c80ec733"
+      },
+      "source_hierarchical_residual_heads.safetensors": {
+        "bytes": 35244,
+        "sha256": "90cd3aa755e24703e4b3902f77efa62abcb3d5d4cd7475f71670cc50fbbbc68c"
+      },
+      "tokenizer.json": {
+        "bytes": 3191920,
+        "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+      },
+      "tokenizer_config.json": {
+        "bytes": 452,
+        "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+      }
+    },
+    "prepared_partition_commitments": {
+      "TRAIN": {
+        "row_count": 12213,
+        "sha256": "fabd93bcd230c4f40f2c07e64c367097dac080dc79a1689b65afc87ddf6eb90a"
+      },
+      "CHECKPOINT": {
+        "row_count": 911,
+        "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+      },
+      "CALIBRATION": {
+        "row_count": 455,
+        "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+      },
+      "SELECTION": {
+        "row_count": 461,
+        "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+      },
+      "NEWS_CONFIRMATORY_RESERVATION": {
+        "row_count": 600,
+        "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+      },
+      "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+        "row_count": 600,
+        "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+      }
+    },
+    "compute_matching": {
+      "schema_version": "k-fnspid-compute-matched-training-plan/v1",
+      "stage1": {
+        "schema_version": "stable-hash-cyclic-stage1-exposure/v1",
+        "source_unique_rows_commitment": {
+          "row_count": 12213,
+          "sha256": "fabd93bcd230c4f40f2c07e64c367097dac080dc79a1689b65afc87ddf6eb90a"
+        },
+        "source_unique_row_count": 12213,
+        "stable_unique_order_commitment": {
+          "row_count": 12213,
+          "sha256": "384311e0a6fccca9759e38d62f302e15c5bf703f582cbad6f5f437d2db346ee8"
+        },
+        "stable_order": "SHA256(item_sha256||group_sha256)",
+        "cycling": "ROUND_ROBIN_OVER_STABLE_UNIQUE_ORDER",
+        "target_exposure_count_per_epoch": 32907,
+        "exposure_rows_commitment": {
+          "row_count": 32907,
+          "sha256": "b5facbf004f89d28a38263646ac87be2e70b0970f3d3e30a927280c4283a5383"
+        },
+        "exposure_sequence_commitment": {
+          "row_count": 32907,
+          "sha256": "b557133591c276e4e4d8c39c89ef109b68e01bb7da1e5d6bce3ebe2e3909c4b5"
+        },
+        "exposure_frequency_sha256": "3d1cff2d891df743c59cfed1afdd16fc4c32899b2c8d8730494128ccba6247ca",
+        "minimum_exposures_per_unique_row": 2,
+        "maximum_exposures_per_unique_row": 3,
+        "all_source_rows_exposed": true
+      },
+      "stage2": {
+        "schema_version": "compute-matched-stage2-refinement-control/v1",
+        "mode": "DISCLOSURE_ONLY",
+        "row_count": 1794,
+        "rows_commitment": {
+          "row_count": 1794,
+          "sha256": "d967fea4ce6c94512026f52c4459c06b769da7c04aeae22dd612c6fd84f641a2"
+        },
+        "row_sequence_commitment": {
+          "row_count": 1794,
+          "sha256": "b77023e6cf50af46a110d2c18cecbb9f4f4c2cae9114352fea75e335d47a9597"
+        },
+        "eligible_k_gold_row_count": 600,
+        "eligible_k_gold_rows_commitment": {
+          "row_count": 600,
+          "sha256": "920556237c99b51307413199462665c3fe65b6cf606bcb6232202bbce098d0be"
+        },
+        "eligible_k_gold_label_distribution": {
+          "NEGATIVE": 32,
+          "NEUTRAL": 458,
+          "POSITIVE": 110
+        },
+        "public_control_row_count": 1194,
+        "public_control_label_distribution": {
+          "NEGATIVE": 398,
+          "NEUTRAL": 398,
+          "POSITIVE": 398
+        },
+        "public_control": {
+          "selection": "FIRST_N_PER_LABEL_BY_STABLE_ITEM_GROUP_SHA",
+          "requested_per_label": {
+            "NEGATIVE": 398,
+            "NEUTRAL": 398,
+            "POSITIVE": 398
+          },
+          "selected_per_label": {
+            "NEGATIVE": 398,
+            "NEUTRAL": 398,
+            "POSITIVE": 398
+          },
+          "public_source_pool_commitment": {
+            "row_count": 7413,
+            "sha256": "341dd27fb25e4ac4689c0c1cf4439465b246b328488af4b983b3e7dbdecf12f0"
+          },
+          "selected_source_rows_commitment": {
+            "row_count": 1194,
+            "sha256": "06ca860df89f0a8a92b766401b4c7f4415182bfaabb8c5a419bb088deec673c2"
+          },
+          "selected_training_rows_commitment": {
+            "row_count": 1194,
+            "sha256": "819071829bec5f507ceb6ec861ffa474faf4ac68c67d17484fb452cce7db847c"
+          },
+          "label_sequence_commitments": {
+            "NEGATIVE": {
+              "row_count": 398,
+              "sha256": "cf4ae8345dae8d6918e9d8bf7950d76d1b433e987e882c5b8aecbf36741b6bd0"
+            },
+            "NEUTRAL": {
+              "row_count": 398,
+              "sha256": "e9d258d7a06e6b3b755739bf2f567f939a97e35024697d2579c57a7132520773"
+            },
+            "POSITIVE": {
+              "row_count": 398,
+              "sha256": "ce47f64aed6226a5415c122914014ac664f3fca76ca68c87a7c4f2f5453400bb"
+            }
+          }
+        },
+        "training_label_distribution": {
+          "NEGATIVE": 430,
+          "NEUTRAL": 856,
+          "POSITIVE": 508
+        },
+        "training_dataset_distribution": {
+          "K_FNSPID_DISCLOSURE_AUXILIARY_CODEX_GOLD": 600,
+          "PUBLIC_REFINEMENT_CONTROL": 1194
+        },
+        "domain_label_counts": {
+          "NEWS_UNTARGETED": {
+            "NEGATIVE": 398,
+            "NEUTRAL": 398,
+            "POSITIVE": 398
+          },
+          "DISCLOSURE_TARGETED": {
+            "NEGATIVE": 32,
+            "NEUTRAL": 458,
+            "POSITIVE": 110
+          }
+        },
+        "k_training_rows_used": 600,
+        "no_k_training_exposure": false
+      },
+      "optimizer_step_contract": {
+        "schema_version": "candidate-compute-matched-optimizer-steps/v1",
+        "stage1": {
+          "row_exposures_per_epoch": 32907,
+          "epochs": 2,
+          "optimizer_steps": 4114
+        },
+        "stage2": {
+          "refinement_rows": 1794,
+          "epochs": 4,
+          "optimizer_steps": 452
+        },
+        "batch_size": 8,
+        "gradient_accumulation_steps": 2,
+        "candidate_steps_exactly_matched": true
+      }
+    },
+    "estimand_contract": {
+      "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+      "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+      "intervention": "K_FNSPID_TRAINING_ROWS_BY_SOURCE",
+      "conditioned_on": "COMMON_K_DEVELOPMENT_CHECKPOINT_CALIBRATION_AND_ADAPTIVE_SELECTION",
+      "common_k_development_labels_used": true,
+      "interpretation": "K training-row intervention conditional on common K development selection",
+      "does_not_estimate_zero_k_exposure": true,
+      "zero_k_exposure_is_separate_exploratory_diagnostic": true
+    },
+    "statistical_analysis_plan": {
+      "schema_version": "k-fnspid-compute-matched-ablation-sap/v1",
+      "holm_family_modes": [
+        "NO_K",
+        "NEWS_ONLY",
+        "DISCLOSURE_ONLY",
+        "FULL"
+      ],
+      "holm_reference": "NO_K",
+      "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+      "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+      "matched_unit": "MODEL_SEED",
+      "fixed_model_seeds": [
+        17,
+        42,
+        73
+      ],
+      "primary_metric": "WEAKEST_SOURCE_DOMAIN_MACRO_F1",
+      "secondary_metric": "OVERALL_MACRO_F1",
+      "candidate_compute_matched": true,
+      "common_k_development_conditioning": true,
+      "zero_k_exposure_mode": "ZERO_K_EXPOSURE",
+      "zero_k_exposure_holm_eligible": false,
+      "independent_generalization_evidence": false
+    },
+    "independent_generalization_evidence": false,
+    "confirmatory_is_only_independent_generalization_evidence": true,
+    "final_holm_no_k_role": "NOT_NO_K_BASELINE",
+    "legacy_v5_no_k_final_holm_eligible": false,
+    "zero_k_exposure_holm_eligible": false,
+    "deployment_eligible": false
+  },
+  "adaptive_development_selection": true,
+  "independent_generalization_evidence": false,
+  "estimand_contract": {
+    "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+    "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+    "intervention": "K_FNSPID_TRAINING_ROWS_BY_SOURCE",
+    "conditioned_on": "COMMON_K_DEVELOPMENT_CHECKPOINT_CALIBRATION_AND_ADAPTIVE_SELECTION",
+    "common_k_development_labels_used": true,
+    "interpretation": "K training-row intervention conditional on common K development selection",
+    "does_not_estimate_zero_k_exposure": true,
+    "zero_k_exposure_is_separate_exploratory_diagnostic": true
+  },
+  "statistical_analysis_plan": {
+    "schema_version": "k-fnspid-compute-matched-ablation-sap/v1",
+    "holm_family_modes": [
+      "NO_K",
+      "NEWS_ONLY",
+      "DISCLOSURE_ONLY",
+      "FULL"
+    ],
+    "holm_reference": "NO_K",
+    "holm_no_k_role": "NO_K_TRAIN_ROWS_WITH_SHARED_K_DEV",
+    "estimand_id": "K_TRAINING_ROW_INTERVENTION_CONDITIONAL_ON_SHARED_K_DEVELOPMENT",
+    "matched_unit": "MODEL_SEED",
+    "fixed_model_seeds": [
+      17,
+      42,
+      73
+    ],
+    "primary_metric": "WEAKEST_SOURCE_DOMAIN_MACRO_F1",
+    "secondary_metric": "OVERALL_MACRO_F1",
+    "candidate_compute_matched": true,
+    "common_k_development_conditioning": true,
+    "zero_k_exposure_mode": "ZERO_K_EXPOSURE",
+    "zero_k_exposure_holm_eligible": false,
+    "independent_generalization_evidence": false
+  },
+  "final_holm_no_k_role": "NOT_NO_K_BASELINE",
+  "legacy_v5_no_k_final_holm_eligible": false,
+  "zero_k_exposure_holm_eligible": false,
+  "deployment_eligible": false
+}

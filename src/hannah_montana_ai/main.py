@@ -15,13 +15,14 @@ from starlette.responses import Response
 
 from hannah_montana_ai.api.common import FieldErrorDetail, error_response
 from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
-from hannah_montana_ai.api.routes import router, warm_runtime_dependencies
+from hannah_montana_ai.api.routes import get_analyzer, router, warm_runtime_dependencies
 from hannah_montana_ai.core.config import Settings, get_settings
 from hannah_montana_ai.observability import (
     HTTP_DURATION,
     HTTP_REQUESTS,
     configure_observability,
 )
+from hannah_montana_ai.services.model import ModelArtifactError
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,22 @@ def _translation_provider_ready(settings: Settings) -> bool:
             return bool(response.status == 200)
     except (OSError, ValueError):
         return False
+
+
+def _sentiment_release_ready(settings: Settings) -> bool:
+    current = settings.sentiment_release_current_path
+    release_required = (
+        settings.runtime_environment == "production"
+        or current.exists()
+        or current.is_symlink()
+    )
+    if not release_required:
+        return True
+    try:
+        model = get_analyzer().sentiment_transformer
+    except ModelArtifactError:
+        return False
+    return bool(model.enabled and model.release_id)
 
 
 def create_app() -> FastAPI:
@@ -144,7 +161,13 @@ def create_app() -> FastAPI:
 
     @app.get("/ready", tags=["system"])
     def readiness() -> JSONResponse:
-        if _translation_provider_ready(get_settings()):
+        current_settings = get_settings()
+        if not _sentiment_release_ready(current_settings):
+            return JSONResponse(
+                status_code=503,
+                content={"status": "not_ready", "dependency": "sentiment_release"},
+            )
+        if _translation_provider_ready(current_settings):
             return JSONResponse(status_code=200, content={"status": "ready"})
         return JSONResponse(
             status_code=503,

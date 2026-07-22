@@ -1,0 +1,2412 @@
+{
+  "schema_version": "sentiment-sealed-evaluation-consumption/v1",
+  "consumed_at": "2026-07-22T06:55:24.189440+00:00",
+  "labels_loaded_before_receipt": false,
+  "one_shot": true,
+  "candidate_version": "hana-montana-kf-deberta-k-fnspid-sentiment-v6-seed42-20260717211645",
+  "candidate_lock_manifest_sha256": "a0e9dd31826cc7305d223d67c60e43b59122d0fc5166a3e4c5022f793ceb1b2d",
+  "candidate_artifact_manifest_sha256": "0bc9ecf4c06d6b5472c0283c0817b2722fabffeac1c4ff2edd7bcc4356ce5882",
+  "candidate_git_attestation": {
+    "schema_version": "sentiment-candidate-git-attestation/v1",
+    "role": "REMOTE_GIT_HISTORY_COMMITMENT_NOT_INDEPENDENT_TIMESTAMP",
+    "path": "reports/sentiment-candidate-git-attestation.json",
+    "sha256": "d5794cd8ab9f57f5d50e00458380781e1549c97f6aa46ed2d33b4255c577656a",
+    "attested_at": "2026-07-21T22:51:59.784999+00:00",
+    "commit_sha": "ed3da07e1de6367177b932995b951003b4418f60",
+    "tree_sha": "944f2aafa701e4fb5e1093b8c00a7406f2004231",
+    "committer_time_iso": "2026-07-21T22:51:32+00:00",
+    "remote_name": "origin",
+    "remote_tracking_ref": "refs/remotes/origin/feat/improve-hana-montana-sentiment",
+    "candidate_lock_path": "reports/sentiment-candidate-lock.json",
+    "candidate_lock_sha256": "a0e9dd31826cc7305d223d67c60e43b59122d0fc5166a3e4c5022f793ceb1b2d",
+    "committed_artifact_manifests": {
+      "sealed_reservations": {
+        "NEWS": {
+          "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+          "bytes": 969809,
+          "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+        },
+        "DISCLOSURE": {
+          "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+          "bytes": 680705,
+          "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+        }
+      },
+      "dataset_provenance": {
+        "codebook": {
+          "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+          "bytes": 29036,
+          "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+        },
+        "sampling_implementation": {
+          "path": "src/hannah_montana_ai/training/sentiment_sampling.py",
+          "bytes": 3558,
+          "sha256": "47c02b2effa6c0bebf269a12941e25b734491e80fd1667f791e93cb523baa6a0"
+        },
+        "dataset_reports": {
+          "DISCLOSURE": {
+            "path": "reports/k-fnspid-disclosure-sentiment-dataset-report.json",
+            "bytes": 2350,
+            "sha256": "5942a9017917b968b8b4004951626a44b5d49686ffb0f03168c002dd65921ebc"
+          },
+          "NEWS": {
+            "path": "reports/k-fnspid-sentiment-dataset-report.json",
+            "bytes": 2696,
+            "sha256": "4e74ac8dc788927f55ccb13038c2bfff1a2e88a0c97596929940819a77d4de2d"
+          },
+          "SAMPLING_DESIGN": {
+            "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design-v2.json",
+            "bytes": 34695,
+            "sha256": "9fb25b568d38d7613bcb011b8a45a43e31d81ceadfe06606fad5e44ee0f3b9f6"
+          }
+        }
+      },
+      "code_provenance": {
+        "training_script": {
+          "path": "scripts/train_kf_deberta_sentiment_v6.py",
+          "bytes": 137199,
+          "sha256": "363032cdd0681e19b427539a0e1f520582fe054f37451341ca0755d00c04fd46"
+        }
+      },
+      "recipe_blobs": {
+        "artifact_contract": {
+          "path": "src/hannah_montana_ai/services/sentiment_artifact_contract.py",
+          "bytes": 28249,
+          "sha256": "da9b261dde07efd9424f7fb6775acf1482ce5dff52b155e7cb28355561f61c6c"
+        },
+        "candidate_locker": {
+          "path": "scripts/lock_kf_deberta_sentiment_candidate.py",
+          "bytes": 53855,
+          "sha256": "97dd33ca0e985f3dd3c38386bf352700e51827f571ec56d1ef2b36fc454ff650"
+        },
+        "candidate_trainer": {
+          "path": "scripts/train_kf_deberta_sentiment_v6.py",
+          "bytes": 137199,
+          "sha256": "363032cdd0681e19b427539a0e1f520582fe054f37451341ca0755d00c04fd46"
+        },
+        "canonical_evaluator": {
+          "path": "scripts/evaluate_locked_kf_deberta_sentiment.py",
+          "bytes": 211119,
+          "sha256": "5d62560687038a5177be47c38a7fe1c8b2a682e1fdb1c3b6d91e335a8dbbc625"
+        },
+        "dependency_lock": {
+          "path": "uv.lock",
+          "bytes": 644077,
+          "sha256": "0c1a5604adc8ce7d85fe2da01a4c4bafb37e145e9c647d024b46d32b0e59306c"
+        },
+        "dependency_manifest": {
+          "path": "pyproject.toml",
+          "bytes": 1677,
+          "sha256": "b55742ccce4dd9d6637d7686dc41fb737ac794bb16844f911b158ac608ed953f"
+        },
+        "hierarchical_runtime": {
+          "path": "src/hannah_montana_ai/services/source_hierarchical_sentiment.py",
+          "bytes": 21138,
+          "sha256": "628b040e114e5ca91448c5ca64f827bf8b6f4c6c4417c9227aebe6668cef5abd"
+        },
+        "input_contract": {
+          "path": "src/hannah_montana_ai/services/sentiment_input.py",
+          "bytes": 3932,
+          "sha256": "1f773fee3b70591379720da564e62f87f3336a1cc496ba779c93fad95d311855"
+        },
+        "protocol": {
+          "path": "src/hannah_montana_ai/training/sentiment_protocol.py",
+          "bytes": 14783,
+          "sha256": "96c7ce7c85ec8f29c1feb4e9d3ddb4a20c6ec64c103bd456896ff828aeabb576"
+        },
+        "runtime_parity_generator": {
+          "path": "scripts/generate_sentiment_cpu_runtime_parity.py",
+          "bytes": 24434,
+          "sha256": "2a62e2da2f0cefd4a2151be06cd7e325370f54acaa2c8222c981f41b516936e4"
+        },
+        "serving_loader": {
+          "path": "src/hannah_montana_ai/services/transformer_sentiment_model.py",
+          "bytes": 26113,
+          "sha256": "dedd34dafab6a41f5f6f5404f54eef6d39ba03cc6d7bec157b49b263c75c0107"
+        },
+        "v6_ablation_trainer": {
+          "path": "scripts/train_kf_deberta_sentiment_v6_ablation.py",
+          "bytes": 96252,
+          "sha256": "67769f10bec655fb9b10ee1c7fc2ec4e1e7f6430850bb104d4a80a32590337d9"
+        },
+        "v6_evaluation_contract": {
+          "path": "src/hannah_montana_ai/training/sentiment_v6_evaluation_contract.py",
+          "bytes": 53963,
+          "sha256": "580f1a65c3cbec9738dd38f3d3a94b66ede3c22b52aee267cfae8e50c757ef02"
+        },
+        "v6_fair_baseline_commitment": {
+          "path": "src/hannah_montana_ai/training/sentiment_v6_baseline_commitment.py",
+          "bytes": 10498,
+          "sha256": "9b78ed7fb5acf0f5245ad8dd634665c108c9abe2fbcd1bfe6c19fa55fa2df32b"
+        },
+        "v6_fair_baseline_runtime": {
+          "path": "src/hannah_montana_ai/services/kr_finbert_sc_v6_baseline.py",
+          "bytes": 17236,
+          "sha256": "9787b7e2afcd40c433210c4a28905ade279b3770b94ae551be8c14c09be3196e"
+        },
+        "v6_fair_baseline_trainer": {
+          "path": "scripts/train_kr_finbert_sc_sentiment_v6.py",
+          "bytes": 54702,
+          "sha256": "ed7f38eab99e031f9a1a871c848426b86258ab89632bfd7eb7050bce14a80656"
+        },
+        "v6_raw_reference_materializer": {
+          "path": "scripts/materialize_kr_finbert_sc_raw_reference.py",
+          "bytes": 4063,
+          "sha256": "6d9bc084f4068af8199767bc3b05a0f910fab29b6a44ef4cc7d05c4e56e8b5ae"
+        },
+        "v6_raw_reference_runtime": {
+          "path": "src/hannah_montana_ai/services/kr_finbert_sc_raw_reference.py",
+          "bytes": 6867,
+          "sha256": "9862cf37c7b47fa15b0513ec84d5afef76c209450a8d731f1ca04b36a70e520f"
+        }
+      },
+      "baseline_commitments": {
+        "schema_version": "sentiment-v6-confirmatory-baseline-commitments/v2",
+        "candidate_matching_contract": {
+          "schema_version": "sentiment-v6-candidate-matching-contract/v2",
+          "candidate_model_family": "kf-deberta-shared-residual-hierarchical/v2",
+          "candidate_training_schema": "kf-deberta-shared-residual-sentiment-training/v2",
+          "prepared_partition_commitments": {
+            "TRAIN": {
+              "row_count": 32907,
+              "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+            },
+            "CHECKPOINT": {
+              "row_count": 911,
+              "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+            },
+            "CALIBRATION": {
+              "row_count": 455,
+              "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+            },
+            "SELECTION": {
+              "row_count": 461,
+              "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+            },
+            "NEWS_CONFIRMATORY_RESERVATION": {
+              "row_count": 600,
+              "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+            },
+            "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+              "row_count": 600,
+              "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+            }
+          },
+          "prepared_partition_commitments_sha256": "811ae41ec0f705edc05507c1839033e56011d1221cb23dd4521eb2adf7b15262",
+          "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+          "update_schedule": {
+            "data_selection_seed": 20260715,
+            "max_length": 256,
+            "stage1_epochs": 2,
+            "stage2_epochs": 4,
+            "batch_size": 8,
+            "gradient_accumulation_steps": 2,
+            "gradient_checkpointing": true,
+            "eval_batch_size": 16,
+            "optimizer": "AdamW",
+            "scheduler": "cosine-with-8pct-warmup",
+            "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected",
+            "stage1_optimizer_steps": 4114,
+            "stage1_planned_optimizer_steps": 4114,
+            "stage2_optimizer_steps": 452,
+            "stage2_planned_optimizer_steps": 452,
+            "executed_optimizer_steps_total": 4566,
+            "planned_optimizer_steps_total": 4566,
+            "fixed_full_epoch_budget": true
+          },
+          "update_schedule_sha256": "eb7f93ab70d64648fdd0537600dc850a16cdf981753f07a7e73de8f4e2fff7c5"
+        },
+        "confirmatory_labels_used": false,
+        "public_test_labels_used": false,
+        "baselines": {
+          "kr_finbert_sc_raw_off_the_shelf": {
+            "artifact": {
+              "schema_version": "sentiment-full-directory-manifest/v1",
+              "path": "models/kr-finbert-sc-raw-reference",
+              "files": {
+                "config.json": {
+                  "bytes": 881,
+                  "sha256": "cb7c00d3e6dfe46beacec2e0c7b98bfa519bed9949093fc06086f961e0020544"
+                },
+                "model.safetensors": {
+                  "bytes": 405642288,
+                  "sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a"
+                },
+                "raw_reference_manifest.json": {
+                  "bytes": 951,
+                  "sha256": "015bb10d1f364436b029b861c579cdaf6644be41fdd30941eabf6af0ba2192c4"
+                },
+                "special_tokens_map.json": {
+                  "bytes": 112,
+                  "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+                },
+                "tokenizer.json": {
+                  "bytes": 293759,
+                  "sha256": "896789eab76ff9b984d5a91342ca7bf58adf14cfe9027da888a0c228078d7dcf"
+                },
+                "tokenizer_config.json": {
+                  "bytes": 372,
+                  "sha256": "5d5692ce35199e06e258b858a5741807c2c9b0555b93cc352d72fe5b72e3873e"
+                },
+                "vocab.txt": {
+                  "bytes": 143209,
+                  "sha256": "a6fb3bad008ed486cf553d7585251a6cb0d72be8fd88386f3646c592876d195c"
+                }
+              },
+              "manifest_sha256": "39ec3fad61dd3e629b9c7b3ddf2b9ea0434cee7977ec1e8ea7f7014aefc28f33"
+            },
+            "manifest_sha256": "c9b8f6324f7e589219af71680bb7ecc4a6f961611687cc0420e3a7ca0f9a4ee6",
+            "inference_contract": {
+              "max_length": 256,
+              "truncation": "first_tokens",
+              "target_conditioning": false,
+              "local_files_only": true
+            }
+          },
+          "hana_tfidf_logistic": {
+            "artifact": {
+              "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
+              "bytes": 15414407,
+              "sha256": "04bb18037d28c59c487779531c90db5faa2e2136a3ca1dfe1d7af1a781ad6157"
+            }
+          },
+          "pre_k_fnspid_kf_deberta": {
+            "training_report": {
+              "path": "reports/kf-deberta-sentiment-training-report-pre-k-fnspid.json",
+              "bytes": 3658,
+              "sha256": "78c6db262e9263c84b32bd580c30b81335baea56ea210057fbb36edb58039a01"
+            },
+            "winner_artifact": {
+              "schema_version": "sentiment-full-directory-manifest/v1",
+              "path": "src/hannah_montana_ai/model_store/kf_deberta_sentiment",
+              "files": {
+                "README.md": {
+                  "bytes": 5174,
+                  "sha256": "df0fce9bae4eefdab4d448d004164a31d7c60034141f84c04c26c357c34a7b3f"
+                },
+                "adapter_config.json": {
+                  "bytes": 1142,
+                  "sha256": "a00767f8947c8ced54cd07db3612b8d08311efc240627f38d40b55f50a54603a"
+                },
+                "adapter_model.safetensors": {
+                  "bytes": 5921612,
+                  "sha256": "506a4290af390f9ebd3a3cabc8ae592e6c4c53837d44f1fb821c86819dd81c88"
+                },
+                "hannah_metadata.json": {
+                  "bytes": 975,
+                  "sha256": "b81e198b5c65481520a1563e415325583535c043c5b34d6c3e40fa054cd5bdcb"
+                },
+                "tokenizer.json": {
+                  "bytes": 3192018,
+                  "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+                },
+                "tokenizer_config.json": {
+                  "bytes": 452,
+                  "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+                }
+              },
+              "manifest_sha256": "bca90a2882f0079dd1f4b526c6262d080bf7c87e2433cd51fd118c8d32e408ef"
+            }
+          },
+          "kr_finbert_sc_v6_shared_residual_same_data_schedule_fair": {
+            "schema_version": "sentiment-v6-kr-finbert-sc-shared-residual-baseline-commitment/v2",
+            "baseline_model_name": "kr_finbert_sc_v6_shared_residual_same_data_schedule_fair",
+            "public_test_labels_used": false,
+            "confirmatory_labels_used": false,
+            "required_model_seeds": [
+              17,
+              42,
+              73
+            ],
+            "selection_report": {
+              "path": "reports/fair_baselines/kr-finbert-sc-v6/selection.json",
+              "bytes": 6361,
+              "sha256": "8e99f39406c1cca6bb9f6128887e12c4a9f87666ff293b93d6aadb406cc44960"
+            },
+            "selected_seed": 42,
+            "seed_runs": {
+              "17": {
+                "report": {
+                  "path": "reports/fair_baselines/kr-finbert-sc-v6/seed17.json",
+                  "bytes": 59839,
+                  "sha256": "326670c8db70cd5dee7393dd27431bbf5976c7ff8b1ff507a912ad2e0e4645d4"
+                },
+                "artifact": {
+                  "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed17",
+                  "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed17-20260718042324",
+                  "artifact_manifest_sha256": "726a2c73e032053ad7b48f8a315b0571bc526d5648ea521a3c400eeb56256b6a"
+                },
+                "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+                "prepared_partition_commitments": {
+                  "TRAIN": {
+                    "row_count": 32907,
+                    "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                  },
+                  "CHECKPOINT": {
+                    "row_count": 911,
+                    "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                  },
+                  "CALIBRATION": {
+                    "row_count": 455,
+                    "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                  },
+                  "SELECTION": {
+                    "row_count": 461,
+                    "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                  },
+                  "NEWS_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                  },
+                  "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                  }
+                },
+                "candidate_matching_contract": {
+                  "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+                  "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+                  "prepared_partition_commitments": {
+                    "TRAIN": {
+                      "row_count": 32907,
+                      "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                    },
+                    "CHECKPOINT": {
+                      "row_count": 911,
+                      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                    },
+                    "CALIBRATION": {
+                      "row_count": 455,
+                      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                    },
+                    "SELECTION": {
+                      "row_count": 461,
+                      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                    },
+                    "NEWS_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                    },
+                    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                    }
+                  },
+                  "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+                  "configured_schedule": {
+                    "stage1_epochs": 2,
+                    "stage2_epochs": 4,
+                    "batch_size": 8,
+                    "eval_batch_size": 16,
+                    "gradient_accumulation_steps": 2,
+                    "gradient_checkpointing": true,
+                    "optimizer": "AdamW",
+                    "scheduler": "cosine-with-8pct-warmup",
+                    "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+                  },
+                  "planned_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "executed_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "matching_semantics": {
+                    "same_raw_source_rows": true,
+                    "same_group_disjoint_partitions": true,
+                    "same_data_selection_seed": true,
+                    "same_model_seed_set": true,
+                    "same_target_aware_input": true,
+                    "same_source_hierarchical_task_loss_calibration_selection": true,
+                    "same_schedule_implementation_and_configured_rule": true,
+                    "planned_equals_executed_optimizer_steps": true
+                  }
+                }
+              },
+              "42": {
+                "report": {
+                  "path": "reports/fair_baselines/kr-finbert-sc-v6/seed42.json",
+                  "bytes": 59840,
+                  "sha256": "656ff4236534f0f66ae24c1aeb9fdba157c74d4be5c90a2a7968fc7dd0fa8852"
+                },
+                "artifact": {
+                  "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+                  "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed42-20260718065025",
+                  "artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75"
+                },
+                "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+                "prepared_partition_commitments": {
+                  "TRAIN": {
+                    "row_count": 32907,
+                    "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                  },
+                  "CHECKPOINT": {
+                    "row_count": 911,
+                    "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                  },
+                  "CALIBRATION": {
+                    "row_count": 455,
+                    "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                  },
+                  "SELECTION": {
+                    "row_count": 461,
+                    "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                  },
+                  "NEWS_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                  },
+                  "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                  }
+                },
+                "candidate_matching_contract": {
+                  "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+                  "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+                  "prepared_partition_commitments": {
+                    "TRAIN": {
+                      "row_count": 32907,
+                      "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                    },
+                    "CHECKPOINT": {
+                      "row_count": 911,
+                      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                    },
+                    "CALIBRATION": {
+                      "row_count": 455,
+                      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                    },
+                    "SELECTION": {
+                      "row_count": 461,
+                      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                    },
+                    "NEWS_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                    },
+                    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                    }
+                  },
+                  "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+                  "configured_schedule": {
+                    "stage1_epochs": 2,
+                    "stage2_epochs": 4,
+                    "batch_size": 8,
+                    "eval_batch_size": 16,
+                    "gradient_accumulation_steps": 2,
+                    "gradient_checkpointing": true,
+                    "optimizer": "AdamW",
+                    "scheduler": "cosine-with-8pct-warmup",
+                    "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+                  },
+                  "planned_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "executed_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "matching_semantics": {
+                    "same_raw_source_rows": true,
+                    "same_group_disjoint_partitions": true,
+                    "same_data_selection_seed": true,
+                    "same_model_seed_set": true,
+                    "same_target_aware_input": true,
+                    "same_source_hierarchical_task_loss_calibration_selection": true,
+                    "same_schedule_implementation_and_configured_rule": true,
+                    "planned_equals_executed_optimizer_steps": true
+                  }
+                }
+              },
+              "73": {
+                "report": {
+                  "path": "reports/fair_baselines/kr-finbert-sc-v6/seed73.json",
+                  "bytes": 59831,
+                  "sha256": "9916a755ea4790eeba39eb0a412c8cb5ceca7daf1e3a6beca0291795a8337e53"
+                },
+                "artifact": {
+                  "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed73",
+                  "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed73-20260718091627",
+                  "artifact_manifest_sha256": "b706c5243ec3af6080b8aea542aeb224ac16f7380912e625890011a73da31d87"
+                },
+                "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+                "prepared_partition_commitments": {
+                  "TRAIN": {
+                    "row_count": 32907,
+                    "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                  },
+                  "CHECKPOINT": {
+                    "row_count": 911,
+                    "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                  },
+                  "CALIBRATION": {
+                    "row_count": 455,
+                    "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                  },
+                  "SELECTION": {
+                    "row_count": 461,
+                    "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                  },
+                  "NEWS_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                  },
+                  "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                    "row_count": 600,
+                    "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                  }
+                },
+                "candidate_matching_contract": {
+                  "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+                  "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+                  "prepared_partition_commitments": {
+                    "TRAIN": {
+                      "row_count": 32907,
+                      "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                    },
+                    "CHECKPOINT": {
+                      "row_count": 911,
+                      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                    },
+                    "CALIBRATION": {
+                      "row_count": 455,
+                      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                    },
+                    "SELECTION": {
+                      "row_count": 461,
+                      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                    },
+                    "NEWS_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                    },
+                    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                      "row_count": 600,
+                      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                    }
+                  },
+                  "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+                  "configured_schedule": {
+                    "stage1_epochs": 2,
+                    "stage2_epochs": 4,
+                    "batch_size": 8,
+                    "eval_batch_size": 16,
+                    "gradient_accumulation_steps": 2,
+                    "gradient_checkpointing": true,
+                    "optimizer": "AdamW",
+                    "scheduler": "cosine-with-8pct-warmup",
+                    "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+                  },
+                  "planned_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "executed_optimizer_steps": {
+                    "stage1": 4114,
+                    "stage2": 452,
+                    "total": 4566
+                  },
+                  "matching_semantics": {
+                    "same_raw_source_rows": true,
+                    "same_group_disjoint_partitions": true,
+                    "same_data_selection_seed": true,
+                    "same_model_seed_set": true,
+                    "same_target_aware_input": true,
+                    "same_source_hierarchical_task_loss_calibration_selection": true,
+                    "same_schedule_implementation_and_configured_rule": true,
+                    "planned_equals_executed_optimizer_steps": true
+                  }
+                }
+              }
+            },
+            "winner_artifact": {
+              "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+              "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed42-20260718065025",
+              "artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75"
+            },
+            "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+            "candidate_matching_contract": {
+              "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+              "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+              "prepared_partition_commitments": {
+                "TRAIN": {
+                  "row_count": 32907,
+                  "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                },
+                "CHECKPOINT": {
+                  "row_count": 911,
+                  "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                },
+                "CALIBRATION": {
+                  "row_count": 455,
+                  "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                },
+                "SELECTION": {
+                  "row_count": 461,
+                  "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                },
+                "NEWS_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                },
+                "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                }
+              },
+              "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+              "configured_schedule": {
+                "stage1_epochs": 2,
+                "stage2_epochs": 4,
+                "batch_size": 8,
+                "eval_batch_size": 16,
+                "gradient_accumulation_steps": 2,
+                "gradient_checkpointing": true,
+                "optimizer": "AdamW",
+                "scheduler": "cosine-with-8pct-warmup",
+                "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+              },
+              "planned_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "matching_semantics": {
+                "same_raw_source_rows": true,
+                "same_group_disjoint_partitions": true,
+                "same_data_selection_seed": true,
+                "same_model_seed_set": true,
+                "same_target_aware_input": true,
+                "same_source_hierarchical_task_loss_calibration_selection": true,
+                "same_schedule_implementation_and_configured_rule": true,
+                "planned_equals_executed_optimizer_steps": true
+              },
+              "seed_executed_optimizer_steps": {
+                "17": {
+                  "stage1": 4114,
+                  "stage2": 452,
+                  "total": 4566
+                },
+                "42": {
+                  "stage1": 4114,
+                  "stage2": 452,
+                  "total": 4566
+                },
+                "73": {
+                  "stage1": 4114,
+                  "stage2": 452,
+                  "total": 4566
+                }
+              }
+            }
+          },
+          "kf_deberta_shared_residual_v6_no_k": {
+            "selection_report": {
+              "path": "reports/ablations/v6/no-k/selection.json",
+              "bytes": 12550,
+              "sha256": "c7ceb277f19129f16921f77d5e96c958a9bce86c05e4e220be0819f5ab2dab32"
+            },
+            "seed_reports": {
+              "17": {
+                "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed17.json",
+                "bytes": 85539,
+                "sha256": "bc6e4bc42e3687a34f34652c2beb0f65cc23c77f74b3966b14d7e24c219f0ab6"
+              },
+              "42": {
+                "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed42.json",
+                "bytes": 85523,
+                "sha256": "2aaf5a330dd50cff35eb654926ffdb524e5a4f8800b45b0bbc175bb66a0dd06d"
+              },
+              "73": {
+                "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed73.json",
+                "bytes": 85513,
+                "sha256": "001ac4d308558d89fad9c3068e350f3593dc9e2a747456349f82c91ccbebef23"
+              }
+            },
+            "selected_seed": 17,
+            "winner_artifact": {
+              "schema_version": "sentiment-full-directory-manifest/v1",
+              "path": "artifacts/sentiment/v6-ablations/no-k/seed17",
+              "files": {
+                "adapter/README.md": {
+                  "bytes": 5414,
+                  "sha256": "850c28949d054a19d8087c54b858035146cce8e2fe0800baa338e39482a9fd49"
+                },
+                "adapter/adapter_config.json": {
+                  "bytes": 1312,
+                  "sha256": "18d2dea5beeb8a081ef8874c245684540badcdf362d2a52a0c5d068d875708e1"
+                },
+                "adapter/adapter_model.safetensors": {
+                  "bytes": 10636600,
+                  "sha256": "81e906e6ca2341c2c91b51a9794da78e889e066d79e5128d35d76f3617232961"
+                },
+                "hannah_metadata.json": {
+                  "bytes": 16683,
+                  "sha256": "04a5c71ae31ea93db8b124c955fe5b8d884f183fa3e35f980573e6db632db30b"
+                },
+                "manifest.json": {
+                  "bytes": 1313,
+                  "sha256": "ba5826a1ded63157182935361a4f571395485a0baef746e6c0478161abfe65e1"
+                },
+                "source_hierarchical_residual_heads.safetensors": {
+                  "bytes": 35244,
+                  "sha256": "f126fccc461f52b7379146e9fe4bd1cc66ba3f3768b12a12f06bc97eafc6e883"
+                },
+                "tokenizer.json": {
+                  "bytes": 3191920,
+                  "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+                },
+                "tokenizer_config.json": {
+                  "bytes": 452,
+                  "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+                }
+              },
+              "manifest_sha256": "0fb607d70c4de066e7d50d1cf7d999b3ec6f324eff6d72721d45a292a5c2899e"
+            },
+            "winner_manifest": {
+              "path": "reports/ablations/v6/no-k/winner-manifest.json",
+              "bytes": 9009,
+              "sha256": "a3267e28a87a80f64d4b8cbee9876f1050147b1b1d6aba660d258c14be67309f"
+            },
+            "runtime_loader_contract": {
+              "schema_version": "kf-deberta-shared-residual-runtime-loader/v2",
+              "base_source": {
+                "schema_version": "kf-deberta-dapt-base-source/v2",
+                "artifact_manifest": {
+                  "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/manifest.json",
+                  "bytes": 15832,
+                  "sha256": "50155de739a7e27131adb49dd645eb66e56d6a1c3783872cef1595b77607ef2a"
+                },
+                "merged_fp32_artifact_files": {
+                  "merged_fp32/config.json": {
+                    "bytes": 956,
+                    "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+                  },
+                  "merged_fp32/model.safetensors": {
+                    "bytes": 744076256,
+                    "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+                  }
+                },
+                "training_report": {
+                  "bytes": 593726,
+                  "sha256": "82f2fbe7d6e0fedaabc70e5254f34139defd217ea698c91922dc8c4a6e068f1a"
+                },
+                "prepared_manifest": {
+                  "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+                  "bytes": 59646,
+                  "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+                },
+                "pilot_report": {
+                  "path": "reports/k-fnspid-v4-kf-deberta-dapt-pilot-v2.json",
+                  "bytes": 8548,
+                  "sha256": "b467d997c2dbdf73aa3c860b5d1fb857dbdf21ae7f4f43660cd60c0db2f104bf"
+                },
+                "inventory_oracle": {
+                  "status": "LOCKED",
+                  "expected_counts": {
+                    "source_document_count": {
+                      "NEWS": 524696,
+                      "DISCLOSURE": 722989
+                    },
+                    "raw_cutoff_count": {
+                      "NEWS": 419969,
+                      "DISCLOSURE": 699813
+                    },
+                    "protected_component_document_count": 2826,
+                    "protected_key_count": {
+                      "document_id": 2826,
+                      "canonical_url": 2679,
+                      "content_hash": 2826,
+                      "event_cluster_id": 2346,
+                      "normalized_exact_text_hash": 2243
+                    },
+                    "purged_cutoff_count": {
+                      "NEWS": 709,
+                      "DISCLOSURE": 782
+                    },
+                    "eligible_count": {
+                      "NEWS": 419260,
+                      "DISCLOSURE": 699031
+                    },
+                    "split_count": {
+                      "TRAIN": {
+                        "NEWS": 415197,
+                        "DISCLOSURE": 692015
+                      },
+                      "VALIDATION": {
+                        "NEWS": 4063,
+                        "DISCLOSURE": 7016
+                      }
+                    },
+                    "eligible_component_count": 967550,
+                    "duplicate_key_audit": {
+                      "document_id": {
+                        "eligible_duplicate_key_count": 0,
+                        "train_only": 0,
+                        "validation_only": 0,
+                        "cross_split": 0
+                      },
+                      "canonical_url": {
+                        "eligible_duplicate_key_count": 23597,
+                        "train_only": 23391,
+                        "validation_only": 206,
+                        "cross_split": 0
+                      },
+                      "content_hash": {
+                        "eligible_duplicate_key_count": 0,
+                        "train_only": 0,
+                        "validation_only": 0,
+                        "cross_split": 0
+                      },
+                      "event_cluster_id": {
+                        "eligible_duplicate_key_count": 57673,
+                        "train_only": 57129,
+                        "validation_only": 544,
+                        "cross_split": 0
+                      },
+                      "normalized_exact_text_hash": {
+                        "eligible_duplicate_key_count": 3837,
+                        "train_only": 3816,
+                        "validation_only": 21,
+                        "cross_split": 0
+                      }
+                    }
+                  },
+                  "expected_hashes": {
+                    "protected_key_set": "dc2d8749bb38826b405c893545722ec2bb968feb734b7e5ff3df93be515f5be8",
+                    "eligible_ordered_document_ids": "09532e7d1e244e7e4c1a0a2a4c768b16d411cfba2ec1e691e9c95589cb05d09d",
+                    "split_jsonl": "eb5fb296b8373e484ea25440ce2f3a637b2576b3066e73b593ffc13ee1a05342",
+                    "row_assignments": "71b074d3ce597e2ea3ec2b76c5e4b05b4c4ebc852b523e1599d897e0f98f5176",
+                    "exact_text_gate_audit": "0f079632cb9d02b46984b32e4b44edc6b6cefaab2eb103fa09b79ba5ef2de960",
+                    "component_size_audit": "fe3ef7f345c5ea2684ba9b6e10c13f011da659e4da51d72014ba7659f2a233d0",
+                    "fuzzy_near_duplicate_audit": "7151806bd337002dabde1b7243ced7ebe11148b76108e1c917d3d361d30331e3",
+                    "allowed_random_token_ids": "ef31b0efc4cf81b95b596441d6e51732df68ead153ed8bce1d9499f8b13d273a"
+                  },
+                  "candidate_sha256": "24e678aee83dcde4b3ad7d74d5d22a14b6198ed957c80b27eb007c9d6922240d",
+                  "derivation_report": {
+                    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v4.json",
+                    "bytes": 53008,
+                    "sha256": "ee3a65f51334f7d7667f07b9389dd86e0c334c760168e2daa7d1716f5fb816ba"
+                  },
+                  "independent_review_receipt": {
+                    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v4.json",
+                    "bytes": 7840,
+                    "sha256": "3a58702712fd01960d18a42f9f8cd035339e69acc59c05b444b606f6cf90521f"
+                  },
+                  "reviewer_id": "codex:dapt-inventory-independent-review-v4-20260717"
+                },
+                "pack_oracle": {
+                  "status": "LOCKED",
+                  "expected_counts": {
+                    "full_text_count": {
+                      "NEWS": 3792,
+                      "DISCLOSURE": 7104
+                    },
+                    "raw_token_count": {
+                      "title": 18993463,
+                      "snippet": 36556505,
+                      "full": 28333791
+                    },
+                    "used_token_count": {
+                      "title": 18991508,
+                      "snippet": 36556460,
+                      "full": 2183933
+                    },
+                    "pack_count": {
+                      "TRAIN": {
+                        "NEWS": 147532,
+                        "DISCLOSURE": 102526
+                      },
+                      "VALIDATION": {
+                        "NEWS": 1457,
+                        "DISCLOSURE": 1050
+                      }
+                    },
+                    "segment_token_count": 62215961,
+                    "packed_non_padding_token_count": 62468526,
+                    "padded_token_count": {
+                      "TRAIN": 64014848,
+                      "VALIDATION": 641792
+                    }
+                  },
+                  "expected_hashes": {
+                    "unmasked_packed_ids": "50087c5707dc03b00650ccf8e5d9a6bc498167da179d74a5e4cdda438364d63a",
+                    "pack_lineage_jsonl": "89f21c7a4bd525623382e4b18348a9df87bfe5933a2f470683ce00202ecfe3e8",
+                    "train_epoch0_masks": "0d169e23c920eb6533ed9a139ee0ed693525d712fd09110c68c92167707a4e36",
+                    "validation_fixed_masks": "1b0a6d8103174288455c41c63aa202eff08ddd82af05aa117f37bc46ab5a5541"
+                  },
+                  "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+                  "derivation_report": {
+                    "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+                    "bytes": 7374,
+                    "sha256": "106fb01f2fb9c2b61640ec863d5a1a258fc77dd737dd632d2bac11b39e443b67"
+                  },
+                  "independent_review_receipt": {
+                    "path": "reports/k-fnspid-v4-dapt-pack-oracle-review-v3.json",
+                    "bytes": 6311,
+                    "sha256": "fd3a51e4f464ba9a5a63a2997df21662a4e2c638703f11fb0f1bf10a5c520ff9"
+                  },
+                  "reviewer_id": "codex:dapt-pack-independent-review-v3-20260717"
+                },
+                "base_model": "kakaobank/kf-deberta-base",
+                "base_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+                "precision": "FP32",
+                "validation_nll": {
+                  "frozen_base": 3.119393314941492,
+                  "end_of_epoch": 1.3357852700875514
+                }
+              },
+              "adapter_path": "adapter",
+              "heads_path": "source_hierarchical_residual_heads.safetensors",
+              "tokenizer_source": "artifact-root",
+              "domain_order": [
+                "NEWS_UNTARGETED",
+                "NEWS_TARGETED",
+                "DISCLOSURE_TARGETED"
+              ],
+              "domain_required": true,
+              "unknown_domain_behavior": "FAIL_CLOSED",
+              "pooling": "last_hidden_state_cls",
+              "head_tensor_contract": {
+                "shared": {
+                  "neutral_vs_directional": 1,
+                  "negative_vs_positive": 2
+                },
+                "residual": {
+                  "neutral_vs_directional": 1,
+                  "negative_vs_positive": 2
+                }
+              },
+              "head_architecture": {
+                "version": "shared-hierarchical-zero-residual/v2",
+                "anchor_domain": "NEWS_UNTARGETED",
+                "residual_domains": [
+                  "NEWS_TARGETED",
+                  "DISCLOSURE_TARGETED"
+                ],
+                "residual_initialization": "EXACT_ZERO",
+                "known_untrained_domain_fallback": "SHARED_HEAD_ZERO_RESIDUAL",
+                "unknown_domain_behavior": "FAIL_CLOSED"
+              },
+              "composition": {
+                "NEGATIVE": "log_sigmoid(boundary)+log_softmax(direction)[0]",
+                "NEUTRAL": "log_sigmoid(-boundary)",
+                "POSITIVE": "log_sigmoid(boundary)+log_softmax(direction)[1]"
+              },
+              "calibration": {
+                "NEWS_UNTARGETED": {
+                  "temperature": 1.1,
+                  "neutral_threshold": 0.575,
+                  "sample_count": 233,
+                  "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+                },
+                "NEWS_TARGETED": {
+                  "temperature": 1.2,
+                  "neutral_threshold": 0.375,
+                  "sample_count": 111,
+                  "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+                },
+                "DISCLOSURE_TARGETED": {
+                  "temperature": 1.2,
+                  "neutral_threshold": 0.325,
+                  "sample_count": 111,
+                  "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+                }
+              },
+              "input_feature_version": "source-target-prefix-head-tail/v2",
+              "max_length": 256
+            }
+          }
+        },
+        "excluded_historical_baselines": {
+          "kf_deberta_no_k_ablation": {
+            "role": "HISTORICAL_AUDIT_ONLY_NON_GATING",
+            "included_in_holm_family": false,
+            "affects_deployment_gate": false
+          }
+        }
+      },
+      "baseline_commitments_sha256": "1ea75d273b7967782cf20112e9748775649580a12f146cbbc9b516d883bbcad0",
+      "runtime_parity": {
+        "schema_version": "sentiment-cpu-serving-parity-lock/v2",
+        "evidence": {
+          "path": "reports/sentiment-cpu-runtime-parity.json",
+          "bytes": 1519721,
+          "sha256": "095b7c7d513379df0b3fb915df16478a8b44762baff434af8510a8d0a802bdb8"
+        },
+        "candidate_model_family": "kf-deberta-shared-residual-hierarchical/v2",
+        "candidate_version": "hana-montana-kf-deberta-k-fnspid-sentiment-v6-seed42-20260717211645",
+        "candidate_artifact_manifest_sha256": "0bc9ecf4c06d6b5472c0283c0817b2722fabffeac1c4ff2edd7bcc4356ce5882",
+        "base_source_kind": "DAPT_MERGED_FP32",
+        "reservation_item_order_sha256": "7afdda2385260b697cd70c7d8d6ae99dd42c4cbc22ef2f3f1d4ceb19a2235c0c",
+        "sample_count": 1200,
+        "evaluator_backend": {
+          "device": "cpu",
+          "batch_size": 16
+        },
+        "packaged_runtime_backend": {
+          "device": "cpu",
+          "batch_size": 1
+        },
+        "decision_contract": "domain_temperature_neutral_threshold/v1",
+        "exact_label_agreement": true,
+        "calibration_contract_identical": true,
+        "probability_max_abs_error": 5.159426830769753e-07,
+        "probability_max_abs_error_tolerance": 1e-06,
+        "base_encoder_safetensors_manifest_sha256": "5a89a201ece305c23a0e07f25e35855974a3a2ca73b5f1fb97cb13ab52cf48c6",
+        "evaluator_base_encoder": {
+          "schema_version": "sentiment-full-directory-manifest/v1",
+          "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/merged_fp32",
+          "files": {
+            "config.json": {
+              "bytes": 956,
+              "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+            },
+            "model.safetensors": {
+              "bytes": 744076256,
+              "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+            }
+          },
+          "manifest_sha256": "37d440ab71655e56fc9206ab008a7633a130f9b8aed9e0699ea4a78bbb360035"
+        },
+        "packaged_runtime_base_encoder": {
+          "schema_version": "sentiment-full-directory-manifest/v1",
+          "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/merged_fp32",
+          "files": {
+            "config.json": {
+              "bytes": 956,
+              "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+            },
+            "model.safetensors": {
+              "bytes": 744076256,
+              "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+            }
+          },
+          "manifest_sha256": "37d440ab71655e56fc9206ab008a7633a130f9b8aed9e0699ea4a78bbb360035"
+        }
+      },
+      "runtime_parity_evidence": {
+        "path": "reports/sentiment-cpu-runtime-parity.json",
+        "bytes": 1519721,
+        "sha256": "095b7c7d513379df0b3fb915df16478a8b44762baff434af8510a8d0a802bdb8"
+      }
+    },
+    "limitations": [
+      "Git object ID는 내용 변경을 탐지하지만 독립된 신뢰 시각 또는 서명을 제공하지 않는다.",
+      "원격 ref는 force-push될 수 있으며 이 증명은 검증 시점의 로컬 fetched remote-tracking ref만 확인한다.",
+      "committer 시각은 커밋 작성자가 설정할 수 있으므로 신뢰 가능한 타임스탬프로 해석할 수 없다."
+    ]
+  },
+  "locked_baseline_commitments": {
+    "schema_version": "sentiment-v6-confirmatory-baseline-commitments/v2",
+    "candidate_matching_contract": {
+      "schema_version": "sentiment-v6-candidate-matching-contract/v2",
+      "candidate_model_family": "kf-deberta-shared-residual-hierarchical/v2",
+      "candidate_training_schema": "kf-deberta-shared-residual-sentiment-training/v2",
+      "prepared_partition_commitments": {
+        "TRAIN": {
+          "row_count": 32907,
+          "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+        },
+        "CHECKPOINT": {
+          "row_count": 911,
+          "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+        },
+        "CALIBRATION": {
+          "row_count": 455,
+          "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+        },
+        "SELECTION": {
+          "row_count": 461,
+          "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+        },
+        "NEWS_CONFIRMATORY_RESERVATION": {
+          "row_count": 600,
+          "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+        },
+        "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+          "row_count": 600,
+          "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+        }
+      },
+      "prepared_partition_commitments_sha256": "811ae41ec0f705edc05507c1839033e56011d1221cb23dd4521eb2adf7b15262",
+      "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+      "update_schedule": {
+        "data_selection_seed": 20260715,
+        "max_length": 256,
+        "stage1_epochs": 2,
+        "stage2_epochs": 4,
+        "batch_size": 8,
+        "gradient_accumulation_steps": 2,
+        "gradient_checkpointing": true,
+        "eval_batch_size": 16,
+        "optimizer": "AdamW",
+        "scheduler": "cosine-with-8pct-warmup",
+        "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected",
+        "stage1_optimizer_steps": 4114,
+        "stage1_planned_optimizer_steps": 4114,
+        "stage2_optimizer_steps": 452,
+        "stage2_planned_optimizer_steps": 452,
+        "executed_optimizer_steps_total": 4566,
+        "planned_optimizer_steps_total": 4566,
+        "fixed_full_epoch_budget": true
+      },
+      "update_schedule_sha256": "eb7f93ab70d64648fdd0537600dc850a16cdf981753f07a7e73de8f4e2fff7c5"
+    },
+    "confirmatory_labels_used": false,
+    "public_test_labels_used": false,
+    "baselines": {
+      "kr_finbert_sc_raw_off_the_shelf": {
+        "artifact": {
+          "schema_version": "sentiment-full-directory-manifest/v1",
+          "path": "models/kr-finbert-sc-raw-reference",
+          "files": {
+            "config.json": {
+              "bytes": 881,
+              "sha256": "cb7c00d3e6dfe46beacec2e0c7b98bfa519bed9949093fc06086f961e0020544"
+            },
+            "model.safetensors": {
+              "bytes": 405642288,
+              "sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a"
+            },
+            "raw_reference_manifest.json": {
+              "bytes": 951,
+              "sha256": "015bb10d1f364436b029b861c579cdaf6644be41fdd30941eabf6af0ba2192c4"
+            },
+            "special_tokens_map.json": {
+              "bytes": 112,
+              "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+            },
+            "tokenizer.json": {
+              "bytes": 293759,
+              "sha256": "896789eab76ff9b984d5a91342ca7bf58adf14cfe9027da888a0c228078d7dcf"
+            },
+            "tokenizer_config.json": {
+              "bytes": 372,
+              "sha256": "5d5692ce35199e06e258b858a5741807c2c9b0555b93cc352d72fe5b72e3873e"
+            },
+            "vocab.txt": {
+              "bytes": 143209,
+              "sha256": "a6fb3bad008ed486cf553d7585251a6cb0d72be8fd88386f3646c592876d195c"
+            }
+          },
+          "manifest_sha256": "39ec3fad61dd3e629b9c7b3ddf2b9ea0434cee7977ec1e8ea7f7014aefc28f33"
+        },
+        "manifest_sha256": "c9b8f6324f7e589219af71680bb7ecc4a6f961611687cc0420e3a7ca0f9a4ee6",
+        "inference_contract": {
+          "max_length": 256,
+          "truncation": "first_tokens",
+          "target_conditioning": false,
+          "local_files_only": true
+        }
+      },
+      "hana_tfidf_logistic": {
+        "artifact": {
+          "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
+          "bytes": 15414407,
+          "sha256": "04bb18037d28c59c487779531c90db5faa2e2136a3ca1dfe1d7af1a781ad6157"
+        }
+      },
+      "pre_k_fnspid_kf_deberta": {
+        "training_report": {
+          "path": "reports/kf-deberta-sentiment-training-report-pre-k-fnspid.json",
+          "bytes": 3658,
+          "sha256": "78c6db262e9263c84b32bd580c30b81335baea56ea210057fbb36edb58039a01"
+        },
+        "winner_artifact": {
+          "schema_version": "sentiment-full-directory-manifest/v1",
+          "path": "src/hannah_montana_ai/model_store/kf_deberta_sentiment",
+          "files": {
+            "README.md": {
+              "bytes": 5174,
+              "sha256": "df0fce9bae4eefdab4d448d004164a31d7c60034141f84c04c26c357c34a7b3f"
+            },
+            "adapter_config.json": {
+              "bytes": 1142,
+              "sha256": "a00767f8947c8ced54cd07db3612b8d08311efc240627f38d40b55f50a54603a"
+            },
+            "adapter_model.safetensors": {
+              "bytes": 5921612,
+              "sha256": "506a4290af390f9ebd3a3cabc8ae592e6c4c53837d44f1fb821c86819dd81c88"
+            },
+            "hannah_metadata.json": {
+              "bytes": 975,
+              "sha256": "b81e198b5c65481520a1563e415325583535c043c5b34d6c3e40fa054cd5bdcb"
+            },
+            "tokenizer.json": {
+              "bytes": 3192018,
+              "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+            },
+            "tokenizer_config.json": {
+              "bytes": 452,
+              "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+            }
+          },
+          "manifest_sha256": "bca90a2882f0079dd1f4b526c6262d080bf7c87e2433cd51fd118c8d32e408ef"
+        }
+      },
+      "kr_finbert_sc_v6_shared_residual_same_data_schedule_fair": {
+        "schema_version": "sentiment-v6-kr-finbert-sc-shared-residual-baseline-commitment/v2",
+        "baseline_model_name": "kr_finbert_sc_v6_shared_residual_same_data_schedule_fair",
+        "public_test_labels_used": false,
+        "confirmatory_labels_used": false,
+        "required_model_seeds": [
+          17,
+          42,
+          73
+        ],
+        "selection_report": {
+          "path": "reports/fair_baselines/kr-finbert-sc-v6/selection.json",
+          "bytes": 6361,
+          "sha256": "8e99f39406c1cca6bb9f6128887e12c4a9f87666ff293b93d6aadb406cc44960"
+        },
+        "selected_seed": 42,
+        "seed_runs": {
+          "17": {
+            "report": {
+              "path": "reports/fair_baselines/kr-finbert-sc-v6/seed17.json",
+              "bytes": 59839,
+              "sha256": "326670c8db70cd5dee7393dd27431bbf5976c7ff8b1ff507a912ad2e0e4645d4"
+            },
+            "artifact": {
+              "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed17",
+              "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed17-20260718042324",
+              "artifact_manifest_sha256": "726a2c73e032053ad7b48f8a315b0571bc526d5648ea521a3c400eeb56256b6a"
+            },
+            "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+            "prepared_partition_commitments": {
+              "TRAIN": {
+                "row_count": 32907,
+                "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+              },
+              "CHECKPOINT": {
+                "row_count": 911,
+                "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+              },
+              "CALIBRATION": {
+                "row_count": 455,
+                "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+              },
+              "SELECTION": {
+                "row_count": 461,
+                "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+              },
+              "NEWS_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+              },
+              "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+              }
+            },
+            "candidate_matching_contract": {
+              "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+              "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+              "prepared_partition_commitments": {
+                "TRAIN": {
+                  "row_count": 32907,
+                  "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                },
+                "CHECKPOINT": {
+                  "row_count": 911,
+                  "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                },
+                "CALIBRATION": {
+                  "row_count": 455,
+                  "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                },
+                "SELECTION": {
+                  "row_count": 461,
+                  "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                },
+                "NEWS_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                },
+                "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                }
+              },
+              "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+              "configured_schedule": {
+                "stage1_epochs": 2,
+                "stage2_epochs": 4,
+                "batch_size": 8,
+                "eval_batch_size": 16,
+                "gradient_accumulation_steps": 2,
+                "gradient_checkpointing": true,
+                "optimizer": "AdamW",
+                "scheduler": "cosine-with-8pct-warmup",
+                "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+              },
+              "planned_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "executed_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "matching_semantics": {
+                "same_raw_source_rows": true,
+                "same_group_disjoint_partitions": true,
+                "same_data_selection_seed": true,
+                "same_model_seed_set": true,
+                "same_target_aware_input": true,
+                "same_source_hierarchical_task_loss_calibration_selection": true,
+                "same_schedule_implementation_and_configured_rule": true,
+                "planned_equals_executed_optimizer_steps": true
+              }
+            }
+          },
+          "42": {
+            "report": {
+              "path": "reports/fair_baselines/kr-finbert-sc-v6/seed42.json",
+              "bytes": 59840,
+              "sha256": "656ff4236534f0f66ae24c1aeb9fdba157c74d4be5c90a2a7968fc7dd0fa8852"
+            },
+            "artifact": {
+              "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+              "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed42-20260718065025",
+              "artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75"
+            },
+            "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+            "prepared_partition_commitments": {
+              "TRAIN": {
+                "row_count": 32907,
+                "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+              },
+              "CHECKPOINT": {
+                "row_count": 911,
+                "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+              },
+              "CALIBRATION": {
+                "row_count": 455,
+                "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+              },
+              "SELECTION": {
+                "row_count": 461,
+                "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+              },
+              "NEWS_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+              },
+              "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+              }
+            },
+            "candidate_matching_contract": {
+              "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+              "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+              "prepared_partition_commitments": {
+                "TRAIN": {
+                  "row_count": 32907,
+                  "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                },
+                "CHECKPOINT": {
+                  "row_count": 911,
+                  "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                },
+                "CALIBRATION": {
+                  "row_count": 455,
+                  "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                },
+                "SELECTION": {
+                  "row_count": 461,
+                  "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                },
+                "NEWS_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                },
+                "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                }
+              },
+              "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+              "configured_schedule": {
+                "stage1_epochs": 2,
+                "stage2_epochs": 4,
+                "batch_size": 8,
+                "eval_batch_size": 16,
+                "gradient_accumulation_steps": 2,
+                "gradient_checkpointing": true,
+                "optimizer": "AdamW",
+                "scheduler": "cosine-with-8pct-warmup",
+                "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+              },
+              "planned_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "executed_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "matching_semantics": {
+                "same_raw_source_rows": true,
+                "same_group_disjoint_partitions": true,
+                "same_data_selection_seed": true,
+                "same_model_seed_set": true,
+                "same_target_aware_input": true,
+                "same_source_hierarchical_task_loss_calibration_selection": true,
+                "same_schedule_implementation_and_configured_rule": true,
+                "planned_equals_executed_optimizer_steps": true
+              }
+            }
+          },
+          "73": {
+            "report": {
+              "path": "reports/fair_baselines/kr-finbert-sc-v6/seed73.json",
+              "bytes": 59831,
+              "sha256": "9916a755ea4790eeba39eb0a412c8cb5ceca7daf1e3a6beca0291795a8337e53"
+            },
+            "artifact": {
+              "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed73",
+              "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed73-20260718091627",
+              "artifact_manifest_sha256": "b706c5243ec3af6080b8aea542aeb224ac16f7380912e625890011a73da31d87"
+            },
+            "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+            "prepared_partition_commitments": {
+              "TRAIN": {
+                "row_count": 32907,
+                "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+              },
+              "CHECKPOINT": {
+                "row_count": 911,
+                "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+              },
+              "CALIBRATION": {
+                "row_count": 455,
+                "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+              },
+              "SELECTION": {
+                "row_count": 461,
+                "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+              },
+              "NEWS_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+              },
+              "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                "row_count": 600,
+                "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+              }
+            },
+            "candidate_matching_contract": {
+              "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+              "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+              "prepared_partition_commitments": {
+                "TRAIN": {
+                  "row_count": 32907,
+                  "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+                },
+                "CHECKPOINT": {
+                  "row_count": 911,
+                  "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+                },
+                "CALIBRATION": {
+                  "row_count": 455,
+                  "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+                },
+                "SELECTION": {
+                  "row_count": 461,
+                  "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+                },
+                "NEWS_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+                },
+                "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+                  "row_count": 600,
+                  "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+                }
+              },
+              "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+              "configured_schedule": {
+                "stage1_epochs": 2,
+                "stage2_epochs": 4,
+                "batch_size": 8,
+                "eval_batch_size": 16,
+                "gradient_accumulation_steps": 2,
+                "gradient_checkpointing": true,
+                "optimizer": "AdamW",
+                "scheduler": "cosine-with-8pct-warmup",
+                "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+              },
+              "planned_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "executed_optimizer_steps": {
+                "stage1": 4114,
+                "stage2": 452,
+                "total": 4566
+              },
+              "matching_semantics": {
+                "same_raw_source_rows": true,
+                "same_group_disjoint_partitions": true,
+                "same_data_selection_seed": true,
+                "same_model_seed_set": true,
+                "same_target_aware_input": true,
+                "same_source_hierarchical_task_loss_calibration_selection": true,
+                "same_schedule_implementation_and_configured_rule": true,
+                "planned_equals_executed_optimizer_steps": true
+              }
+            }
+          }
+        },
+        "winner_artifact": {
+          "path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+          "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed42-20260718065025",
+          "artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75"
+        },
+        "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+        "candidate_matching_contract": {
+          "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+          "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+          "prepared_partition_commitments": {
+            "TRAIN": {
+              "row_count": 32907,
+              "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+            },
+            "CHECKPOINT": {
+              "row_count": 911,
+              "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+            },
+            "CALIBRATION": {
+              "row_count": 455,
+              "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+            },
+            "SELECTION": {
+              "row_count": 461,
+              "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+            },
+            "NEWS_CONFIRMATORY_RESERVATION": {
+              "row_count": 600,
+              "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+            },
+            "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+              "row_count": 600,
+              "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+            }
+          },
+          "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+          "configured_schedule": {
+            "stage1_epochs": 2,
+            "stage2_epochs": 4,
+            "batch_size": 8,
+            "eval_batch_size": 16,
+            "gradient_accumulation_steps": 2,
+            "gradient_checkpointing": true,
+            "optimizer": "AdamW",
+            "scheduler": "cosine-with-8pct-warmup",
+            "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+          },
+          "planned_optimizer_steps": {
+            "stage1": 4114,
+            "stage2": 452,
+            "total": 4566
+          },
+          "matching_semantics": {
+            "same_raw_source_rows": true,
+            "same_group_disjoint_partitions": true,
+            "same_data_selection_seed": true,
+            "same_model_seed_set": true,
+            "same_target_aware_input": true,
+            "same_source_hierarchical_task_loss_calibration_selection": true,
+            "same_schedule_implementation_and_configured_rule": true,
+            "planned_equals_executed_optimizer_steps": true
+          },
+          "seed_executed_optimizer_steps": {
+            "17": {
+              "stage1": 4114,
+              "stage2": 452,
+              "total": 4566
+            },
+            "42": {
+              "stage1": 4114,
+              "stage2": 452,
+              "total": 4566
+            },
+            "73": {
+              "stage1": 4114,
+              "stage2": 452,
+              "total": 4566
+            }
+          }
+        }
+      },
+      "kf_deberta_shared_residual_v6_no_k": {
+        "selection_report": {
+          "path": "reports/ablations/v6/no-k/selection.json",
+          "bytes": 12550,
+          "sha256": "c7ceb277f19129f16921f77d5e96c958a9bce86c05e4e220be0819f5ab2dab32"
+        },
+        "seed_reports": {
+          "17": {
+            "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed17.json",
+            "bytes": 85539,
+            "sha256": "bc6e4bc42e3687a34f34652c2beb0f65cc23c77f74b3966b14d7e24c219f0ab6"
+          },
+          "42": {
+            "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed42.json",
+            "bytes": 85523,
+            "sha256": "2aaf5a330dd50cff35eb654926ffdb524e5a4f8800b45b0bbc175bb66a0dd06d"
+          },
+          "73": {
+            "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed73.json",
+            "bytes": 85513,
+            "sha256": "001ac4d308558d89fad9c3068e350f3593dc9e2a747456349f82c91ccbebef23"
+          }
+        },
+        "selected_seed": 17,
+        "winner_artifact": {
+          "schema_version": "sentiment-full-directory-manifest/v1",
+          "path": "artifacts/sentiment/v6-ablations/no-k/seed17",
+          "files": {
+            "adapter/README.md": {
+              "bytes": 5414,
+              "sha256": "850c28949d054a19d8087c54b858035146cce8e2fe0800baa338e39482a9fd49"
+            },
+            "adapter/adapter_config.json": {
+              "bytes": 1312,
+              "sha256": "18d2dea5beeb8a081ef8874c245684540badcdf362d2a52a0c5d068d875708e1"
+            },
+            "adapter/adapter_model.safetensors": {
+              "bytes": 10636600,
+              "sha256": "81e906e6ca2341c2c91b51a9794da78e889e066d79e5128d35d76f3617232961"
+            },
+            "hannah_metadata.json": {
+              "bytes": 16683,
+              "sha256": "04a5c71ae31ea93db8b124c955fe5b8d884f183fa3e35f980573e6db632db30b"
+            },
+            "manifest.json": {
+              "bytes": 1313,
+              "sha256": "ba5826a1ded63157182935361a4f571395485a0baef746e6c0478161abfe65e1"
+            },
+            "source_hierarchical_residual_heads.safetensors": {
+              "bytes": 35244,
+              "sha256": "f126fccc461f52b7379146e9fe4bd1cc66ba3f3768b12a12f06bc97eafc6e883"
+            },
+            "tokenizer.json": {
+              "bytes": 3191920,
+              "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+            },
+            "tokenizer_config.json": {
+              "bytes": 452,
+              "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+            }
+          },
+          "manifest_sha256": "0fb607d70c4de066e7d50d1cf7d999b3ec6f324eff6d72721d45a292a5c2899e"
+        },
+        "winner_manifest": {
+          "path": "reports/ablations/v6/no-k/winner-manifest.json",
+          "bytes": 9009,
+          "sha256": "a3267e28a87a80f64d4b8cbee9876f1050147b1b1d6aba660d258c14be67309f"
+        },
+        "runtime_loader_contract": {
+          "schema_version": "kf-deberta-shared-residual-runtime-loader/v2",
+          "base_source": {
+            "schema_version": "kf-deberta-dapt-base-source/v2",
+            "artifact_manifest": {
+              "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/manifest.json",
+              "bytes": 15832,
+              "sha256": "50155de739a7e27131adb49dd645eb66e56d6a1c3783872cef1595b77607ef2a"
+            },
+            "merged_fp32_artifact_files": {
+              "merged_fp32/config.json": {
+                "bytes": 956,
+                "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+              },
+              "merged_fp32/model.safetensors": {
+                "bytes": 744076256,
+                "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+              }
+            },
+            "training_report": {
+              "bytes": 593726,
+              "sha256": "82f2fbe7d6e0fedaabc70e5254f34139defd217ea698c91922dc8c4a6e068f1a"
+            },
+            "prepared_manifest": {
+              "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+              "bytes": 59646,
+              "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+            },
+            "pilot_report": {
+              "path": "reports/k-fnspid-v4-kf-deberta-dapt-pilot-v2.json",
+              "bytes": 8548,
+              "sha256": "b467d997c2dbdf73aa3c860b5d1fb857dbdf21ae7f4f43660cd60c0db2f104bf"
+            },
+            "inventory_oracle": {
+              "status": "LOCKED",
+              "expected_counts": {
+                "source_document_count": {
+                  "NEWS": 524696,
+                  "DISCLOSURE": 722989
+                },
+                "raw_cutoff_count": {
+                  "NEWS": 419969,
+                  "DISCLOSURE": 699813
+                },
+                "protected_component_document_count": 2826,
+                "protected_key_count": {
+                  "document_id": 2826,
+                  "canonical_url": 2679,
+                  "content_hash": 2826,
+                  "event_cluster_id": 2346,
+                  "normalized_exact_text_hash": 2243
+                },
+                "purged_cutoff_count": {
+                  "NEWS": 709,
+                  "DISCLOSURE": 782
+                },
+                "eligible_count": {
+                  "NEWS": 419260,
+                  "DISCLOSURE": 699031
+                },
+                "split_count": {
+                  "TRAIN": {
+                    "NEWS": 415197,
+                    "DISCLOSURE": 692015
+                  },
+                  "VALIDATION": {
+                    "NEWS": 4063,
+                    "DISCLOSURE": 7016
+                  }
+                },
+                "eligible_component_count": 967550,
+                "duplicate_key_audit": {
+                  "document_id": {
+                    "eligible_duplicate_key_count": 0,
+                    "train_only": 0,
+                    "validation_only": 0,
+                    "cross_split": 0
+                  },
+                  "canonical_url": {
+                    "eligible_duplicate_key_count": 23597,
+                    "train_only": 23391,
+                    "validation_only": 206,
+                    "cross_split": 0
+                  },
+                  "content_hash": {
+                    "eligible_duplicate_key_count": 0,
+                    "train_only": 0,
+                    "validation_only": 0,
+                    "cross_split": 0
+                  },
+                  "event_cluster_id": {
+                    "eligible_duplicate_key_count": 57673,
+                    "train_only": 57129,
+                    "validation_only": 544,
+                    "cross_split": 0
+                  },
+                  "normalized_exact_text_hash": {
+                    "eligible_duplicate_key_count": 3837,
+                    "train_only": 3816,
+                    "validation_only": 21,
+                    "cross_split": 0
+                  }
+                }
+              },
+              "expected_hashes": {
+                "protected_key_set": "dc2d8749bb38826b405c893545722ec2bb968feb734b7e5ff3df93be515f5be8",
+                "eligible_ordered_document_ids": "09532e7d1e244e7e4c1a0a2a4c768b16d411cfba2ec1e691e9c95589cb05d09d",
+                "split_jsonl": "eb5fb296b8373e484ea25440ce2f3a637b2576b3066e73b593ffc13ee1a05342",
+                "row_assignments": "71b074d3ce597e2ea3ec2b76c5e4b05b4c4ebc852b523e1599d897e0f98f5176",
+                "exact_text_gate_audit": "0f079632cb9d02b46984b32e4b44edc6b6cefaab2eb103fa09b79ba5ef2de960",
+                "component_size_audit": "fe3ef7f345c5ea2684ba9b6e10c13f011da659e4da51d72014ba7659f2a233d0",
+                "fuzzy_near_duplicate_audit": "7151806bd337002dabde1b7243ced7ebe11148b76108e1c917d3d361d30331e3",
+                "allowed_random_token_ids": "ef31b0efc4cf81b95b596441d6e51732df68ead153ed8bce1d9499f8b13d273a"
+              },
+              "candidate_sha256": "24e678aee83dcde4b3ad7d74d5d22a14b6198ed957c80b27eb007c9d6922240d",
+              "derivation_report": {
+                "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v4.json",
+                "bytes": 53008,
+                "sha256": "ee3a65f51334f7d7667f07b9389dd86e0c334c760168e2daa7d1716f5fb816ba"
+              },
+              "independent_review_receipt": {
+                "path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v4.json",
+                "bytes": 7840,
+                "sha256": "3a58702712fd01960d18a42f9f8cd035339e69acc59c05b444b606f6cf90521f"
+              },
+              "reviewer_id": "codex:dapt-inventory-independent-review-v4-20260717"
+            },
+            "pack_oracle": {
+              "status": "LOCKED",
+              "expected_counts": {
+                "full_text_count": {
+                  "NEWS": 3792,
+                  "DISCLOSURE": 7104
+                },
+                "raw_token_count": {
+                  "title": 18993463,
+                  "snippet": 36556505,
+                  "full": 28333791
+                },
+                "used_token_count": {
+                  "title": 18991508,
+                  "snippet": 36556460,
+                  "full": 2183933
+                },
+                "pack_count": {
+                  "TRAIN": {
+                    "NEWS": 147532,
+                    "DISCLOSURE": 102526
+                  },
+                  "VALIDATION": {
+                    "NEWS": 1457,
+                    "DISCLOSURE": 1050
+                  }
+                },
+                "segment_token_count": 62215961,
+                "packed_non_padding_token_count": 62468526,
+                "padded_token_count": {
+                  "TRAIN": 64014848,
+                  "VALIDATION": 641792
+                }
+              },
+              "expected_hashes": {
+                "unmasked_packed_ids": "50087c5707dc03b00650ccf8e5d9a6bc498167da179d74a5e4cdda438364d63a",
+                "pack_lineage_jsonl": "89f21c7a4bd525623382e4b18348a9df87bfe5933a2f470683ce00202ecfe3e8",
+                "train_epoch0_masks": "0d169e23c920eb6533ed9a139ee0ed693525d712fd09110c68c92167707a4e36",
+                "validation_fixed_masks": "1b0a6d8103174288455c41c63aa202eff08ddd82af05aa117f37bc46ab5a5541"
+              },
+              "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+              "derivation_report": {
+                "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+                "bytes": 7374,
+                "sha256": "106fb01f2fb9c2b61640ec863d5a1a258fc77dd737dd632d2bac11b39e443b67"
+              },
+              "independent_review_receipt": {
+                "path": "reports/k-fnspid-v4-dapt-pack-oracle-review-v3.json",
+                "bytes": 6311,
+                "sha256": "fd3a51e4f464ba9a5a63a2997df21662a4e2c638703f11fb0f1bf10a5c520ff9"
+              },
+              "reviewer_id": "codex:dapt-pack-independent-review-v3-20260717"
+            },
+            "base_model": "kakaobank/kf-deberta-base",
+            "base_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+            "precision": "FP32",
+            "validation_nll": {
+              "frozen_base": 3.119393314941492,
+              "end_of_epoch": 1.3357852700875514
+            }
+          },
+          "adapter_path": "adapter",
+          "heads_path": "source_hierarchical_residual_heads.safetensors",
+          "tokenizer_source": "artifact-root",
+          "domain_order": [
+            "NEWS_UNTARGETED",
+            "NEWS_TARGETED",
+            "DISCLOSURE_TARGETED"
+          ],
+          "domain_required": true,
+          "unknown_domain_behavior": "FAIL_CLOSED",
+          "pooling": "last_hidden_state_cls",
+          "head_tensor_contract": {
+            "shared": {
+              "neutral_vs_directional": 1,
+              "negative_vs_positive": 2
+            },
+            "residual": {
+              "neutral_vs_directional": 1,
+              "negative_vs_positive": 2
+            }
+          },
+          "head_architecture": {
+            "version": "shared-hierarchical-zero-residual/v2",
+            "anchor_domain": "NEWS_UNTARGETED",
+            "residual_domains": [
+              "NEWS_TARGETED",
+              "DISCLOSURE_TARGETED"
+            ],
+            "residual_initialization": "EXACT_ZERO",
+            "known_untrained_domain_fallback": "SHARED_HEAD_ZERO_RESIDUAL",
+            "unknown_domain_behavior": "FAIL_CLOSED"
+          },
+          "composition": {
+            "NEGATIVE": "log_sigmoid(boundary)+log_softmax(direction)[0]",
+            "NEUTRAL": "log_sigmoid(-boundary)",
+            "POSITIVE": "log_sigmoid(boundary)+log_softmax(direction)[1]"
+          },
+          "calibration": {
+            "NEWS_UNTARGETED": {
+              "temperature": 1.1,
+              "neutral_threshold": 0.575,
+              "sample_count": 233,
+              "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+            },
+            "NEWS_TARGETED": {
+              "temperature": 1.2,
+              "neutral_threshold": 0.375,
+              "sample_count": 111,
+              "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+            },
+            "DISCLOSURE_TARGETED": {
+              "temperature": 1.2,
+              "neutral_threshold": 0.325,
+              "sample_count": 111,
+              "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+            }
+          },
+          "input_feature_version": "source-target-prefix-head-tail/v2",
+          "max_length": 256
+        }
+      }
+    },
+    "excluded_historical_baselines": {
+      "kf_deberta_no_k_ablation": {
+        "role": "HISTORICAL_AUDIT_ONLY_NON_GATING",
+        "included_in_holm_family": false,
+        "affects_deployment_gate": false
+      }
+    }
+  },
+  "locked_baseline_commitments_sha256": "1ea75d273b7967782cf20112e9748775649580a12f146cbbc9b516d883bbcad0",
+  "cpu_runtime_parity": {
+    "schema_version": "sentiment-cpu-serving-parity-lock/v2",
+    "evidence": {
+      "path": "reports/sentiment-cpu-runtime-parity.json",
+      "bytes": 1519721,
+      "sha256": "095b7c7d513379df0b3fb915df16478a8b44762baff434af8510a8d0a802bdb8"
+    },
+    "candidate_model_family": "kf-deberta-shared-residual-hierarchical/v2",
+    "candidate_version": "hana-montana-kf-deberta-k-fnspid-sentiment-v6-seed42-20260717211645",
+    "candidate_artifact_manifest_sha256": "0bc9ecf4c06d6b5472c0283c0817b2722fabffeac1c4ff2edd7bcc4356ce5882",
+    "base_source_kind": "DAPT_MERGED_FP32",
+    "reservation_item_order_sha256": "7afdda2385260b697cd70c7d8d6ae99dd42c4cbc22ef2f3f1d4ceb19a2235c0c",
+    "sample_count": 1200,
+    "evaluator_backend": {
+      "device": "cpu",
+      "batch_size": 16
+    },
+    "packaged_runtime_backend": {
+      "device": "cpu",
+      "batch_size": 1
+    },
+    "decision_contract": "domain_temperature_neutral_threshold/v1",
+    "exact_label_agreement": true,
+    "calibration_contract_identical": true,
+    "probability_max_abs_error": 5.159426830769753e-07,
+    "probability_max_abs_error_tolerance": 1e-06,
+    "base_encoder_safetensors_manifest_sha256": "5a89a201ece305c23a0e07f25e35855974a3a2ca73b5f1fb97cb13ab52cf48c6",
+    "evaluator_base_encoder": {
+      "schema_version": "sentiment-full-directory-manifest/v1",
+      "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/merged_fp32",
+      "files": {
+        "config.json": {
+          "bytes": 956,
+          "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+        },
+        "model.safetensors": {
+          "bytes": 744076256,
+          "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+        }
+      },
+      "manifest_sha256": "37d440ab71655e56fc9206ab008a7633a130f9b8aed9e0699ea4a78bbb360035"
+    },
+    "packaged_runtime_base_encoder": {
+      "schema_version": "sentiment-full-directory-manifest/v1",
+      "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/merged_fp32",
+      "files": {
+        "config.json": {
+          "bytes": 956,
+          "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+        },
+        "model.safetensors": {
+          "bytes": 744076256,
+          "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+        }
+      },
+      "manifest_sha256": "37d440ab71655e56fc9206ab008a7633a130f9b8aed9e0699ea4a78bbb360035"
+    }
+  },
+  "sealed_gold": {
+    "NEWS": {
+      "path": "data/evaluation/k_fnspid_sentiment_confirmatory_sealed_gold.jsonl",
+      "sha256": "7dcdd9d4fde9d1933138d5f309edd2a86b0a2b4c05b468e0999e593e9d140f73"
+    },
+    "DISCLOSURE": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_confirmatory_sealed_gold.jsonl",
+      "sha256": "7ec15bc15d5c5cf7f45d7537498cb5f90d50380bf031cb3ac9fb35c007f74f2b"
+    }
+  },
+  "promotion_reports": {
+    "NEWS": {
+      "path": "reports/k-fnspid-sentiment-confirmatory-gold-promotion-report.json",
+      "sha256": "b1e95f8567d9b78030a5bb0e5d81d4f18948a38057178d31dd61466f17abe47f"
+    },
+    "DISCLOSURE": {
+      "path": "reports/k-fnspid-disclosure-sentiment-confirmatory-gold-promotion-report.json",
+      "sha256": "3ee2f3f1509c85d6d97ab3e333ec63cf34f2418f1ebe1772ba4a764f0d56c2ef"
+    }
+  },
+  "sampling_design_report": {
+    "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design-v2.json",
+    "sha256": "9fb25b568d38d7613bcb011b8a45a43e31d81ceadfe06606fad5e44ee0f3b9f6"
+  },
+  "baseline_artifacts": {
+    "hana_tfidf_logistic": {
+      "path": "src/hannah_montana_ai/model_store/financial_nlp_ml.joblib",
+      "sha256": "04bb18037d28c59c487779531c90db5faa2e2136a3ca1dfe1d7af1a781ad6157"
+    },
+    "pre_k_fnspid_kf_deberta": {
+      "artifact_dir": "src/hannah_montana_ai/model_store/kf_deberta_sentiment",
+      "metadata_sha256": "b81e198b5c65481520a1563e415325583535c043c5b34d6c3e40fa054cd5bdcb",
+      "training_report_path": "reports/kf-deberta-sentiment-training-report-pre-k-fnspid.json",
+      "training_report_sha256": "78c6db262e9263c84b32bd580c30b81335baea56ea210057fbb36edb58039a01"
+    },
+    "kr_finbert_sc_v6_shared_residual_same_data_schedule_fair": {
+      "artifact_dir": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+      "artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75",
+      "metadata_sha256": "65bbb38ff03163d83c8c8a3d07c14562a6cc723e5cb2c25985fc5b624b30b7f1",
+      "selection_report_path": "reports/fair_baselines/kr-finbert-sc-v6/selection.json",
+      "selection_report_sha256": "8e99f39406c1cca6bb9f6128887e12c4a9f87666ff293b93d6aadb406cc44960",
+      "training_report_path": "reports/fair_baselines/kr-finbert-sc-v6/seed42.json",
+      "training_report_sha256": "656ff4236534f0f66ae24c1aeb9fdba157c74d4be5c90a2a7968fc7dd0fa8852",
+      "same_data_contract_sha256": "9de88574da0c619ed043a6352d12562cece99254c40fb8b43fc0405d6edfceb0"
+    },
+    "kf_deberta_shared_residual_v6_no_k": {
+      "selection_report": {
+        "path": "reports/ablations/v6/no-k/selection.json",
+        "bytes": 12550,
+        "sha256": "c7ceb277f19129f16921f77d5e96c958a9bce86c05e4e220be0819f5ab2dab32"
+      },
+      "seed_reports": {
+        "17": {
+          "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed17.json",
+          "bytes": 85539,
+          "sha256": "bc6e4bc42e3687a34f34652c2beb0f65cc23c77f74b3966b14d7e24c219f0ab6"
+        },
+        "42": {
+          "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed42.json",
+          "bytes": 85523,
+          "sha256": "2aaf5a330dd50cff35eb654926ffdb524e5a4f8800b45b0bbc175bb66a0dd06d"
+        },
+        "73": {
+          "path": "reports/ablations/v6/no-k/kf-deberta-sentiment-v6-no-k-seed73.json",
+          "bytes": 85513,
+          "sha256": "001ac4d308558d89fad9c3068e350f3593dc9e2a747456349f82c91ccbebef23"
+        }
+      },
+      "selected_seed": 17,
+      "winner_artifact": {
+        "schema_version": "sentiment-full-directory-manifest/v1",
+        "path": "artifacts/sentiment/v6-ablations/no-k/seed17",
+        "files": {
+          "adapter/README.md": {
+            "bytes": 5414,
+            "sha256": "850c28949d054a19d8087c54b858035146cce8e2fe0800baa338e39482a9fd49"
+          },
+          "adapter/adapter_config.json": {
+            "bytes": 1312,
+            "sha256": "18d2dea5beeb8a081ef8874c245684540badcdf362d2a52a0c5d068d875708e1"
+          },
+          "adapter/adapter_model.safetensors": {
+            "bytes": 10636600,
+            "sha256": "81e906e6ca2341c2c91b51a9794da78e889e066d79e5128d35d76f3617232961"
+          },
+          "hannah_metadata.json": {
+            "bytes": 16683,
+            "sha256": "04a5c71ae31ea93db8b124c955fe5b8d884f183fa3e35f980573e6db632db30b"
+          },
+          "manifest.json": {
+            "bytes": 1313,
+            "sha256": "ba5826a1ded63157182935361a4f571395485a0baef746e6c0478161abfe65e1"
+          },
+          "source_hierarchical_residual_heads.safetensors": {
+            "bytes": 35244,
+            "sha256": "f126fccc461f52b7379146e9fe4bd1cc66ba3f3768b12a12f06bc97eafc6e883"
+          },
+          "tokenizer.json": {
+            "bytes": 3191920,
+            "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+          },
+          "tokenizer_config.json": {
+            "bytes": 452,
+            "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+          }
+        },
+        "manifest_sha256": "0fb607d70c4de066e7d50d1cf7d999b3ec6f324eff6d72721d45a292a5c2899e"
+      },
+      "winner_manifest": {
+        "path": "reports/ablations/v6/no-k/winner-manifest.json",
+        "bytes": 9009,
+        "sha256": "a3267e28a87a80f64d4b8cbee9876f1050147b1b1d6aba660d258c14be67309f"
+      },
+      "runtime_loader_contract": {
+        "schema_version": "kf-deberta-shared-residual-runtime-loader/v2",
+        "base_source": {
+          "schema_version": "kf-deberta-dapt-base-source/v2",
+          "artifact_manifest": {
+            "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/manifest.json",
+            "bytes": 15832,
+            "sha256": "50155de739a7e27131adb49dd645eb66e56d6a1c3783872cef1595b77607ef2a"
+          },
+          "merged_fp32_artifact_files": {
+            "merged_fp32/config.json": {
+              "bytes": 956,
+              "sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c"
+            },
+            "merged_fp32/model.safetensors": {
+              "bytes": 744076256,
+              "sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87"
+            }
+          },
+          "training_report": {
+            "bytes": 593726,
+            "sha256": "82f2fbe7d6e0fedaabc70e5254f34139defd217ea698c91922dc8c4a6e068f1a"
+          },
+          "prepared_manifest": {
+            "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+            "bytes": 59646,
+            "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+          },
+          "pilot_report": {
+            "path": "reports/k-fnspid-v4-kf-deberta-dapt-pilot-v2.json",
+            "bytes": 8548,
+            "sha256": "b467d997c2dbdf73aa3c860b5d1fb857dbdf21ae7f4f43660cd60c0db2f104bf"
+          },
+          "inventory_oracle": {
+            "status": "LOCKED",
+            "expected_counts": {
+              "source_document_count": {
+                "NEWS": 524696,
+                "DISCLOSURE": 722989
+              },
+              "raw_cutoff_count": {
+                "NEWS": 419969,
+                "DISCLOSURE": 699813
+              },
+              "protected_component_document_count": 2826,
+              "protected_key_count": {
+                "document_id": 2826,
+                "canonical_url": 2679,
+                "content_hash": 2826,
+                "event_cluster_id": 2346,
+                "normalized_exact_text_hash": 2243
+              },
+              "purged_cutoff_count": {
+                "NEWS": 709,
+                "DISCLOSURE": 782
+              },
+              "eligible_count": {
+                "NEWS": 419260,
+                "DISCLOSURE": 699031
+              },
+              "split_count": {
+                "TRAIN": {
+                  "NEWS": 415197,
+                  "DISCLOSURE": 692015
+                },
+                "VALIDATION": {
+                  "NEWS": 4063,
+                  "DISCLOSURE": 7016
+                }
+              },
+              "eligible_component_count": 967550,
+              "duplicate_key_audit": {
+                "document_id": {
+                  "eligible_duplicate_key_count": 0,
+                  "train_only": 0,
+                  "validation_only": 0,
+                  "cross_split": 0
+                },
+                "canonical_url": {
+                  "eligible_duplicate_key_count": 23597,
+                  "train_only": 23391,
+                  "validation_only": 206,
+                  "cross_split": 0
+                },
+                "content_hash": {
+                  "eligible_duplicate_key_count": 0,
+                  "train_only": 0,
+                  "validation_only": 0,
+                  "cross_split": 0
+                },
+                "event_cluster_id": {
+                  "eligible_duplicate_key_count": 57673,
+                  "train_only": 57129,
+                  "validation_only": 544,
+                  "cross_split": 0
+                },
+                "normalized_exact_text_hash": {
+                  "eligible_duplicate_key_count": 3837,
+                  "train_only": 3816,
+                  "validation_only": 21,
+                  "cross_split": 0
+                }
+              }
+            },
+            "expected_hashes": {
+              "protected_key_set": "dc2d8749bb38826b405c893545722ec2bb968feb734b7e5ff3df93be515f5be8",
+              "eligible_ordered_document_ids": "09532e7d1e244e7e4c1a0a2a4c768b16d411cfba2ec1e691e9c95589cb05d09d",
+              "split_jsonl": "eb5fb296b8373e484ea25440ce2f3a637b2576b3066e73b593ffc13ee1a05342",
+              "row_assignments": "71b074d3ce597e2ea3ec2b76c5e4b05b4c4ebc852b523e1599d897e0f98f5176",
+              "exact_text_gate_audit": "0f079632cb9d02b46984b32e4b44edc6b6cefaab2eb103fa09b79ba5ef2de960",
+              "component_size_audit": "fe3ef7f345c5ea2684ba9b6e10c13f011da659e4da51d72014ba7659f2a233d0",
+              "fuzzy_near_duplicate_audit": "7151806bd337002dabde1b7243ced7ebe11148b76108e1c917d3d361d30331e3",
+              "allowed_random_token_ids": "ef31b0efc4cf81b95b596441d6e51732df68ead153ed8bce1d9499f8b13d273a"
+            },
+            "candidate_sha256": "24e678aee83dcde4b3ad7d74d5d22a14b6198ed957c80b27eb007c9d6922240d",
+            "derivation_report": {
+              "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v4.json",
+              "bytes": 53008,
+              "sha256": "ee3a65f51334f7d7667f07b9389dd86e0c334c760168e2daa7d1716f5fb816ba"
+            },
+            "independent_review_receipt": {
+              "path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v4.json",
+              "bytes": 7840,
+              "sha256": "3a58702712fd01960d18a42f9f8cd035339e69acc59c05b444b606f6cf90521f"
+            },
+            "reviewer_id": "codex:dapt-inventory-independent-review-v4-20260717"
+          },
+          "pack_oracle": {
+            "status": "LOCKED",
+            "expected_counts": {
+              "full_text_count": {
+                "NEWS": 3792,
+                "DISCLOSURE": 7104
+              },
+              "raw_token_count": {
+                "title": 18993463,
+                "snippet": 36556505,
+                "full": 28333791
+              },
+              "used_token_count": {
+                "title": 18991508,
+                "snippet": 36556460,
+                "full": 2183933
+              },
+              "pack_count": {
+                "TRAIN": {
+                  "NEWS": 147532,
+                  "DISCLOSURE": 102526
+                },
+                "VALIDATION": {
+                  "NEWS": 1457,
+                  "DISCLOSURE": 1050
+                }
+              },
+              "segment_token_count": 62215961,
+              "packed_non_padding_token_count": 62468526,
+              "padded_token_count": {
+                "TRAIN": 64014848,
+                "VALIDATION": 641792
+              }
+            },
+            "expected_hashes": {
+              "unmasked_packed_ids": "50087c5707dc03b00650ccf8e5d9a6bc498167da179d74a5e4cdda438364d63a",
+              "pack_lineage_jsonl": "89f21c7a4bd525623382e4b18348a9df87bfe5933a2f470683ce00202ecfe3e8",
+              "train_epoch0_masks": "0d169e23c920eb6533ed9a139ee0ed693525d712fd09110c68c92167707a4e36",
+              "validation_fixed_masks": "1b0a6d8103174288455c41c63aa202eff08ddd82af05aa117f37bc46ab5a5541"
+            },
+            "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+            "derivation_report": {
+              "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+              "bytes": 7374,
+              "sha256": "106fb01f2fb9c2b61640ec863d5a1a258fc77dd737dd632d2bac11b39e443b67"
+            },
+            "independent_review_receipt": {
+              "path": "reports/k-fnspid-v4-dapt-pack-oracle-review-v3.json",
+              "bytes": 6311,
+              "sha256": "fd3a51e4f464ba9a5a63a2997df21662a4e2c638703f11fb0f1bf10a5c520ff9"
+            },
+            "reviewer_id": "codex:dapt-pack-independent-review-v3-20260717"
+          },
+          "base_model": "kakaobank/kf-deberta-base",
+          "base_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+          "precision": "FP32",
+          "validation_nll": {
+            "frozen_base": 3.119393314941492,
+            "end_of_epoch": 1.3357852700875514
+          }
+        },
+        "adapter_path": "adapter",
+        "heads_path": "source_hierarchical_residual_heads.safetensors",
+        "tokenizer_source": "artifact-root",
+        "domain_order": [
+          "NEWS_UNTARGETED",
+          "NEWS_TARGETED",
+          "DISCLOSURE_TARGETED"
+        ],
+        "domain_required": true,
+        "unknown_domain_behavior": "FAIL_CLOSED",
+        "pooling": "last_hidden_state_cls",
+        "head_tensor_contract": {
+          "shared": {
+            "neutral_vs_directional": 1,
+            "negative_vs_positive": 2
+          },
+          "residual": {
+            "neutral_vs_directional": 1,
+            "negative_vs_positive": 2
+          }
+        },
+        "head_architecture": {
+          "version": "shared-hierarchical-zero-residual/v2",
+          "anchor_domain": "NEWS_UNTARGETED",
+          "residual_domains": [
+            "NEWS_TARGETED",
+            "DISCLOSURE_TARGETED"
+          ],
+          "residual_initialization": "EXACT_ZERO",
+          "known_untrained_domain_fallback": "SHARED_HEAD_ZERO_RESIDUAL",
+          "unknown_domain_behavior": "FAIL_CLOSED"
+        },
+        "composition": {
+          "NEGATIVE": "log_sigmoid(boundary)+log_softmax(direction)[0]",
+          "NEUTRAL": "log_sigmoid(-boundary)",
+          "POSITIVE": "log_sigmoid(boundary)+log_softmax(direction)[1]"
+        },
+        "calibration": {
+          "NEWS_UNTARGETED": {
+            "temperature": 1.1,
+            "neutral_threshold": 0.575,
+            "sample_count": 233,
+            "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+          },
+          "NEWS_TARGETED": {
+            "temperature": 1.2,
+            "neutral_threshold": 0.375,
+            "sample_count": 111,
+            "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+          },
+          "DISCLOSURE_TARGETED": {
+            "temperature": 1.2,
+            "neutral_threshold": 0.325,
+            "sample_count": 111,
+            "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+          }
+        },
+        "input_feature_version": "source-target-prefix-head-tail/v2",
+        "max_length": 256
+      }
+    }
+  },
+  "evaluation_script_sha256": "5d62560687038a5177be47c38a7fe1c8b2a682e1fdb1c3b6d91e335a8dbbc625",
+  "planned_report_path": "reports/korean-finance-sentiment-benchmark-v4.json",
+  "bootstrap_samples": 2000,
+  "bootstrap_seed": 20260715
+}

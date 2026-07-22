@@ -3,7 +3,7 @@
 ## 실행과 상태 확인
 
 ```bash
-uv sync --all-groups
+uv sync --all-groups --extra transformer
 uv run uvicorn hannah_montana_ai.main:app --host 0.0.0.0 --port 8000
 curl http://localhost:8000/health
 curl http://localhost:8000/ready
