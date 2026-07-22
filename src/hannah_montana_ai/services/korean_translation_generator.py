@@ -750,10 +750,14 @@ class KoreanTranslationGenerator:
         evidence = self._summary_evidence(source_text, context)
         last_flags: list[str] = []
         messages = self._alert_summary_messages(evidence, context)
+        previous_output = "{}"
         for attempt in range(1, QWEN_SUMMARY_MAX_ATTEMPTS + 1):
             try:
                 output = self._generate_with_client(messages, 640)
-                result = self._parse_alert_summary(output)
+                previous_output = output
+                result = self._normalize_alert_summary_format(
+                    self._parse_alert_summary(output)
+                )
                 last_flags = self._alert_summary_quality_flags(
                     f"{context.title}\n{source_text}",
                     result,
@@ -783,11 +787,18 @@ class KoreanTranslationGenerator:
                 messages = [
                     *self._alert_summary_messages(evidence, context),
                     {
+                        "role": "assistant",
+                        "content": previous_output,
+                    },
+                    {
                         "role": "user",
                         "content": (
-                            "The previous JSON failed these quality checks: "
+                            "Repair the previous JSON because it failed these quality checks: "
                             f"{','.join(last_flags)}. Regenerate all four fields from the "
-                            "provided evidence only. Return one strict JSON object."
+                            "provided evidence only. Replace every ellipsis with complete "
+                            "source-backed wording, preserve numeric facts exactly, and end "
+                            "what, why, and impact with sentence punctuation. Return one strict "
+                            "JSON object."
                         ),
                     },
                 ]
@@ -921,6 +932,8 @@ class KoreanTranslationGenerator:
                 "Do not give investment advice or predict a price direction.",
                 "Write natural English with no Korean or Chinese characters.",
                 "Do not use ellipses in the translated title or summary fields.",
+                "If the Korean title is truncated, reconstruct a complete English title "
+                "from evidence.",
                 "Write what, why, and impact as complete sentences of at least "
                 "four words, ending with punctuation.",
             ],
@@ -970,6 +983,28 @@ class KoreanTranslationGenerator:
             provider=LOCAL_TRANSLATION_PROVIDER,
             model_version=self._model_name,
             prompt_version=QWEN_ALERT_SUMMARY_PROMPT_VERSION,
+        )
+
+    @staticmethod
+    def _normalize_alert_summary_format(
+        result: QwenAlertSummaryResult,
+    ) -> QwenAlertSummaryResult:
+        def complete_sentence(value: str) -> str:
+            normalized = value.strip()
+            if re.search(r"[.!?][\"')\]]*$", normalized) is None:
+                normalized += "."
+            return normalized
+
+        return QwenAlertSummaryResult(
+            translated_title=result.translated_title.strip(),
+            summary_lines=SummaryLines(
+                what=complete_sentence(result.summary_lines.what),
+                why=complete_sentence(result.summary_lines.why),
+                impact=complete_sentence(result.summary_lines.impact),
+            ),
+            provider=result.provider,
+            model_version=result.model_version,
+            prompt_version=result.prompt_version,
         )
 
     def _parse_json_object(self, raw_output: str) -> dict[str, Any]:

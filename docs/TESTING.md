@@ -20,6 +20,8 @@ CI는 Python 3.12와 uv를 사용한다. PR에서는 `verify_message_conventions
 | API | health/readiness, 공통 envelope, validation, artifact 장애 시 503, OmniConnect JSON 계약 |
 | 뉴스·공시 | 이벤트·감성·중요도, 종목 linker, What/Why/Impact 품질, 전문·중복 키·glossary, audit 원문 비노출 |
 | 번역 | Qwen3 요청, 문서 유형별 prompt, 전문 분할·완결성, dictionary 표면형, source-language fallback |
+
+Qwen alert 요약 테스트는 누락 종결부호의 의미 비변경 정규화, 실패한 이전 JSON을 포함한 생략부호 교정 재시도, 재시도 뒤에도 남은 허위 숫자·한글·생략부호의 fail-closed 처리를 검증한다.
 | 글로벌 피어 | 활성 종목 universe 일치, 전종목 추론, 비교 3개·강점 4개, 동적 순위, 중복·더미 방지 |
 | 외국인 예측 | walk-forward 학습, persistence guard, 제한 종목 allowlist, 재학습 promotion과 원자적 artifact 교체 |
 | 금융 용어 | 단일 seed loader, alias 단어 경계, evidence, cacheable/review 상태 |
