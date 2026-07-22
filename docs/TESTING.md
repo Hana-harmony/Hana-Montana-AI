@@ -3,7 +3,7 @@
 ## 필수 검증
 
 ```bash
-uv sync --all-groups
+uv sync --all-groups --extra transformer
 uv run ruff check .
 uv run mypy
 uv run bandit -c pyproject.toml -r src

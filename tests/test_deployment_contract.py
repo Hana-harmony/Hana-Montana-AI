@@ -21,6 +21,12 @@ def test_production_uses_single_container_with_rollback() -> None:
     assert "secrets.GHCR_USERNAME" not in workflow
 
 
+def test_ci_installs_transformer_runtime_for_model_contracts() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+
+    assert "uv sync --all-groups --extra transformer" in workflow
+
+
 def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
     workflow = _read(".github/workflows/ci.yml")
     askpass = _read("scripts/ssh-askpass.sh")
