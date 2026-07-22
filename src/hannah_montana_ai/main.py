@@ -68,9 +68,7 @@ def _translation_provider_ready(settings: Settings) -> bool:
 def _sentiment_release_ready(settings: Settings) -> bool:
     current = settings.sentiment_release_current_path
     release_required = (
-        settings.runtime_environment == "production"
-        or current.exists()
-        or current.is_symlink()
+        settings.sentiment_release_required or current.exists() or current.is_symlink()
     )
     if not release_required:
         return True

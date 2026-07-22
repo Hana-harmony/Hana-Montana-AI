@@ -10,6 +10,18 @@ def _optional_path_env(name: str) -> Path | None:
     return Path(value) if value else None
 
 
+def _boolean_env(name: str, *, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    normalized = value.strip().lower()
+    if normalized == "true":
+        return True
+    if normalized == "false":
+        return False
+    raise ValueError(f"{name} must be true or false")
+
+
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -49,6 +61,13 @@ class Settings(BaseModel):
                 "HANNAH_SENTIMENT_RELEASE_CURRENT_PATH",
                 "releases/sentiment/current.json",
             )
+        )
+    )
+    sentiment_release_required: bool = Field(
+        default_factory=lambda: _boolean_env(
+            "HANNAH_SENTIMENT_RELEASE_REQUIRED",
+            default=os.getenv("HANNAH_RUNTIME_ENVIRONMENT", "local").strip().lower()
+            == "production",
         )
     )
     sentiment_release_project_root: Path = Field(
