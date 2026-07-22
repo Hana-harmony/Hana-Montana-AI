@@ -2,6 +2,12 @@
 
 ## 판정
 
+K-FNSPID v4 시장영향은 고정 데이터, 시간 외삽 Test, 출처별 기준선, calibration, paired 통계 검정, ablation, Datasheet, 코드북과 재현 가능한 artifact를 갖췄다. 감성 v6도 receipt 미보유 라벨을 승격 근거에서 제외하고 2,689건의 receipt-bound 개발·학습 Gold, 1,118,291문서 K-FNSPID DAPT, 출처 계층형 분류 head, 사전 고정 3-seed·공정 기준선·no-K ablation과 확증 1,200건 one-shot 평가를 완료했다.
+
+동일 한국 시장영향·target-aware 뉴스/공시 감성 코드북의 외부 leaderboard가 없고 Gold 검수 주체가 인간 금융전문가가 아니므로 외부 SOTA 초과나 인간 전문가 수준을 주장할 수 없다. 시장영향은 동일 시간 Test의 KR-FinBERT-SC 대비 국내 뉴스 우위만 주장하며 국내 공시 우위는 주장하지 않는다. 감성 v6는 확증 gate를 통과하지 못해 `KEEP_CURRENT_MODEL`로 판정했으며 개선·통계적 우월성·배포 승격을 주장하지 않는다.
+
+### 2026-07-15 시장영향 v4 판정
+
 K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Test, 출처별 강한 기준선, 공시 3개 시드, calibration, paired 통계 검정, ablation, Datasheet, 코드북과 재현 가능한 artifact를 갖췄다. 뉴스와 공시를 하나의 시장영향 모델로 합쳤던 v3의 공시 회귀를 v4 출처별 전문가가 제거했다.
 
 다만 동일 한국 시장영향 코드북의 외부 leaderboard가 없고 Gold가 독립 금융전문가 다중 주석이 아니므로 외부 SOTA 초과나 인간 전문가 수준을 주장할 수 없다. 감성 공개 Test도 과거 반복 사용됐다. 논문에서 허용되는 주장은 시장영향의 동일 시간 Test 기준선 우위와 감성의 동일 공개셋 재현 우위까지다.
@@ -41,6 +47,14 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 
 ## 의미 중요도와 감성
 
+### 현재 감성 v6
+
+- 새 학습 Gold는 주 뉴스 596건, 보조 뉴스 598건, 보조 공시 600건이다. 개발 Gold는 뉴스 448건과 공시 447건으로 CHECKPOINT 911·CALIBRATION 455·SELECTION 461건과 논리 중복이 없다.
+- DAPT는 확증·Gold 보호 연결요소를 제외한 1,118,291문서·62,468,526 토큰을 사용했다. 전체 3,908 update의 validation NLL은 `3.119393→1.335785`이며 최종 manifest SHA-256은 `50155de7…ef2a`다.
+- v6 확증 층화가중 Accuracy/Macro-F1은 NEWS 0.7503/0.5530, DISCLOSURE 0.8646/0.6024다. 배포 판정은 `KEEP_CURRENT_MODEL`이다.
+
+### 과거 회귀 진단과 현재 중요도
+
 - 정규화 중복·충돌 제거 감성 공개 Test 932건: 잠근 KF-DeBERTa LoRA Macro-F1 0.8849, 80:20 앙상블 0.8838, KR-FinBERT-SC 0.7266, Hana TF-IDF 0.4415
 - 동일 932개 문서의 LoRA−KR-FinBERT-SC paired bootstrap Macro-F1 차이 0.1580, 95% CI `[0.1265, 0.1899]`, exact McNemar `p=9.81e-19`
 - 실제 뉴스 Gold: Accuracy 0.8625 / Macro-F1 0.8308
@@ -62,6 +76,10 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 
 | gate | 상태 | 근거 |
 | --- | --- | --- |
+| 감성 receipt-bound Gold | 완료 | 학습 1,794건·개발 895건, 미해결 11건 제외, partition overlap 0 |
+| 감성 DAPT | 완료 | 1,118,291문서·62,468,526 토큰, FP32 3,908 update |
+| 감성 3-seed·공정 기준선·ablation | 완료 | 후보 seed 42, 공정 기준선과 no-K 잠금 artifact 검증 |
+| 감성 one-shot 확증 | 완료·미승격 | NEWS·DISCLOSURE 각 600건, `KEEP_CURRENT_MODEL` |
 | 대규모 공개 원천 | 완료 | 1,247,685문서·10,691,998 시세행 |
 | 시간 외삽·embargo | 완료 | 2026-04 이후 Test, 경계 7일 제외 |
 | 출처별 강한 기준선 | 완료 | 뉴스·공시 Train-only TF-IDF |
@@ -69,7 +87,7 @@ K-FNSPID v4는 학회 제출본에 필요한 고정 데이터, 시간 외삽 Tes
 | 공시 반복 시드 | 완료 | seed 17/42/73, Validation 선택 |
 | 통계 검정 | 완료 | 2,000회 행·거래일 bootstrap, exact McNemar |
 | 감성 후보 선택 누수 차단 | 완료 | Validation Calibration/Selection 분리, Test·Gold 선택 금지 |
-| 감성 독립 확증셋 | 미완료 | 공개 Test 과거 반복 사용, 새 기간 미열람 Gold 필요 |
+| 감성 확증 평가 | 완료 | one-shot report SHA-256 `be5c9edd…b149` |
 | calibration | 완료 | ECE·Brier, Validation temperature |
 | artifact 무결성 | 완료 | safetensors, 크기·SHA-256, source metadata |
 | Datasheet·코드북 | 완료 | v4 문서와 release manifest |

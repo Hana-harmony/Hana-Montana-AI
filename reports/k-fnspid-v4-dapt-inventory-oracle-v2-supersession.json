@@ -1,0 +1,21 @@
+{
+  "schema_version": "k-fnspid-dapt-inventory-oracle-supersession/v1",
+  "status": "SUPERSEDED_AFTER_VALID_INDEPENDENT_REVIEW",
+  "superseded_report": {
+    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v2.json",
+    "sha256": "da45d85da2723b59e7ec59b50fa02420a1fd3c4edbb5924d465835d80cc0be00"
+  },
+  "superseded_review_receipt": {
+    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v2.json",
+    "sha256": "6714c3bf3cb095a28d55d8a4d38208b7f2c9f0c1ce66838d4a4db96678a98664"
+  },
+  "reason": "독립 pack 검토에서 stale 문서와 trainer 주석을 발견해 이를 수정했고 기본 oracle 경로도 새 세대로 분리했다. 이 변경은 trainer semantic recipe SHA-256을 바꾸므로, 수치가 유효하고 독립 재현된 v2 inventory도 변경된 source recipe의 잠금 근거로 재사용하지 않는다.",
+  "replacement_contract": {
+    "report_path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v3.json",
+    "review_receipt_path": "reports/k-fnspid-v4-dapt-inventory-oracle-review-v3.json",
+    "required_trainer_semantic_sha256": "b54ff68dd7420586389f8f71b8d26bb98eea113e05ecf3ce95f0a0415b7c60a8",
+    "must_be_rederived": true,
+    "must_receive_independent_review": true
+  },
+  "training_executed_under_superseded_oracle": false
+}

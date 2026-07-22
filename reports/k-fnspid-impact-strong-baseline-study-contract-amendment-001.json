@@ -1,0 +1,42 @@
+{
+  "schema_version": "k-fnspid-impact-strong-baseline-study-contract-amendment/v1",
+  "state": "LOCKED_CORRECTIVE_AMENDMENT_BEFORE_DISCLOSURE_TRAINING",
+  "parent_contract": {
+    "path": "reports/k-fnspid-impact-strong-baseline-study-contract.json",
+    "sha256": "9ef2b862eb0c20c96e5ecdd851613b8291b6b1bed8deabbcfea1d83f6806d2da"
+  },
+  "incident": {
+    "detected_at": "2026-07-19T02:04:13Z",
+    "failed_stage": "KR_FINBERT_SC NEWS exact-artifact verification",
+    "cause": "runner storage slug replaced only the first underscore while the verifier replaced every underscore",
+    "scope": "artifact path validation only",
+    "training_or_inference_change": false,
+    "artifact_mutation": false
+  },
+  "correction": {
+    "rule": "derive the required shared seed 42 adapter from the source artifact namespace recorded in the report",
+    "old_verifier_sha256": "2a9fd44d3d4d4ea16456b7e99d3f989eb67098363d48de27992cb99faeec4c5d",
+    "new_verifier_sha256": "7cef53d44044f6240230a8153d923ba41d1b47180c16609d3af2d7d92c06cb53",
+    "regression_test_sha256": "0499525ae7420c11c81e15dda47833d01cb154c2cd096012e2767315284c2895",
+    "recovery_runner_sha256": "9d63f0173874eb2711ceb241358c88f2d4df1fd231c95eee7acd42d629a63569"
+  },
+  "unchanged_locked_code": {
+    "scripts/train_k_fnspid_transformer.py": "1377ffe0c08f517d1b13d1547d02dbeeef08007a56bcb8e268aa19a5d4f9c67e",
+    "scripts/run_impact_strong_baseline_study.sh": "e7498440861714f9edfffc4f57b6c04a8a60ecc8d979a97829be78eb3a25432f"
+  },
+  "verified_existing_artifacts": {
+    "shared_seed17_report_sha256": "4531676a12d6847efd22718dc8fd95e889110d4828f31fad807c30d0840e4606",
+    "shared_seed42_report_sha256": "8338f85dce99d340f2a402d0830b1ad50bb461a773e1151283df23883597f4e1",
+    "shared_seed73_report_sha256": "bd5a36b352e913f6232bd8a35c053a8d29bfbee3d82496beff70a484a88d7e83",
+    "news_seed73_report_sha256": "c8f9216a81dadecc7df8c935ee00c4815d69caf27fa604d227b8b6fc51c0df0d"
+  },
+  "resume_scope": [
+    "KR_FINBERT_SC DISCLOSURE seed 17",
+    "KR_FINBERT_SC DISCLOSURE seed 42",
+    "KR_FINBERT_SC DISCLOSURE seed 73",
+    "KR_FINBERT_SC-only paired evaluation"
+  ],
+  "excluded_by_user_instruction": [
+    "KLUE_ROBERTA_LARGE"
+  ]
+}

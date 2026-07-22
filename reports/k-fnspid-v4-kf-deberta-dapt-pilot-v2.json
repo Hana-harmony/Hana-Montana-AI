@@ -1,0 +1,225 @@
+{
+  "schema_version": "k-fnspid-dapt-precision-pilot/v2",
+  "status": "PRECISION_SELECTED",
+  "generated_at": "2026-07-17T00:48:11.165182+00:00",
+  "pilot_pack_count": 1024,
+  "pilot_order": "canonical epoch-0 shuffle first 1024 packs",
+  "seed": 20260716,
+  "prepared_manifest": {
+    "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+    "bytes": 59646,
+    "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+  },
+  "prepared_artifacts": {
+    "manifest.json": {
+      "path": "data/k_fnspid/v4_dapt_temporal_v2/manifest.json",
+      "bytes": 59646,
+      "sha256": "09112ccd910c286a5a19d78999efc699c5140a105e0f9656fa54d0d55e3a59f5"
+    },
+    "train_packs.parquet": {
+      "path": "data/k_fnspid/v4_dapt_temporal_v2/train_packs.parquet",
+      "bytes": 64962153,
+      "sha256": "e57b1d6dab303d2d7c8694496b0056a1614e95a8ad28f84a4558af0e2ccfda34"
+    },
+    "validation_packs.parquet": {
+      "path": "data/k_fnspid/v4_dapt_temporal_v2/validation_packs.parquet",
+      "bytes": 704597,
+      "sha256": "a4689c6cc5062f4ba6c0d52dfa50c2a10a570fa1caf4eb363a6f4a87e170cbae"
+    },
+    "validation_fixed_masks.parquet": {
+      "path": "data/k_fnspid/v4_dapt_temporal_v2/validation_fixed_masks.parquet",
+      "bytes": 1070121,
+      "sha256": "45aba3ad9ee5f441708f58ed1460870a0a2c2809dd25e8937e6f11f0cf78521d"
+    },
+    "pack_lineage.parquet": {
+      "path": "data/k_fnspid/v4_dapt_temporal_v2/pack_lineage.parquet",
+      "bytes": 75926818,
+      "sha256": "192adeb5c5e65b94d623ec19a4be56dae4256d2d6efe1d42f12d470817d2dfb9"
+    }
+  },
+  "input_artifacts": {
+    "documents": {
+      "path": "data/k_fnspid/v4/documents.parquet",
+      "bytes": 274855211,
+      "sha256": "045fb260f2145345f81f76f381d2631e884a1cbc8d6208758702b4564f582e03"
+    },
+    "dataset_manifest": {
+      "path": "data/k_fnspid/v4/manifest.json",
+      "bytes": 12648,
+      "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+    },
+    "protected_k_fnspid_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold.jsonl",
+      "bytes": 2011168,
+      "sha256": "f433e4cdc5372594d54de19083519278aae51b0385e310410b2e738d4c7d0f55"
+    },
+    "protected_k_fnspid_disclosure_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold.jsonl",
+      "bytes": 1842451,
+      "sha256": "8527d567c303d91c45d6e1dbe55a28e7725bef8bfb28f60f7962016c071c1e07"
+    },
+    "protected_confirmatory_sealed_test_review": {
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "bytes": 969809,
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "protected_disclosure_confirmatory_sealed_test_review": {
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "bytes": 680705,
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "base_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/config.json",
+      "bytes": 865,
+      "sha256": "4cba21a6fb53b5d75e2b7af83756eeb6d5e8a471164130999be395e1b8ff0848"
+    },
+    "base_pytorch_model.bin": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/pytorch_model.bin",
+      "bytes": 745694717,
+      "sha256": "3cd6cd7811b3c9190e97cae7eb41571c2bc0076431baae7d41d449a8c1c18c6c"
+    },
+    "base_special_tokens_map.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/special_tokens_map.json",
+      "bytes": 173,
+      "sha256": "311de3f4eed9d76a43bf0d71f10e62e086ca65ccce9f15d5da0d2098bf519ecc"
+    },
+    "base_tokenizer.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer.json",
+      "bytes": 3972816,
+      "sha256": "915388090e2d63e3869c54b5334d6005e453a51de12088d908175dd765fd8372"
+    },
+    "base_tokenizer_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer_config.json",
+      "bytes": 374,
+      "sha256": "d9273237da0f2143974a8eccdc50a733fcda064528299f7295e6434226cdbda1"
+    },
+    "base_vocab.txt": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/vocab.txt",
+      "bytes": 1090394,
+      "sha256": "f0b8ae70418060f22ec301511a6337ad49a7fb0f60a8bf9091b373aba9c0c3e0"
+    }
+  },
+  "dependency_artifacts": {
+    "pyproject": {
+      "path": "pyproject.toml",
+      "bytes": 1677,
+      "sha256": "b55742ccce4dd9d6637d7686dc41fb737ac794bb16844f911b158ac608ed953f"
+    },
+    "uv_lock": {
+      "path": "uv.lock",
+      "bytes": 644077,
+      "sha256": "0c1a5604adc8ce7d85fe2da01a4c4bafb37e145e9c647d024b46d32b0e59306c"
+    },
+    "trainer": {
+      "path": "scripts/train_k_fnspid_dapt.py",
+      "bytes": 247673,
+      "sha256": "71c08195756178b2b06ad8a655340f5f55564ec5510454b1fca60daa26152fec"
+    },
+    "sentiment_protocol": {
+      "path": "src/hannah_montana_ai/training/sentiment_protocol.py",
+      "bytes": 14783,
+      "sha256": "96c7ce7c85ec8f29c1feb4e9d3ddb4a20c6ec64c103bd456896ff828aeabb576"
+    }
+  },
+  "hardware_fingerprint": {
+    "runtime_environment": {
+      "python": "3.12.13 (main, May  8 2026, 18:24:29) [Clang 22.1.3 ]",
+      "python_executable": "/Users/1233day/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+      "platform": "macOS-26.3.1-arm64-arm-64bit",
+      "platform_release": "25.3.0",
+      "mac_version": "26.3.1",
+      "machine": "arm64",
+      "torch": "2.6.0",
+      "transformers": "5.13.1",
+      "peft": "0.19.1",
+      "pyarrow": "23.0.1",
+      "numpy": "2.4.6",
+      "cuda_runtime": null,
+      "cudnn_runtime": null,
+      "cuda_device_count": 0,
+      "mps_available": true,
+      "mps_built": true,
+      "cuda_available": false,
+      "mps_fallback_enabled": false,
+      "deterministic_algorithms_enabled": false,
+      "float32_matmul_precision": "highest",
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": true,
+      "default_dtype": "torch.float32"
+    },
+    "device_type": "mps",
+    "device_index": 0,
+    "device_name": "arm",
+    "device_total_or_recommended_memory_bytes": 19069665280
+  },
+  "fp32": {
+    "status": "PASS",
+    "precision": "FP32",
+    "initial_adapter_sha256": "ef3e18fb81ae47a7d5f035d55ff6b9fd9f96d08700c2e95d3e406ef79e45dd03",
+    "initial_fixed_pilot": {
+      "pack_count": 1024,
+      "masked_token_count": 35235,
+      "mean_nll": 3.124769592501685,
+      "perplexity": 22.754651647124202
+    },
+    "training": {
+      "pack_count": 1024,
+      "microbatch_count": 128,
+      "update_count": 16,
+      "mean_pack_loss": 3.2238730248063803,
+      "last_window_microbatch_count": 8,
+      "last_window_pack_count": 64,
+      "peak_driver_allocated_bytes": 9813655552,
+      "final_learning_rate": 4.081632653061224e-06
+    },
+    "final_fixed_pilot": {
+      "pack_count": 1024,
+      "masked_token_count": 35235,
+      "mean_nll": 3.1116505520689213,
+      "perplexity": 22.45808205985326
+    },
+    "loss_reduced": true,
+    "last_128_microbatch_memory_slope_bytes": 2597335994.8082743
+  },
+  "bf16": {
+    "status": "PASS",
+    "precision": "BF16",
+    "initial_adapter_sha256": "ef3e18fb81ae47a7d5f035d55ff6b9fd9f96d08700c2e95d3e406ef79e45dd03",
+    "initial_fixed_pilot": {
+      "pack_count": 1024,
+      "masked_token_count": 35235,
+      "mean_nll": 3.125662954218661,
+      "perplexity": 22.77498886468208
+    },
+    "training": {
+      "pack_count": 1024,
+      "microbatch_count": 128,
+      "update_count": 16,
+      "mean_pack_loss": 3.2258710861206055,
+      "last_window_microbatch_count": 8,
+      "last_window_pack_count": 64,
+      "peak_driver_allocated_bytes": 10101456896,
+      "final_learning_rate": 4.081632653061224e-06
+    },
+    "final_fixed_pilot": {
+      "pack_count": 1024,
+      "masked_token_count": 35235,
+      "mean_nll": 3.123393981162751,
+      "perplexity": 22.723371609824536
+    },
+    "loss_reduced": true,
+    "last_128_microbatch_memory_slope_bytes": 2400833895.2719245
+  },
+  "bf16_gate": {
+    "passed": false,
+    "relative_final_nll_difference": 0.0037740192535507277,
+    "loss_reduction_direction_matches": true,
+    "maximum_relative_nll_difference": 0.02,
+    "maximum_driver_allocated_bytes": 19327352832,
+    "maximum_last_128_memory_slope_bytes": 67108864,
+    "mps_fallback_forbidden": true
+  },
+  "selected_precision": "FP32",
+  "fp16_allowed": false,
+  "artifact_promoted": false
+}

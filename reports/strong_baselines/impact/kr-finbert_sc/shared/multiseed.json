@@ -1,0 +1,130 @@
+{
+  "schema_version": "k-fnspid-transformer-multiseed/v2",
+  "source_type": null,
+  "run_count": 3,
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
+  "selected_seed_by_validation": 42,
+  "selected_version": "kfi-shared-kr-finbert-sc-lora-20260718213636-p0.15-t0.75",
+  "selected_artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed42",
+  "selected_predictions_path": "reports/strong_baselines/impact/kr-finbert_sc/shared/seed42-predictions.jsonl",
+  "report_paths": [
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed17.json",
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed42.json",
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed73.json"
+  ],
+  "report_sha256": {
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed17.json": "4531676a12d6847efd22718dc8fd95e889110d4828f31fad807c30d0840e4606",
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed42.json": "8338f85dce99d340f2a402d0830b1ad50bb461a773e1151283df23883597f4e1",
+    "reports/strong_baselines/impact/kr-finbert_sc/shared/seed73.json": "bd5a36b352e913f6232bd8a35c053a8d29bfbee3d82496beff70a484a88d7e83"
+  },
+  "validation": {
+    "accuracy": {
+      "mean": 0.47909199522102747,
+      "sample_std": 0.010243959187164036,
+      "minimum": 0.4675268817204301,
+      "maximum": 0.48702508960573476
+    },
+    "macro_f1": {
+      "mean": 0.36786431073878706,
+      "sample_std": 0.005008947602929104,
+      "minimum": 0.36243580059539565,
+      "maximum": 0.3723071531835165
+    },
+    "quadratic_kappa": {
+      "mean": 0.39412064262373697,
+      "sample_std": 0.007942435051684201,
+      "minimum": 0.3885621889483112,
+      "maximum": 0.40321730320497506
+    }
+  },
+  "test": {
+    "accuracy": {
+      "mean": 0.4937095825984715,
+      "sample_std": 0.006903614936988414,
+      "minimum": 0.4864902998236332,
+      "maximum": 0.5002469135802469
+    },
+    "macro_f1": {
+      "mean": 0.34995677732138375,
+      "sample_std": 0.005683839798301423,
+      "minimum": 0.34369548838416547,
+      "maximum": 0.3547913086660079
+    },
+    "quadratic_kappa": {
+      "mean": 0.35479099570274064,
+      "sample_std": 0.003141665003281396,
+      "minimum": 0.3511635508219234,
+      "maximum": 0.35664065865396555
+    }
+  },
+  "runs": [
+    {
+      "seed": 17,
+      "version": "kfi-shared-kr-finbert-sc-lora-20260718154714-p0.10-t0.75",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed17",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/shared/seed17-predictions.jsonl",
+        "sample_count": 14175,
+        "bytes": 4477401,
+        "sha256": "0bc6013dd226eff9711e419c11cf5af6749ba142f614d834a4e85300bb1f3b33"
+      },
+      "validation": {
+        "accuracy": 0.4675268817204301,
+        "macro_f1": 0.36243580059539565,
+        "quadratic_kappa": 0.3885621889483112
+      },
+      "test": {
+        "accuracy": 0.4864902998236332,
+        "macro_f1": 0.3547913086660079,
+        "quadratic_kappa": 0.35656877763233297
+      }
+    },
+    {
+      "seed": 42,
+      "version": "kfi-shared-kr-finbert-sc-lora-20260718213636-p0.15-t0.75",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed42",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/shared/seed42-predictions.jsonl",
+        "sample_count": 14175,
+        "bytes": 4474984,
+        "sha256": "a7b01f9f0c01045e8797a67878c5bf2be849cc6ac7bc71a7483a39315f83d70f"
+      },
+      "validation": {
+        "accuracy": 0.4827240143369176,
+        "macro_f1": 0.3723071531835165,
+        "quadratic_kappa": 0.3905824357179246
+      },
+      "test": {
+        "accuracy": 0.4943915343915344,
+        "macro_f1": 0.34369548838416547,
+        "quadratic_kappa": 0.3511635508219234
+      }
+    },
+    {
+      "seed": 73,
+      "version": "kfi-shared-kr-finbert-sc-lora-20260719015636-p0.15-t0.70",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed73",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/shared/seed73-predictions.jsonl",
+        "sample_count": 14175,
+        "bytes": 4475148,
+        "sha256": "3d12e86a378c101e49db331180a1e21db4ef2f3e45412cbc0cbb7f5c33d8f9dd"
+      },
+      "validation": {
+        "accuracy": 0.48702508960573476,
+        "macro_f1": 0.3688499784374491,
+        "quadratic_kappa": 0.40321730320497506
+      },
+      "test": {
+        "accuracy": 0.5002469135802469,
+        "macro_f1": 0.3513835349139779,
+        "quadratic_kappa": 0.35664065865396555
+      }
+    }
+  ]
+}

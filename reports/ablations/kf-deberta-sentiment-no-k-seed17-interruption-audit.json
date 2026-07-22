@@ -1,0 +1,22 @@
+{
+  "schema_version": "kf-deberta-sentiment-training-interruption-audit/v1",
+  "run": "NO_K-seed17",
+  "interruption_date_kst": "2026-07-16",
+  "interruption_reason": "USER_REQUESTED_PAUSE_FOLLOWED_BY_EXECUTION_SESSION_TERMINATION",
+  "checkpoint_status": "QUARANTINED_NOT_ELIGIBLE_FOR_EVALUATION_OR_PROMOTION",
+  "resume_used": false,
+  "clean_restart_required": true,
+  "quarantined_checkpoint": {
+    "path": "artifacts/sentiment/ablations/no-k/.seed17-checkpoints-aborted-user-pause-20260716/checkpoint-464",
+    "global_step": 464,
+    "epoch": 1.0,
+    "checkpoint_macro_f1": 0.7013492410760392,
+    "checkpoint_accuracy": 0.6929824561403509,
+    "trainer_state_sha256": "2260e06a7d19ce868c53e82d6d6bbb30c932a2e3037ebe88f77a9155e7236e52",
+    "adapter_model_sha256": "fff2662a72bb14a908d4f7a41242b8e625cafcc135f2c91f343b150606afa190"
+  },
+  "claim_limitations": [
+    "This interrupted checkpoint is diagnostic only and must not be used in model selection, calibration, evaluation, or paper claims.",
+    "The replacement run must start from the pinned base model with the fixed seed and byte-identical prepared partitions."
+  ]
+}

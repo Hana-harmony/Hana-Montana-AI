@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-07-15T15:25:05.545851+00:00",
+  "integrity": {
+    "confirmatory_group_overlap_count": 0,
+    "confirmatory_sampling_commitments_verified": true,
+    "exact_item_set": true,
+    "independent_dual_review_required": true,
+    "market_blind": true,
+    "model_blind": true,
+    "promotion_after_confirmatory_reservation": true,
+    "source_review_protected_at_confirmatory_reservation": true,
+    "write_once": true
+  },
+  "lineage": {
+    "confirmatory_reservations": {
+      "DISCLOSURE": {
+        "bytes": 680705,
+        "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+        "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+      },
+      "NEWS": {
+        "bytes": 969809,
+        "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+        "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+      }
+    },
+    "confirmatory_sampling_design": {
+      "bytes": 33713,
+      "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design.json",
+      "sha256": "67da67ebc1ddf0df648064074101f0220a2fa379d4a5926dd24e6b72f04a03e0"
+    },
+    "dual_decisions": {
+      "bytes": 1201510,
+      "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_codex_decisions_dual.jsonl",
+      "sha256": "a72b4e014fe7fedd8e1b2af6398ba4bf49102860e041d1ff9a4f447b4a01f2ba"
+    },
+    "output": {
+      "bytes": 2070067,
+      "path": "data/training/k_fnspid_disclosure_sentiment_auxiliary_gold_v2.jsonl",
+      "sha256": "ee55c7d2760bcaf9cce84fd66d807d58b4baafac9270cfb11bb210bdd737c16a"
+    },
+    "review": {
+      "bytes": 685383,
+      "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_review.jsonl",
+      "sha256": "be82dfccb5dc44204052a705a3cd0bbb1ff41d87c7cc8632624c6923f768852e"
+    }
+  },
+  "reclassification": {
+    "confirmatory_created_before_reclassification": true,
+    "eligible_for_confirmatory_metrics": false,
+    "eligible_for_evaluation": false,
+    "eligible_for_model_selection": false,
+    "eligible_for_superiority_claims": false,
+    "new_role": "TRAINING_ONLY_NOT_EVALUATION_OR_CLAIM_EVIDENCE",
+    "previous_role": "REPEATEDLY_EXPOSED_DIAGNOSTIC_NOT_CLAIM_EVIDENCE"
+  },
+  "schema_version": "k-fnspid-sentiment-training-reclassification/v2",
+  "source": {
+    "adjudicated_count": 96,
+    "agreement_count": 504,
+    "label_distribution": {
+      "NEGATIVE": 52,
+      "NEUTRAL": 426,
+      "POSITIVE": 122
+    },
+    "partition": "DISCLOSURE_PREVALENCE_SEALED_TEST_REVIEW",
+    "sample_count": 600,
+    "source_type": "DISCLOSURE"
+  }
+}

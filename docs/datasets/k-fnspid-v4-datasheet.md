@@ -14,7 +14,9 @@ K-FNSPID v4는 한국 상장시장 뉴스·공시와 파일 기반 일별 시세
 | 일별 시세 | 10,691,998행, 2,800종목 |
 | 문서 기간 | 2000-02-03~2026-07-13 |
 | 시세 기간 | 2000-01-04~2026-07-13 |
-| 평가 Gold | 뉴스 80 + 공시 600 = 680 |
+| v4 annotation Gold | 뉴스 80 + 공시 600 = 680 |
+| 감성 receipt-bound Gold | 학습 1,794 + 개발 895 = 2,689 |
+| 감성 DAPT 적격 원천 | 1,118,291문서, 62,468,526 non-padding token |
 
 정본 manifest는 `data/k_fnspid/v4/manifest.json`이며 모든 원천·Parquet 파일의 byte 크기와 SHA-256을 기록한다.
 
@@ -124,6 +126,8 @@ K-FNSPID v4는 한국 상장시장 뉴스·공시와 파일 기반 일별 시세
 
 ## 약한 라벨과 Gold 분리
 
+금융 감성분류용 기존 Codex 라벨은 2026-07-16 provenance 감사에서 reviewer별 receipt가 없는 것으로 확인해 `LEGACY_UNVERIFIED`로 보존한다. 2026-07-17에 고정 packet·codebook·prompt를 사용해 두 독립 review context와 별도 adjudicator context로 5개 packet 전체를 새로 판정했다. packet·판정·실행 context·blindness commitment의 hash receipt를 결합한 학습 Gold 1,794건과 개발 Gold 895건만 `VERIFIED_BLIND_PROVENANCE`로 사용하며, 불일치를 해결하지 못한 11건은 제외한다. 이 절차는 AI context 간 독립성을 입증하지만 인간 금융전문가 외적 타당도를 대체하지 않는다. 상세 수량·receipt·중복 감사는 [감성 Gold provenance 감사](k-fnspid-sentiment-gold-provenance-audit.md)를 따른다.
+
 - 수집 원문 라벨은 `RULE_WEAK_SUPERVISION_V2`와 `UNREVIEWED_WEAK_LABEL`로 표시한다.
 - 이전 구현처럼 모든 공시를 HIGH로 강제하지 않는다. 정기·행정 공시는 LOW, 지배구조 변경은 MEDIUM, 자본·계약·실적은 HIGH, 존속·거래 치명 위험은 CRITICAL로 분리한다.
 - 검수되지 않은 전문 약한 라벨 중 Gold URL과 겹치지 않는 실제 공시 8,302건은 의미 중요도 후보의 supervised 학습에만 사용하고 Gold 평가에는 사용하지 않는다.
@@ -161,7 +165,7 @@ K-FNSPID v4는 한국 상장시장 뉴스·공시와 파일 기반 일별 시세
 
 - Python 3.12와 `uv.lock` 고정 환경을 사용한다.
 - 수집·빌드·학습 명령, seed, base model commit, artifact hash를 보고서에 기록한다.
-- Parquet 6개는 documents·prices 두 파일이 GitHub 100MB 단일 파일 한도를 넘으므로 부분 누락 없이 고정 버전 Release 자산으로 함께 배포한다. Git에는 모든 원천 JSONL shard와 6개 파일의 byte·SHA-256 manifest를 보존한다.
+- Parquet 6개를 포함한 대용량 데이터는 Git LFS pointer와 LFS 객체 hash로 저장소 이력에 고정한다. release manifest는 원본 byte·SHA-256을 독립적으로 검증하며, LFS 객체가 없는 checkout은 완전한 데이터셋으로 간주하지 않는다.
 - raw JSONL과 전문 학습 shard는 48MB 이하로 분할하고 각 파일의 byte·SHA-256을 manifest에서 검증한다.
 - 정정·삭제 시 dataset version을 올리고 기존 manifest를 보존한다.
 

@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-07-15T15:47:19.896342+00:00",
+  "integrity": {
+    "confirmatory_group_overlap_count": 0,
+    "confirmatory_sampling_commitments_verified": true,
+    "exact_item_set": true,
+    "independent_dual_review_required": true,
+    "market_blind": true,
+    "model_blind": true,
+    "promotion_after_confirmatory_reservation": true,
+    "source_review_protected_at_confirmatory_reservation": true,
+    "unresolved_rows_excluded": true,
+    "write_once": true
+  },
+  "lineage": {
+    "confirmatory_reservations": {
+      "DISCLOSURE": {
+        "bytes": 680705,
+        "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+        "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+      },
+      "NEWS": {
+        "bytes": 969809,
+        "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+        "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+      }
+    },
+    "confirmatory_sampling_design": {
+      "bytes": 33713,
+      "path": "reports/k-fnspid-sentiment-confirmatory-sealed-sampling-design.json",
+      "sha256": "67da67ebc1ddf0df648064074101f0220a2fa379d4a5926dd24e6b72f04a03e0"
+    },
+    "dual_decisions": {
+      "bytes": 1099769,
+      "path": "data/curation/k_fnspid_sentiment/prevalence_aux_training_codex_decisions_dual.jsonl",
+      "sha256": "5c0a903f476db9320719d9b87fde6620ca36231db0e18fb13b35c1d909d58f90"
+    },
+    "output": {
+      "bytes": 2243751,
+      "path": "data/training/k_fnspid_news_sentiment_auxiliary_gold_v2.jsonl",
+      "sha256": "ee27ee1eeaab19794ad6f66798b03741fde07d62a361e543a31f06a6cfc5360e"
+    },
+    "review": {
+      "bytes": 968617,
+      "path": "data/curation/k_fnspid_sentiment/prevalence_sealed_test_review.jsonl",
+      "sha256": "2411b503eb4ba7fccae6c3995ce68e750433d3cf15846fc6fb578ab583ca042e"
+    }
+  },
+  "reclassification": {
+    "confirmatory_created_before_reclassification": true,
+    "eligible_for_confirmatory_metrics": false,
+    "eligible_for_evaluation": false,
+    "eligible_for_model_selection": false,
+    "eligible_for_superiority_claims": false,
+    "new_role": "TRAINING_ONLY_NOT_EVALUATION_OR_CLAIM_EVIDENCE",
+    "previous_role": "REPEATEDLY_EXPOSED_DIAGNOSTIC_NOT_CLAIM_EVIDENCE"
+  },
+  "schema_version": "k-fnspid-sentiment-training-reclassification/v2",
+  "source": {
+    "adjudicated_count": 38,
+    "agreement_count": 560,
+    "excluded_unresolved_count": 2,
+    "label_distribution": {
+      "NEGATIVE": 72,
+      "NEUTRAL": 417,
+      "POSITIVE": 109
+    },
+    "partition": "PREVALENCE_SEALED_TEST_REVIEW",
+    "review_sample_count": 600,
+    "sample_count": 598,
+    "source_type": "NEWS"
+  }
+}

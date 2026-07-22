@@ -83,6 +83,7 @@ def test_commit_subject_requires_conventional_commit_and_korean_title() -> None:
     assert _validate_commit_subject("Add live news evaluation batch")
     assert _validate_commit_subject("feat(model): Add live news evaluation batch")
     assert _validate_commit_subject("feat(model): 기능정의서 모델 계약 추가") == ""
+    assert _validate_commit_subject("research(sentiment): 확증 후보 잠금") == ""
 
 
 def test_commit_subject_collection_skips_merge_commits(monkeypatch) -> None:
@@ -110,6 +111,15 @@ def test_commit_subject_collection_skips_legacy_subjects_before_convention() -> 
         "feat(model): add holdout validation report",
         "ci(git): PR 메시지 컨벤션 검사 추가 (#78)",
         "feat(parser): provider 입력 파서 하네스 추가 (#79)",
+    ]
+
+    assert _subjects_after_legacy_cutoff(subjects) == subjects[1:]
+
+
+def test_commit_subject_collection_preserves_locked_candidate_hash() -> None:
+    subjects = [
+        "research(sentiment): lock v6 seed42 candidate",
+        "feat(sentiment): 확증 평가와 미승격 결론 확정",
     ]
 
     assert _subjects_after_legacy_cutoff(subjects) == subjects[1:]

@@ -1,0 +1,130 @@
+{
+  "schema_version": "k-fnspid-transformer-multiseed/v2",
+  "source_type": "DISCLOSURE",
+  "run_count": 3,
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "selection_protocol": "validation macro F1 only; TEST is excluded from selection",
+  "selected_seed_by_validation": 17,
+  "selected_version": "kfi-disclosure-kr-finbert-sc-lora-20260719023940-p0.00-t0.50",
+  "selected_artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/disclosure/seed17",
+  "selected_predictions_path": "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed17-predictions.jsonl",
+  "report_paths": [
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed17.json",
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed42.json",
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed73.json"
+  ],
+  "report_sha256": {
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed17.json": "d5dbf46f4ae82b39cc2fb17dc9133131c9fc5529b7c912ba8bf392f4728fde8d",
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed42.json": "6a85b039de4182cc05472d4e537381b5644af89d34607bc8b20365cf7964a934",
+    "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed73.json": "f8a02fd804f7baff80e3516eb9a4bd8d0e9274b5ffc5259cda63f29247b4fe8b"
+  },
+  "validation": {
+    "accuracy": {
+      "mean": 0.4994292237442922,
+      "sample_std": 0.02113414221640821,
+      "minimum": 0.476027397260274,
+      "maximum": 0.5171232876712328
+    },
+    "macro_f1": {
+      "mean": 0.2748212240995471,
+      "sample_std": 0.0032495891146401504,
+      "minimum": 0.27272682950611865,
+      "maximum": 0.27856470826513324
+    },
+    "quadratic_kappa": {
+      "mean": 0.16184014940447547,
+      "sample_std": 0.012466821845449874,
+      "minimum": 0.14744525547445264,
+      "maximum": 0.16914676817779817
+    }
+  },
+  "test": {
+    "accuracy": {
+      "mean": 0.4533766702780787,
+      "sample_std": 0.018820828139035885,
+      "minimum": 0.43185265438786563,
+      "maximum": 0.466738894907909
+    },
+    "macro_f1": {
+      "mean": 0.31027999007591833,
+      "sample_std": 0.005294885947189354,
+      "minimum": 0.30417129117987995,
+      "maximum": 0.3135549422027474
+    },
+    "quadratic_kappa": {
+      "mean": 0.17135472151137018,
+      "sample_std": 0.00976067245543191,
+      "minimum": 0.16108689103545304,
+      "maximum": 0.1805134932400123
+    }
+  },
+  "runs": [
+    {
+      "seed": 17,
+      "version": "kfi-disclosure-kr-finbert-sc-lora-20260719023940-p0.00-t0.50",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/disclosure/seed17",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed17-predictions.jsonl",
+        "sample_count": 4615,
+        "bytes": 1476508,
+        "sha256": "318bdd60fc3dee63924daaa9330c4f2910b5cf1fbb1f58152f7a86424f56ef46"
+      },
+      "validation": {
+        "accuracy": 0.476027397260274,
+        "macro_f1": 0.27856470826513324,
+        "quadratic_kappa": 0.16914676817779817
+      },
+      "test": {
+        "accuracy": 0.43185265438786563,
+        "macro_f1": 0.3131137368451276,
+        "quadratic_kappa": 0.16108689103545304
+      }
+    },
+    {
+      "seed": 42,
+      "version": "kfi-disclosure-kr-finbert-sc-lora-20260719031141-p0.10-t0.55",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/disclosure/seed42",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed42-predictions.jsonl",
+        "sample_count": 4615,
+        "bytes": 1475248,
+        "sha256": "dd071883467ffe9591f7e0e749d65644f92fc83eb5faa54afd96e48d546369b3"
+      },
+      "validation": {
+        "accuracy": 0.5171232876712328,
+        "macro_f1": 0.27272682950611865,
+        "quadratic_kappa": 0.14744525547445264
+      },
+      "test": {
+        "accuracy": 0.46153846153846156,
+        "macro_f1": 0.30417129117987995,
+        "quadratic_kappa": 0.17246378025864517
+      }
+    },
+    {
+      "seed": 73,
+      "version": "kfi-disclosure-kr-finbert-sc-lora-20260719034354-p0.10-t0.50",
+      "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/disclosure/seed73",
+      "predictions": {
+        "path": "reports/strong_baselines/impact/kr-finbert_sc/disclosure/seed73-predictions.jsonl",
+        "sample_count": 4615,
+        "bytes": 1475598,
+        "sha256": "223bcf08deecb2da6c687659730abcaf2e4d223c7e0897e34c25b0d89e4a2627"
+      },
+      "validation": {
+        "accuracy": 0.5051369863013698,
+        "macro_f1": 0.2731721345273895,
+        "quadratic_kappa": 0.16892842456117563
+      },
+      "test": {
+        "accuracy": 0.466738894907909,
+        "macro_f1": 0.3135549422027474,
+        "quadratic_kappa": 0.1805134932400123
+      }
+    }
+  ]
+}

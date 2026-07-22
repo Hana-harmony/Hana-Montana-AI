@@ -1,0 +1,116 @@
+{
+  "schema_version": "kf-deberta-sentiment-training/v1",
+  "version": "kf-deberta-finance-sentiment-lora-20260713102924",
+  "base_model": "kakaobank/kf-deberta-base",
+  "base_model_revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "max_length": 128,
+  "trained_at": "2026-07-13T10:29:24.760181+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1142,
+      "sha256": "a00767f8947c8ced54cd07db3612b8d08311efc240627f38d40b55f50a54603a"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5921612,
+      "sha256": "506a4290af390f9ebd3a3cabc8ae592e6c4c53837d44f1fb821c86819dd81c88"
+    },
+    "tokenizer.json": {
+      "bytes": 3192018,
+      "sha256": "00ae27b3bb1e3dbc8f7b33bfd6bc543b96c7451fd008092e01e8f0308793f19c"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "dataset_source": "mssongit/finance-task:fnsentiment",
+  "training_strategy": "operational-domain-adaptation-with-public-replay",
+  "parent_version": "kf-deberta-finance-sentiment-lora-20260713101433",
+  "cumulative_training_exposure_count": 18139,
+  "dataset_revision": "7a8dc8cf6548a08e0a5dab3a12ad0fb8dccfd23f",
+  "dataset_files": {
+    "ratings_test.csv": {
+      "bytes": 1791189,
+      "sha256": "ec2e60f370b711f307683995c7cf02770a53ab1b2e5ec4d5feb00da5ecd38360"
+    },
+    "ratings_train.csv": {
+      "bytes": 14535505,
+      "sha256": "aab3329efb94b49828d68ecaa3b9bba795c954d9625950057ab9f9add541bf13"
+    },
+    "ratings_val.csv": {
+      "bytes": 1789206,
+      "sha256": "7bc31a5ae598413cbdac50aa1c78ea1c42561ab4ed7f14fca5d09b36935709d1"
+    }
+  },
+  "operational_training_files": {
+    "data/training/financial_alert_augmented.jsonl": {
+      "bytes": 514965,
+      "sha256": "b691f0503cfda1b157c0d88614bfd8cee020d5b30362e9d043812714073a8996"
+    },
+    "data/training/financial_alert_corpus.jsonl": {
+      "bytes": 3580,
+      "sha256": "8ab88c36b7f651624bc2e682bd5942e7b1ace25b639c4bf71212c6dc75346233"
+    },
+    "data/training/financial_alert_news_style_augmented.jsonl": {
+      "bytes": 544924,
+      "sha256": "70a55356fb9477bb1f19899583e8297955de85637acf193e6b9d8cce20cad285"
+    },
+    "data/training/financial_alert_real_news_gold.jsonl": {
+      "bytes": 41486,
+      "sha256": "94ca5b0b8f6db243f413bd03a831826b7ed8ae4b936a5a4c6bf1be777467a27a"
+    },
+    "data/training/financial_alert_stock_review_gold.jsonl": {
+      "bytes": 3598476,
+      "sha256": "dfd605acc4a69be829d85fc2f91bdf73f5efa8911530b3d21ce8617c64bdf51b"
+    }
+  },
+  "operational_training_count": 7016,
+  "excluded_evaluation_overlap_count": 0,
+  "partition_count": {
+    "TRAIN": 3696,
+    "VALIDATION": 933,
+    "TEST": 933
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "NEUTRAL": 1084,
+      "NEGATIVE": 1064,
+      "POSITIVE": 1548
+    },
+    "VALIDATION": {
+      "POSITIVE": 311,
+      "NEUTRAL": 311,
+      "NEGATIVE": 311
+    },
+    "TEST": {
+      "NEUTRAL": 311,
+      "POSITIVE": 311,
+      "NEGATIVE": 311
+    }
+  },
+  "trainable_parameter_count": 1477635,
+  "total_parameter_count": 187361286,
+  "validation": {
+    "loss": 0.3925688862800598,
+    "accuracy": 0.8853161843515541,
+    "macro_f1": 0.8852454343581583,
+    "runtime": 12.6485,
+    "samples_per_second": 73.763,
+    "steps_per_second": 2.372,
+    "sample_count": 933
+  },
+  "test": {
+    "loss": 0.39787521958351135,
+    "accuracy": 0.8853161843515541,
+    "macro_f1": 0.8850250763430297,
+    "runtime": 13.3704,
+    "samples_per_second": 69.781,
+    "steps_per_second": 2.244,
+    "sample_count": 933
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": "k-fnspid-impact-strong-baseline-training/v1",
+  "version": "kfi-shared-kr-finbert-sc-lora-20260719015636-p0.15-t0.70",
+  "model_preset": "KR_FINBERT_SC",
+  "base_model": "models/kr-finbert-sc-raw-reference",
+  "base_model_revision": "36b3d36898bc9925ca58c3508b1048e4449f1370",
+  "base_model_safetensors_sha256": "fc073b39aa12271fc67c878de86e150a021f07a426e3e7e42705511d35e27b9a",
+  "comparison_only": true,
+  "label_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "max_length": 256,
+  "trained_at": "2026-07-19T01:56:36.143364+00:00",
+  "artifact_files": {
+    "adapter_config.json": {
+      "bytes": 1207,
+      "sha256": "c4e8a109b90df0365fc77de49eeb3df428e56b184a274c290b0dc54dbfb7c7c3"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 5924136,
+      "sha256": "29eeaf99c5af7301e7a260760ccf8334fc9b6f5ddc6d94b1dbfe21f981f0a83b"
+    },
+    "tokenizer.json": {
+      "bytes": 454830,
+      "sha256": "2133863fb5146bf1b0fef64a21f2a5d88d2e63490927cb567bec2ae377fdf22b"
+    },
+    "tokenizer_config.json": {
+      "bytes": 621,
+      "sha256": "55c91fa221678f29d9112475d81fa9ef9dbba2be15c07c70e4d796c20bf1ed8c"
+    }
+  },
+  "input_feature_version": "k-fnspid-text-v2",
+  "seed": 73,
+  "source_type": null,
+  "postprocessing": {
+    "method": "validation-selected-log-prior-temperature/v2",
+    "selection_partition": "VALIDATION",
+    "selection_objective": "macro_f1, then quadratic_kappa, accuracy, lower prior strength; then validation negative log likelihood for temperature",
+    "strength_grid": {
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "step": 0.05
+    },
+    "temperature_grid": {
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.05
+    },
+    "selected_strength": 0.15000000000000002,
+    "selected_temperature": 0.7,
+    "selected_validation_negative_log_likelihood": 1.146042876449427,
+    "training_class_priors": {
+      "LOW": 0.6652311711086349,
+      "MEDIUM": 0.2403229636665875,
+      "HIGH": 0.06585316844162724,
+      "CRITICAL": 0.028592696783150358
+    },
+    "selected_validation_metrics": {
+      "accuracy": 0.48702508960573476,
+      "macro_f1": 0.3688499784374491,
+      "quadratic_kappa": 0.40321730320497506
+    }
+  },
+  "dataset_dir": "data/k_fnspid/v4",
+  "dataset_manifest": {
+    "path": "data/k_fnspid/v4/manifest.json",
+    "dataset_version": "k-fnspid-v4",
+    "bytes": 12648,
+    "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+  },
+  "artifact_dir": "artifacts/impact/strong-baselines/kr-finbert_sc/shared/seed73",
+  "evaluation_protocol": "TRAIN fit; Validation selects checkpoint, log-prior correction, and seed; frozen TEST is evaluated once for final deployment and superiority gates",
+  "training_hyperparameters": {
+    "evaluation_only": false,
+    "epochs_requested": 3.0,
+    "per_device_train_batch_size": 8,
+    "per_device_eval_batch_size": 16,
+    "gradient_accumulation_steps": 4,
+    "effective_batch_size": 32,
+    "learning_rate": 0.0002,
+    "lr_scheduler_type": "cosine",
+    "warmup_steps": 1642,
+    "warmup_ratio_of_optimizer_steps": 0.08,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "early_stopping_patience_epochs": 1,
+    "gradient_checkpointing": false,
+    "mixed_precision": "none",
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.1,
+      "target_modules": [
+        "query",
+        "key",
+        "value"
+      ],
+      "modules_to_save": [
+        "pooler",
+        "classifier"
+      ],
+      "initial_adapter_path": null
+    }
+  },
+  "training_state": {
+    "completed_epoch": 3.0,
+    "global_optimizer_steps": 20529,
+    "best_validation_macro_f1": 0.3688499784374491,
+    "evaluation_only": false
+  },
+  "runtime": {
+    "device": "mps",
+    "python_packages": {
+      "torch": "2.6.0",
+      "transformers": "5.13.1",
+      "peft": "0.19.1"
+    }
+  },
+  "training_objective": {
+    "name": "class-balanced-focal-plus-ordinal-cdf",
+    "focal_gamma": 1.5,
+    "ordinal_loss_weight": 0.3,
+    "label_smoothing": 0.02
+  },
+  "partition_count": {
+    "TRAIN": 218972,
+    "VALIDATION": 6975,
+    "TEST": 14175
+  },
+  "label_distribution": {
+    "TRAIN": {
+      "LOW": 145667,
+      "MEDIUM": 52624,
+      "HIGH": 14420,
+      "CRITICAL": 6261
+    },
+    "VALIDATION": {
+      "LOW": 3469,
+      "CRITICAL": 509,
+      "MEDIUM": 2104,
+      "HIGH": 893
+    },
+    "TEST": {
+      "MEDIUM": 4772,
+      "HIGH": 1679,
+      "CRITICAL": 679,
+      "LOW": 7045
+    }
+  },
+  "trainable_parameter_count": 1478404,
+  "total_parameter_count": 102882824,
+  "validation": {
+    "accuracy": 0.48702508960573476,
+    "macro_f1": 0.3688499784374491,
+    "quadratic_kappa": 0.40321730320497506,
+    "expected_calibration_error_15_bin": 0.03006971971737665,
+    "multiclass_brier_score": 0.6306235462218025,
+    "sample_count": 6975
+  },
+  "validation_raw": {
+    "accuracy": 0.44587813620071687,
+    "macro_f1": 0.3595500742111037,
+    "quadratic_kappa": 0.3861577709049887
+  },
+  "test": {
+    "accuracy": 0.5002469135802469,
+    "macro_f1": 0.3513835349139779,
+    "quadratic_kappa": 0.35664065865396555,
+    "expected_calibration_error_15_bin": 0.03477835382957559,
+    "multiclass_brier_score": 0.6154364348193966,
+    "sample_count": 14175
+  },
+  "test_raw": {
+    "accuracy": 0.45911816578483244,
+    "macro_f1": 0.35133577882808903,
+    "quadratic_kappa": 0.35007910812669407
+  },
+  "baseline_test": {
+    "sample_count": 14175,
+    "accuracy": 0.4361199294532628,
+    "macro_f1": 0.33005368510882666,
+    "quadratic_kappa": 0.27071888193065696,
+    "expected_calibration_error_15_bin": 0.03449498775760005,
+    "multiclass_brier_score": 0.6623932371217783
+  },
+  "deployment_gate": {
+    "minimum_test_sample_count": 1000,
+    "minimum_macro_f1": 0.35,
+    "minimum_quadratic_kappa": 0.2,
+    "maximum_expected_calibration_error_15_bin": 0.2,
+    "must_match_or_improve_baseline_calibration": true,
+    "must_match_or_exceed_baseline": "k-fnspid-impact-shared-tfidf-logreg",
+    "eligible": false,
+    "decision": "RESEARCH_BASELINE_ONLY"
+  },
+  "test_predictions": {
+    "path": "reports/strong_baselines/impact/kr-finbert_sc/shared/seed73-predictions.jsonl",
+    "sample_count": 14175,
+    "bytes": 4475148,
+    "sha256": "3d12e86a378c101e49db331180a1e21db4ef2f3e45412cbc0cbb7f5c33d8f9dd"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 24290,
+      "path": "data/gold/review_v2/disclosure-auxiliary/adjudication/part-all.jsonl",
+      "sample_count": 46,
+      "sha256": "a736650ab9f8bfd0b2ca80150663f1e57d60012b89657a0c9fc7bc1c446c7ce5"
+    },
+    "packet": {
+      "bytes": 72123,
+      "path": "data/gold/review_v2/disclosure-auxiliary/adjudication-packet.jsonl",
+      "sample_count": 46,
+      "sha256": "73c0f65530489a83943a2390eb918d668dc08a6ed107ee9078d4a57eb020013a"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "reviewer_decision_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "1e009b75924a356bc6eb9cc59cbe13946540ae03cf473d56ac8ec3f8169b9c00::351320",
+    "input_field_sets_sha256": "ff44fd6c8932b0988bdbf47fc7d51215f10914abda02325b613bebcf57065b10",
+    "item_count": 46,
+    "item_id_order_sha256": "bc95f9f872642ddf28bfaf71a5cb361d3dab1e9321dd821b3d0d75f3a0d9d156",
+    "item_id_set_sha256": "68be7843a83e553ea30d600711f661797c1f67e5b6cfa69e26c0fb3b4d979359",
+    "last_item_id": "96c5b60c791c140275f3159b0e0ac422dd476f71f69cd66bcfb8261b5fda1c01::468530",
+    "row_end_inclusive": 46,
+    "row_start_inclusive": 1,
+    "source_type_distribution": {
+      "UNSPECIFIED": 46
+    }
+  },
+  "packet_kind": "BLIND_ADJUDICATION_DISAGREEMENTS",
+  "receipt_payload_sha256": "08e1893e6d93124fa9bd98625c5edc2e97fc7b98c6fbe63ecd168748755ef4b2",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-2026-07-17",
+    "reviewer_id": "codex:disclosure-auxiliary-blind-adjudicator-all-20260717",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "ADJUDICATOR",
+  "run": {
+    "completed_at": "2026-07-17T00:23:49Z",
+    "context_id": "F8DF9CBE-170B-4B1C-944B-1F9BCB140504",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "AC47FD20-ED73-448C-B1D4-2238C64D141C",
+    "started_at": "2026-07-17T00:19:08Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

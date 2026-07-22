@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, cast
@@ -19,11 +20,23 @@ def assert_close(actual: float, expected: float, label: str) -> None:
 def main() -> None:
     manifest = load("data/k_fnspid/v4/manifest.json")
     sentiment = load("reports/korean-finance-sentiment-benchmark.json")
+    confirmatory_sentiment_path = ROOT / "reports/korean-finance-sentiment-benchmark-v4.json"
+    confirmatory_sentiment = cast(
+        dict[str, Any],
+        json.loads(confirmatory_sentiment_path.read_text(encoding="utf-8")),
+    )
     impact = load("reports/k-fnspid-research-evaluation.json")
     disclosure_multiseed = load(
         "reports/k-fnspid-impact-disclosure-transformer-multiseed-report.json"
     )
     disclosure = load("reports/disclosure-importance-research-evaluation.json")
+    sentiment_inputs = load(
+        "reports/k-fnspid-sentiment-v6-input-commitment-lock-v2.json"
+    )
+    dapt = load("data/k_fnspid/v4_dapt_temporal_v2/manifest.json")
+    dapt_pilot = load("reports/k-fnspid-v4-kf-deberta-dapt-pilot-v2.json")
+    submission = load("docs/paper/acl/submission-manifest.json")
+    author = load("docs/paper/acl/author-metadata.json")
 
     expected_counts = {
         "document_count": 1_247_685,
@@ -79,7 +92,142 @@ def main() -> None:
         raise AssertionError("source-routed superiority gate failed")
     assert_close(disclosure["candidate"]["macro_f1"], 0.9962, "disclosure operational macro-F1")
 
-    print("submission metrics verified against frozen reports")
+    if sentiment_inputs["status"] != "LOCKED":
+        raise AssertionError("sentiment v6 input commitment is not locked")
+    expected_partitions = {
+        "TRAIN": 32_907,
+        "CHECKPOINT": 911,
+        "CALIBRATION": 455,
+        "SELECTION": 461,
+        "NEWS_CONFIRMATORY_RESERVATION": 600,
+        "DISCLOSURE_CONFIRMATORY_RESERVATION": 600,
+    }
+    for role, expected in expected_partitions.items():
+        actual = sentiment_inputs["prepared_partition_commitments"][role]["row_count"]
+        if actual != expected:
+            raise AssertionError(
+                f"sentiment partition {role}: expected={expected}, actual={actual}"
+            )
+    expected_gold = {
+        "primary_news": 596,
+        "auxiliary_news": 598,
+        "auxiliary_disclosure": 600,
+        "development_news": 448,
+        "development_disclosure": 447,
+    }
+    for source, expected in expected_gold.items():
+        actual = sentiment_inputs["gold_inputs"][source]["rows"]
+        if actual != expected:
+            raise AssertionError(
+                f"sentiment Gold {source}: expected={expected}, actual={actual}"
+            )
+    review = sentiment_inputs["independent_review"]
+    if not review["actual_commitments_match"] or not review["all_gold_provenance_verified"]:
+        raise AssertionError("independent sentiment commitment review failed")
+    if review["all_15_partition_pair_group_overlaps"] != 0:
+        raise AssertionError("sentiment partitions overlap")
+
+    if dapt["schema_version"] != "k-fnspid-dapt-prepared/v2":
+        raise AssertionError("DAPT prepared schema changed")
+    if dapt["inventory"]["eligible_total"] != 1_118_291:
+        raise AssertionError("DAPT eligible document count changed")
+    if dapt["packing"]["packed_non_padding_token_count"] != 62_468_526:
+        raise AssertionError("DAPT non-padding token count changed")
+    if dapt_pilot["selected_precision"] != "FP32" or dapt_pilot["fp32"]["status"] != "PASS":
+        raise AssertionError("DAPT FP32 precision pilot is not locked")
+    if not (
+        dapt_pilot["fp32"]["final_fixed_pilot"]["mean_nll"]
+        < dapt_pilot["fp32"]["initial_fixed_pilot"]["mean_nll"]
+    ):
+        raise AssertionError("DAPT FP32 pilot did not reduce validation NLL")
+
+    if submission["system_name"] != "Hana Montana AI(KF-DeBERTa + K-FNSPID)":
+        raise AssertionError("paper system name changed")
+    confirmatory_sha256 = hashlib.sha256(confirmatory_sentiment_path.read_bytes()).hexdigest()
+    expected_verification = f"VERIFIED_AGAINST_REPORT_SHA256_{confirmatory_sha256}"
+    if submission["metric_report_verification"] != expected_verification:
+        raise AssertionError("submission manifest is not bound to the confirmatory report")
+    if confirmatory_sentiment["schema_version"] != "korean-finance-sentiment-benchmark/v5":
+        raise AssertionError("confirmatory sentiment schema changed")
+    consumption = confirmatory_sentiment["sealed_evaluation_consumption"]
+    if not consumption["one_shot"] or consumption["labels_loaded_before_receipt"]:
+        raise AssertionError("confirmatory evaluation did not preserve one-shot sealing")
+    gate = confirmatory_sentiment["deployment_gate"]
+    if gate["eligible"] or gate["decision"] != "KEEP_CURRENT_MODEL":
+        raise AssertionError("confirmatory deployment decision changed")
+    expected_confirmatory = {
+        "NEWS": {
+            "sample_count": 600,
+            "accuracy": 0.7503186489425128,
+            "macro_f1": 0.5530330480216619,
+            "kr_finbert_sc_raw_accuracy": 0.5781314229595588,
+            "kr_finbert_sc_raw_macro_f1": 0.4936772419839708,
+            "pre_k_fnspid_accuracy": 0.473671740731647,
+            "pre_k_fnspid_macro_f1": 0.4395663720141798,
+            "fair_baseline_accuracy": 0.7677017642313486,
+            "fair_baseline_macro_f1": 0.5770932722672032,
+        },
+        "DISCLOSURE": {
+            "sample_count": 600,
+            "accuracy": 0.8645814903028203,
+            "macro_f1": 0.6023636438636694,
+            "kr_finbert_sc_raw_accuracy": 0.8535156515821671,
+            "kr_finbert_sc_raw_macro_f1": 0.6146393032642109,
+            "pre_k_fnspid_accuracy": 0.8479763525008467,
+            "pre_k_fnspid_macro_f1": 0.5357548042726713,
+            "fair_baseline_accuracy": 0.8513559033684889,
+            "fair_baseline_macro_f1": 0.5647212604875623,
+        },
+    }
+    for source_type, expected in expected_confirmatory.items():
+        actual = confirmatory_sentiment["source_sealed_gold"][source_type]
+        if actual["sample_count"] != expected["sample_count"]:
+            raise AssertionError(f"{source_type} confirmatory sample count changed")
+        for metric, expected_value in expected.items():
+            if metric == "sample_count":
+                continue
+            assert_close(actual[metric], expected_value, f"{source_type} {metric}")
+    if author["name_en"] != "Sunghyun Choi" or author["name_ko"] != "최성현":
+        raise AssertionError("author identity changed")
+    if author["affiliation_ko"] != "한국공학대학교 컴퓨터공학부 소프트웨어학과":
+        raise AssertionError("author affiliation changed")
+
+    required_english_facts = (
+        "Hana Montana AI(KF-DeBERTa + K-FNSPID)",
+        "0.7503 / 0.5530",
+        "0.8646 / 0.6024",
+        "KEEP\\_CURRENT\\_MODEL",
+        "1,118,291",
+        "62,468,526",
+    )
+    source_path = "docs/paper/acl/k-fnspid-v4-arr-review.tex"
+    source = (ROOT / source_path).read_text(encoding="utf-8")
+    for fact in required_english_facts:
+        if fact not in source:
+            raise AssertionError(f"{source_path} missing current fact: {fact}")
+
+    required_korean_facts = (
+        "Hana Montana AI(KF-DeBERTa + K-FNSPID)",
+        "0.7503 / 0.5530",
+        "0.8646 / 0.6024",
+        "승격하지 않았다",
+        "1,118,291",
+        "\\section{논의}",
+        "\\subsection{연구의 한계}",
+        "\\section{결론}",
+    )
+    source_path = "docs/paper/acl/k-fnspid-v4-ko.tex"
+    source = (ROOT / source_path).read_text(encoding="utf-8")
+    for fact in required_korean_facts:
+        if fact not in source:
+            raise AssertionError(f"{source_path} missing current fact: {fact}")
+
+    forbidden_korean_facts = ("LOCKED\\_RESULT\\_PENDING", "평가 진행 중")
+    for fact in forbidden_korean_facts:
+        if fact in source:
+            raise AssertionError(f"{source_path} contains internal workflow term: {fact}")
+
+    print(f"submission metrics verified against frozen reports ({confirmatory_sha256})")
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ ALLOWED_COMMIT_TYPES = {
     "chore",
     "security",
     "perf",
+    "research",
     "build",
     "ci",
     "revert",
@@ -38,6 +39,8 @@ PR_CHECKLIST_REQUIRED_ITEMS = (
 )
 LEGACY_COMMIT_VALIDATION_CUTOFFS = (
     "ci(git): PR 메시지 컨벤션 검사 추가",
+    # 확증 평가가 참조하는 잠금 커밋 hash는 제목 교정을 위해 재작성할 수 없다.
+    "feat(sentiment): 확증 평가와 미승격 결론 확정",
 )
 
 

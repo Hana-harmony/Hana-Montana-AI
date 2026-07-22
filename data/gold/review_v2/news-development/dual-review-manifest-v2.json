@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "adjudication_decision": {
+      "bytes": 7140,
+      "path": "data/gold/review_v2/news-development/adjudication/merged.jsonl",
+      "sample_count": 16,
+      "sha256": "1a9336f47675b88e26345aa6dbc4e77e0e9c87affd14fbc655f5597bf101a173"
+    },
+    "adjudication_manifest": {
+      "bytes": 3773,
+      "path": "data/gold/review_v2/news-development/adjudication/manifest.json",
+      "sha256": "277475c603b6247613a62beac2e5d27c5e12c3afa524ce87999ecfbdc11b99b2"
+    },
+    "adjudication_packet": {
+      "bytes": 32073,
+      "path": "data/gold/review_v2/news-development/adjudication-packet.jsonl",
+      "sample_count": 16,
+      "sha256": "7de87ad10fcd137f650eaa6413aa2728944b07bb9a4670fc8275d5d7f0f147ae"
+    },
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "merged_decision": {
+      "bytes": 723249,
+      "path": "data/gold/review_v2/news-development/final-v2.jsonl",
+      "sample_count": 450,
+      "sha256": "9170e76e5bdf89f639d08f5431b030cf79469e05a7406f570d74bd91fd2148e3"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    },
+    "review_packet": {
+      "bytes": 719730,
+      "path": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+      "sample_count": 450,
+      "sha256": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa"
+    },
+    "stage_1_decision": {
+      "bytes": 161523,
+      "path": "data/gold/review_v2/news-development/stage1/merged.jsonl",
+      "sample_count": 450,
+      "sha256": "122c9d31c71e1cf6ee863ac639db551f882c75e04cfb2d4174dd7781fedc403d"
+    },
+    "stage_1_manifest": {
+      "bytes": 10987,
+      "path": "data/gold/review_v2/news-development/stage1/manifest.json",
+      "sha256": "7aa4dc19fecc5a25ef7d8520c60ba755ec03f29f39592d5bf56e972461ff52d5"
+    },
+    "stage_2_decision": {
+      "bytes": 156938,
+      "path": "data/gold/review_v2/news-development/stage2/merged.jsonl",
+      "sample_count": 450,
+      "sha256": "b109ec97c7ce967bcb8f90b95fff65556ff6aca06900646552fdce1ba9ce4c9f"
+    },
+    "stage_2_manifest": {
+      "bytes": 7249,
+      "path": "data/gold/review_v2/news-development/stage2/manifest.json",
+      "sha256": "86d4ae4c79e249c22c61f246afd62dd1db4259dfc3d8690455123b51b5d0d7ac"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+  "disagreement_count": 16,
+  "exact_item_set": true,
+  "merge_manifest_payload_sha256": "43b250210335cc7f6fbe670ba5fea89d11890d222638903de3865acb40dd6cec",
+  "participant_receipt_payload_sha256": [
+    "424e101523c541ff2fd517fb2821f28c403de5598d7e0b755b3f72d5c7d7f248",
+    "da3c444484f657903360761b3613100be03987de76a8f1611abc56cded9b68cc",
+    "3857be4357ca8379cb7310d60d2a4c331061958636692120968751a9cf8545da",
+    "d2908e06766c806f346d65bfe446a0903037c0fdaa02b075aadbc7fae3ec3c1b",
+    "2a133f0e3ee14417db84c5a360741a811a905f5cd13c260ff22fada73765a949",
+    "7bc1f61519a5aa091cd08b2b7844e91feda40e5a3c7909535936a9ac17c78c71",
+    "cbcd1948efd2283d6df8e13974c968b4b6fb7ac7a6141719648dbd7fc6cdc836",
+    "bd6ea76397362af590919d1bc0215f8380a000bacbdf15311be0e3f4731746c8",
+    "0454080c4d6972fe857148c5f3558a64824d2cbb7a97c7d44566e73490412644"
+  ],
+  "protocol": "receipt-bound-two-independent-codex-reviewers-plus-adjudication/v1",
+  "reviewed_item_count": 450,
+  "schema_version": "k-fnspid-sentiment-dual-review-provenance/v1",
+  "stage_manifest_payload_sha256": {
+    "stage_1": "3c22dce48eb7ab248c2e9008f4368952db86d67bab0f95a6033a4e312d8ec9f5",
+    "stage_2": "e2dc1d0bbd9bc0fc5374810eb8a18edb106b6c1615f2c8ed39bb8e7d744cca89"
+  },
+  "status": "VERIFIED_BLIND_PROVENANCE",
+  "unresolved_count": 2
+}

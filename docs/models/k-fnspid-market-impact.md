@@ -11,7 +11,7 @@
 - 시장영향 715,015건, 다중 사건 교란을 제외한 대표 행 255,168건
 - 일별 시세 10,691,998행, 2,800종목, `data/market/market_daily_price.parquet`
 - 실제 전문 28,703건: 뉴스 19,727건, 공시 8,976건. K-FNSPID 문서에는 뉴스 13,310건과 공시 8,972건이 연결된다.
-- 원천 JSONL과 48MB 이하 shard는 Git에 보존한다. Parquet 6개는 documents·prices 두 파일이 GitHub 100MB 한도를 넘으므로 부분 누락 없이 한 묶음으로 `k-fnspid-v4.0.0` Release에 게시하고, Git manifest가 각 파일의 byte·SHA-256을 고정한다.
+- 원천 JSONL shard와 Parquet 6개를 모두 Git 이력에 고정한다. 대용량 Parquet은 Git LFS pointer·객체 hash를 사용하고 manifest가 원본 byte·SHA-256을 독립적으로 검증한다. `k-fnspid-v4.0.0` Release는 복구용 미러로만 유지한다.
 - 정본 manifest: `data/k_fnspid/v4/manifest.json`, SHA-256 `80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4`
 - 운영 DB의 `market_daily_price`를 데이터셋 입력으로 연결하지 않는다. 복원 스크립트는 Release 자산의 크기와 SHA-256을 확인한 뒤 파일을 원자적으로 교체한다.
 
@@ -36,7 +36,8 @@
 ## 출처별 전문가
 
 - 공통 구조: 고정 리비전 `kakaobank/kf-deberta-base` + LoRA r=16, class-balanced focal cross entropy, ordinal CDF loss
-- 뉴스와 공시의 문체·라벨 분포 차이를 고려해 학습 artifact, 기준선, 배포 gate, Validation 보정을 분리한다.
+- 통합 NEWS+DISCLOSURE adapter를 seed 17·42·73으로 학습하고, 뉴스는 동결된 seed 42 통합 adapter를 평가한다. 공시는 같은 seed 42 adapter에서 출처별 추가학습한다.
+- 뉴스와 공시의 문체·라벨 분포 차이를 고려해 평가 artifact, 기준선, 배포 gate, Validation 보정을 분리한다.
 - Validation에서 log class-prior offset과 temperature를 공동 선택하고 Test에는 고정 적용한다.
 - 런타임은 요청 `source_type`과 artifact의 `source_type`이 다르면 추론을 거부한다.
 - 출처별 Transformer가 gate를 통과해야 활성화한다. 공시 TF-IDF 기준선은 독립 gate 미달이므로 Transformer 장애 시 부적격 기준선으로 후퇴하지 않고 시장영향 필드를 생략한다.
@@ -72,7 +73,17 @@
 
 - FNSPID는 미국 뉴스 1,570만건·시세 2,970만행·4,775종목 규모의 원 설계 참고 자료다. K-FNSPID v4는 한국 공개 뉴스·공시 124만건과 시세 1,069만행·2,800종목으로 규모는 작지만 한국 발표 세션, 공시, 종목 관계, embargo를 추가한다.
 - FINKRX, FININ, KRX-Bench, CARAG, FinKario는 각각 한국 금융 instruction, information extraction, QA·RAG 등 과제가 달라 동일 라벨·동일 Test의 직접 순위 비교가 아니다.
-- 동일한 한국 종목·시장영향 코드북의 공인 leaderboard가 없으므로 외부 SOTA 초과를 주장하지 않는다. 이 프로젝트가 주장할 수 있는 범위는 공개된 시간 분할·강한 기준선·출처별 비회귀·cluster bootstrap을 통과한 내부 우위다.
+- 동일한 한국 종목·시장영향 코드북의 공인 leaderboard가 없으므로 외부 전역 SOTA 초과를 주장하지 않는다. 사용자 지정에 따라 금융 특화 공개 encoder `KR-FinBERT-SC`만 이름이 명시된 강한 비교군으로 사용하고 `KLUE RoBERTa-large`는 제외했다.
+- KR-FinBERT-SC도 Hana 모델과 동일하게 공유 3-seed 학습, 공유 seed 42 재사용, 국내 뉴스 동결평가, 국내 공시 추가학습 순서를 따랐다. 데이터 manifest, 모델 revision, recipe, artifact와 예측 파일의 byte·SHA-256이 모두 일치하는 경우만 재사용했다.
+- 비교 계약과 수정 계약을 학습·평가 전에 잠갔으며, 국내 뉴스·국내 공시별 Macro-F1과 QWK 거래일 군집 bootstrap 2,000회와 exact McNemar p값 Holm 보정을 적용했다.
+
+| 동일 K-FNSPID 시간 Test 비교군 | 국내 뉴스 Macro-F1 | 국내 공시 Macro-F1 | 판정 |
+| --- | ---: | ---: | --- |
+| Hana Montana AI(KF-DeBERTa + K-FNSPID) | 0.3745 | 0.3216 | 고정 후보 |
+| KR-FinBERT-SC 동일 파이프라인 | 0.3506 | 0.3131 | 강한 비교군 |
+| 상대 차이 | +6.82% (+0.0239점) | +2.72% (+0.0085점) | 뉴스 우위·공시 미확정 |
+
+국내 뉴스는 Macro-F1 군집 95% 신뢰구간 `[0.0090, 0.0383]`과 QWK 비열등 조건을 모두 통과했다. 국내 공시는 Macro-F1 구간 `[-0.0126, 0.0317]`이 0을 포함하고 QWK가 0.1611에서 0.1550으로 낮아 우위를 확정하지 않는다. TF-IDF는 재현 가능한 전통 기준선이며 SOTA 모델로 호칭하지 않는다.
 
 ## 산출물
 
@@ -81,6 +92,7 @@
 - Transformer: `k_fnspid_impact_news_transformer/`, `k_fnspid_impact_disclosure_transformer/`
 - 학습 보고서: `reports/k-fnspid-impact-{news,disclosure}-transformer-training-report.json`
 - 통계 보고서: `reports/k-fnspid-research-evaluation.json`
+- 공개 강한 비교군 계약·결과: `reports/k-fnspid-impact-strong-baseline-study-contract.json`, `reports/k-fnspid-impact-strong-baseline-study-contract-amendment-002.json`, `reports/k-fnspid-impact-kr-finbert-sc-matrix.json`, `reports/k-fnspid-impact-kr-finbert-sc-result-attestation.json`
 - Datasheet와 코드북: `docs/datasets/k-fnspid-v4-datasheet.md`, `docs/datasets/k-fnspid-v4-annotation-codebook.md`
 
 ## 한계

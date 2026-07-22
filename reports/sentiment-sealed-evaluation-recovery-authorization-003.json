@@ -1,0 +1,31 @@
+{
+  "schema_version": "sentiment-sealed-evaluation-recovery-authorization/v1",
+  "authorized_at": "2026-07-22T07:11:00Z",
+  "reason": "세 번째 실행으로 canonical evaluator의 legacy disclosure loader가 원본 Gold의 stock_name·stock_code를 누락해 strict target_security 계약을 위반하는 결함을 확정했다.",
+  "prior_attempt": {
+    "receipt": "reports/sentiment-sealed-evaluation-consumption-recovery-002.json",
+    "receipt_sha256": "35572f20c280d771806e6686a6cd27c8abf6c59a498e232ea3360a6b33e822ac",
+    "failure": "legacy disclosure 진단 입력의 target_security 누락"
+  },
+  "failure_boundary": {
+    "final_report_created": false,
+    "all_candidate_predictions_completed": false,
+    "baseline_predictions_completed": false,
+    "metrics_emitted": false
+  },
+  "evaluator_recovery": {
+    "canonical_evaluator_sha256": "5d62560687038a5177be47c38a7fe1c8b2a682e1fdb1c3b6d91e335a8dbbc625",
+    "canonical_evaluator_changed": false,
+    "wrapper": "scripts/run_locked_sentiment_evaluation_recovery.py",
+    "wrapper_sha256": "9725dbbf8b3351ee8ef0afc6c7d2542b7c9f0f16e5dd826e3f906edd5a582a22",
+    "scope": "원본 attestation과 DAPT 경로 commitment를 먼저 검증하고, legacy disclosure에만 원본 Gold의 stock_name 또는 stock_code를 target_security로 복원",
+    "confirmatory_gold_changed": false,
+    "legacy_gold_changed": false,
+    "inference_math_changed": false,
+    "calibration_changed": false,
+    "candidate_artifact_changed": false,
+    "static_check": "ruff passed"
+  },
+  "recovery_consumption_receipt": "reports/sentiment-sealed-evaluation-consumption-recovery-003.json",
+  "planned_report": "reports/korean-finance-sentiment-benchmark-v4.json"
+}

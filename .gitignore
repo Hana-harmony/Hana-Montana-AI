@@ -11,13 +11,13 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
-/models/
-data/external/
-data/market/*.parquet
-data/market/*.csv
-data/k_fnspid/*/*.parquet
-data/processed/*.part-*.jsonl
+/models/*
+!/models/kr-finbert-sc-raw-reference/
 src/hannah_montana_ai/model_store/.*-checkpoints/
+# optimizer·RNG 재개 상태는 일시 산출물이며 배포 모델이 아니다.
+artifacts/**/.*-checkpoints*/
+# PID·진행 로그는 실행 상태이며 재현·배포 artifact가 아니다.
+artifacts/runtime/
 .idea/
 .vscode/
 /tmp/

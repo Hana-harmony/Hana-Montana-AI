@@ -1,0 +1,19 @@
+{
+  "schema_version": "kr-finbert-sc-shared-residual-fair-baseline-winner/v2",
+  "selected_seed": 42,
+  "selection_report": {
+    "path": "reports/fair_baselines/kr-finbert-sc-v6/selection.json",
+    "bytes": 6361,
+    "sha256": "8e99f39406c1cca6bb9f6128887e12c4a9f87666ff293b93d6aadb406cc44960"
+  },
+  "winner_report": {
+    "path": "reports/fair_baselines/kr-finbert-sc-v6/seed42.json",
+    "bytes": 59840,
+    "sha256": "656ff4236534f0f66ae24c1aeb9fdba157c74d4be5c90a2a7968fc7dd0fa8852"
+  },
+  "winner_artifact_path": "artifacts/sentiment/fair_baselines/kr-finbert-sc-v6/seed42",
+  "winner_artifact_manifest_sha256": "29d8d1aef9fd6477e74fd27053950e19ec94e14fa4c536d1508a54391a592e75",
+  "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+  "public_test_opened": false,
+  "confirmatory_labels_opened": false
+}

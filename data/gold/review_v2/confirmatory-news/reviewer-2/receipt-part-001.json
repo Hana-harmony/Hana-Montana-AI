@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 208656,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/gold/review_v2/confirmatory-news/reviewer-2/decision-part-001.jsonl",
+      "sample_count": 600,
+      "sha256": "ea931c323044f421221636cf82573b545a62f9339fcb684b06d7774bd1ce8dda"
+    },
+    "packet": {
+      "bytes": 961609,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/data/curation/k_fnspid_sentiment/sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "6bc8c03b95be9be139857a88ac1582ea2b3fedee1bf87ab3d708bdb757f48bdd"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "/Users/1233day/Desktop/하나금융/Hannah-Montana-AI/docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "8a71cea17a76ad77adccdb6df5b1d1f08499730a6f4dd1bfbbe3bccdb959861a::005380",
+    "input_field_sets_sha256": "07474c54412852d1c0af0f11bd1756a8fa0320a4fc953a60d8c5fdbe82886ac2",
+    "item_count": 600,
+    "item_id_order_sha256": "a9a84b77dc43e5a7c7a9400ef5abdaf576751e02e1f8fa4b30e5539ca4b1574e",
+    "item_id_set_sha256": "26c0aff88ff0a706d6b1ca30ad4c407a316267a60e6f51e129484068f690fed3",
+    "last_item_id": "bcb64c78287b8876d681a9d45c387ca55eede97f03e3216da42206f8c9537697::073240",
+    "row_end_inclusive": 600,
+    "row_start_inclusive": 1,
+    "source_type_distribution": {
+      "NEWS": 600
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "4bedd62d710e45131c2ca1bdada2d79b78630c7d299b8430f247402fc4617231",
+  "reviewer": {
+    "model_name": "OpenAI Codex",
+    "model_version": "GPT-5",
+    "reviewer_id": "codex-independent-reviewer-2b",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-22T04:48:47.575134+00:00",
+    "context_id": "b486ea20-4cf7-4394-ab1b-b4f0c4651e49",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "d93de705-686a-42ce-a224-0cd85c9c1c4f",
+    "started_at": "2026-07-22T03:07:28.592272+00:00"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

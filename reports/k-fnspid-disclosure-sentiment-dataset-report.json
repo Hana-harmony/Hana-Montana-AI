@@ -1,0 +1,71 @@
+{
+  "schema_version": "k-fnspid-disclosure-sentiment-dataset-report/v1",
+  "generated_at": "2026-07-15T11:40:10.692043+00:00",
+  "dataset_version": "K-FNSPID-v4",
+  "codebook_version": "k-fnspid-sentiment-codebook/v1",
+  "sampling_seed": "20260715",
+  "source_audit": {
+    "candidate_disclosure_negative": 4408,
+    "candidate_disclosure_neutral": 289766,
+    "candidate_disclosure_positive": 25773,
+    "eligible_candidates": 319947,
+    "excluded_legacy_protected_group": 981,
+    "excluded_quality_contract": 6724,
+    "excluded_without_unique_primary_entity": 395337,
+    "input_documents": 1247685,
+    "unique_primary_entities": 2624
+  },
+  "independence_contract": {
+    "group_keys": [
+      "canonical_url",
+      "normalized_text",
+      "content_hash",
+      "event_cluster_id"
+    ],
+    "legacy_gold_role": "contaminated_regression_diagnostic_only",
+    "sealed_test_policy": "candidate_hash_locked_before_first_label_evaluation"
+  },
+  "partitions": {
+    "DISCLOSURE_DEVELOPMENT_REVIEW": {
+      "path": "data/curation/k_fnspid_sentiment/disclosure_development_review.jsonl",
+      "sample_count": 450,
+      "label_distribution": {},
+      "stock_count": 349,
+      "event_cluster_count": 450,
+      "bytes": 507080,
+      "sha256": "c09d712e575182120e1be36bfcd2e659a10311e51374b0159bfc85699728d171",
+      "blind_sampling_distribution": {
+        "NEGATIVE": 50,
+        "NEUTRAL": 250,
+        "POSITIVE": 150
+      }
+    },
+    "DISCLOSURE_SEALED_TEST_REVIEW": {
+      "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_review.jsonl",
+      "sample_count": 600,
+      "label_distribution": {},
+      "stock_count": 471,
+      "event_cluster_count": 600,
+      "bytes": 682008,
+      "sha256": "59218879991137bc120ccd20d5dc79f3d26c0c742c77cea7231cac3a70db17a6",
+      "blind_sampling_distribution": {
+        "NEGATIVE": 200,
+        "NEUTRAL": 200,
+        "POSITIVE": 200
+      }
+    },
+    "DISCLOSURE_SILVER_TRAIN": {
+      "path": "data/training/k_fnspid_disclosure_sentiment_silver.jsonl",
+      "sample_count": 2700,
+      "label_distribution": {
+        "NEGATIVE": 900,
+        "NEUTRAL": 900,
+        "POSITIVE": 900
+      },
+      "stock_count": 1370,
+      "event_cluster_count": 2700,
+      "bytes": 3026710,
+      "sha256": "0e25f7d5c4499d8e823e512d1d7df143958a3ac13bc669448d608e6c771e8a2b"
+    }
+  }
+}

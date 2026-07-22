@@ -6,6 +6,28 @@
 - What/Why/Impact의 종결부호 누락은 의미를 바꾸지 않는 형식 정규화로 보완해 불필요한 전체 재생성을 줄였다.
 - 원문에 없는 숫자, 한글 잔존, 생략부호와 조각 문장은 계속 fail closed하며 규칙 기반 내용이나 임의 fallback은 추가하지 않았다.
 
+## 2026-07-19 · KR-FinBERT-SC 시장영향 비교 확정과 제거실험 재개
+
+- 동일 K-FNSPID 시간 Test와 동일 문서 쌍에서 KF-DeBERTa와 KR-FinBERT-SC를 비교했다. 국내 뉴스 Macro-F1은 0.3745 대 0.3506으로 6.82%(0.0239점) 높았고 거래일 군집 95% 신뢰구간 `[0.0090, 0.0383]`로 우위를 확인했다.
+- 국내 공시 Macro-F1은 0.3216 대 0.3131로 2.72%(0.0085점) 높았으나 거래일 군집 95% 신뢰구간 `[-0.0126, 0.0317]`이 0을 포함하고 QWK도 0.1550 대 0.1611이므로 우위를 주장하지 않는다. KLUE-RoBERTa-large는 사용자 결정에 따라 비교에서 제외했다.
+- 결과 행렬, 평가기·검증기·실험 계약의 SHA-256을 `reports/k-fnspid-impact-kr-finbert-sc-result-attestation.json`에 고정했다. Figma와 모델·논문 문서는 국내 뉴스·국내 공시 명칭, 상대 향상률과 절대 점수 차이, 우위 검정 상태를 분리해 표시한다.
+- 감성 v6 실행기는 완료된 KR-FinBERT-SC seed 17·42·73 집계 산출물을 다시 쓰지 않고 hash·경로·선정 seed·commitment를 검증한 뒤 정확히 재사용한다. NO_K seed 17은 stage 1 epoch 1 체크포인트와 optimizer step 2,057에서 재개했으며 실행 중 artifact는 수정하지 않는다.
+
+## 2026-07-18 · FULL 참조군 artifact 재사용 계약
+
+- 감성 v6 제거 실험의 `FULL`은 이미 완료된 seed 17/42/73 후보와 같은 참조군이므로 중복 학습하지 않는다. 후보 report, 입력·분할·DAPT base, 모델 구조·hyperparameter, 4,114/452 optimizer step, CPU roundtrip과 전체 artifact manifest의 byte·SHA-256을 다시 검증한 뒤 원본 artifact를 그대로 참조한다.
+- 재사용 report는 후보 report hash, artifact manifest hash, 전체 비교 identity hash와 참조 의미를 원자적 영수증으로 기록한다. 파일을 복사하거나 symlink를 만들지 않으며 후보 report 또는 artifact 한 byte라도 바뀌면 집계가 실패한다.
+- `FULL`의 실제 후보 minibatch 순서는 유지하고 compute-matched stable-order 계획을 재실행했다고 기록하지 않는다. 제거군은 동일 행 노출 수와 optimizer update 예산을 사용하되, 고정 seed가 서로 다른 행 순서를 bitwise 동일하게 만든다고 주장하지 않는다.
+- 기존 실행기도 `FULL` 호출 시 최신 검증 경로를 기본 사용하므로 진행 중인 KR-FinBERT-SC 기준선 학습을 중단하지 않는다. 회귀·변조 차단 테스트 14개와 실제 seed 17 참조 영수증 검증을 통과했다.
+
+## 2026-07-17 · receipt-bound Gold 재구축과 K-FNSPID DAPT
+
+- receipt가 없는 기존 Codex 감성 라벨은 `LEGACY_UNVERIFIED`로 보존하고 승격·확증 근거에서 제외했다. 서로 다른 두 review context와 adjudicator context로 5개 packet 전체를 새로 판정해 학습 Gold 1,794건, 개발 Gold 895건을 `VERIFIED_BLIND_PROVENANCE`로 고정했고 미해결 11건은 제외했다.
+- TRAIN 32,907건, CHECKPOINT 911건, CALIBRATION 455건, SELECTION 461건의 입력 SHA-256 commitment를 독립 재계산했다. 여섯 partition pair의 정규화 중복은 모두 0건이고, 기존 commitment 대비 차이는 재판정과 미해결 제외로 100% 설명된다.
+- 확증·Gold 보호 연결요소를 엄격하게 제외한 K-FNSPID DAPT 적격 원천을 1,118,291문서·62,468,526 non-padding token으로 고정했다. 정밀도 pilot에서 FP32가 validation NLL `3.12476959→3.11165055`로 개선되고 BF16은 MPS memory-slope gate를 통과하지 못해 FP32 recipe를 선택했다.
+- 전체 DAPT는 3,908 update·warmup 196, 128 update 단위 atomic safetensors checkpoint, 최종 FP32 merge로 실행 중이다. 완료 artifact는 전체 파일 hash tree·현재 입력·소스·의존성·예비실험·학습 report가 모두 일치할 때만 감성 v6 base로 인정한다.
+- 감성 v6는 all-12 rank-16 LoRA, 공유 head와 NEWS·DISCLOSURE residual head, R-Drop, target-aware head-tail 입력, 고정 cell-mass 손실을 사용한다. 원본 KR-FinBERT-SC, K-FNSPID 도입 전 모델, 동일 자료·분할·seed·selection budget의 KR-FinBERT-SC full-FT, no-K ablation을 NEWS·DISCLOSURE에서 따로 비교한다. 원격 Git 잠금 뒤 600 NEWS·600 DISCLOSURE를 한 번 평가했으며, 설계가중 Accuracy/Macro-F1은 각각 0.7503/0.5530과 0.8646/0.6024이다. 공동 우월성이 확인되지 않아 배포 판정은 `KEEP_CURRENT_MODEL`이다.
+
 ## 2026-07-21 · Qwen 원문 근거 What/Why/Impact
 
 - 규칙 기반 영문 요약 생성기와 관련 fallback·테스트를 제거하고 Qwen3-4B가 영문 제목과 What/Why/Impact를 strict JSON으로 생성하게 변경했다.

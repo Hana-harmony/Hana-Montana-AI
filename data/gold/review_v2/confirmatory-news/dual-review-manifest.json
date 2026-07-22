@@ -1,0 +1,88 @@
+{
+  "artifacts": {
+    "adjudication_decision": {
+      "bytes": 47003,
+      "path": "data/gold/review_v2/confirmatory-news/adjudication-decision.jsonl",
+      "sample_count": 108,
+      "sha256": "653d108c592055117e5baba6b8176c306042c979edc869a1355cd5b77c3fba22"
+    },
+    "adjudication_packet": {
+      "bytes": 215684,
+      "path": "data/gold/review_v2/confirmatory-news/adjudication-packet.jsonl",
+      "sample_count": 108,
+      "sha256": "d985ea7ff4c4220c96e818c3108003a12a9dea0285ab680d620d00402aa355fe"
+    },
+    "adjudication_receipt": {
+      "bytes": 2699,
+      "path": "data/gold/review_v2/confirmatory-news/adjudication-receipt.json",
+      "sha256": "4a2b5f0b6f64588d935bd02baa66dcd71857ae98f9c5ff3ab5b4a228670c4489"
+    },
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "merged_decision": {
+      "bytes": 1005448,
+      "path": "data/gold/review_v2/confirmatory-news/final.jsonl",
+      "sample_count": 600,
+      "sha256": "18279163c6e13300e674d8c53c5ff4c931c5a541929e28f6b7e3e1b9f3ac52fe"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    },
+    "review_packet": {
+      "bytes": 961609,
+      "path": "data/curation/k_fnspid_sentiment/sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "6bc8c03b95be9be139857a88ac1582ea2b3fedee1bf87ab3d708bdb757f48bdd"
+    },
+    "stage_1_decision": {
+      "bytes": 224361,
+      "path": "data/gold/review_v2/confirmatory-news/reviewer-1/stage-decision.jsonl",
+      "sample_count": 600,
+      "sha256": "a1811eaa4f1852f2c178ce24c76a8be177b377774a88ea675130ced1fa55e3ea"
+    },
+    "stage_1_manifest": {
+      "bytes": 3480,
+      "path": "data/gold/review_v2/confirmatory-news/reviewer-1/stage-manifest.json",
+      "sha256": "7e75e9adcc858c4675a0bd081b20f5c96e91ae4f074818935367f42d61959f93"
+    },
+    "stage_2_decision": {
+      "bytes": 208656,
+      "path": "data/gold/review_v2/confirmatory-news/reviewer-2/decision.jsonl",
+      "sample_count": 600,
+      "sha256": "ea931c323044f421221636cf82573b545a62f9339fcb684b06d7774bd1ce8dda"
+    },
+    "stage_2_manifest": {
+      "bytes": 3487,
+      "path": "data/gold/review_v2/confirmatory-news/reviewer-2/stage-manifest.json",
+      "sha256": "018afd9a1c872015f6bd5a3273cb87a128bd31a40126e7859e73ad63c47031c1"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+  "disagreement_count": 108,
+  "exact_item_set": true,
+  "merge_manifest_payload_sha256": "981a6bb197b08a671cc3666c40661050b79d56869145087339d19fbdb6b99790",
+  "participant_receipt_payload_sha256": [
+    "cb09bbaeff194b38e11925607150d2c1d1bb3d8c1c6e3902592f02b89fdfd94e",
+    "4bedd62d710e45131c2ca1bdada2d79b78630c7d299b8430f247402fc4617231",
+    "2fe6498879a2b3a0ad59821dffd20d2e7ae3e580bb0801aac75c1ac74fc12093"
+  ],
+  "protocol": "receipt-bound-two-independent-codex-reviewers-plus-adjudication/v1",
+  "reviewed_item_count": 600,
+  "schema_version": "k-fnspid-sentiment-dual-review-provenance/v1",
+  "stage_manifest_payload_sha256": {
+    "stage_1": "4ce815e3cc4d1c15e8523442eb9d0988e2ca0d5cf53eed560539b1f5fca5e408",
+    "stage_2": "89ac8589a774d9407b687d5ea86cbaf41368ade8c10451552126235aa38fd19e"
+  },
+  "status": "VERIFIED_BLIND_PROVENANCE",
+  "unresolved_count": 0
+}
