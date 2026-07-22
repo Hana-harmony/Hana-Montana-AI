@@ -31,6 +31,7 @@ from hannah_montana_ai.domain.schemas import (
     TaxRefundStatusResponse,
 )
 from hannah_montana_ai.observability import publish_business_event
+from hannah_montana_ai.runtime_workloads import alert_analysis_capacity, tax_ocr_executor
 from hannah_montana_ai.services.analyzer import AlertAnalyzer
 from hannah_montana_ai.services.audit import AnalysisAuditLogger
 from hannah_montana_ai.services.feature_contracts import (
@@ -140,47 +141,48 @@ def get_tax_document_verification_service() -> TaxDocumentVerificationService:
 def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisResponse]:
     started_at = perf_counter()
     audit_logger = get_audit_logger()
-    try:
-        analyzer = get_analyzer()
-    except ModelArtifactError as exception:
-        audit_logger.record_failure(
-            request=request,
-            latency_ms=_elapsed_ms(started_at),
-            failure_reason="model_artifact_unavailable",
-        )
-        raise ApiException(
-            ErrorCode.MODEL_UNAVAILABLE,
-            "ML model artifact is unavailable",
-        ) from exception
-    try:
-        response = analyzer.analyze(request)
-    except SentimentInputContractError as exception:
-        audit_logger.record_failure(
-            request=request,
-            latency_ms=_elapsed_ms(started_at),
-            failure_reason="sentiment_input_contract_error",
-        )
-        raise ApiException(
-            ErrorCode.VALIDATION_FAILED,
-            str(exception),
-        ) from exception
-    except ModelArtifactError as exception:
-        audit_logger.record_failure(
-            request=request,
-            latency_ms=_elapsed_ms(started_at),
-            failure_reason="sentiment_runtime_unavailable",
-        )
-        raise ApiException(
-            ErrorCode.MODEL_UNAVAILABLE,
-            "Sentiment model runtime is unavailable",
-        ) from exception
-    except Exception:
-        audit_logger.record_failure(
-            request=request,
-            latency_ms=_elapsed_ms(started_at),
-            failure_reason="analysis_error",
-        )
-        raise
+    with alert_analysis_capacity:
+        try:
+            analyzer = get_analyzer()
+        except ModelArtifactError as exception:
+            audit_logger.record_failure(
+                request=request,
+                latency_ms=_elapsed_ms(started_at),
+                failure_reason="model_artifact_unavailable",
+            )
+            raise ApiException(
+                ErrorCode.MODEL_UNAVAILABLE,
+                "ML model artifact is unavailable",
+            ) from exception
+        try:
+            response = analyzer.analyze(request)
+        except SentimentInputContractError as exception:
+            audit_logger.record_failure(
+                request=request,
+                latency_ms=_elapsed_ms(started_at),
+                failure_reason="sentiment_input_contract_error",
+            )
+            raise ApiException(
+                ErrorCode.VALIDATION_FAILED,
+                str(exception),
+            ) from exception
+        except ModelArtifactError as exception:
+            audit_logger.record_failure(
+                request=request,
+                latency_ms=_elapsed_ms(started_at),
+                failure_reason="sentiment_runtime_unavailable",
+            )
+            raise ApiException(
+                ErrorCode.MODEL_UNAVAILABLE,
+                "Sentiment model runtime is unavailable",
+            ) from exception
+        except Exception:
+            audit_logger.record_failure(
+                request=request,
+                latency_ms=_elapsed_ms(started_at),
+                failure_reason="analysis_error",
+            )
+            raise
 
     audit_logger.record_success(
         request=request,
@@ -339,10 +341,12 @@ def tax_refund_status(request: TaxRefundStatusRequest) -> ApiResponse[TaxRefundS
     "/tax/documents/verify",
     response_model=ApiResponse[TaxDocumentVerificationResponse],
 )
-def tax_document_verify(
+async def tax_document_verify(
     request: TaxDocumentVerificationRequest,
 ) -> ApiResponse[TaxDocumentVerificationResponse]:
-    return success_response(get_tax_document_verification_service().build_response(request))
+    service = get_tax_document_verification_service()
+    response = await tax_ocr_executor.run(lambda: service.build_response(request))
+    return success_response(response)
 
 
 def _elapsed_ms(started_at: float) -> float:
