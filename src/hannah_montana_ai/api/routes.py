@@ -1,7 +1,9 @@
 import hashlib
+import hmac
 import logging
 from functools import lru_cache
 from time import perf_counter
+from typing import Annotated
 
 from fastapi import APIRouter, Header
 
@@ -75,6 +77,16 @@ def get_analyzer() -> AlertAnalyzer:
 
 
 @lru_cache
+def get_openai_backfill_translation_service() -> KoreanTranslationGenerator:
+    return KoreanTranslationGenerator.from_openai_settings(get_settings())
+
+
+@lru_cache
+def get_openai_backfill_analyzer() -> AlertAnalyzer:
+    return AlertAnalyzer(translation_generator=get_openai_backfill_translation_service())
+
+
+@lru_cache
 def get_audit_logger() -> AnalysisAuditLogger:
     return AnalysisAuditLogger()
 
@@ -138,12 +150,19 @@ def get_tax_document_verification_service() -> TaxDocumentVerificationService:
         503: {"description": "AI_001 model unavailable"},
     },
 )
-def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisResponse]:
+def analyze_alert(
+    request: AlertAnalysisRequest,
+    x_hannah_analysis_provider: Annotated[str | None, Header()] = None,
+    x_hannah_ai_maintenance_token: Annotated[str | None, Header()] = None,
+) -> ApiResponse[AlertAnalysisResponse]:
     started_at = perf_counter()
     audit_logger = get_audit_logger()
     with alert_analysis_capacity:
         try:
-            analyzer = get_analyzer()
+            analyzer = _select_alert_analyzer(
+                x_hannah_analysis_provider,
+                x_hannah_ai_maintenance_token,
+            )
         except ModelArtifactError as exception:
             audit_logger.record_failure(
                 request=request,
@@ -190,6 +209,32 @@ def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisRes
         latency_ms=_elapsed_ms(started_at),
     )
     return success_response(response)
+
+
+def _select_alert_analyzer(
+    provider: str | None,
+    maintenance_token: str | None,
+) -> AlertAnalyzer:
+    normalized_provider = (provider or "QWEN").strip().upper()
+    if normalized_provider == "QWEN":
+        return get_analyzer()
+    if normalized_provider != "OPENAI_INITIAL_BACKFILL":
+        raise ApiException(ErrorCode.VALIDATION_FAILED, "Unsupported analysis provider")
+
+    expected_token = get_settings().foreign_ownership_maintenance_token
+    if (
+        not expected_token
+        or not maintenance_token
+        or not hmac.compare_digest(expected_token, maintenance_token)
+    ):
+        raise ApiException(ErrorCode.UNAUTHORIZED, "Backfill provider authorization failed")
+    try:
+        return get_openai_backfill_analyzer()
+    except ValueError as exception:
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "OpenAI backfill provider is unavailable",
+        ) from exception
 
 
 @router.post(

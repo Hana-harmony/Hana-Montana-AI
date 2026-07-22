@@ -141,3 +141,17 @@ def test_maintenance_token_is_derived_from_the_shared_oci_host_root() -> None:
     assert "hana/ai/maintenance-auth/v1" in deploy
     assert 'HANNAH_AI_MAINTENANCE_TOKEN=${ai_token}' in deploy
     assert '--env-file "${RUNTIME_APP_ENV}"' in deploy
+
+
+def test_openai_key_is_isolated_in_runtime_provider_env() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    deploy = _read("scripts/deploy-prod.sh")
+
+    assert "secrets.OPENAI_API_KEY" in workflow
+    assert workflow.count("provider-application.env") >= 6
+    assert "OPENAI_API_KEY=${OPENAI_API_KEY}" in workflow
+    assert "HANNAH_OPENAI_BACKFILL_MODEL=gpt-5.6-luna" in workflow
+    assert 'PROVIDER_APP_ENV="${APP_DIR}/provider-application.env"' in deploy
+    assert '--env-file "${PROVIDER_APP_ENV}"' in deploy
+    assert "cache-from: type=gha" in workflow
+    assert "cache-to: type=gha,mode=max" in workflow

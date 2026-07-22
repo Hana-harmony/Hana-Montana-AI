@@ -6,6 +6,7 @@ APP_NAME=hannah-montana-ai
 APP_PORT=18000
 NETWORK=hana-omni-connect-internal
 RUNTIME_APP_ENV="${APP_DIR}/runtime-application.env"
+PROVIDER_APP_ENV="${APP_DIR}/provider-application.env"
 
 source "${APP_DIR}/deploy.env"
 source "${APP_DIR}/runtime-secrets.sh"
@@ -14,6 +15,7 @@ source "${APP_DIR}/runtime-secrets.sh"
 : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
 : "${VERIFY_SENTIMENT_RELEASE:=true}"
+test -s "${PROVIDER_APP_ENV}"
 
 case "${VERIFY_SENTIMENT_RELEASE}" in
   true)
@@ -60,6 +62,7 @@ run_container() {
     --memory 7g \
     --cpus 1.5 \
     --env-file "${APP_DIR}/application.env" \
+    --env-file "${PROVIDER_APP_ENV}" \
     "${release_mount_args[@]}" \
     --env-file "${RUNTIME_APP_ENV}" \
     --network "${NETWORK}" \
@@ -80,6 +83,7 @@ verify_image_release() {
     --memory 2g \
     --cpus 1 \
     --env-file "${APP_DIR}/application.env" \
+    --env-file "${PROVIDER_APP_ENV}" \
     --mount "type=bind,src=${APP_DIR}/sentiment-release-public-key.pem,dst=/run/secrets/sentiment-release-public-key.pem,readonly" \
     --entrypoint python \
     "${image}" \
