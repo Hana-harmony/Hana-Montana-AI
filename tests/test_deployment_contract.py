@@ -50,14 +50,25 @@ def test_ci_restores_and_hash_verifies_pinned_dapt_base_model() -> None:
     assert "dapt.sha256_file(path)" in restore
 
 
-def test_production_keeps_current_image_without_promoted_sentiment_release() -> None:
+def test_production_preserves_current_model_for_runtime_only_deployment() -> None:
     workflow = _read(".github/workflows/ci.yml")
+    overlay = _read("Dockerfile.runtime-overlay")
     release_condition = "if: steps.sentiment_release.outputs.active == 'true'"
 
     assert "- name: 활성 감성 릴리스 확인" in workflow
     assert "if [[ -f releases/sentiment/current.json ]]" in workflow
     assert "승격된 감성 릴리스가 없어 기존 운영 이미지를 유지합니다." in workflow
     assert workflow.count(release_condition) == 8
+    assert "deploy-runtime-overlay:" in workflow
+    assert "현재 운영 이미지 고정" in workflow
+    assert "git merge-base --is-ancestor" in workflow
+    assert "docker buildx imagetools inspect" in workflow
+    assert "BASE_IMAGE=${{ steps.current_image.outputs.pinned }}" in workflow
+    assert "Dockerfile.runtime-overlay" in workflow
+    assert "ARG BASE_IMAGE" in overlay
+    assert "FROM ${BASE_IMAGE}" in overlay
+    assert "COPY releases" not in overlay
+    assert "COPY src ./src" in overlay
 
 
 def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
