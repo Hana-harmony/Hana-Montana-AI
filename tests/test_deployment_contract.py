@@ -50,6 +50,16 @@ def test_ci_restores_and_hash_verifies_pinned_dapt_base_model() -> None:
     assert "dapt.sha256_file(path)" in restore
 
 
+def test_production_keeps_current_image_without_promoted_sentiment_release() -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    release_condition = "if: steps.sentiment_release.outputs.active == 'true'"
+
+    assert "- name: 활성 감성 릴리스 확인" in workflow
+    assert "if [[ -f releases/sentiment/current.json ]]" in workflow
+    assert "승격된 감성 릴리스가 없어 기존 운영 이미지를 유지합니다." in workflow
+    assert workflow.count(release_condition) == 8
+
+
 def test_oci_ssh_requires_pinned_key_and_password_authentication() -> None:
     workflow = _read(".github/workflows/ci.yml")
     askpass = _read("scripts/ssh-askpass.sh")

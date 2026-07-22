@@ -106,7 +106,17 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: 활성 감성 릴리스 확인
+        id: sentiment_release
+        run: |
+          if [[ -f releases/sentiment/current.json ]]; then
+            echo 'active=true' >> "${GITHUB_OUTPUT}"
+          else
+            echo 'active=false' >> "${GITHUB_OUTPUT}"
+            echo '::notice title=운영 배포 유지::승격된 감성 릴리스가 없어 기존 운영 이미지를 유지합니다.'
+          fi
       - name: 운영 secret 확인
+        if: steps.sentiment_release.outputs.active == 'true'
         env:
           PROD_HOST: ${{ secrets.PROD_HOST }}
           PROD_USER: ${{ secrets.PROD_USER }}
@@ -137,14 +147,18 @@ jobs:
           [[ "${SENTIMENT_RELEASE_EXPECTED_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,239}$ ]]
           [[ "${SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT}" =~ ^[0-9a-f]{40}$ ]]
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
+        if: steps.sentiment_release.outputs.active == 'true'
       - name: 이미지 이름 설정
+        if: steps.sentiment_release.outputs.active == 'true'
         run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
       - uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0
+        if: steps.sentiment_release.outputs.active == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ARM64 운영 이미지 빌드
+        if: steps.sentiment_release.outputs.active == 'true'
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a
         with:
           context: .
@@ -152,6 +166,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
       - name: SSH 설정
+        if: steps.sentiment_release.outputs.active == 'true'
         env:
           PROD_HOST: ${{ secrets.PROD_HOST }}
           PROD_USER: ${{ secrets.PROD_USER }}
@@ -182,6 +197,7 @@ jobs:
           chmod 600 ~/.ssh/prod_key ~/.ssh/known_hosts
           chmod 600 ~/.ssh/config
       - name: 운영 설정 생성
+        if: steps.sentiment_release.outputs.active == 'true'
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
@@ -226,6 +242,7 @@ jobs:
           chmod 600 application.env deploy.env
           chmod 444 sentiment-release-public-key.pem
       - name: OCI 운영 배포
+        if: steps.sentiment_release.outputs.active == 'true'
         env:
           PROD_SSH_PASSWORD: ${{ secrets.PROD_SSH_PASSWORD }}
           SSH_ASKPASS: ${{ github.workspace }}/scripts/ssh-askpass.sh
