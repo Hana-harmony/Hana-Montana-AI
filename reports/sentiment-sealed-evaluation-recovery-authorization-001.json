@@ -1,0 +1,31 @@
+{
+  "schema_version": "sentiment-sealed-evaluation-recovery-authorization/v1",
+  "authorized_at": "2026-07-22T06:56:25Z",
+  "reason": "첫 실행은 소비 영수증 생성 후 잠긴 후보의 DAPT base model 경로를 기본 CLI 경로로 잘못 해석해 예측 전에 실패했다.",
+  "failure": {
+    "exception_type": "SentimentArtifactContractError",
+    "message": "v6 감성 base model 디렉터리가 올바르지 않습니다.",
+    "failed_stage": "candidate_base_directory_validation_before_prediction",
+    "final_report_created": false,
+    "metrics_emitted": false
+  },
+  "original_consumption_receipt": {
+    "path": "reports/sentiment-sealed-evaluation-consumption.json",
+    "sha256": "fe04f28dc22dca5e44f7484fd42e6b9d039147f52cc57bd3143f769c57e59d7a"
+  },
+  "locked_recovery_input": {
+    "path": "artifacts/pretraining/kf-deberta-k-fnspid-v4-dapt-temporal-v2/merged_fp32",
+    "config_sha256": "05751a3bc3e907f9d7c92c93517b68416496febc167db9a7363dc729d809675c",
+    "model_sha256": "1f465cfdcef6a346e9fcce4071934d02a5007561a41ac551c5dc6d5f3f3cbd87",
+    "source": "candidate lock runtime_parity.evaluator_base_encoder"
+  },
+  "non_adaptive_commitment": {
+    "candidate_changed": false,
+    "gold_changed": false,
+    "evaluation_code_changed": false,
+    "hyperparameters_changed": false,
+    "metrics_observed_before_recovery": false
+  },
+  "recovery_consumption_receipt": "reports/sentiment-sealed-evaluation-consumption-recovery-001.json",
+  "planned_report": "reports/korean-finance-sentiment-benchmark-v4.json"
+}

@@ -1,0 +1,37 @@
+{
+  "blind_review_attestation": {
+    "candidate_predictions_seen": false,
+    "existing_gold_or_other_reviewer_outputs_seen": false,
+    "external_search_used": false,
+    "market_reaction_seen": false,
+    "teacher_outputs_seen": false
+  },
+  "codebook_path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+  "codebook_sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43",
+  "context_uuid": "dc34a8d5-406f-45d1-8638-38b97af625cf",
+  "decision_path": "data/gold/review_v3_locked/confirmatory-news/reviewer-1/decision.jsonl",
+  "decision_row_count": 600,
+  "decision_sha256": "d69efb865e8254031a18ee348a215d23f02133f1ea035ef08441bdad14c32321",
+  "independent_run_uuid": "926c5d65-ab38-463a-b45e-25a3c31dcd56",
+  "input_row_count": 600,
+  "input_row_range": {
+    "end": 600,
+    "start": 1
+  },
+  "input_sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5",
+  "label_distribution": {
+    "NEGATIVE": 96,
+    "NEUTRAL": 372,
+    "POSITIVE": 132
+  },
+  "model": "OpenAI GPT-5 Codex",
+  "model_version": "runtime-session-2026-07-22",
+  "review_prompt_path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+  "review_prompt_sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5",
+  "review_status": "CODEX_REVIEW_APPROVED",
+  "reviewed_at": "2026-07-22T15:33:29+09:00",
+  "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3",
+  "schema_version": "k-fnspid-sentiment-independent-review-receipt/v1",
+  "source_kind": "NEWS",
+  "source_path": "data/gold/confirmatory_sealed_test_review.jsonl"
+}

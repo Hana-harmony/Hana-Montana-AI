@@ -1,0 +1,823 @@
+{
+  "artifacts": {
+    "codex_decisions_input": "data/curation/k_fnspid_sentiment/disclosure_development_codex_decisions_dual.jsonl",
+    "gold_output": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold.jsonl",
+    "review_input": "data/curation/k_fnspid_sentiment/disclosure_development_review.jsonl",
+    "teacher_silver_input": "data/curation/k_fnspid_sentiment/disclosure_development_qwen_silver.jsonl"
+  },
+  "coverage": {
+    "document_count": 450,
+    "effective_trade_date_max": "2025-12-05",
+    "effective_trade_date_min": "2025-06-04",
+    "event_count": 450,
+    "partition_distribution": {
+      "DISCLOSURE_DEVELOPMENT_REVIEW": 450
+    },
+    "provider_count": 1,
+    "provider_distribution": {
+      "UNKNOWN": 450
+    },
+    "published_at_kst_max": "2025-12-05T00:00:00+09:00",
+    "published_at_kst_min": "2025-06-04T00:00:00+09:00",
+    "source_type_count": 1,
+    "source_type_distribution": {
+      "DISCLOSURE": 450
+    },
+    "stock_count": 349,
+    "year_distribution": {
+      "2025": 450
+    }
+  },
+  "file_sha256": {
+    "codex_decisions_input": "a57cd1b8ad4690fbb26edc71746507aa7fb91a09ff6dac65c5ab6b59bef4eb61",
+    "gold_output": "8527d567c303d91c45d6e1dbe55a28e7725bef8bfb28f60f7962016c071c1e07",
+    "review_input": "c09d712e575182120e1be36bfcd2e659a10311e51374b0159bfc85699728d171",
+    "teacher_silver_input": "e232c3f7db27fb07fa3ac0e73e5141b769d2bbd2d68ffb82bb0cdfe9152ac8cc"
+  },
+  "generated_at_utc": "2026-07-15T14:40:19.038980+00:00",
+  "independent_reviewer_agreement": {
+    "adjudicated_count": 62,
+    "agreement_count": 388,
+    "agreement_rate": 0.862222,
+    "disagreement_count": 62,
+    "unresolved_count": 0
+  },
+  "integrity": {
+    "codebook_file_hash_exact": true,
+    "item_id_set_sha256": "1cc20a5d01036bc83c6d2e2eefb89abf38c273e0e6d3b44dff0347d748e8cc8c",
+    "provenance_sha256": "adff6d23c54e16b67225adff7de52a9da27e5f1435f6f9929fa950d4cc223799",
+    "review_decision_item_sets_exact": true,
+    "review_teacher_item_sets_exact": true,
+    "source_record_hashes_exact": true,
+    "source_record_set_sha256": "beb839aebceef8dbfe410a73a272ba2af4fb7beec4ab413d4ff43776ba39b692",
+    "source_records_exact": true,
+    "teacher_input_hashes_exact": true
+  },
+  "label_distribution": {
+    "NEGATIVE": 43,
+    "NEUTRAL": 365,
+    "POSITIVE": 42
+  },
+  "promotion_policy": "Qwen teacher SILVER는 참고 신호로만 보존하며, 모든 행에 유효한 CODEX_REVIEW_APPROVED 결정을 요구한다.",
+  "provenance": {
+    "codex_review": {
+      "automatic_teacher_gold_promotion": false,
+      "candidate_manifest_sha256": "NOT_APPLICABLE_PRE_LOCK_DEVELOPMENT",
+      "minimum_independent_reviewers": 2,
+      "protocol": "two-independent-codex-reviewers-plus-adjudication/v1",
+      "required_status": "CODEX_REVIEW_APPROVED",
+      "reviewer_distribution": {
+        "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2": 128,
+        "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2": 130,
+        "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2": 130,
+        "codex-gpt5-disclosure-dev-adjudicator": 62
+      },
+      "teacher_is_advisory_only": true,
+      "unresolved_excluded_from_gold": true
+    },
+    "review": {
+      "codebook_version": "k-fnspid-sentiment-codebook/v1",
+      "dataset_version": "K-FNSPID-v4",
+      "partition": "DISCLOSURE_DEVELOPMENT_REVIEW",
+      "schema_version": "k-fnspid-sentiment-review-row/v1"
+    },
+    "teacher": {
+      "codebook_path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "codebook_sha256": "deffc649ce81cfb4abd8e06f65acb3af59e8d71c46c11646dd9dbaf18c44ea04",
+      "generated_at_utc_max": "2026-07-15T14:27:55.914517+00:00",
+      "generated_at_utc_min": "2026-07-15T14:27:55.914517+00:00",
+      "market_blind": true,
+      "model_blind": true,
+      "model_requested": "Qwen3-4B-GGUF-Q4",
+      "model_served": "Qwen3-4B-GGUF-Q4",
+      "operational_rules_sha256": "13263e52e948678a16573db80f3b050e52ddc2cfdc35a6ffd71a6a9e437fc3a1",
+      "prompt_version": "k-fnspid-sentiment-qwen-silver-v2",
+      "provider": "local-open-source-qwen3",
+      "sampling_seed": 20260715,
+      "schema_version": "k-fnspid-sentiment-teacher-silver/v1"
+    }
+  },
+  "qwen_final_agreement": {
+    "agreement_count": 362,
+    "agreement_percentage": 80.44,
+    "agreement_rate": 0.804444,
+    "disagreement_count": 88,
+    "disagreements": [
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5af8515cd445409e1bd6a53e29b13b2452b3c22c5345e0fa63b3c299db10ad6e::412350",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: '레이저쎌 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "81e005fef42891da1bac6b883e045551b85af90374c74e98574bbfbcf5976404::011370",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: '서한 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d2d4eaa35985fe3ee4b5dfd9d3f3d78ccd95d9f294dc76293e0d79bef19f6f4b::043090",
+        "review_note": "독립 검수 일치: 상장폐지가 공식 결정됨 / 근거: '더테크놀로지 기타시장안내 (코스닥시장위원회 개최 결과 및 상장폐지 결정)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "88a8e85ab1a6f93be719c34c1a44956207101977cf11fcf2f3cee2638bcf0caa::123840",
+        "review_note": "독립 검수 일치: 중요 영업정지로 주권 거래가 정지됨 / 근거: '뉴온 주권매매거래정지 (중요한 영업정지)'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2193f7efccd124331e45808bd6852c8c6bce760a922a9aa2c44ad44780a6a6eb::294870",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: 'IPARK현대산업개발 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "668dda1686a7a8f9c7e84b7c7f812f35c1682e1ce8bfe17986ded6b84ed51a36::368970",
+        "review_note": "독립 검수 일치: 불성실공시법인 지정 절차가 공식 개시됨 / 근거: '오에스피 불성실공시법인지정예고 (공시변경)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5291b4cea81a9e34f186e00ff518150818a0c32d8e98b40fb16ea3d52d3b4d2c::344860",
+        "review_note": "독립 검수 일치: 자기주식 취득이 확정 결정됨 / 근거: '이노진 주요사항보고서(자기주식취득결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e964e62f43da58d54eea0a76b8130181d6b08dae482f7e0e4e23283df39ea975::124560",
+        "review_note": "독립 검수 일치: 자기주식 취득이 확정 결정됨 / 근거: '태웅로직스 주요사항보고서(자기주식취득결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a6bb35fd7b86070327a26205e8600e1d11cdaa5d034c7d35d5c39d7c81383db2::121800",
+        "review_note": "독립 검수 일치: 상장 심의 후 개선기간이 부여되어 존속 위험이 지속됨 / 근거: '비덴트 기타시장안내 (코스닥시장위원회 심의·의결 결과 및 개선기간 부여 안내)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2cdeb46b841b49df19fa7210454f4ba808f483db9eac85a385533735f1961e6a::112610",
+        "review_note": "타인 채무보증 결정으로 대상 기업에 우발채무와 보증 이행 위험이 확정적으로 추가되어 구조적 재무위험이 커지므로 부정으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "11b232613db3789846186ea5f908280c8aafd1625e1e5158975aa44b1b3f6381::020560",
+        "review_note": "자기 전환사채의 만기 전 취득은 대상 기업의 부채 부담과 잠재적 지분 희석 위험을 줄이는 확정 조치이므로 긍정으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "da0430105662632408ddbb53a0d18e05212dc405f2843960291cdfba0a798afc::066430",
+        "review_note": "독립 검수 일치: 경영권 분쟁 소송이 공식 제기됨 / 근거: '아이로보틱스 소송등의제기ㆍ신청(경영권분쟁소송)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "95f01806b8d303afdcf88eeced8e4cc740a39a4524553b106c174e36fc8fc22f::196170",
+        "review_note": "독립 검수 일치: 상장폐지 승인 절차의 공식 결정을 공시함 / 근거: '알테오젠 상장폐지승인을위한의안상정결정'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "667c7128dc33c3ce745c1dbe27bcf0b6847a3f03e22c069de3692fa84793d89d::086790",
+        "review_note": "독립 검수 일치: 신탁계약을 통한 자기주식 취득이 확인됨 / 근거: '하나금융지주 신탁계약에의한취득상황보고서'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "18eed02cb4407d0f2de829c0cf2ad87979766330f134fda8463c4d8254f5e25d::241820",
+        "review_note": "독립 검수 일치: 상장폐지 결정이 존재해 존속 위험이 확인됨 / 근거: '피씨엘 기타경영사항(자율공시) (상장폐지결정등효력정지 가처분신청의 건)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2eca8717ecd4add62f407a96482408062861b7d3bf442fc9a8dc902a7d6a897c::299030",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: '하나기술 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c0858078a0e7cdda54d8a945d63b1cc750311f10bc7869c14ee1b8df2dd566d0::375500",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: 'DL이앤씨 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "aa63e63e3fb74f01f0268bafc6704cf0ea4975166e8173928d75db6320bf41b1::006040",
+        "review_note": "독립 검수 일치: 현금·현물배당이 확정 결정됨 / 근거: '동원산업 현금ㆍ현물배당결정'; 확정된 현금·현물배당 결정으로 주주 귀속 가치가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "88ec6cdb5b346c24a7ed0e2f15f290af4ca3745a4503a2bcd0664521de0ae555::006040",
+        "review_note": "독립 검수 일치: 자회사의 현금·현물배당이 확정 결정됨 / 근거: '동원산업 현금ㆍ현물배당결정(자회사의 주요경영사항)'; 확정된 현금·현물배당 결정으로 주주 귀속 가치가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3a164b959b9177bea2954bc7c4adf933cd1b19f441331d32a3768fa53455292a::006120",
+        "review_note": "독립 검수 일치: 신탁계약을 통한 자기주식 취득이 확인됨 / 근거: 'SK디스커버리 신탁계약에의한취득상황보고서'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "40785207a37ca75202a2c943f7bf55fce617d83644d8536408fe6f8ce792b445::066790",
+        "review_note": "독립 검수 일치: 경영권 분쟁 소송이 공식 제기됨 / 근거: '씨씨에스 [기재정정]소송등의제기ㆍ신청(경영권분쟁소송) (임시 총회소집허가 신청서)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8d4d71e3823f5e5c3e74b121e2e859dcb41fcf129df74d7e4f6c62c0fc62afd3::095910",
+        "review_note": "독립 검수 일치: 확정 공급계약이 해지됨 / 근거: '에스에너지 [기재정정]단일판매ㆍ공급계약해지'; 확정된 판매·공급 계약 해지로 대상 기업의 영업기회가 소멸해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "03ba3da5d04b98ac28229f722fdf8f8049eab3349068a86a376fbed8dbdb1275::005690",
+        "review_note": "독립 검수 일치: 확정된 공급계약 체결 공시 / 근거: '파미셀 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4b26113d0a309ca9debc08511da61ff9cb1663f5c21e21a36881f0b992b11fb4::082270",
+        "review_note": "독립 검수 일치: 불성실공시법인 지정 절차가 공식 개시됨 / 근거: '젬백스 불성실공시법인지정예고 (공시번복)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "049022c5a4002ac8b1d269d1d99045842cf37923594d841263f152e60df32ee8::045510",
+        "review_note": "독립 검수 일치: 경영권 분쟁 소송이 공식 제기됨 / 근거: '정원엔시스 소송등의제기ㆍ신청(경영권분쟁소송) (주주총회결의무효확인등)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4bed5fec557cfbc9419735598681d46fcf3c5c4a9c3885beb605647312080a3f::241820",
+        "review_note": "독립 검수 일치: 상장폐지가 공식 결정됨 / 근거: '피씨엘 기타시장안내 (코스닥시장위원회 개최 결과 및 상장폐지 결정)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8b97cb9e178d51c887a408277127ce7203f441037a43cb620cba9c2accbf1795::051910",
+        "review_note": "특수관계인 자금대여는 대상 기업의 현금 유출과 대여금 회수 위험을 확정적으로 발생시키는 구조적 재무부담이므로 부정으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0399a07590f51ea946b1d6aa7c61804f5bddeee4dd98dfe9d8dee47f3b0f39bd::002410",
+        "review_note": "독립 검수 일치: 확정 공급계약이 해지됨 / 근거: '범양건영 단일판매ㆍ공급계약해지'; 확정된 판매·공급 계약 해지로 대상 기업의 영업기회가 소멸해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-a+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "698d173802e872ba03d078a5d08fc6edb82750f746cb95e4604a6f3a01a883a1::001260",
+        "review_note": "정정 전후의 계약 금액·기간·조건이 제시되지 않아 정정으로 인한 대상 기업의 경제적 순효과를 확정할 수 없으므로 중립으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "94c2e1a44dacef978f6f7f8b6ef8b178885f8999ca989081df88fb23d1ac87f8::007610",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '선도전기 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "48854dee4433e34ad098167ec8f31196f446c00fc7c42c14e0a5ed3c91072694::303030",
+        "review_note": "독립 검수 일치: 경영권분쟁 관련 가처분 신청으로 법적 위험이 발생함 / 근거: '지니틱스 소송등의제기ㆍ신청(경영권분쟁소송) (장부등열람허용가처분)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3db20fcfef8019834366cf93e829d6489699040f27642d5148adfd10bc6c74c7::168360",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '펨트론 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "eac1ee2ebc742aea577887be1376b8966ad46f4b622e29a1ab3ead58f0162791::034310",
+        "review_note": "독립 검수 일치: 자기주식 취득 신탁계약 체결 결정으로 주주환원이 확정됨 / 근거: 'NICE 주요사항보고서(자기주식취득신탁계약체결결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9e170a25b6494e55c334f4a8a7c36f36eb1608f7a1ff72a45e7422f68d65c6b6::033560",
+        "review_note": "독립 검수 일치: 영업정지 결정으로 영업활동 악화가 명시됨 / 근거: '블루콤 주요사항보고서(영업정지)'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "28b62d3e35700f9ddeddfa855da06dba81e024d369708061bdac1f6ce4477128::187870",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '디바이스 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ab27ee28da3a8bb17ecc74470a55eb0a0337ad0b99fc10cf48b89fde6c5754f1::241820",
+        "review_note": "독립 검수 일치: 투자자 보호 목적의 주권 거래정지가 지속되어 거래 위험이 명시됨 / 근거: '피씨엘 주권매매거래정지기간변경 (투자자 보호)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e4070ab6a43b9fc82aad20fa6fe3ae6598889a24ac1ba8a6db670806eafd4dde::028100",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '동아지질 단일판매ㆍ공급계약체결(자율공시)'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "82fe95cdc21eff8f41462ceeff78f688853cf5a81e0f8928899ff2d70a1a3d9f::043090",
+        "review_note": "독립 검수 일치: 상장폐지 관련 이의신청 절차로 상장 존속 위험이 확인됨 / 근거: '더테크놀로지 기타시장안내 (상장폐지 관련 이의신청서 접수)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "af99e2f9e5ca9713d7113a5d58ffae9a7cc8be149ce0594b8b33b01128ed0d77::323350",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '다원넥스뷰 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0356ba7f681c26e51ff0b013f2bc71112f4196adf4c0336aa92480736e0602ef::222160",
+        "review_note": "독립 검수 일치: 상장폐지 사유 발생에 따른 거래정지로 존속 위험이 명시됨 / 근거: 'NPX 주권매매거래정지기간변경 (상장폐지사유 발생)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9e5fd547980f36bd0df0f127e54ce2576cb0874d44d6cab4b4c8a6fa613df430::347700",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '스피어 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "4d1d294f54d3ab12c1688d4981556dabe7785f69702b964462154edeb9c8a1e0::000150",
+        "review_note": "독립 검수 일치: 자회사의 확정된 판매·공급계약으로 연결 영업기회가 확대됨 / 근거: '두산 단일판매ㆍ공급계약체결(자회사의 주요경영사항)'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "05fcc7000ca24fdcd214f948feb884dc420d9429156345570d4f59f2a1906a53::074610",
+        "review_note": "독립 검수 일치: 판매·공급계약 해지로 확정된 영업기회가 소멸함 / 근거: '이엔플러스 단일판매ㆍ공급계약해지'; 확정된 판매·공급 계약 해지로 대상 기업의 영업기회가 소멸해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a3857c83586b5e6e9940d63f4b2c1932b21d4c1f3cd12e7610a071a5a9e06eec::001630",
+        "review_note": "독립 검수 일치: 자회사의 영업정지 결정으로 연결 영업활동 악화가 명시됨 / 근거: '종근당홀딩스 [기재정정]주요사항보고서(영업정지)(자회사의 주요경영사항)'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7eb73ce2198c8a85f29e44af026f2f7644fb1dba37a713af36185fdcbe3edd97::071950",
+        "review_note": "독립 검수 일치: 불성실공시법인 지정이라는 공식 제재가 확정됨 / 근거: '코아스 불성실공시법인지정'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "21dd088b83046c0a774ada89acb459e86658ab6a0540e351154091828d16d5ac::017390",
+        "review_note": "독립 검수 일치: 자기주식 취득 신탁계약 연장 결정으로 주주환원이 지속됨 / 근거: '서울도시가스 [연장결정]주요사항보고서(자기주식취득신탁계약체결결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0517179f948e9bc006e84ec941a9b23394592737fd4b2a15b5699d9b59a20c77::033560",
+        "review_note": "독립 검수 일치: 중요한 영업정지에 따른 주권 거래정지로 영업·거래 위험이 발생함 / 근거: '블루콤 주권매매거래정지 (중요한 영업정지)'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "48b079bd0d40b9709c1a8868a4bca8a77963ca41314b96626728d447615f005d::134380",
+        "review_note": "독립 검수 일치: 자기주식 취득 결정으로 주주환원이 확정됨 / 근거: '미원화학 주요사항보고서(자기주식취득결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fb5c66021bce3b10ae7491a167982c1b86e8fa2b032b32e3d1c5f2ff355e8873::003690",
+        "review_note": "독립 검수 일치: 벌금 부과라는 공식 제재로 재무·법적 부담이 발생함 / 근거: '코리안리 [기재정정]벌금등의부과(자율공시)'; 벌금 부과라는 확정된 제재와 비용이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "bc532a31ecba2b7449233ea7d5a31aa56cb1ebfeb194d2545793eab25950d6b9::000670",
+        "review_note": "독립 검수 일치: 생산중단으로 영업활동 악화가 명시됨 / 근거: '영풍 [기재정정]생산중단'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a71a3b31bda00fe10e706670ee6f335d60c45a6ed96763b092de61573dbde433::045510",
+        "review_note": "독립 검수 일치: 확정된 판매·공급계약 체결로 영업기회가 확대됨 / 근거: '정원엔시스 [첨부추가]단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "c046a9830d1bce3e4c12334034ddbe66c2aed8302a9062a8a3ec18fe10c354a6::002380",
+        "review_note": "독립 검수 일치: 불성실공시법인 지정예고로 공식 제재 절차가 시작됨 / 근거: '케이씨씨 불성실공시법인지정예고'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7fb3a810daeb4c1bcce34905ec09c7dfdfb01530a85016d82fc17149f5d48eaf::066430",
+        "review_note": "독립 검수 일치: 경영권분쟁 관련 증거보전 신청으로 법적 위험이 발생함 / 근거: '아이로보틱스 소송등의제기ㆍ신청(경영권분쟁소송) (증거보전신청)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "c55712441842cd9c7673edbb4ef82550e45884e56a4b423988a28b633d3f7e86::143240",
+        "review_note": "독립 검수 일치: 합병 결정의 대가나 재무·사업 효과가 제시되지 않음 / 근거: '사람인 주요사항보고서(회사합병결정)'; 합병·자산거래·출자 자체만 제시되고 대상 기업의 확정된 순경제 효과가 없어 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-b+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "1ad0ebb5b3de94b85a2bc568c0c9db29b386c2730fbab915734d2c838090ef41::060370",
+        "review_note": "정정 전후의 계약 금액·기간·조건이 제시되지 않아 정정으로 인한 대상 기업의 경제적 순효과를 확정할 수 없으므로 중립으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "a815bac22c1f5eca23f84f3be322d00a7c9ab94d871107b10d32775b2f99638d::066430",
+        "review_note": "소송의 제기 사실만 확인되며 대상 기업의 원고·피고 지위와 판결·처분 결과가 제시되지 않아 법적 순효과를 확정할 수 없으므로 중립으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "46e04c75b33d518ea215b11d5e7d4129a50d5bbf144cfc946b0e4df09a49bbca::403550",
+        "review_note": "독립 검수 일치: 불성실공시법인 지정으로 공식 제재가 확정됨 / 근거: '쏘카 불성실공시법인지정'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "daea1d6e69a11e8824be829a0b5aaa5838e5e1bbb90cdb9dbf9eae276ebd7888::002840",
+        "review_note": "독립 검수 일치: 자기주식 취득 결정으로 주주환원이 확정됨 / 근거: '미원상사 주요사항보고서(자기주식취득결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "467fe36578f941ecba78170f7c27abd87f5f084b6dbd05d4ecdff4a7c79dc68e::471820",
+        "review_note": "독립 검수 일치: 자기주식 취득 신탁계약 결정으로 주주환원이 확정됨 / 근거: '셀로맥스사이언스 주요사항보고서(자기주식취득신탁계약체결결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "706e112524612be101bdc9b2e50dd4f4750ec8b5ad11e6ba49a6864e4786d0e6::217730",
+        "review_note": "독립 검수 일치: 공시번복에 따른 불성실공시법인 지정 절차가 시작됨 / 근거: '강스템바이오텍 불성실공시법인지정예고 (공시번복)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "4d24307d795fd5f8c3e3c0953bf4bc94f0365f2eecced17575e35f0ed911175c::036800",
+        "review_note": "독립 검수 일치: 합병 결정만으로 대상 기업의 순효과가 불명확함 / 근거: '나이스정보통신 주요사항보고서(회사합병결정)'; 합병·자산거래·출자 자체만 제시되고 대상 기업의 확정된 순경제 효과가 없어 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "a60c5e00e13a8626952c9ca6c29e3eae3b4f5234084545fed2e586365d9b5787::476060",
+        "review_note": "독립 검수 일치: 무상증자 권리락은 기계적 가치 조정임 / 근거: '온코닉테라퓨틱스 권리락 (무상증자)'; 자금조달·증권발행·권리조정 자체는 자금유입과 희석 효과가 혼재하고 순효과가 명시되지 않아 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "80fd47801f6a2fb508620678185a8d7adda263adda09d80abdd33c57499bcef2::066790",
+        "review_note": "독립 검수 일치: 경영권 분쟁 가처분 소송이 제기됨 / 근거: '씨씨에스 [기재정정]소송등의제기ㆍ신청(경영권분쟁소송) (의결권대리행사권유금지 가처분)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6e38eb3b44bc48a1c78222d36104ff6c011afca00190847b69febcabb36d16bb::161000",
+        "review_note": "타인 채무보증 결정으로 대상 기업에 우발채무와 보증 이행 위험이 확정적으로 추가되어 구조적 재무위험이 커지므로 부정으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a93f14721ccddc3b9bc685db03f3e2b0e8e8287e943c92465162cdbeb1ef2450::141000",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: '비아트론 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "edf0e2f6327abf4c6b5e4d3dd51adbb13483e9d660958dd3a6f2280cf2f4681d::475580",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: '에이럭스 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fcd2e3c2f331308946301dce53ca3dffabf4335cb5e60de57ca8a58dd4f665b3::121800",
+        "review_note": "독립 검수 일치: 개선기간 부여로 거래정지와 상장적격성 위험이 지속됨 / 근거: '비덴트 주권매매거래정지기간변경 (개선기간 부여)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8c86a5b47efa793a07c93330a958d2a9ad8ab99fe0a1673d3b14fce0e4ef26b0::214390",
+        "review_note": "독립 검수 일치: 영업정지 결정으로 영업활동 악화가 확정됨 / 근거: '경보제약 [기재정정]주요사항보고서(영업정지)'; 대상 기업 또는 연결 자회사의 영업·생산 중단이 확정돼 사업 수행능력이 악화되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "ad65e1dc3edf03d9984dc4c653d7c155bed67dde3b0f5fcbae14b40f4a9cf8f5::077970",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: 'STX엔진 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2bef17be1abf77932a95de16ad1fbfffa82eafc53c15f10cd6513010e2b5fd8e::007570",
+        "review_note": "독립 검수 일치: 상장적격성 실질심사 위험이 명시됨 / 근거: '일양약품 상장적격성실질심사관련주요개선계획(자율공시)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "961fd6e934406e9d62e10895e42a47f72d872ee90a1737f5cc898e5ad95ea12a::241820",
+        "review_note": "독립 검수 일치: 상장폐지 절차 진행으로 존속·거래 가능성 위험이 명시됨 / 근거: '피씨엘 기타시장안내 (상장폐지 절차 관련 안내)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ae466a6dffbf02a4bff282750e331688c875b85f18aca3bf7e824415fd6bf0a5::039310",
+        "review_note": "독립 검수 일치: 공시불이행에 따른 불성실공시법인 지정 절차가 시작됨 / 근거: '세중 불성실공시법인지정예고 (공시불이행)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "95df674d5b700d9c4aaf383e385f1fbd09d76cfc8cc10b06b4325a890a8103ee::002210",
+        "review_note": "독립 검수 일치: 경영권 분쟁 소송이 제기됨 / 근거: '동성제약 소송등의제기ㆍ신청(경영권분쟁소송)'; 실제 경영권 분쟁 소송이 제기돼 대상 기업의 법적·지배구조 위험이 확대되므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "724f967c20c839df9ecc0400f17ff4a16b164217048c6f0a363903c7329c6ef0::086820",
+        "review_note": "독립 검수 일치: 임상시험계획 승인신청 반려로 사업기회가 악화됨 / 근거: '바이오솔루션 투자판단관련주요경영사항 (펠렛형 동종 연골세포치료제(카티로이드)의 제1/2상 임상시험계획 승인신청 반려)'; 임상시험계획 승인신청 반려로 규제상 개발기회가 공식적으로 제한돼 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e8b83fd201397311d243c5f7bfff46ba54406019b8c4857c576cd5e96f4c88a7::033790",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: '피노 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b76db5d7b7e761a0369be43f0a46d6f37a2e708e64ba546bca250fc0a98c3f88::043090",
+        "review_note": "독립 검수 일치: 상장폐지에 따른 정리매매 개시가 확정됨 / 근거: '더테크놀로지 주권매매거래정지해제 (상장폐지에 따른 정리매매 개시)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "b5ef0a266af13ce45453480544b2cf4d19bff62b833c365ef2411e2edc76fb64::042660",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: '한화오션 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1d8004e79454e4819157d7a5eb51927c09956d7d2ef073fad03c8999470548a5::043340",
+        "review_note": "독립 검수 일치: 공시변경에 따른 불성실공시법인 지정 절차가 시작됨 / 근거: '에쎈테크 불성실공시법인지정예고 (공시변경)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "390e5f5e7a7b1948e3633e54f27da541cef61e536d2760b4cdfb2c1dae0a281c::010400",
+        "review_note": "독립 검수 일치: 단일판매·공급계약 체결이 확인됨 / 근거: '우진아이엔에스 단일판매ㆍ공급계약체결'; 대상 기업 또는 연결 자회사의 확정된 판매·공급 계약으로 영업기회가 개선돼 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6276a9c677b9769279c5a195669d6fda559cc3e4342fb6c44bdf489f8a0274ee::200130",
+        "review_note": "독립 검수 일치: 공시불이행에 따른 불성실공시법인 지정 절차가 시작됨 / 근거: '콜마비앤에이치 불성실공시법인지정예고 (공시불이행 2건)'; 불성실공시법인 지정 또는 지정예고라는 공식 공시준수 위험이 발생해 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3ce79381dfee73772d7e9a4235685c82b20fe3358bc5e4ea02bd6cccd71d3fdd::131370",
+        "review_note": "독립 검수 일치: 자기주식 취득 완료로 주주환원이 확인됨 / 근거: '알서포트 자기주식취득결과보고서'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "bf2aaeed33f9a74a9d9306f4808a77522646fb1f89545b79b0fc48418ca95b8c::377460",
+        "review_note": "독립 검수 일치: 개선기간 부여로 거래정지와 상장적격성 위험이 지속됨 / 근거: '큐에이드 주권매매거래정지기간변경 (개선기간 부여)'; 상장폐지·실질심사·개선기간 또는 투자자보호 거래정지라는 확정된 거래·존속 위험이므로 NEGATIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "b42eb0ba109501731e11398b865c6b7fd4324e576fe122f9ec00a8969a5f4198::010960",
+        "review_note": "정정 전후의 계약 금액·기간·조건이 제시되지 않아 정정으로 인한 대상 기업의 경제적 순효과를 확정할 수 없으므로 중립으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "d44543dd20bec93793618eba3917e565e16dd2cf502f9c9d0a2cbbd74dd9ccf2::030200",
+        "review_note": "독립 검수 일치: 자회사 유상증자이며 모회사에 대한 순효과가 명시되지 않음 / 근거: '케이티서비스남부 유상증자결정'; 자금조달·증권발행·권리조정 자체는 자금유입과 희석 효과가 혼재하고 순효과가 명시되지 않아 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "a016c4612f0bb1f29ae85492e9cb366ea7b1150aae06225bd791354331443246::352090",
+        "review_note": "독립 검수 일치: 배당 결정이 아닌 주주명부 기준일 설정임 / 근거: '스톰테크 현금ㆍ현물배당을위한주주명부폐쇄(기준일)결정'; 배당 기준일·주주명부 절차만 있고 배당 금액이나 확정 지급 결정이 없어 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "291233a12aa029132623ab72c89c876678c3ab0564d3a0f5587fd4db4df7e60f::005030",
+        "review_note": "독립 검수 일치: 유상증자 자체의 경제적 순효과가 불명확함 / 근거: '부산주공 [기재정정]주요사항보고서(유상증자결정)'; 자금조달·증권발행·권리조정 자체는 자금유입과 희석 효과가 혼재하고 순효과가 명시되지 않아 NEUTRAL.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "afaf4d37e144979235ccab8ae525bc4ad90c472a0e0129ce5b7c276220afcd61::001520",
+        "review_note": "정정 전후의 계약 금액·기간·조건이 제시되지 않아 정정으로 인한 대상 기업의 경제적 순효과를 확정할 수 없으므로 중립으로 판정했다.",
+        "reviewed_at": "2026-07-15T13:48:09Z",
+        "reviewer_id": "codex-gpt5-disclosure-dev-adjudicator",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "46d8d4830c7ef556ff5a5df8d6a8702db6f914a273b3e8839ab62221b8a3eed1::177830",
+        "review_note": "독립 검수 일치: 자기주식 취득 신탁계약 연장으로 주주환원이 지속됨 / 근거: '파버나인 [연장결정]주요사항보고서(자기주식취득신탁계약체결결정)'; 자기주식 취득 결정·이행 또는 취득 신탁 연장으로 확정된 주주환원이므로 POSITIVE.",
+        "reviewed_at": "2026-07-15T13:37:40Z",
+        "reviewer_id": "codex-blind-reviewer-disclosure-dev-c+codex-gpt5-disclosure-dev-r2",
+        "teacher_sentiment": "NEUTRAL"
+      }
+    ],
+    "transition_distribution": {
+      "NEUTRAL->NEGATIVE": 41,
+      "NEUTRAL->POSITIVE": 34,
+      "POSITIVE->NEGATIVE": 2,
+      "POSITIVE->NEUTRAL": 11
+    }
+  },
+  "reviewed_item_count": 450,
+  "sample_count": 450,
+  "schema_version": "k-fnspid-sentiment-gold-promotion-report/v1",
+  "status": "pass",
+  "unresolved_excluded_count": 0
+}

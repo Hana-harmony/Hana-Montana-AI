@@ -21,6 +21,18 @@ RUN apt-get update \
 
 COPY pyproject.toml uv.lock ./
 COPY src ./src
+COPY releases ./releases
+COPY scripts/train_kf_deberta_sentiment_v2.py ./scripts/train_kf_deberta_sentiment_v2.py
+COPY scripts/train_kf_deberta_sentiment_v6.py ./scripts/train_kf_deberta_sentiment_v6.py
+COPY scripts/train_kf_deberta_sentiment_v6_ablation.py ./scripts/train_kf_deberta_sentiment_v6_ablation.py
+COPY scripts/train_kr_finbert_sc_sentiment_v6.py ./scripts/train_kr_finbert_sc_sentiment_v6.py
+COPY scripts/lock_kf_deberta_sentiment_candidate.py ./scripts/lock_kf_deberta_sentiment_candidate.py
+COPY scripts/evaluate_locked_kf_deberta_sentiment.py ./scripts/evaluate_locked_kf_deberta_sentiment.py
+COPY scripts/promote_kf_deberta_sentiment_deployment.py ./scripts/promote_kf_deberta_sentiment_deployment.py
+COPY scripts/attest_sentiment_candidate_git_commit.py ./scripts/attest_sentiment_candidate_git_commit.py
+COPY scripts/generate_sentiment_cpu_runtime_parity.py ./scripts/generate_sentiment_cpu_runtime_parity.py
+COPY scripts/verify_sentiment_release.py ./scripts/verify_sentiment_release.py
+COPY scripts/activate_signed_sentiment_release.py ./scripts/activate_signed_sentiment_release.py
 COPY data/reference ./data/reference
 COPY reports/k-fnspid-impact-news-training-report.json ./reports/k-fnspid-impact-news-training-report.json
 COPY reports/k-fnspid-impact-disclosure-training-report.json ./reports/k-fnspid-impact-disclosure-training-report.json
@@ -34,8 +46,10 @@ COPY reports/k-fnspid-impact-disclosure-transformer-training-report.json ./repor
 RUN find /app/src -type f \( -name '*.joblib' -o -name '*.safetensors' \) \
         -exec chmod 0444 {} + \
     && find /app/reports -type f -exec chmod 0444 {} + \
+    && find /app/releases /app/scripts -type f -exec chmod 0444 {} + \
     && chmod 0444 /app/reports/k-fnspid-impact-*-training-report.json \
-    && chmod -R a+rX,go-w /app/src /app/reports /app/data/reference
+    && chmod -R a+rX,go-w /app/src /app/reports /app/data/reference \
+    && chmod -R a+rX,go-w /app/releases /app/scripts
 
 RUN uv sync --frozen --no-dev --extra transformer
 RUN python -c "from transformers import AutoModel; from transformers import AutoTokenizer; model=AutoModel.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); tokenizer=AutoTokenizer.from_pretrained('kakaobank/kf-deberta-base', revision='363b171d71443b0874b0bf9cea053eb5b1650633', trust_remote_code=False); model.save_pretrained('/app/models/kf-deberta-base', safe_serialization=True); tokenizer.save_pretrained('/app/models/kf-deberta-base')"
@@ -46,6 +60,8 @@ RUN mkdir -p /app/.cache/.tesseract \
 ENV HOME=/app/.cache
 ENV HF_HUB_OFFLINE=1
 ENV TRANSFORMERS_OFFLINE=1
+ENV HF_HUB_DISABLE_TELEMETRY=1
+ENV TOKENIZERS_PARALLELISM=false
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 USER 65532:65532

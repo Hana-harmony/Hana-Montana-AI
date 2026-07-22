@@ -1,0 +1,86 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 11333,
+      "path": "data/gold/review_v2/train/adjudication/part-0001-0200-0401-0600.jsonl",
+      "sample_count": 19,
+      "sha256": "b25efda8eebfaf526909f10bbf086750c1c6346f3b889c2fda90243061a4bed4"
+    },
+    "packet": {
+      "bytes": 51688,
+      "path": "data/gold/review_v2/train/adjudication-packet.jsonl",
+      "sample_count": 26,
+      "sha256": "115bfcde3cb1b0252c8cdb978c8c7b66fcffc36985caa6c90979ef38c57bb1c9"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "reviewer_decision_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "d1a24e5b81d28b02b997454d02478407a89ed0a9ff5eda82f7848e17cfcee658::138040",
+    "input_field_sets_sha256": "8fd1206ecffa88148d9528ed66af89f14081d8b7b5dfb49a21444110048af639",
+    "item_count": 19,
+    "item_id_order_sha256": "1f34897bcaef85465f0114b507574734e5e29571bf265eed6919ae13251ad1d2",
+    "item_id_set_sha256": "50b0fd48a1b11d7927ccc255e1900cc96106c793c66b18f02e262c078d89a0dd",
+    "last_item_id": "9adf0764d3abfc73a12b219ac4d721fa143dc52dd04047159e8d8102745dff05::407400",
+    "row_end_inclusive": 26,
+    "row_start_inclusive": 1,
+    "source_type_distribution": {
+      "UNSPECIFIED": 19
+    }
+  },
+  "packet_kind": "BLIND_ADJUDICATION_DISAGREEMENTS",
+  "receipt_payload_sha256": "ef824a8fd1747bcf3311beb90b4017deaf601d91fdd23f1dc467216da4e21f65",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-high-2026-07-17",
+    "reviewer_id": "codex:gold-train-adj-0001-0200-0401-0600",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "ADJUDICATOR",
+  "run": {
+    "completed_at": "2026-07-16T23:23:18Z",
+    "context_id": "d6541468-e95c-4961-b010-9b4a24cdd084",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "c21ef1c2-0946-42c2-b36a-19ef2720c93f",
+    "started_at": "2026-07-16T16:25:00Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "selected_item_ids": [
+    "d1a24e5b81d28b02b997454d02478407a89ed0a9ff5eda82f7848e17cfcee658::138040",
+    "6b6f8f1c394ac88ae0435ed16011214aa11d014ae7db37198c02a00fea3430d9::028260",
+    "465579ed4147b6e4a451db1afe5643181f16114dacc19015113d3a32dec33c01::171090",
+    "b1ba41378b133d3bb82fe47b2f7c201a4037fda6d8d5a250e915ef6c3e41541d::000660",
+    "c805f32a3ce3c67089e10aec09778f054673cd9f4eb800219ba7ddb226a24683::168360",
+    "1cb5e7bd47cc018e07ed9c830a29218f1aac5dbf2e71c31438d735bfbf2bee28::256840",
+    "684e432c29e53a29d4b7d7f9e2168aa53094cc6da31741f9e1b3af97a23ce1b4::103840",
+    "5376dbc88c5832ac3f1a6212f2aa68819a2960ab1f905786c03c608b3eea7c53::139480",
+    "2e65f74e81587bcd540cabd1cdc646c21b70b2ac745ad277b44907033bd528da::086900",
+    "71aaf9eaaa8294b2a2df7186a4a895ca51d7c5b2c9e23eca382608ab03b17323::294140",
+    "f51bddecf9e2d733789d430a3f98287f7d00eb76191848b938cf121b07f34c7e::228670",
+    "c18ee3281457cb41308345a1fc9ae1d2a9daf7f79770e79c8887bc367414e49f::123330",
+    "b9814fb7cae655bdd89a51493af1aaa8e62da7e516f5699535755e50de276832::316140",
+    "a9d9878f424c9288e538f429c44206a3ed88b69a99acd68d3f82f7ab46df8e19::029480",
+    "a6884e7b1c98734bef178e2f702fbf6bec9ae377976841f3159e78a6c54c8c4b::139480",
+    "e1ac9b663a127186ce4cac44c624a48c13f96383e6a6c633c41434dcc95496fd::161890",
+    "3fa7b5d70dbc42ee88c024289676f8fd4cd63b075e410d2a0e8e186acff27602::069080",
+    "b9405424e00e1dae494e36f8e0c579a3592c45e1ef12182df2b69248f0c79f9c::362990",
+    "9adf0764d3abfc73a12b219ac4d721fa143dc52dd04047159e8d8102745dff05::407400"
+  ],
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

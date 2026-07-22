@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 114219,
+      "path": "data/gold/review_v2/disclosure-auxiliary/stage2/part-0301-0600.jsonl",
+      "sample_count": 300,
+      "sha256": "2165125e0662856aeb44d7303cf5cc92e8429af53d1d9b7d0806dee7c4d3c3f1"
+    },
+    "packet": {
+      "bytes": 685383,
+      "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "be82dfccb5dc44204052a705a3cd0bbb1ff41d87c7cc8632624c6923f768852e"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "06f82211b019cdc03e9039a162ff7854457a3a48cc0f8cec047dc5e8fff6724c::013120",
+    "input_field_sets_sha256": "f9fa00a2ae4778d3c5d384809de9db19808114dbbf1349a1d00f34224c0548ff",
+    "item_count": 300,
+    "item_id_order_sha256": "6c44a2530cdfb556c5724439173da9ca44aa3e73f4cd24126e92c649b042ba96",
+    "item_id_set_sha256": "ff5702bf90fb223dcb32ae326726cb85bfaed9563f3ae29539b5e9861656f0f9",
+    "last_item_id": "f4c4a0e3b61eaf471d8630b92c741e71332ab8c3e3577676fa22f756a9787293::118000",
+    "row_end_inclusive": 600,
+    "row_start_inclusive": 301,
+    "source_type_distribution": {
+      "DISCLOSURE": 300
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "b86d4a1004b718d8a9260fcd19051b88c79962bbf5dfd06cbfd32d5178522b5c",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-high-2026-07-17",
+    "reviewer_id": "codex:gold-disclosure-aux-s2-0301-0600",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-17T00:17:55Z",
+    "context_id": "e92ee8be-61ed-4339-95bd-1dec2c49c0b5",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "36f8249e-22c7-4366-a996-de3df5a7f7ed",
+    "started_at": "2026-07-17T00:16:21Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

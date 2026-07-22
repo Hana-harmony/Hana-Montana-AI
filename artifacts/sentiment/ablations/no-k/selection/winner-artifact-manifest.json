@@ -1,0 +1,80 @@
+{
+  "schema_version": "k-fnspid-sentiment-ablation-winner-manifest/v1",
+  "artifact_role": "RESEARCH_ABLATION_NOT_DEPLOYABLE",
+  "ablation_mode": "NO_K",
+  "selected_seed": 17,
+  "selection_score": 0.605026455026455,
+  "selection_rule": "highest fixed development selection score; lower seed breaks ties",
+  "selected_training_report": {
+    "path": "reports/ablations/kf-deberta-sentiment-no-k-seed17.json",
+    "bytes": 22827,
+    "sha256": "b8403c22a7d824fe02311fb590bfcd264fc59f753b0248248a8e253a3eae90d1"
+  },
+  "artifact_directory": "artifacts/sentiment/ablations/no-k/seed17",
+  "artifact_files": {
+    "README.md": {
+      "bytes": 5174,
+      "sha256": "df0fce9bae4eefdab4d448d004164a31d7c60034141f84c04c26c357c34a7b3f"
+    },
+    "adapter_config.json": {
+      "bytes": 1172,
+      "sha256": "04736a257223cad0757681a4bb48d5cf7c0e4c294a6fc50ba5c8fc90e53f3229"
+    },
+    "adapter_model.safetensors": {
+      "bytes": 10345092,
+      "sha256": "ff1acb448429be95824ee247f305b1a96fe35b259e8aa0a8b0792cd172f99817"
+    },
+    "hannah_metadata.json": {
+      "bytes": 1539,
+      "sha256": "21f6c14f25f8da886a44cbe0ff619127a3daa83f38a538fdc41ae8db3d319ff9"
+    },
+    "tokenizer.json": {
+      "bytes": 3191920,
+      "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+    },
+    "tokenizer_config.json": {
+      "bytes": 451,
+      "sha256": "0fe650d7e0e9121581b26ef7fd5a3ae296efff1f5eafbce334be6c58ec386adf"
+    }
+  },
+  "base_model_provenance": {
+    "repository": "kakaobank/kf-deberta-base",
+    "revision": "363b171d71443b0874b0bf9cea053eb5b1650633",
+    "source_weight_filename": "pytorch_model.bin",
+    "source_weights_format": "pytorch_model.bin",
+    "source_weight_sha256": "3cd6cd7811b3c9190e97cae7eb41571c2bc0076431baae7d41d449a8c1c18c6c",
+    "deserialization": "torch_weights_only",
+    "trust_remote_code": false,
+    "weights_only": true,
+    "validation_stage": "EXPECTED_HASH_LOCK",
+    "training_stage": "RESOLVED_CACHE_BYTES_VERIFIED_BEFORE_DESERIALIZATION"
+  },
+  "prepared_partition_commitments": {
+    "TRAIN": {
+      "row_count": 7413,
+      "sha256": "341dd27fb25e4ac4689c0c1cf4439465b246b328488af4b983b3e7dbdecf12f0"
+    },
+    "CHECKPOINT": {
+      "row_count": 912,
+      "sha256": "5c85a2afe062472909d9252e5ec3dce35af97c472ba298017cdbc0d96b31b578"
+    },
+    "CALIBRATION": {
+      "row_count": 458,
+      "sha256": "25e6a035b35a8b8129eb228865ec68772ecde024b7e63c9b1fdac009e20b38a4"
+    },
+    "SELECTION": {
+      "row_count": 461,
+      "sha256": "7b9ef055a2d02eb6ca9a4bcc1d8762fddcc187ab24cd231a05309f7408f52c33"
+    },
+    "NEWS_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+    },
+    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+    }
+  },
+  "confirmatory_or_public_test_used": false,
+  "deployment_eligible": false
+}

@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 56912,
+      "path": "data/gold/review_v2/news-development/stage2/part-0226-0400.jsonl",
+      "sample_count": 175,
+      "sha256": "23ca7fca2aa2acb9047a5831ba61bc93f45368365e418ca8732dbe949c1c3cc9"
+    },
+    "packet": {
+      "bytes": 719730,
+      "path": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+      "sample_count": 450,
+      "sha256": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "198e923c6f7d4f9f1f381e959a8faa45d4106db99ca4ed95e458f1a0a1f44fc6::064350",
+    "input_field_sets_sha256": "ff10efbec1e6ddfbbad581668913fe2f2fbfce89617de311232af9f72aa423f7",
+    "item_count": 175,
+    "item_id_order_sha256": "3f54a18d04255f4dca323de42e9589ce4121ade08935dd8950e52de1d54ce826",
+    "item_id_set_sha256": "522ee8f618489e7ddc582276a77914dd28f8898426ba69e8cf7394f053b7294a",
+    "last_item_id": "f49b9991c53a8be8f859250ef0fc1792f0e21c6ee68467e16db7115e63ee3926::004140",
+    "row_end_inclusive": 400,
+    "row_start_inclusive": 226,
+    "source_type_distribution": {
+      "NEWS": 175
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "cbcd1948efd2283d6df8e13974c968b4b6fb7ac7a6141719648dbd7fc6cdc836",
+  "reviewer": {
+    "model_name": "GPT-5",
+    "model_version": "codex-high-2026-07-17",
+    "reviewer_id": "codex:gold-news-dev-s2-0226-0400",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-16T16:28:44Z",
+    "context_id": "49A451B1-2B84-4560-906A-D3B9ACF12F3B",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "E090682E-7817-4DF0-9637-4C876414C1C5",
+    "started_at": "2026-07-16T16:25:26Z"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

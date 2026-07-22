@@ -24,11 +24,35 @@ run_container() {
     --memory 7g \
     --cpus 1.5 \
     --env-file "${APP_DIR}/application.env" \
+    --mount "type=bind,src=${APP_DIR}/sentiment-release-public-key.pem,dst=/run/secrets/sentiment-release-public-key.pem,readonly" \
     --network "${NETWORK}" \
     --tmpfs /tmp:rw,noexec,nosuid,size=512m \
     --tmpfs /app/.cache:rw,noexec,nosuid,size=256m,uid=65532,gid=65532 \
     -p "127.0.0.1:${APP_PORT}:8000" \
     "${image}"
+}
+
+verify_image_release() {
+  local image="$1"
+  docker run --rm \
+    --read-only \
+    --cap-drop ALL \
+    --security-opt no-new-privileges:true \
+    --network none \
+    --pids-limit 128 \
+    --memory 2g \
+    --cpus 1 \
+    --env-file "${APP_DIR}/application.env" \
+    --mount "type=bind,src=${APP_DIR}/sentiment-release-public-key.pem,dst=/run/secrets/sentiment-release-public-key.pem,readonly" \
+    --entrypoint python \
+    "${image}" \
+    /app/scripts/verify_sentiment_release.py \
+    --current /app/releases/sentiment/current.json \
+    --project-root /app \
+    --base-model-runtime-path /release-tree-bound-v6 \
+    --runtime-environment production \
+    --attestation-mode dsse-ed25519-v1 \
+    --public-key /run/secrets/sentiment-release-public-key.pem
 }
 
 wait_until_ready() {
@@ -103,6 +127,7 @@ docker network inspect "${NETWORK}" >/dev/null 2>&1 \
   || docker network create "${NETWORK}" >/dev/null
 printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
 docker pull "${IMAGE}"
+verify_image_release "${IMAGE}"
 
 install_nginx_config
 

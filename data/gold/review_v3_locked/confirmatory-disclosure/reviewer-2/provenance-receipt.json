@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "decision": {
+      "bytes": 231124,
+      "path": "data/gold/review_v3_locked/confirmatory-disclosure/reviewer-2/decision.jsonl",
+      "sample_count": 600,
+      "sha256": "e98fce9056cd624966d087e5b4d90dc86019f8c484219cf93c0d7f5809c34118"
+    },
+    "packet": {
+      "bytes": 680705,
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "packet_forbidden_fields_audited": true,
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "input_scope": {
+    "first_item_id": "00a48bc10258e148ac7e5c52dccbb5f07a9a34578c9c2d3c703d9497b9f75a40::051360",
+    "input_field_sets_sha256": "07474c54412852d1c0af0f11bd1756a8fa0320a4fc953a60d8c5fdbe82886ac2",
+    "item_count": 600,
+    "item_id_order_sha256": "1507bc2a3e317c5744230682e6c0c3a9891de59e75ebf8bfd6a54ceb4e71935e",
+    "item_id_set_sha256": "7437c14f444e03a3783d8b1812a536aacd5a51efa16f73b86f4598c6037cc4e7",
+    "last_item_id": "1ec86e4888c2e38af27c87b5da993fe7bfed43fa9fc761ed9a880d7466796d8f::212560",
+    "row_end_inclusive": 600,
+    "row_start_inclusive": 1,
+    "source_type_distribution": {
+      "DISCLOSURE": 600
+    }
+  },
+  "packet_kind": "BLIND_REVIEW_SOURCE",
+  "receipt_payload_sha256": "bfb9353350a95cab4406ae5ffe88cd77502ec4fa90917557d703ade1d2fe741d",
+  "reviewer": {
+    "model_name": "OpenAI Codex",
+    "model_version": "GPT-5",
+    "reviewer_id": "CODEX_REVIEWER_2_LOCKED_V3",
+    "reviewer_type": "CODEX_AI"
+  },
+  "role": "REVIEWER",
+  "run": {
+    "completed_at": "2026-07-22T15:34:30+09:00",
+    "context_id": "a3db3aca-8e31-4209-8638-1e306b74c6fe",
+    "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+    "context_parent_id": null,
+    "independent_run_id": "ddb83de4-1f00-483e-aa06-b16cbcac68da",
+    "started_at": "2026-07-22T15:29:00+09:00"
+  },
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

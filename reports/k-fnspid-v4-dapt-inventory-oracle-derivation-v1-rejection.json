@@ -1,0 +1,14 @@
+{
+  "schema_version": "k-fnspid-dapt-inventory-oracle-derivation-rejection/v1",
+  "status": "REJECTED_SUPERSEDED",
+  "rejected_at": "2026-07-15T21:24:57Z",
+  "rejected_artifact": {
+    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation.json",
+    "bytes": 51908,
+    "sha256": "6c70a5f7c85fb7b4ffb4fad7e5e25eb9d7839d4f3a5c004bc8d12ddf24d60759"
+  },
+  "rejected_candidate_sha256": "c173cba25d7ae1dab0fd0ae913c2696526a74388853cb57345109ce6240a79e0",
+  "reason": "post-union root를 exact/identity baseline과 비교해 fuzzy 추가 보호 문서와 pre-fuzzy component 증분을 비중복으로 분해하지 못했다.",
+  "superseding_report_path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v2.json",
+  "source_oracle_lock_allowed": false
+}

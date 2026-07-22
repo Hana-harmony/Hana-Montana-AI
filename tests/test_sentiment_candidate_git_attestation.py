@@ -30,6 +30,9 @@ from hannah_montana_ai.training.sentiment_evaluation_plan import (
     canonical_statistical_analysis_plan,
 )
 from hannah_montana_ai.training.sentiment_git_attestation import (
+    V6_RECIPE_RELATIVE_PATHS as VALIDATOR_V6_RECIPE_RELATIVE_PATHS,
+)
+from hannah_montana_ai.training.sentiment_git_attestation import (
     validate_candidate_git_attestation,
 )
 
@@ -502,12 +505,20 @@ def test_rejects_any_committed_recipe_blob_that_breaks_lock_commitment(
 def test_v6_recipe_contract_includes_raw_reference_reproduction() -> None:
     module = _module()
 
-    assert module.V6_RECIPE_RELATIVE_PATHS["v6_raw_reference_runtime"] == (
-        "src/hannah_montana_ai/services/kr_finbert_sc_raw_reference.py"
-    )
+    expected_runtime = "src/hannah_montana_ai/services/kr_finbert_sc_raw_reference.py"
+    expected_materializer = "scripts/materialize_kr_finbert_sc_raw_reference.py"
+
+    assert module.V6_RECIPE_RELATIVE_PATHS["v6_raw_reference_runtime"] == expected_runtime
     assert module.V6_RECIPE_RELATIVE_PATHS["v6_raw_reference_materializer"] == (
-        "scripts/materialize_kr_finbert_sc_raw_reference.py"
+        expected_materializer
     )
+    assert VALIDATOR_V6_RECIPE_RELATIVE_PATHS["v6_raw_reference_runtime"] == (
+        expected_runtime
+    )
+    assert VALIDATOR_V6_RECIPE_RELATIVE_PATHS["v6_raw_reference_materializer"] == (
+        expected_materializer
+    )
+    assert VALIDATOR_V6_RECIPE_RELATIVE_PATHS == module.V6_RECIPE_RELATIVE_PATHS
 
 
 def test_rejects_incomplete_recipe_blob_set(tmp_path: Path) -> None:

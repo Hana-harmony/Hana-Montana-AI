@@ -1,0 +1,33 @@
+{
+  "schema_version": "sentiment-sealed-evaluation-recovery-authorization/v1",
+  "authorized_at": "2026-07-22T07:19:00Z",
+  "reason": "네 번째 실행으로 canonical evaluator의 flat-file manifest 검증기가 잠금된 no-K artifact의 안전한 하위 경로(adapter/*)를 거부하는 결함을 확정했다.",
+  "prior_attempt": {
+    "receipt": "reports/sentiment-sealed-evaluation-consumption-recovery-003.json",
+    "receipt_sha256": "81ade889c1d409350910f8d08ecb4ee5826bf80fef5b577b032fbf1da0bcacd6",
+    "failure": "no-K manifest의 안전한 상대 하위 경로를 flat filename 규칙으로 거부"
+  },
+  "failure_boundary": {
+    "final_report_created": false,
+    "candidate_predictions_completed": true,
+    "baseline_predictions_partially_completed": true,
+    "no_k_predictions_completed": false,
+    "metrics_emitted": false
+  },
+  "evaluator_recovery": {
+    "canonical_evaluator_sha256": "5d62560687038a5177be47c38a7fe1c8b2a682e1fdb1c3b6d91e335a8dbbc625",
+    "canonical_evaluator_changed": false,
+    "wrapper": "scripts/run_locked_sentiment_evaluation_recovery.py",
+    "wrapper_sha256": "27cf213b36df25a9096241529eedaca82ad4af49e09e97d28631cef2e4e50d3a",
+    "scope": "no-K 검증 구간에서만 절대 경로·상위 이동·symlink·artifact root 이탈을 거부하면서 안전한 상대 하위 경로의 bytes·SHA-256을 검증",
+    "confirmatory_gold_changed": false,
+    "legacy_gold_changed": false,
+    "inference_math_changed": false,
+    "calibration_changed": false,
+    "candidate_artifact_changed": false,
+    "no_k_artifact_changed": false,
+    "static_check": "ruff passed"
+  },
+  "recovery_consumption_receipt": "reports/sentiment-sealed-evaluation-consumption-recovery-004.json",
+  "planned_report": "reports/korean-finance-sentiment-benchmark-v4.json"
+}

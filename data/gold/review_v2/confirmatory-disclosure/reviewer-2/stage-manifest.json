@@ -1,0 +1,82 @@
+{
+  "artifacts": {
+    "codebook": {
+      "bytes": 29036,
+      "path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43"
+    },
+    "merged_decision": {
+      "bytes": 201105,
+      "path": "data/gold/review_v2/confirmatory-disclosure/reviewer-2/decision.jsonl",
+      "sample_count": 600,
+      "sha256": "a41e9220b45f8c4319702fc8f416b62fe30d0da3270a2ba89d9eb48cf38542f9"
+    },
+    "prompt": {
+      "bytes": 2948,
+      "path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5"
+    },
+    "review_packet": {
+      "bytes": 682008,
+      "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_review.jsonl",
+      "sample_count": 600,
+      "sha256": "59218879991137bc120ccd20d5dc79f3d26c0c742c77cea7231cac3a70db17a6"
+    }
+  },
+  "blindness": {
+    "candidate_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "market_outcome_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT",
+    "teacher_prediction_visibility": "NOT_PROVIDED_TO_REVIEW_CONTEXT"
+  },
+  "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+  "exact_item_set": true,
+  "item_order_preserved": true,
+  "part_chain": [
+    {
+      "decision": {
+        "bytes": 201105,
+        "path": "data/gold/review_v2/confirmatory-disclosure/reviewer-2/decision-part-001.jsonl",
+        "sample_count": 600,
+        "sha256": "a41e9220b45f8c4319702fc8f416b62fe30d0da3270a2ba89d9eb48cf38542f9"
+      },
+      "input_scope": {
+        "first_item_id": "e57c207793bdd1d6dc5384bec9af80761504abbda7e98355b0e070354e143427::222800",
+        "input_field_sets_sha256": "07474c54412852d1c0af0f11bd1756a8fa0320a4fc953a60d8c5fdbe82886ac2",
+        "item_count": 600,
+        "item_id_order_sha256": "3eb4e2d2ee2974b52e7baa225d12cdc4857d69ac0fa999803419ad10043df1c3",
+        "item_id_set_sha256": "8b88c29dccc2d88ff76681202067990a8477055a0c2ed1d20c4d4819192453b9",
+        "last_item_id": "5bc44a5c5ca148f79e53c8a352efee9b18ff7dd9e176a4f41f898cabfc726f8d::299030",
+        "row_end_inclusive": 600,
+        "row_start_inclusive": 1,
+        "source_type_distribution": {
+          "DISCLOSURE": 600
+        }
+      },
+      "receipt": {
+        "bytes": 2853,
+        "path": "data/gold/review_v2/confirmatory-disclosure/reviewer-2/receipt-part-001.json",
+        "sha256": "6f642bbf4859271299a504730c82f1b71f49859a1088ce0b91a60079d564de33"
+      },
+      "receipt_payload_sha256": "f17bce53f38cb076a018bf032c0cec63bf8df960a9caf5e2f044ed31daa39f80",
+      "reviewer": {
+        "model_name": "OpenAI Codex",
+        "model_version": "GPT-5",
+        "reviewer_id": "codex-independent-reviewer-2b",
+        "reviewer_type": "CODEX_AI"
+      },
+      "run": {
+        "completed_at": "2026-07-22T04:48:47.591620+00:00",
+        "context_id": "5f98edb0-074e-42d4-8d82-07980c90f8d3",
+        "context_isolation_commitment": "FRESH_CONTEXT_WITHOUT_PRIOR_REVIEW_OR_MODEL_OUTPUT",
+        "context_parent_id": null,
+        "independent_run_id": "923a7114-d837-4556-9d94-322671c39497",
+        "started_at": "2026-07-22T03:07:28.611709+00:00"
+      }
+    }
+  ],
+  "protocol": "receipt-bound-independent-codex-review-stage/v1",
+  "role": "REVIEWER",
+  "schema_version": "k-fnspid-sentiment-review-stage-manifest/v1",
+  "stage_manifest_payload_sha256": "92406f8a97b9623fb7a795c61fbaa1b60e7e8660010c5a995e47d41ad4676c5a",
+  "status": "VERIFIED_BLIND_PROVENANCE"
+}

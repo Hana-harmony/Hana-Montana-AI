@@ -1,0 +1,351 @@
+{
+  "schema_version": "k-fnspid-sentiment-prevalence-sampling-design/v1",
+  "generated_at": "2026-07-15T13:22:15.072397+00:00",
+  "dataset_version": "K-FNSPID-v4",
+  "codebook_version": "k-fnspid-sentiment-codebook/v1",
+  "frame": {
+    "effective_trade_date_start": "2026-04-01",
+    "effective_trade_date_end": "2026-12-31",
+    "source_types": [
+      "NEWS",
+      "DISCLOSURE"
+    ],
+    "eligibility": "K-FNSPID-v4 quality contract and unique PRIMARY entity"
+  },
+  "sampling_design": {
+    "method": "stratified_equal_allocation_without_replacement_by_seeded_sha256_rank/v1",
+    "seed": "k-fnspid-prevalence-sealed-v1:2026-07-15",
+    "hash_function": "SHA-256",
+    "strata": [
+      "NEGATIVE",
+      "NEUTRAL",
+      "POSITIVE"
+    ],
+    "weak_rule_stratum": {
+      "version": "k-fnspid-prevalence-weak-stratum/v1",
+      "base_rule": "build_k_fnspid_sentiment_dataset.weak_sentiment_label",
+      "disclosure_adverse_auxiliary_regex": "(?:유상증자|감자결정|주식병합|주식분할|전환사채|신주인수권부사채|교환사채|채무보증|담보제공|대출원리금연체|채무인수|금전대여|계약해지|계약취소|공급계약해지|전환청구권행사|신주인수권행사|교환청구권행사)",
+      "contract_sha256": "220feed1ed0fa1e67c1704cb5bc8569b3b63edaf9487d0cd625b934bd8e908b5",
+      "gold_label_role": "none; sampling auxiliary only"
+    },
+    "sample_per_stratum": 200,
+    "sampling_unit": "canonical representative of a transitive provenance component within the date/source frame",
+    "representative_rule": "lexicographic document_id, canonical identity digest tie-break",
+    "source_selection_order": [
+      "NEWS",
+      "DISCLOSURE"
+    ],
+    "cross_source_rule": "NEWS-selected provenance components are removed from the DISCLOSURE frame before DISCLOSURE ranking",
+    "stock_or_diversity_cap": null,
+    "equal_probability_contract": "Within each final source/weak-rule stratum, all N_h canonical units are ranked once by the predeclared seeded SHA-256 rule; the first n_h units are selected, giving pi_h=n_h/N_h under the predeclared hash-randomization design.",
+    "review_packet_blinding": "Weak-rule strata and weights are omitted from review rows and are reconstructed with the versioned weak rule only after review."
+  },
+  "distinction_from_existing_challenge_sets": {
+    "existing_partitions": [
+      "SEALED_TEST_REVIEW",
+      "DISCLOSURE_SEALED_TEST_REVIEW"
+    ],
+    "existing_role": "balanced challenge discrimination set with stock-diversity constraints",
+    "new_role": "source-separated prevalence-estimable probability sample with declared inclusion probabilities and analysis weights",
+    "identity_overlap_allowed": false
+  },
+  "protected_identity_sets": {
+    "combined": {
+      "group_key_count": 237884,
+      "identity_set_sha256": "1a006effc1f04f08511d2dc2e08f9845e30ef62f4f468f378477be7f27da0058"
+    },
+    "categories": {
+      "existing_review_packets": {
+        "paths": [
+          {
+            "path": "data/curation/k_fnspid_sentiment/train_review.jsonl",
+            "bytes": 954737,
+            "sha256": "af82d375b3566e914d20c6c40064f8a79ce373ad9db9c1cd5ba9b1b17e10647d"
+          },
+          {
+            "path": "data/curation/k_fnspid_sentiment/development_review.jsonl",
+            "bytes": 719730,
+            "sha256": "62eaf5a2730ab3381b1b943ce75bd1cb3932b303b78d67b9f5974b6fce417bfa"
+          },
+          {
+            "path": "data/curation/k_fnspid_sentiment/sealed_test_review.jsonl",
+            "bytes": 961609,
+            "sha256": "6bc8c03b95be9be139857a88ac1582ea2b3fedee1bf87ab3d708bdb757f48bdd"
+          },
+          {
+            "path": "data/curation/k_fnspid_sentiment/disclosure_development_review.jsonl",
+            "bytes": 507080,
+            "sha256": "c09d712e575182120e1be36bfcd2e659a10311e51374b0159bfc85699728d171"
+          },
+          {
+            "path": "data/curation/k_fnspid_sentiment/disclosure_sealed_test_review.jsonl",
+            "bytes": 682008,
+            "sha256": "59218879991137bc120ccd20d5dc79f3d26c0c742c77cea7231cac3a70db17a6"
+          }
+        ],
+        "identity_row_count": 2700,
+        "rows_without_provenance_identity": 0,
+        "group_key_count": 10800,
+        "identity_set_sha256": "a0cd2e109d55da26872184af0b422dfba0831c75a6c30ce2fa14ef41d9254eb2"
+      },
+      "k_fnspid_silver_sets": {
+        "paths": [
+          {
+            "path": "data/training/k_fnspid_sentiment_silver.jsonl",
+            "bytes": 47467897,
+            "sha256": "56e3dc2c641990e44ba4d72143d8c4336727b1f96a406c8232b3a59abc6c203e"
+          },
+          {
+            "path": "data/training/k_fnspid_disclosure_sentiment_silver.jsonl",
+            "bytes": 3026710,
+            "sha256": "0e25f7d5c4499d8e823e512d1d7df143958a3ac13bc669448d608e6c771e8a2b"
+          }
+        ],
+        "identity_row_count": 32700,
+        "rows_without_provenance_identity": 0,
+        "group_key_count": 130800,
+        "identity_set_sha256": "7d3c24b2707249151bf94d8e52d70297803bd45a685ad68528b9be95c5d60301"
+      },
+      "other_training_sets": {
+        "paths": [
+          {
+            "path": "data/training/financial_alert_augmented.jsonl",
+            "bytes": 514677,
+            "sha256": "85d9db6e0e95cdc25d92ff0a975c6e2c1f1842a9a155f5efc2601adf88d48b22"
+          },
+          {
+            "path": "data/training/financial_alert_corpus.jsonl",
+            "bytes": 3580,
+            "sha256": "8ab88c36b7f651624bc2e682bd5942e7b1ace25b639c4bf71212c6dc75346233"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold.jsonl",
+            "bytes": 1928,
+            "sha256": "541d574f366c158eeb6fa21a49fc22c086b9ca636c291a874d1f31e2646a7984"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0001.jsonl",
+            "bytes": 47993712,
+            "sha256": "e7a11a33cda4b3e049728ac30d51b4e8485e4f1117382f0e3143f331ba1d34ce"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0002.jsonl",
+            "bytes": 47967902,
+            "sha256": "39b571741e740dba451aa5740f29bae6e23715765024586b298bb625850fb6e9"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0003.jsonl",
+            "bytes": 47963288,
+            "sha256": "a1c6178fdc92ce2f4a5d3191284841c964683e7dad9e1bf5fe5d5876d422e3cf"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0004.jsonl",
+            "bytes": 47980116,
+            "sha256": "8036418754b4a04919d8e319c95573487dd487be98979ee262bafd63a7bb3bf3"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0005.jsonl",
+            "bytes": 47988608,
+            "sha256": "1bc478fcdf9ed44ed19b82d4e572f3496759c5b9847b845a3cb35e2a47c32a46"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0006.jsonl",
+            "bytes": 47999683,
+            "sha256": "98eba85c88844f2dc0039f831e274c97e2d716b0c1501564f9d30c23ae325089"
+          },
+          {
+            "path": "data/training/financial_alert_full_content_gold_shards/part-0007.jsonl",
+            "bytes": 22296198,
+            "sha256": "8fde133a107dd3b693a9583ed48f663893e933a68585ebb287477d52e889dddb"
+          },
+          {
+            "path": "data/training/financial_alert_news_style_augmented.jsonl",
+            "bytes": 544924,
+            "sha256": "70a55356fb9477bb1f19899583e8297955de85637acf193e6b9d8cce20cad285"
+          },
+          {
+            "path": "data/training/financial_alert_real_news_gold.jsonl",
+            "bytes": 41486,
+            "sha256": "94ca5b0b8f6db243f413bd03a831826b7ed8ae4b936a5a4c6bf1be777467a27a"
+          },
+          {
+            "path": "data/training/financial_alert_stock_review_gold.jsonl",
+            "bytes": 3598476,
+            "sha256": "dfd605acc4a69be829d85fc2f91bdf73f5efa8911530b3d21ce8617c64bdf51b"
+          },
+          {
+            "path": "data/training/korean_translation_sft.jsonl",
+            "bytes": 49291,
+            "sha256": "65632820bb5e3ad07234cabea57b0579f07f74bb805bf4beee55d8fbbc8e642f"
+          },
+          {
+            "path": "data/training/stock_linker_training.jsonl",
+            "bytes": 1073933,
+            "sha256": "c0dfe16bd9c786cd1299991c664638cf6ad2891ee065f7f51893ffade0d85541"
+          }
+        ],
+        "identity_row_count": 35732,
+        "rows_without_provenance_identity": 7688,
+        "group_key_count": 91131,
+        "identity_set_sha256": "2729a5cbd71a5b09210c6645870ef757bd75517b177353003a3a23bbb1ce2b24"
+      },
+      "evaluation_sets": {
+        "paths": [
+          {
+            "path": "data/evaluation/financial_alert_eval.jsonl",
+            "bytes": 220122,
+            "sha256": "7c9fb5bd00aa71dac92cd5d8f8abacf6b2abb713b91559c2d032586ccb728441"
+          },
+          {
+            "path": "data/evaluation/financial_alert_real_disclosure_gold.jsonl",
+            "bytes": 489358,
+            "sha256": "5ac524bf049621e87d93d7eb09cc6f1b0db8aa2520083dd5779543732c1ba45c"
+          },
+          {
+            "path": "data/evaluation/financial_alert_real_disclosure_stress_gold.jsonl",
+            "bytes": 254585,
+            "sha256": "ae2c34f75067ae84b27f9c182a6acda1a32c103056a1b52dbe1ebe7fbe76e7ce"
+          },
+          {
+            "path": "data/evaluation/financial_alert_real_news_gold.jsonl",
+            "bytes": 52115,
+            "sha256": "9579059fbbb65d69921f670465d37a4af8cf6e65b8a275a5b19971aaa025dcae"
+          },
+          {
+            "path": "data/evaluation/financial_alert_stock_review_gold.jsonl",
+            "bytes": 584036,
+            "sha256": "80ffcaa61dcbe7756dccd813a3195d1ff7f52237bfb307098a9f01e5923ede36"
+          },
+          {
+            "path": "data/evaluation/live_news_evaluation_batch.jsonl",
+            "bytes": 241130,
+            "sha256": "df437173eac9f1d320664e822e98b633cd6613de71ba400f0ea898a3a9b1642f"
+          },
+          {
+            "path": "data/evaluation/live_news_quality_audit.jsonl",
+            "bytes": 3263627,
+            "sha256": "4b3a13609263e06ea2ef85d8aab0f59bfdbbb075de0d27d51b06828f3696d2e3"
+          }
+        ],
+        "identity_row_count": 3358,
+        "rows_without_provenance_identity": 0,
+        "group_key_count": 7868,
+        "identity_set_sha256": "d5669a4821d74c604f814e4d5c83e7c3b144141901e6e8b5b0282d9992ce7f21"
+      }
+    }
+  },
+  "candidate_source_audit": {
+    "candidate_disclosure_negative": 4467,
+    "candidate_disclosure_neutral": 290502,
+    "candidate_disclosure_positive": 25959,
+    "candidate_news_negative": 25313,
+    "candidate_news_neutral": 309797,
+    "candidate_news_positive": 48898,
+    "eligible_candidates": 704936,
+    "excluded_quality_contract": 9639,
+    "excluded_without_unique_primary_entity": 533110,
+    "input_documents": 1247685,
+    "unique_primary_entities": 2724
+  },
+  "component_audit": {
+    "input_candidate_count": 704936,
+    "date_source_frame_document_count": 88988,
+    "date_source_frame_component_count": 77208,
+    "protected_component_count": 11528,
+    "protected_component_document_count": 14381,
+    "canonical_news_sampling_unit_count": 59134,
+    "canonical_disclosure_sampling_unit_count_before_cross_source_exclusion": 6546,
+    "disclosure_unit_count_excluded_by_news_selection": 0,
+    "canonical_disclosure_sampling_unit_count": 6546
+  },
+  "partitions": {
+    "PREVALENCE_SEALED_TEST_REVIEW": {
+      "source_type": "NEWS",
+      "sample_count": 600,
+      "output": {
+        "path": "data/curation/k_fnspid_sentiment/prevalence_sealed_test_review.jsonl",
+        "bytes": 968617,
+        "sha256": "2411b503eb4ba7fccae6c3995ce68e750433d3cf15846fc6fb578ab583ca042e"
+      },
+      "frame_sampling_unit_identity_set_sha256": "66dd7734e52de342f70385084b7afc588d34c6ea53a556e794803d17b9a76350",
+      "selected_sampling_unit_identity_set_sha256": "1ad7148df5963353cc7ad7c2c46c985b80a12a3c0d5a9ec0369f79a2bb5ef946",
+      "stock_count_observed_after_sampling": 228,
+      "strata": {
+        "NEGATIVE": {
+          "frame_N_h": 2862,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.06988120195667366,
+          "inclusion_probability_exact": "200/2862",
+          "analysis_weight": 14.31,
+          "analysis_weight_exact": "2862/200",
+          "frame_sampling_unit_identity_set_sha256": "c1011779d3f9faf5207cdedfa79cc18c44f0d12fd3debc858c3e8ff6a5177aed",
+          "selected_sampling_unit_identity_set_sha256": "a094145b371d3b6fb914d53a4301fc52e92b4e2b0453cacdb0bca4d3380bcd49"
+        },
+        "NEUTRAL": {
+          "frame_N_h": 48823,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.0040964299612887365,
+          "inclusion_probability_exact": "200/48823",
+          "analysis_weight": 244.115,
+          "analysis_weight_exact": "48823/200",
+          "frame_sampling_unit_identity_set_sha256": "6b108cbb000684cb92f77e910a1e37a15c6e1a36f484a8ecb3f154716a726d84",
+          "selected_sampling_unit_identity_set_sha256": "276ed5b01e143ffad25aaad8e473055654fc4fe257eba7161b7820f984bcad68"
+        },
+        "POSITIVE": {
+          "frame_N_h": 7449,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.026849241508927372,
+          "inclusion_probability_exact": "200/7449",
+          "analysis_weight": 37.245,
+          "analysis_weight_exact": "7449/200",
+          "frame_sampling_unit_identity_set_sha256": "379c5ce14646973bb793a68fb788ede403cb606f5ba9645afdc57d349bd16273",
+          "selected_sampling_unit_identity_set_sha256": "0d7cd443edb8d1d5f35cbf88f9d568fefc7aba1221fbeb7c0636af54eb473649"
+        }
+      }
+    },
+    "DISCLOSURE_PREVALENCE_SEALED_TEST_REVIEW": {
+      "source_type": "DISCLOSURE",
+      "sample_count": 600,
+      "output": {
+        "path": "data/curation/k_fnspid_sentiment/disclosure_prevalence_sealed_test_review.jsonl",
+        "bytes": 685383,
+        "sha256": "be82dfccb5dc44204052a705a3cd0bbb1ff41d87c7cc8632624c6923f768852e"
+      },
+      "frame_sampling_unit_identity_set_sha256": "85014d1d5911837d08b4cc33fde5491d4dd239623aa541edba92720c78bd4bef",
+      "selected_sampling_unit_identity_set_sha256": "2e95b4b2c6c0445c1dabb526e8ac57c2337667159ae13b12f88bddf19c21abbe",
+      "stock_count_observed_after_sampling": 496,
+      "strata": {
+        "NEGATIVE": {
+          "frame_N_h": 845,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.23668639053254437,
+          "inclusion_probability_exact": "200/845",
+          "analysis_weight": 4.225,
+          "analysis_weight_exact": "845/200",
+          "frame_sampling_unit_identity_set_sha256": "d7872e08a7116b340bb741dcc71a046030fe7bc4d6e75a3e9c6b955c03303147",
+          "selected_sampling_unit_identity_set_sha256": "bcd3f9837fb44c03bdf899c60e536485eb26b829a4a81d4dc3f2798141a97f92"
+        },
+        "NEUTRAL": {
+          "frame_N_h": 5182,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.0385951370127364,
+          "inclusion_probability_exact": "200/5182",
+          "analysis_weight": 25.91,
+          "analysis_weight_exact": "5182/200",
+          "frame_sampling_unit_identity_set_sha256": "85a1b13740347fca57dad04349dfec7bb53e45353a811b0a0d5bfa69b8512b95",
+          "selected_sampling_unit_identity_set_sha256": "25a3faaf248076adc1927d50b61c644f2b6e5d65dff23d2f2e5708325f767132"
+        },
+        "POSITIVE": {
+          "frame_N_h": 519,
+          "sample_n_h": 200,
+          "inclusion_probability": 0.3853564547206166,
+          "inclusion_probability_exact": "200/519",
+          "analysis_weight": 2.595,
+          "analysis_weight_exact": "519/200",
+          "frame_sampling_unit_identity_set_sha256": "7bb8ac0de8e9a35933042dff470c25e603ef455dfe35240c0e9ed75ea42459ed",
+          "selected_sampling_unit_identity_set_sha256": "6259803c79a2826da900d4036cdfdae4200551443fba5f18b20a9cc2b7448a5d"
+        }
+      }
+    }
+  }
+}

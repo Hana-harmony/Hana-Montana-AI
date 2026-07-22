@@ -1,0 +1,28 @@
+{
+  "completed_at": "2026-07-22T15:34:30+09:00",
+  "context_uuid": "a3db3aca-8e31-4209-8638-1e306b74c6fe",
+  "decision_path": "data/gold/review_v3_locked/confirmatory-disclosure/reviewer-2/decision.jsonl",
+  "decision_row_count": 600,
+  "decision_sha256": "e98fce9056cd624966d087e5b4d90dc86019f8c484219cf93c0d7f5809c34118",
+  "independence_declaration": "후보 모델, teacher, 기존 reviewer 및 다른 라벨 산출물을 열거나 검색하지 않고 지정된 원본과 프롬프트만 검수함",
+  "input_path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+  "input_row_count": 600,
+  "input_row_range": [
+    1,
+    600
+  ],
+  "input_sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd",
+  "label_distribution": {
+    "NEGATIVE": 148,
+    "NEUTRAL": 286,
+    "POSITIVE": 166
+  },
+  "model_name": "OpenAI Codex GPT-5.4",
+  "prompt_path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+  "prompt_sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5",
+  "review_status": "CODEX_REVIEW_APPROVED",
+  "reviewer_id": "CODEX_REVIEWER_2_LOCKED_V3",
+  "run_uuid": "ddb83de4-1f00-483e-aa06-b16cbcac68da",
+  "schema_version": "k-fnspid-sentiment-review-receipt/v1",
+  "source_type": "DISCLOSURE"
+}

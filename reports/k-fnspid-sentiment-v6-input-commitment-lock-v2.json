@@ -1,0 +1,77 @@
+{
+  "schema_version": "k-fnspid-sentiment-v6-input-commitment-lock/v2",
+  "status": "LOCKED",
+  "generated_at": "2026-07-17T00:45:03+00:00",
+  "reason": "이중 블라인드 검수와 미해결 판정 제외를 반영한 최신 Gold 승격 산출물로 입력 commitment를 재잠금했다.",
+  "gold_inputs": {
+    "primary_news": {
+      "path": "data/training/k_fnspid_sentiment_codex_gold_review_v3.jsonl",
+      "rows": 596,
+      "sha256": "c9afa4a75ea43e23c2826b898a96e462d5865d24af5f05f905d5dac3e8c857a7",
+      "provenance_manifest_sha256": "de1c94ea3c4e52e2d792939baa63a3002270462e19494362543a1c50b9a696fc"
+    },
+    "auxiliary_news": {
+      "path": "data/training/k_fnspid_news_sentiment_auxiliary_gold_review_v4.jsonl",
+      "rows": 598,
+      "sha256": "9e3fe17a79f9baf11ad118e14dbbb1a83f0d2af370d2d9d44d92c3a817962e01",
+      "provenance_manifest_sha256": "b10660f3348bf72fa9a224d8550c0c9a2e5994d0ad48f0044bfc355ca13345dc"
+    },
+    "auxiliary_disclosure": {
+      "path": "data/training/k_fnspid_disclosure_sentiment_auxiliary_gold_review_v4.jsonl",
+      "rows": 600,
+      "sha256": "9166f4f0862aa4ee50e05b267d4627a41febc2dbe736915e4db204bf5a84eacd",
+      "provenance_manifest_sha256": "4d550db3a5ae4dae7e53126798bf0e4cd6e5bdaba864a3257e17b0aa1fc494f7"
+    },
+    "development_news": {
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold_review_v3.jsonl",
+      "rows": 448,
+      "sha256": "722cb35ba0315efe2c30b55d6b44afa7fbe53829287441975260f45800cf772a",
+      "provenance_manifest_sha256": "43b250210335cc7f6fbe670ba5fea89d11890d222638903de3865acb40dd6cec"
+    },
+    "development_disclosure": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold_review_v3.jsonl",
+      "rows": 447,
+      "sha256": "00972a9cc563ee85d72892f04662f2cf78a6a76abb581f2cf29ee987d6d56190",
+      "provenance_manifest_sha256": "e96512ea98fe07daf1c47e7af7424720cbefc91bac928536949e4c5874b93d26"
+    }
+  },
+  "prepared_partition_commitments": {
+    "TRAIN": {
+      "row_count": 32907,
+      "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+    },
+    "CHECKPOINT": {
+      "row_count": 911,
+      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+    },
+    "CALIBRATION": {
+      "row_count": 455,
+      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+    },
+    "SELECTION": {
+      "row_count": 461,
+      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+    },
+    "NEWS_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+    },
+    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+    }
+  },
+  "independent_review": {
+    "reviewer": "gold_train_s1_0001_0100",
+    "method": "기존 EXPECTED 상수를 사용하지 않은 deterministic partition 재계산",
+    "actual_commitments_match": true,
+    "all_gold_provenance_verified": true,
+    "all_15_partition_pair_group_overlaps": 0,
+    "confirmatory_labels_opened": false,
+    "decision": "APPROVED_FOR_SOURCE_LOCK"
+  },
+  "claim_limitations": [
+    "입력 무결성 잠금은 모델 성능 개선을 의미하지 않는다.",
+    "confirmatory 성능은 후보와 baseline을 잠근 뒤 별도 평가한다."
+  ]
+}

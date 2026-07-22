@@ -1,0 +1,155 @@
+{
+  "schema_version": "k-fnspid-v6-fair-shared-residual-baseline-artifact/v2",
+  "model_family": "kr-finbert-sc-shared-residual-same-data-schedule/v2",
+  "version": "kr-finbert-sc-k-fnspid-source-hierarchical-v6-seed42-20260718065025",
+  "base_model": "snunlp/KR-FinBert-SC",
+  "base_model_revision": "36b3d36898bc9925ca58c3508b1048e4449f1370",
+  "label_order": [
+    "NEGATIVE",
+    "NEUTRAL",
+    "POSITIVE"
+  ],
+  "prepared_partition_commitments": {
+    "TRAIN": {
+      "row_count": 32907,
+      "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+    },
+    "CHECKPOINT": {
+      "row_count": 911,
+      "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+    },
+    "CALIBRATION": {
+      "row_count": 455,
+      "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+    },
+    "SELECTION": {
+      "row_count": 461,
+      "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+    },
+    "NEWS_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+    },
+    "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+      "row_count": 600,
+      "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+    }
+  },
+  "candidate_matching_contract": {
+    "schema_version": "kr-finbert-sc-v6-candidate-matching-contract/v1",
+    "candidate_trainer": "scripts/train_kf_deberta_sentiment_v6.py",
+    "prepared_partition_commitments": {
+      "TRAIN": {
+        "row_count": 32907,
+        "sha256": "952770420702aa1ee5a84e687bda9aac574da4a7db7af8ec84e9772aaba4a15c"
+      },
+      "CHECKPOINT": {
+        "row_count": 911,
+        "sha256": "a623918c406ead7a6e3b4f8a454a52fa46f8eb4daa3d4a0862fd5dcd8b3f95ab"
+      },
+      "CALIBRATION": {
+        "row_count": 455,
+        "sha256": "e88c34659d10f7bb7b52796a8e48f313d6324d3b6726798c04834cc8a3a10794"
+      },
+      "SELECTION": {
+        "row_count": 461,
+        "sha256": "09073e3677fbde1c995cc11f082ad2e69c8c8fb7de60f5e49d1f11dff1174d5c"
+      },
+      "NEWS_CONFIRMATORY_RESERVATION": {
+        "row_count": 600,
+        "sha256": "66c517a7a08a6fd94dc5123dc11d2933ee8dc023531f08709fbc2cc58c098741"
+      },
+      "DISCLOSURE_CONFIRMATORY_RESERVATION": {
+        "row_count": 600,
+        "sha256": "bc4b77b79690ee9567483462a8a9722e371d374717278df4e39112f9729d40cc"
+      }
+    },
+    "input_artifacts_sha256": "369357d30e8a6943adabe1a45c7fab8ec1d53f331ec0c0e0db7eb65185f25e75",
+    "configured_schedule": {
+      "stage1_epochs": 2,
+      "stage2_epochs": 4,
+      "batch_size": 8,
+      "eval_batch_size": 16,
+      "gradient_accumulation_steps": 2,
+      "gradient_checkpointing": true,
+      "optimizer": "AdamW",
+      "scheduler": "cosine-with-8pct-warmup",
+      "checkpoint_and_stopping_rule": "fixed-full-epoch; best-in-stage-checkpoint-selected"
+    },
+    "planned_optimizer_steps": {
+      "stage1": 4114,
+      "stage2": 452,
+      "total": 4566
+    },
+    "executed_optimizer_steps": {
+      "stage1": 4114,
+      "stage2": 452,
+      "total": 4566
+    },
+    "matching_semantics": {
+      "same_raw_source_rows": true,
+      "same_group_disjoint_partitions": true,
+      "same_data_selection_seed": true,
+      "same_model_seed_set": true,
+      "same_target_aware_input": true,
+      "same_source_hierarchical_task_loss_calibration_selection": true,
+      "same_schedule_implementation_and_configured_rule": true,
+      "planned_equals_executed_optimizer_steps": true
+    }
+  },
+  "runtime_loader_contract": {
+    "schema_version": "kr-finbert-sc-shared-residual-runtime-loader/v2",
+    "encoder_path": "encoder",
+    "heads_path": "source_hierarchical_residual_heads.safetensors",
+    "tokenizer_source": "artifact-root",
+    "domain_order": [
+      "NEWS_UNTARGETED",
+      "NEWS_TARGETED",
+      "DISCLOSURE_TARGETED"
+    ],
+    "label_order": [
+      "NEGATIVE",
+      "NEUTRAL",
+      "POSITIVE"
+    ],
+    "domain_required": true,
+    "unknown_domain_behavior": "FAIL_CLOSED",
+    "head_architecture": {
+      "version": "shared-hierarchical-zero-residual/v2",
+      "anchor_domain": "NEWS_UNTARGETED",
+      "residual_domains": [
+        "NEWS_TARGETED",
+        "DISCLOSURE_TARGETED"
+      ],
+      "residual_initialization": "EXACT_ZERO",
+      "known_untrained_domain_fallback": "SHARED_HEAD_ZERO_RESIDUAL",
+      "unknown_domain_behavior": "FAIL_CLOSED"
+    },
+    "pooling": "last_hidden_state_cls",
+    "calibration": {
+      "NEWS_UNTARGETED": {
+        "temperature": 1.05,
+        "neutral_threshold": 0.6,
+        "sample_count": 233,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      },
+      "NEWS_TARGETED": {
+        "temperature": 1.2,
+        "neutral_threshold": 0.4,
+        "sample_count": 111,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      },
+      "DISCLOSURE_TARGETED": {
+        "temperature": 1.15,
+        "neutral_threshold": 0.6,
+        "sample_count": 111,
+        "fit_status": "CALIBRATION_ONLY_SEQUENTIAL_1D_SHRUNK"
+      }
+    },
+    "input_feature_version": "source-target-prefix-head-tail/v2",
+    "max_length": 256
+  },
+  "recipe_commitment_sha256": "5c37e388b44e82c7b1f0329a503c4f727f5d933ce86da4b471be3cd58ec396d2",
+  "selected_stage": "STAGE2_GOLD_CLEAN_HEADS_ONLY",
+  "trained_at": "2026-07-18T06:50:25.128614+00:00"
+}

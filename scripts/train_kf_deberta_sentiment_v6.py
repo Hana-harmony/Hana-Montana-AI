@@ -1,3 +1,6 @@
+# 직접 실행을 지원하기 위해 프로젝트 경로 등록 후 런타임 의존성을 가져온다.
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import argparse

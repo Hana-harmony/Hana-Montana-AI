@@ -74,7 +74,7 @@
 | Real news Gold | 80 | 0.9184 | 0.9875 | 0.9000 | 0.9500 | 1.0000 |
 | Stock review Gold | 500 | 0.7110 | 0.9280 | 0.7880 | 0.8060 | 0.9900 |
 
-정규화 중복·충돌과 분할 간 중복을 제거한 공개 Test 932건에서 잠근 KF-DeBERTa LoRA는 accuracy 0.8852 / macro F1 0.8849, 기존 Hana TF-IDF는 0.4775 / 0.4415, `snunlp/KR-FinBERT-SC`는 0.7361 / 0.7266이다. KR-FinBERT-SC 대비 Macro-F1 차이의 paired bootstrap 95% CI는 `[0.1265, 0.1899]`이고 McNemar `p=9.81e-19`다. 그러나 이 Test는 과거 반복 조회되었으므로 독립 SOTA 근거가 아니다. 실제 공시 Gold 600건은 0.9150 / 0.8084, 뉴스 Gold 80건은 0.8625 / 0.8308이며 뉴스 accuracy gate 실패로 신규 후보를 배포하지 않는다.
+과거 잠금 LoRA는 반복 조회된 공개 Test 932건에서 accuracy 0.8852 / macro F1 0.8849였지만 회귀 진단으로만 보존한다. 신규 v6는 K-FNSPID 보호 연결요소를 제외한 1,118,291문서·62,468,526 토큰 FP32 DAPT, all-12 rank-16 LoRA, 공유·출처 residual head, receipt-bound 학습 Gold 1,794건과 개발 Gold 895건으로 재구축했다. 원격 잠금 뒤 NEWS·DISCLOSURE 각 600건을 one-shot 평가한 층화가중 Accuracy/Macro-F1은 0.7503/0.5530, 0.8646/0.6024다. 공정 full-FT KR-FinBERT-SC의 가중 Macro-F1은 0.5771, 0.5647이며 원본 KR-FinBERT-SC는 0.4937, 0.6146이다. 후보는 절대 성능·두 출처 비회귀·Holm 우월성 gate를 모두 충족하지 못해 미승격했고 운영 모델은 유지한다.
 
 공시 의미 중요도는 제목·요약·전문 뷰를 같은 시간 분할로 비교한 뒤 Gold를 보지 않고 제목+요약을 선택한다. 모델 단독 기본 Gold 600건은 accuracy 0.9850 / macro F1 0.9470이고, 존속위험 코드북 floor를 포함한 운영 파이프라인은 기본·스트레스 Gold 910건에서 0.9989 / 0.9962다. 시장영향은 의미 중요도 등급과 confidence를 변경하지 않으며 `market_impact_importance`, `market_impact_score`, `market_impact_confidence`로 별도 반환한다.
 
@@ -90,12 +90,12 @@
 - K-FNSPID report: `reports/k-fnspid-impact-training-report.json`
 - KF-DeBERTa 감성 artifact: `src/hannah_montana_ai/model_store/kf_deberta_sentiment/`
 - KF-DeBERTa 학습 report: `reports/kf-deberta-sentiment-training-report.json`
-- 금융 감성 SOTA 비교: `reports/korean-finance-sentiment-benchmark.json`
+- 금융 감성 확증 비교: `reports/korean-finance-sentiment-benchmark-v4.json`
 - SOTA report: `reports/financial-alert-sota-benchmark.json`
 
 ## 한계
 - Stock review gold에서 희소 이벤트 라벨 macro F1이 낮다.
-- 감성은 공개 균형 재현 Test에서 기존 모델과 KR-FinBERT-SC를 크게 상회하지만 과거 Test 반복 사용과 실제 뉴스 Gold gate 실패 때문에 독립 SOTA 또는 신규 배포 우위로 주장하지 않는다.
-- 운영 Gold는 뉴스 80건·공시 600건으로 확대했지만 단일 Codex 검수이므로 독립 다중 평가자 합의를 대신하지 않는다.
+- 과거 공개 Test 수치는 반복 사용됐으므로 신규 후보 선택·확증 유의성·SOTA 근거로 사용하지 않는다.
+- 새 감성 Gold는 이중 review·adjudication·receipt를 갖추었지만 검수 주체가 AI context이므로 독립 인간 금융전문가 타당도를 대체하지 않는다.
 - 운영 로그 기반 gold 확장과 라벨별 calibration 보강이 필요하다.
 - K-FNSPID 시장영향은 텍스트로 미래 가격 충격을 예측하는 불확실성이 크므로 의미 기반 중요도를 대체하지 않고 보조 신호로만 사용한다.

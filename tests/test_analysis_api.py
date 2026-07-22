@@ -2,15 +2,21 @@ import json
 import logging
 import urllib.error
 import urllib.request
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
+import hannah_montana_ai.main as main_module
 from hannah_montana_ai.api import routes
 from hannah_montana_ai.api.routes import get_analyzer, get_audit_logger
 from hannah_montana_ai.core.config import Settings, get_settings
-from hannah_montana_ai.main import _translation_provider_ready, app
-from hannah_montana_ai.services.model import ModelArtifactNotFoundError
+from hannah_montana_ai.main import _sentiment_release_ready, _translation_provider_ready, app
+from hannah_montana_ai.services.model import (
+    ModelArtifactInvalidError,
+    ModelArtifactNotFoundError,
+)
 
 
 def test_analyze_alert_returns_financial_labels() -> None:
@@ -354,6 +360,80 @@ def test_readiness_detects_unavailable_translation_provider(
         )
         is False
     )
+
+
+def test_readiness_fails_closed_for_invalid_configured_sentiment_release(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    current = tmp_path / "releases/sentiment/current.json"
+    current.parent.mkdir(parents=True)
+    current.write_text("{}\n", encoding="utf-8")
+
+    def invalid_release() -> object:
+        raise ModelArtifactInvalidError("tampered release")
+
+    monkeypatch.setattr(main_module, "get_analyzer", invalid_release)
+
+    assert not _sentiment_release_ready(
+        Settings(
+            runtime_environment="test",
+            sentiment_release_current_path=current,
+        )
+    )
+
+
+def test_readiness_requires_enabled_versioned_sentiment_release(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    current = tmp_path / "releases/sentiment/current.json"
+    current.parent.mkdir(parents=True)
+    current.write_text("{}\n", encoding="utf-8")
+    analyzer = SimpleNamespace(
+        sentiment_transformer=SimpleNamespace(enabled=True, release_id="release-v2")
+    )
+    monkeypatch.setattr(main_module, "get_analyzer", lambda: analyzer)
+
+    assert _sentiment_release_ready(
+        Settings(
+            runtime_environment="test",
+            sentiment_release_current_path=current,
+        )
+    )
+
+
+def test_production_sentiment_release_environment_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("HANNAH_RUNTIME_ENVIRONMENT", "production")
+    monkeypatch.setenv(
+        "HANNAH_SENTIMENT_RELEASE_CURRENT_PATH", "/app/releases/sentiment/current.json"
+    )
+    monkeypatch.setenv("HANNAH_PROJECT_ROOT", "/app")
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_ATTESTATION_MODE", "dsse-ed25519-v1")
+    monkeypatch.setenv(
+        "HANNAH_SENTIMENT_RELEASE_PUBLIC_KEY_PATH",
+        "/run/secrets/sentiment-release-public-key.pem",
+    )
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_SIGNER_KEY_ID", "a" * 64)
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_EXPECTED_ID", "sentiment-release-v2")
+    monkeypatch.setenv("HANNAH_SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT", "b" * 40)
+
+    settings = Settings()
+
+    assert settings.runtime_environment == "production"
+    assert settings.sentiment_release_current_path == Path(
+        "/app/releases/sentiment/current.json"
+    )
+    assert settings.sentiment_release_project_root == Path("/app")
+    assert settings.sentiment_release_attestation_mode == "dsse-ed25519-v1"
+    assert settings.sentiment_release_public_key_path == Path(
+        "/run/secrets/sentiment-release-public-key.pem"
+    )
+    assert settings.sentiment_release_signer_key_id == "a" * 64
+    assert settings.sentiment_release_expected_id == "sentiment-release-v2"
+    assert settings.sentiment_release_expected_git_commit == "b" * 40
 
 
 def test_openapi_docs_expose_analysis_contract() -> None:

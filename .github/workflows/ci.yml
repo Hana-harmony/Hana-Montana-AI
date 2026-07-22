@@ -33,12 +33,39 @@ jobs:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: uv run python scripts/verify_message_conventions.py --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA"
+      - name: 하네스 Git 흐름 검사
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: >-
+          uv run python scripts/verify_harness_git_flow.py
+          --base-ref "$PR_BASE_SHA"
+          --pr-base "$PR_BASE_REF"
+          --head-ref "$PR_HEAD_REF"
       - name: 정적 검사
         run: uv run ruff check . && uv run mypy
       - name: 보안 검사
         run: uv run bandit -c pyproject.toml -r src
       - name: 시크릿 hygiene 검사
         run: uv run python scripts/verify_secret_hygiene.py
+      - name: 활성 감성 릴리스 공급망 검사
+        env:
+          SENTIMENT_BASE_MODEL_PATH: ${{ vars.HANNAH_SENTIMENT_CI_BASE_MODEL_PATH }}
+        run: |
+          if [[ -e releases/sentiment/current.json || -L releases/sentiment/current.json ]]; then
+            POINTER_SCHEMA="$(python -c 'import json; print(json.load(open("releases/sentiment/current.json", encoding="utf-8"))["schema_version"])')"
+            if [[ "${POINTER_SCHEMA}" == hana-sentiment-release-pointer/v1 ]]; then
+              : "${SENTIMENT_BASE_MODEL_PATH:?v1 릴리스 검증용 base model 경로가 필요합니다}"
+              uv run python scripts/verify_sentiment_release.py \
+                --base-model-runtime-path /app/models/kf-deberta-base \
+                --base-model-verification-path "${SENTIMENT_BASE_MODEL_PATH}"
+            else
+              uv run python scripts/verify_sentiment_release.py \
+                --base-model-runtime-path /release-tree-bound-v6
+            fi
+          fi
       - name: 테스트
         run: uv run pytest
 
@@ -63,6 +90,10 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           MAINTENANCE_TOKEN: ${{ secrets.HANNAH_AI_MAINTENANCE_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
+          SENTIMENT_RELEASE_PUBLIC_KEY_PEM: ${{ secrets.HANNAH_SENTIMENT_RELEASE_PUBLIC_KEY_PEM }}
+          SENTIMENT_RELEASE_SIGNER_KEY_ID: ${{ secrets.HANNAH_SENTIMENT_RELEASE_SIGNER_KEY_ID }}
+          SENTIMENT_RELEASE_EXPECTED_ID: ${{ secrets.HANNAH_SENTIMENT_RELEASE_EXPECTED_ID }}
+          SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT: ${{ secrets.HANNAH_SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT }}
         run: |
           : "${PROD_HOST:?}"
           : "${PROD_USER:?}"
@@ -72,7 +103,15 @@ jobs:
           : "${GHCR_TOKEN:?}"
           : "${MAINTENANCE_TOKEN:?}"
           : "${DISCORD_WEBHOOK:?}"
+          : "${SENTIMENT_RELEASE_PUBLIC_KEY_PEM:?}"
+          : "${SENTIMENT_RELEASE_SIGNER_KEY_ID:?}"
+          : "${SENTIMENT_RELEASE_EXPECTED_ID:?}"
+          : "${SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT:?}"
           [[ "${DISCORD_WEBHOOK}" == https://discord.com/api/webhooks/* ]]
+          [[ "${SENTIMENT_RELEASE_PUBLIC_KEY_PEM}" == *"BEGIN PUBLIC KEY"* ]]
+          [[ "${SENTIMENT_RELEASE_SIGNER_KEY_ID}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${SENTIMENT_RELEASE_EXPECTED_ID}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,239}$ ]]
+          [[ "${SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT}" =~ ^[0-9a-f]{40}$ ]]
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
       - name: 이미지 이름 설정
         run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
@@ -100,13 +139,26 @@ jobs:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           DISCORD_WEBHOOK: ${{ secrets.HANNAH_DISCORD_WEBHOOK_URL }}
+          SENTIMENT_RELEASE_PUBLIC_KEY_PEM: ${{ secrets.HANNAH_SENTIMENT_RELEASE_PUBLIC_KEY_PEM }}
+          SENTIMENT_RELEASE_SIGNER_KEY_ID: ${{ secrets.HANNAH_SENTIMENT_RELEASE_SIGNER_KEY_ID }}
+          SENTIMENT_RELEASE_EXPECTED_ID: ${{ secrets.HANNAH_SENTIMENT_RELEASE_EXPECTED_ID }}
+          SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT: ${{ secrets.HANNAH_SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT }}
         run: |
+          printf '%s\n' "${SENTIMENT_RELEASE_PUBLIC_KEY_PEM}" > sentiment-release-public-key.pem
           printf '%s\n' \
             'HANNAH_KOREAN_TRANSLATION_LLM_ENDPOINT=http://hannah-qwen:8080' \
             'HANNAH_KOREAN_TRANSLATION_LLM_TIMEOUT_SECONDS=300' \
             'HANNAH_KOREAN_TRANSLATION_LLM_MAX_TOKENS=2048' \
             'HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY=2' \
             'HANNAH_RUNTIME_ENVIRONMENT=production' \
+            'HANNAH_PROJECT_ROOT=/app' \
+            'HANNAH_SENTIMENT_BASE_MODEL_PATH=/app/models/kf-deberta-base' \
+            'HANNAH_SENTIMENT_RELEASE_CURRENT_PATH=/app/releases/sentiment/current.json' \
+            'HANNAH_SENTIMENT_RELEASE_ATTESTATION_MODE=dsse-ed25519-v1' \
+            'HANNAH_SENTIMENT_RELEASE_PUBLIC_KEY_PATH=/run/secrets/sentiment-release-public-key.pem' \
+            "HANNAH_SENTIMENT_RELEASE_SIGNER_KEY_ID=${SENTIMENT_RELEASE_SIGNER_KEY_ID}" \
+            "HANNAH_SENTIMENT_RELEASE_EXPECTED_ID=${SENTIMENT_RELEASE_EXPECTED_ID}" \
+            "HANNAH_SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT=${SENTIMENT_RELEASE_EXPECTED_GIT_COMMIT}" \
             "HANNAH_AI_MAINTENANCE_TOKEN=${MAINTENANCE_TOKEN}" \
             "HANNAH_DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK}" \
             > application.env
@@ -116,10 +168,11 @@ jobs:
             "GHCR_TOKEN=${GHCR_TOKEN}" \
             > deploy.env
           chmod 600 application.env deploy.env
+          chmod 444 sentiment-release-public-key.pem
       - name: OCI 운영 배포
         run: |
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'sudo install -d -o "$(id -un)" -g "$(id -gn)" -m 700 /opt/hannah-montana-ai'
-          scp -i ~/.ssh/prod_key application.env deploy.env scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
+          scp -i ~/.ssh/prod_key application.env deploy.env sentiment-release-public-key.pem scripts/deploy-prod.sh scripts/bootstrap-host.sh scripts/bootstrap-qwen.sh scripts/download-qwen-model.sh deploy/compose/hannah-qwen.yml deploy/nginx/hannah-montana-ai.conf '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/opt/hannah-montana-ai/'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-host.sh && /opt/hannah-montana-ai/bootstrap-host.sh'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/bootstrap-qwen.sh /opt/hannah-montana-ai/download-qwen-model.sh && /opt/hannah-montana-ai/bootstrap-qwen.sh'
           ssh -i ~/.ssh/prod_key '${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}' 'chmod 700 /opt/hannah-montana-ai/deploy-prod.sh && /opt/hannah-montana-ai/deploy-prod.sh'

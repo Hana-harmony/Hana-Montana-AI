@@ -1,0 +1,196 @@
+{
+  "schema_version": "k-fnspid-dapt-inventory-oracle-review/v2",
+  "status": "APPROVED_PENDING_SOURCE_LOCK",
+  "reviewed_at": "2026-07-16T15:30:22.513607+00:00",
+  "reviewer_id": "codex:dapt-inventory-independent-review-20260717",
+  "derivation_actor_id": "codex:dapt-inventory-derivation-v2",
+  "review_note": "AllPairs 완전성, 전이 폐쇄, 보호 purge, train-validation zero-overlap, 결정적 재산출, 성능·메모리를 독립 검토함",
+  "derivation_report": {
+    "path": "reports/k-fnspid-v4-dapt-inventory-oracle-derivation-v2.json",
+    "bytes": 52999,
+    "sha256": "da45d85da2723b59e7ec59b50fa02420a1fd3c4edbb5924d465835d80cc0be00"
+  },
+  "input_artifacts": {
+    "documents": {
+      "path": "data/k_fnspid/v4/documents.parquet",
+      "bytes": 274855211,
+      "sha256": "045fb260f2145345f81f76f381d2631e884a1cbc8d6208758702b4564f582e03"
+    },
+    "dataset_manifest": {
+      "path": "data/k_fnspid/v4/manifest.json",
+      "bytes": 12648,
+      "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+    },
+    "protected_k_fnspid_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold.jsonl",
+      "bytes": 2011168,
+      "sha256": "f433e4cdc5372594d54de19083519278aae51b0385e310410b2e738d4c7d0f55"
+    },
+    "protected_k_fnspid_disclosure_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold.jsonl",
+      "bytes": 1842451,
+      "sha256": "8527d567c303d91c45d6e1dbe55a28e7725bef8bfb28f60f7962016c071c1e07"
+    },
+    "protected_confirmatory_sealed_test_review": {
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "bytes": 969809,
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "protected_disclosure_confirmatory_sealed_test_review": {
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "bytes": 680705,
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "base_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/config.json",
+      "bytes": 865,
+      "sha256": "4cba21a6fb53b5d75e2b7af83756eeb6d5e8a471164130999be395e1b8ff0848"
+    },
+    "base_pytorch_model.bin": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/pytorch_model.bin",
+      "bytes": 745694717,
+      "sha256": "3cd6cd7811b3c9190e97cae7eb41571c2bc0076431baae7d41d449a8c1c18c6c"
+    },
+    "base_special_tokens_map.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/special_tokens_map.json",
+      "bytes": 173,
+      "sha256": "311de3f4eed9d76a43bf0d71f10e62e086ca65ccce9f15d5da0d2098bf519ecc"
+    },
+    "base_tokenizer.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer.json",
+      "bytes": 3972816,
+      "sha256": "915388090e2d63e3869c54b5334d6005e453a51de12088d908175dd765fd8372"
+    },
+    "base_tokenizer_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer_config.json",
+      "bytes": 374,
+      "sha256": "d9273237da0f2143974a8eccdc50a733fcda064528299f7295e6434226cdbda1"
+    },
+    "base_vocab.txt": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/vocab.txt",
+      "bytes": 1090394,
+      "sha256": "f0b8ae70418060f22ec301511a6337ad49a7fb0f60a8bf9091b373aba9c0c3e0"
+    }
+  },
+  "oracle_recipe_artifacts": {
+    "pyproject": {
+      "path": "pyproject.toml",
+      "bytes": 1677,
+      "sha256": "b55742ccce4dd9d6637d7686dc41fb737ac794bb16844f911b158ac608ed953f"
+    },
+    "uv_lock": {
+      "path": "uv.lock",
+      "bytes": 644077,
+      "sha256": "0c1a5604adc8ce7d85fe2da01a4c4bafb37e145e9c647d024b46d32b0e59306c"
+    },
+    "trainer_semantic_without_oracle_values": {
+      "path": "scripts/train_k_fnspid_dapt.py",
+      "bytes": 243629,
+      "sha256": "c6fc54db00dd8e7942f74f39f678086d83484cc252fc6f247dab33dca04a93c7"
+    },
+    "sentiment_protocol": {
+      "path": "src/hannah_montana_ai/training/sentiment_protocol.py",
+      "bytes": 14783,
+      "sha256": "96c7ce7c85ec8f29c1feb4e9d3ddb4a20c6ec64c103bd456896ff828aeabb576"
+    }
+  },
+  "oracle_software_fingerprint": {
+    "python": "3.12.13",
+    "unicode_database": "15.0.0",
+    "transformers": "5.13.1",
+    "tokenizers": "0.22.2",
+    "huggingface_hub": "1.21.0",
+    "pyarrow": "23.0.1",
+    "numpy": "2.4.6"
+  },
+  "candidate_expected_counts": {
+    "source_document_count": {
+      "NEWS": 524696,
+      "DISCLOSURE": 722989
+    },
+    "raw_cutoff_count": {
+      "NEWS": 419969,
+      "DISCLOSURE": 699813
+    },
+    "protected_component_document_count": 2826,
+    "protected_key_count": {
+      "document_id": 2826,
+      "canonical_url": 2679,
+      "content_hash": 2826,
+      "event_cluster_id": 2346,
+      "normalized_exact_text_hash": 2243
+    },
+    "purged_cutoff_count": {
+      "NEWS": 709,
+      "DISCLOSURE": 782
+    },
+    "eligible_count": {
+      "NEWS": 419260,
+      "DISCLOSURE": 699031
+    },
+    "split_count": {
+      "TRAIN": {
+        "NEWS": 415197,
+        "DISCLOSURE": 692015
+      },
+      "VALIDATION": {
+        "NEWS": 4063,
+        "DISCLOSURE": 7016
+      }
+    },
+    "eligible_component_count": 967550,
+    "duplicate_key_audit": {
+      "document_id": {
+        "eligible_duplicate_key_count": 0,
+        "train_only": 0,
+        "validation_only": 0,
+        "cross_split": 0
+      },
+      "canonical_url": {
+        "eligible_duplicate_key_count": 23597,
+        "train_only": 23391,
+        "validation_only": 206,
+        "cross_split": 0
+      },
+      "content_hash": {
+        "eligible_duplicate_key_count": 0,
+        "train_only": 0,
+        "validation_only": 0,
+        "cross_split": 0
+      },
+      "event_cluster_id": {
+        "eligible_duplicate_key_count": 57673,
+        "train_only": 57129,
+        "validation_only": 544,
+        "cross_split": 0
+      },
+      "normalized_exact_text_hash": {
+        "eligible_duplicate_key_count": 3837,
+        "train_only": 3816,
+        "validation_only": 21,
+        "cross_split": 0
+      }
+    }
+  },
+  "candidate_expected_hashes": {
+    "protected_key_set": "dc2d8749bb38826b405c893545722ec2bb968feb734b7e5ff3df93be515f5be8",
+    "eligible_ordered_document_ids": "09532e7d1e244e7e4c1a0a2a4c768b16d411cfba2ec1e691e9c95589cb05d09d",
+    "split_jsonl": "eb5fb296b8373e484ea25440ce2f3a637b2576b3066e73b593ffc13ee1a05342",
+    "row_assignments": "71b074d3ce597e2ea3ec2b76c5e4b05b4c4ebc852b523e1599d897e0f98f5176",
+    "exact_text_gate_audit": "0f079632cb9d02b46984b32e4b44edc6b6cefaab2eb103fa09b79ba5ef2de960",
+    "component_size_audit": "fe3ef7f345c5ea2684ba9b6e10c13f011da659e4da51d72014ba7659f2a233d0",
+    "fuzzy_near_duplicate_audit": "7151806bd337002dabde1b7243ced7ebe11148b76108e1c917d3d361d30331e3",
+    "allowed_random_token_ids": "ef31b0efc4cf81b95b596441d6e51732df68ead153ed8bce1d9499f8b13d273a"
+  },
+  "candidate_sha256": "24e678aee83dcde4b3ad7d74d5d22a14b6198ed957c80b27eb007c9d6922240d",
+  "review_checklist": {
+    "source_and_protected_hashes_verified": true,
+    "allpairs_candidate_completeness_reviewed": true,
+    "bruteforce_property_test_reviewed": true,
+    "cross_source_and_transitive_union_reviewed": true,
+    "protected_and_train_validation_zero_overlap_reviewed": true,
+    "performance_and_memory_reviewed": true,
+    "no_downstream_artifact_promoted": true
+  },
+  "independent_review_declared": true
+}

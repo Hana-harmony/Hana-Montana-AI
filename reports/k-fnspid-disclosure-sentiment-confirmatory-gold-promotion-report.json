@@ -1,0 +1,2446 @@
+{
+  "artifacts": {
+    "codex_decisions_input": "data/gold/review_v3_locked/confirmatory-disclosure/final.jsonl",
+    "gold_output": "data/evaluation/k_fnspid_disclosure_sentiment_confirmatory_sealed_gold.jsonl",
+    "review_input": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+    "review_prompt_input": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+    "review_provenance_input": "data/gold/review_v3_locked/confirmatory-disclosure/dual-review-manifest.json",
+    "teacher_silver_input": "data/curation/k_fnspid_sentiment/locked_v3_disclosure_qwen_silver.jsonl"
+  },
+  "coverage": {
+    "document_count": 600,
+    "effective_trade_date_max": "2026-07-13",
+    "effective_trade_date_min": "2026-04-03",
+    "event_count": 600,
+    "partition_distribution": {
+      "DISCLOSURE_CONFIRMATORY_SEALED_TEST_REVIEW": 600
+    },
+    "provider_count": 1,
+    "provider_distribution": {
+      "UNKNOWN": 600
+    },
+    "published_at_kst_max": "2026-07-13T00:00:00+09:00",
+    "published_at_kst_min": "2026-04-03T00:00:00+09:00",
+    "source_type_count": 1,
+    "source_type_distribution": {
+      "DISCLOSURE": 600
+    },
+    "stock_count": 480,
+    "year_distribution": {
+      "2026": 600
+    }
+  },
+  "file_sha256": {
+    "codex_decisions_input": "deaa0b5222ef2a9471ec6832b9bb6327c0f087a9235dd20148a7bdd9bb7d349f",
+    "gold_output": "7ec15bc15d5c5cf7f45d7537498cb5f90d50380bf031cb3ac9fb35c007f74f2b",
+    "review_input": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd",
+    "review_prompt_input": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5",
+    "review_provenance_input": "201c1e2595c29370969660be522ee5d404d0a83d9797e592e7bf04e7ee327954",
+    "teacher_silver_input": "5c051e518780b2de2566057ed75d6989414a6cf03975f301c14973856c382e48"
+  },
+  "generated_at_utc": "2026-07-22T06:54:44.896718+00:00",
+  "independent_reviewer_agreement": {
+    "adjudicated_count": 24,
+    "agreement_count": 576,
+    "agreement_rate": 0.96,
+    "disagreement_count": 24,
+    "unresolved_count": 0
+  },
+  "integrity": {
+    "candidate_predictions_not_provided_to_review_context": true,
+    "codebook_file_hash_exact": true,
+    "item_id_set_sha256": "7437c14f444e03a3783d8b1812a536aacd5a51efa16f73b86f4598c6037cc4e7",
+    "provenance_sha256": "66a5c74c7b9a0080c1c9212036977c27bf33a6ea637e9cf7d548f4dee7a47d48",
+    "review_context_ids_independent": true,
+    "review_decision_item_sets_exact": true,
+    "review_prompt_hash_exact": true,
+    "review_receipt_chain_exact": true,
+    "review_teacher_item_sets_exact": true,
+    "source_record_hashes_exact": true,
+    "source_record_set_sha256": "91c25e72120558c3600570913417028129132d576494aa2b019432e9b9bdb789",
+    "source_records_exact": true,
+    "teacher_input_hashes_exact": true,
+    "teacher_predictions_not_provided_to_review_context": true
+  },
+  "label_distribution": {
+    "NEGATIVE": 148,
+    "NEUTRAL": 290,
+    "POSITIVE": 162
+  },
+  "promotion_policy": "Qwen teacher SILVER는 참고 신호로만 보존하며, 모든 행에 유효한 CODEX_REVIEW_APPROVED 결정을 요구한다.",
+  "provenance": {
+    "codex_review": {
+      "automatic_teacher_gold_promotion": false,
+      "candidate_git_attestation_sha256": "d5794cd8ab9f57f5d50e00458380781e1549c97f6aa46ed2d33b4255c577656a",
+      "candidate_git_commit_sha": "ed3da07e1de6367177b932995b951003b4418f60",
+      "candidate_manifest_sha256": "a0e9dd31826cc7305d223d67c60e43b59122d0fc5166a3e4c5022f793ceb1b2d",
+      "minimum_independent_reviewers": 2,
+      "protocol": "receipt-bound-two-independent-codex-reviewers-plus-adjudication/v1",
+      "required_status": "CODEX_REVIEW_APPROVED",
+      "review_prompt_path": "docs/datasets/k-fnspid-sentiment-review-prompt-v1.md",
+      "review_prompt_sha256": "3d4032d298de8a935c42dd06ab45dc64c199fbc223fb8d8a0ec44c97899e86e5",
+      "review_provenance_manifest_sha256": "f8cbbb2529447fe6211bcc4508663ea4425edaf4a0efa008b75fea6985bb4973",
+      "review_provenance_status": "VERIFIED_BLIND_PROVENANCE",
+      "reviewer_distribution": {
+        "CODEX_ADJUDICATOR_LOCKED_V3": 24,
+        "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3": 576
+      },
+      "teacher_is_advisory_only": true,
+      "unresolved_excluded_from_gold": true
+    },
+    "review": {
+      "codebook_version": "k-fnspid-sentiment-codebook/v1",
+      "dataset_version": "K-FNSPID-v4",
+      "partition": "DISCLOSURE_CONFIRMATORY_SEALED_TEST_REVIEW",
+      "schema_version": "k-fnspid-sentiment-review-row/v1"
+    },
+    "teacher": {
+      "candidate_prediction_visibility": "NOT_PROVIDED_TO_TEACHER_CONTEXT",
+      "codebook_path": "docs/datasets/k-fnspid-sentiment-codebook.md",
+      "codebook_sha256": "a50c1502be1587ede7fec1f955e506111a6d46f37be16d7aeaee63999edd7f43",
+      "generated_at_utc_max": "2026-07-22T06:37:37.318606+00:00",
+      "generated_at_utc_min": "2026-07-22T06:37:37.318606+00:00",
+      "gold_reviewer_visibility": "PROHIBITED",
+      "market_blind": true,
+      "model_blind": true,
+      "model_requested": "Qwen3-4B-GGUF-Q4",
+      "model_served": "Qwen3-4B-GGUF-Q4",
+      "operational_rules_sha256": "13263e52e948678a16573db80f3b050e52ddc2cfdc35a6ffd71a6a9e437fc3a1",
+      "prompt_version": "k-fnspid-sentiment-qwen-silver-v2",
+      "provider": "local-open-source-qwen3",
+      "sampling_seed": 20260715,
+      "schema_version": "k-fnspid-sentiment-teacher-silver/v1"
+    }
+  },
+  "qwen_final_agreement": {
+    "agreement_count": 311,
+    "agreement_percentage": 51.83,
+    "agreement_rate": 0.518333,
+    "disagreement_count": 289,
+    "disagreements": [
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2544a182f90ffdabddff634193611f04972433a699797692fc21760a29370f83::067170",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '오텍 신주인수권행사 (제13회차) 신주인수권행사 (제13회'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "473c77dfb7487f0764c52e8c9379b4d2cb72d86963b2f4ab921192859eaff16e::347850",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디앤디파마텍 전환청구권행사 (제1회차) 전환청구권행사 (제1회차)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환청구권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "5ae415e45d7e339815b687b67f60372cf36e08ddd3ebb9f779e8374382e860b7::493330",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '지에프아이 전환청구권행사 (제1회차) 전환청구권행사 (제1회차)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환청구권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "ac09a2c14d49898aea03ac477f8c0dc5adaab4a7eeaa82128779b8a842d3db4c::051380",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '피씨디렉트 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "732800170adaed274c995d7bc9f0c4e0254029b140b309ca71f413408229f45a::009240",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한샘 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "13d1253e162db096446f87c5908c9063134f43ac1c5f00224be0f611a3b83490::270870",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '뉴트리 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "4f042897d659629c22904966c4b8376a5ae5e7e5e8f0a6114ced54a3e1169361::214680",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디알텍 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d2b81fd0623a5b91dab28d5e78cc9828d7ea0617f3e4f34c09b6481788a0c5f7::008830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대동기어 유상증자1차발행가액결정 유상증자1차발행가액결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자1차발행가액결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a8354731b9b52c260e40402408d2dc8454e6126bc2f6a7017d44c54b31acf94f::340810",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '시선AI 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e3ce852bc1845bcfa6f562004036dcbdfc1d8552e5fcfab09db2197b7be6ed88::089890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코세스 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a164539c31284f1176b00686d2507916996cab568e0a6fad7ac4b247dc445918::204270",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '제이앤티씨 유상증자결정(종속회사의주요경영사항) 유상증자결정(종'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a8bf80d4cd58029fd7e8f3d59d775f13afd0d57579cd82121e4dba3397a96d84::023450",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '동남합성 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ca4250258fa658ca2f0739ca55a13c6b431868ce02f3c78df99736ca509408e3::403550",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '쏘카 [기재정정]유상증자결정(종속회사의주요경영사항) [기재정정]유상'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "ce8dfa4e6541f93820d8c3dcc0ac256a3b8c9f71474f967031510dce718ad4cd::052400",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '나아이 [기재정정]주요사항보고서(자기주식취득결정) [기재정정]주요사항보고서(자기주식취득'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "53051d1be1ad53b7c20785f2c28ad50b1ce09d3db6a1d1126f3189eb4b9485a1::011300",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '리얼스 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "f42dd70b265c598f92547ec8ab46b8c6c16e09e08a17291e470ea56c0cefaad7::484810",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '티엑스알로보틱스 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4c41a6d26d5483756da4e183f33ab3deca8c318776195f2c5fefc8ab62e4429a::035890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '서희건설 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "105d715cdf643795a64daa9d383e02b502c5370cd127f86b22e36e8b4e4fb046::321370",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '센서뷰 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "14ef9ca51e3a8d90314246f1515225caf34bd5fa28c80b212100f6f45d13a03e::001780",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '알루코 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "fd2b4eec847714e00589c354626b42e28c2f56ac8f4fe365528c3ba63771712d::095910",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에스에너지 주식소각결정 주식소각결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '주식소각결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c71667854a94c6b958ab04711e52260d10e0f58c157f1050cfcf23681d31a7c7::298040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '효성중공업 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "835502ec7c6277e221deea9177dc2443c72b0e8e3aeec12fd55b621756c0d28f::494120",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '큐리오시스 주요사항보고서(무상증자결정) 주요사항보고서(무상증자결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '주요사항보고서(무상증자결정)' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c5a1feaf35ca2d2c18c468ba7f3fc4c54affbc25054ff0627eb6bcfe9dea952f::142760",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '플러스 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "22c01b3fc23e5e11242252f7c35af9893aa2531a1ed192850bcca466924140a2::360070",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '탑머티리얼 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b1e23a9628df14cdd4bd72b5c1a92b5d849e3a9738c1261260ce73650feb8913::011040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '경동제약 [기재정정]최대주주변경을수반하는주식담보제공계약체결 [기재정정]최대주주변경을수반하는주식담보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9e62cb008a08ea9759207c935437bd9c927b9d0b7f8ca33155b6742962948ee5::049430",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코메론 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "8625f763a84f1c4ab1c293873a865006054ce4d22b7b22d5632143121fbbe213::368770",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '파이버프로 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3b1f4e1f1e85aef80a0386b150b49ea8ddd2ebc4812ad2c3051f93c700095500::044380",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '주연테크 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5228425b67082fd5a783b11acf5dfec304b87dae56084b9ccf0a22193e5996cc::016920",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '카스 [기재정정]주요사항보고서(자기주식취득결정) [기재정정]주요사항보고서(자기주식취득'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "1be1de8e5e10e11a78621cdb6356b87e599cfbf09f92781e7e65eb5253f9410e::329180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'HD현대중공업 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6d104c44c76c367bdf6055275025744edef60350cced5ee70f68a6ece82b3198::246720",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아스타 [기재정정]최대주주변경을수반하는주식담보제공계약체결 [기재정정]최대주주변경을수반하는주식담보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e5cb1e7a8a147c1069f89d981cb7d7d4c57f4a21df1ff85fc97c26481aee229b::171090",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '시스템 교환사채(해외교환사채포함)발행후만기전사채취득 교환사채(해외교환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '교환사채(해외교환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0a996ed4a81e65180de28c855a4e4883faaa17ee3de3a82ec08c2e7806a9b505::333620",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엔시스 단일판매ㆍ공급계약해지 단일판매ㆍ공급계약해지'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약해지' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "560309aaae5ad49bb530c03b18445dd458e00f227aa560fe82aa1e2f7a019919::036000",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '예림당 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c0f3dd471ceecca6edfa39586ce03ac79d3ed137d4218b794bcda6f7235f529f::003160",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디아이 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "efe5574d88a77bace366dc11f940812bcb99a3e03732a80ec2c610d9775c1e17::054090",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼진엘앤디 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b1a8fc43583e757c6ceef75e8abf954ea5107cf17852e2c6927c5a143f83b083::002990",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '금호건설 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7e85369b9e7fb4d40cfe77568357cc0908d3600984433f5ccc49255128fc77da::048410",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '현대바이오 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7a45e61b1f68de18b102ae3198b3eb7384a550c10bf4634516b3bc1c1838328c::001470",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼부토건 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "354f384d136dc895487c820afeba1d506b6e1965522b559809057a084576aece::415380",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '스튜디오삼익 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "22204f8b0807b15286ef73d309c8bae2a6e31a51bd056e87586c178fee6ac3db::223220",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '지스몬 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1c420c0b9265c98afb73a94a406c280fde0f8b99b1f0d73c7e3d8f10166985aa::175250",
+        "review_note": "라이선스 이전 계약해지가 확정되어 대상 기업의 사업기회 악화가 명시됨",
+        "reviewed_at": "2026-07-22T15:42:10+09:00",
+        "reviewer_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "83318d076db7e188afd90f6bed04b28a9027aa0f1ba1164e5796834e30974526::200470",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에이팩트 최대주주변경을수반하는주식담보제공계약체결 최대주주변경을수반하는주식담보제공계약체결'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "40c590aa9cf96577f29e0486625414c7f893e68271eb98d48a0eb94693bd346a::360070",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '탑머티리얼 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8d8c0702e673acb821699e230402b90ff611f466bdd18018309e8be91be7786e::226950",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '올릭스 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1723e79bb0f886013607ac41352391b6b9d37c1f9b08545b29b5535fc6cba6a3::467930",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'IBKS제23호스팩 기타시장안내(관리종목지정우려종목) 기타시장안내(관리종목지정우'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '관리종목지정우려종목' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7519117033313de7e3fb7eaf14586ce5f89329eecca8f821b1136f9297ad4628::061970",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '세미콘 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a1659e68aa698bc788f8478864b9451bc755237388cd3af203dc17e4a993ce57::036830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '솔브레인홀딩스 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8da53a471d18e812ffae1466c4a584620231d2434897534a438042b2160110d8::417180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '스토리 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2c91e2ac2bda8df85f7e753e483a5e2472b49929303e052083802602642b5f6a::070300",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엑스큐어 [기재정정]최대주주변경을수반하는주식담보제공계약체결 [기재정정]최대주주변경을수반하는주식담보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0d9025f6905b7df766a926fc5cfaea87e1efc14bd61e83b693af9b14ca2fedae::373160",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '데이원컴퍼니 신탁계약에의한취득상황보고서 신탁계약에의한취득상황보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '신탁계약에의한취득상황보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fd294cbef7c7a863d35a191908f8f281cc2436c4989aafc72189044f0c08a37d::192390",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '윈하이텍 불성실공시법인지정예고 (공시변경) 불성실공시법인지정예고'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '불성실공시법인지정예고' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1fc3f461de67bbfa7cac3c56a44bf72173d64b385ecd255095c22c3ad7cf76d0::013700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '까뮤이앤씨 [기재정정]금전대여결정 [기재정정]금전대여결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '금전대여결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "28a9808311e2bf8694e88384d93ef53fda7b15081dd4ce9bdde4ecd09deb7387::362320",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '청담글로벌 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "5b9189ac94487d75effeed0535f3a3c1749c5d5f741560f1835d9a511577d97e::012450",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한화에어로스페이스 중대재해발생 중대재해발생'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '중대재해발생' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "cfa94dc24728da8253962724e645e5af1301144800880bb3803a4e8f89b9faec::052300",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '오션인더블유 신탁계약에의한취득상황보고서 신탁계약에의한취득상황보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '신탁계약에의한취득상황보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a3a65d4d1d556f8e97f13325842c90b9f167624c6a1e673145a1137ad690e571::084440",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '유비온 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5effb35bf159a57320d937aad22f03659789b9f57814a2289840d53965460478::042510",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '라온시큐어 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "224d0861f89d8018805f2109af6bb889d11db0165491b5a8dfb74e136cadb98d::183490",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엔지켐생명과학 소송등의제기ㆍ신청(경영권분쟁소송) (임시주주지위확인가처분'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '소송등의제기ㆍ신청' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d4e029107a0b2b93742900d12f6a9f807c95432a607a0be53fda12d1644f82a9::006060",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '화승인더스트리 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "df58fdf84835e15a0d465fde0738521fff7295481bebf95dceb79b310df0fc0a::299660",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '셀리드 타인에대한담보제공결정 타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2ca5e5c5b657bfa2f1f0ac56dcdecd1eca6f1e61e69b4ef46c7af8a601fd54a2::082740",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한화엔진 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9b8e89cfa62e526b013eb5bc436f1607991146a8cf061cd35465b241cb276e83::455180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '케이지에이 유상증자최종발행가액확정 (제3자배정-소액공모) 유상증자최종발행'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자최종발행가액확정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "80b122e3a33cbc756da80a532aa9002437450f3ea007e52821c71ee8ffdb25fc::334970",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '로직스 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fa97ba11bab90d5febf2986f6135b6869a252be24d07061e88072eac2e94b904::087260",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '모바일어플라이언스 소송등의제기ㆍ신청(경영권분쟁소송) 소송등의제기ㆍ신청(경영'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '소송등의제기ㆍ신청' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "c5660d5176ccbf885aa83d55a62dfed75bd3dea86b12473a8462f85c99f85f9d::058450",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한주에이알티 타인에대한담보제공결정 타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "df4378c001a985eb711654bfc5c98086322af86f0e1dea7092e7b6a62f5fefcb::104040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디에스엠 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "398f74ff059633211f1a6814c68bace5843d313bb39939a9cf7b09965f436241::276730",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '앤제주 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9ca8df271e7dad8f6924755fbff9f02e4e4f13ef6b1f3da73426c40a40118b15::137080",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '나래나노텍 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "96b89847e7aecd15a1dc970066c5582b49a194b4ccca052b5a2484373fbbcaa8::013700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '까뮤이앤씨 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "25db42cb0575a8fa3121d633ca3d557fba93c65163a6b9ca6cdfc30ef4d103c1::032850",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비트컴퓨터 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a5e4baa378908609b496fafa3b8e36cf6a053c8f004ca7eee76fdcc043d9dff2::044820",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코스맥스비티아이 타인에대한채무보증결정(자회사의 주요경영사항) 타인에대한채무보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9f61338fc75606371576d4ac36ee196a63afb327afc3e7aaed94110d5d97a449::439580",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '블루엠텍 주요사항보고서(신주인수권부사채권발행결정) 주요사항보고서(신주인수권부사채권발행결'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권부사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2f6b1b421155ff8fe1ab5f7120d54b9684c4f8e2e9150bd03a21b9a37fdb0b50::060250",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'NHN KCP 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "4fc09a57e101b9631e9bcc99e328b0e35367c05e32495ca5ff6094aa2ac3fb68::108380",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대양전기공업 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "37cd7b311b450297836485fcdc0883d332b2dffeb8814859eca9330945b9ee23::026910",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '진실업 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "adba47500defd6edd6eee8ecb638c56fba57ff9497947babf2e37758a424e079::080010",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이상네트웍스 불성실공시법인지정예고 (공시변경) 불성실공시법인지정예고'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '불성실공시법인지정예고' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3367a6aec240e2213c0471a8045e5d3981512a4ca3eee9a24a22867b15141d4e::373170",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엠아이큐브솔루션 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7af47a69dafa09c6ed1b20bb180ce974d89c1f5b970a5131b89f113cef9ce1d6::006880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '신송홀딩스 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "81f09906b4a8f87820ba3e76deae670cb46f21a0e7421e66bcc6c1db22653187::012280",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '영화금속 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9440d3a9b6602539c8fa273423e2e95958ae95ab4794c671d1471ec77d40140b::322780",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코퍼스코리아 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "d914ca02b64d4dcd6ed6b54a53022ed26251693c5688917c8698465ec655b09f::058630",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엠게임 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d499ef0032c9b18593c717ff0754c35545121f2308c2a315b4c2269ffb07ce1d::373200",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엑스플러스 불성실공시법인지정예고 (공시불이행) 불성실공시법인지정예고'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '불성실공시법인지정예고' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d55c4b7ff85c2d14f79ea6022fdafcb0d66d824226ad41a772fe1ed7ff37a3b1::000500",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '가온전선 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c16a1a0ad32cca09a66eb10674e42e44f98601f6f66b1778dabc36111c10c651::032790",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엠젠솔루션 주요사항보고서(자기전환사채만기전취득결정) 주요사항보고서(자기전환사채만기전취득결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기전환사채만기전취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "65834fd99d42019496e74a196cc42936b33aa685275d3b23df90356d1052dbb7::134380",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '미원화학 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "597147643d33698ea142fe5a75aaf6278b43ec7ebe3dbb9f69540a7be17270fc::215200",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '메가스터디교육 현금ㆍ현물배당결정 (분기배당) 현금ㆍ현물배당결정 (분기배'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "953f3dd34c4869997afc47126d4e94bd20acda1c93cf95e8320a1de9c26bebd6::018500",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '동원금속 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e1ca97f30936888428de919ce5cdf219a68d35d3f065c7ad68688dbfc7f86cb8::189860",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '서전기전 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "45696e599c934c9bc02db3b937ede69e267de7055e7286cabf080e053ab1c68a::340360",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '보링크 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2642e3655e5542f37ddd56a64dbaf04025721405684f5b811f87d31d227b5bee::096690",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에이루트 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9af43ac870b93954fece7ccc17b049a004a9f3431d9d7d35e84e1562ac9c10da::282880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코윈테크 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2c6fb7d996a4046c5730e51dc4bb0b195323e40080a1f196aa8e16c4f0199654::146060",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '율촌 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ea49dece50c78e0664fdf25e676bf2243aafc207b7cc7a9b76c9d694ca01dbf4::083660",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'CSA 코스믹 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2e6ce662e42da87d53c1a70171a5d6d824e7986aaf5b9cc8db7f1b9aed497fbe::023440",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '제이스코홀딩스 [기재정정]최대주주변경을수반하는주식담보제공계약체결 [기재정정]최대주주변경을수반하는주식담보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a109d4d347af1ba5d3242828559da51a83161e8e3119bf74b62e37ccf550270c::382800",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '지앤비에스 에코 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a03430118a02f82ba29df7bcb866e413b8cb3521b5f6140ccf4b5364361a2141::419540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비스토스 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "eedb23e0c1366a009122befee6cd38208027e11946c5cadcc73a40efee909bd6::223310",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '사토시홀딩스 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fdbf4c6e938ad72b5c3d7197cf422f104d122e2aeafd9b91c34b122083a07554::308100",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '형지글로벌 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7ec1004dbe12ff1d7ecd5e50cf2cc179eb03f18cbe0bf0ad226137085686d18d::013700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '까뮤이앤씨 [기재정정]타인에대한담보제공결정 [기재정정]타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "394e6cd2dcda9aac450c6534fe51ccf64b314d156535671efe1f1d60bbeeb9a8::419540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비스토스 주요사항보고서(자기전환사채만기전취득결정) 주요사항보고서(자기전환사채만기전취득결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기전환사채만기전취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "590707da2da26cf76c588f30f619335e8fcbe42d679a5f0c6c2f4f536f46cedd::089890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코세스 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "66a84523c54ac3be74f6116d26015a26d5d7f6fbcdcfc32127fe3926c0258daf::045340",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '토탈소프트 [기재정정]자기주식취득결과보고서 [기재정정]자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e37e5aff2c64f78144fd00719dcdd20dadf5df687fadbf50a46504f88e5cdc24::084440",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '유비온 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d9125cf38ae993f57d85df360ce08ac8c267520e7c51ac35e50fc92c11089e2b::004990",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '롯데지주 유상증자결정(종속회사의주요경영사항) 유상증자결정(종'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8814c5450e4769be51713dfcb5f7aa6f0ae2f1fa311bf78ea1ddebb31ed574aa::304840",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '피플바이오 [기재정정]타인에대한담보제공결정 [기재정정]타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "bfaef5ff45d72f47d6066a30c81ae46d655d0f5e6b67faed04993f82fbd1b0e3::331920",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '셀레믹스 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "007288fd298a922fd86535d2d90b383fe7a6458fb20c354bd945a88fe5ef7983::064350",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '현대로템 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a6105bda863d189e91553e42827c032f2f5fc0aaf1285cf1567a2363732031eb::437730",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼현 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "99ebc1f679e01a73ea2be440adee5f927bc35f2f162774474e4c1a66fb2715bd::241690",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '유니테크노 신주인수권행사가액의조정 신주인수권행사가액의조정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "662729cc7c2cef338df8a6cfe48db4672beaa7a60fbf0ebf3b35f479f1f8ab7f::211050",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '서비스 [기재정정]주요사항보고서(자기주식취득신탁계약체결결정) [기재정정]주요사항보고서(자기주식취득'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "69c4f8352de4187d183ce41d5f33564c60d603f89cc19203981981b8ec5ab5f7::464080",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에스오에스랩 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a5fced328692828cf4b2c83a8884287aab5daa246ec30e393889746a53d2b6cc::050890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '쏠리드 신탁계약에의한취득상황보고서 신탁계약에의한취득상황보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '신탁계약에의한취득상황보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9abccdf0eaf93be9d9e2ddb2c9bb02319fa8896857f2fa67e7a89ffcc4103d04::049950",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '미래컴퍼니 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "07029d47941cf8ea294e005c4c721cad30bea518aa545a7a121c05d2a1bafb72::039290",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '인포뱅크 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "3137009b7fb954cc0b3475bd75a2daf4d823832005797d2b14c683384be3f95f::000880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한화 중대재해발생(종속회사의주요경영사항) 중대재해발생(종'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '중대재해발생' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "715b5201c1b567710b1b3cd8c0277d5eb1c8c6c585592a6ae33bb324f0f4c449::103590",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '일진전기 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a687018dc18d3f4b640c52338c21b666708bf329db350397211896e3bf9512bb::100030",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '인지소프트 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "c711eeda2159c107d691a9d7106c398569226623e789c8c94e6b47a1101e1853::061970",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'LB세미콘 권리락 (유상증자) 권리락 (유상증자)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '권리락(유상증자)' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a9f32fa0224b34c21ee058b9d4cd2b4862b7f3e5b5702aa33766524efdf2055d::288980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '모아데이타 주요사항보고서(자기전환사채만기전취득결정) 주요사항보고서(자기전환사채만기전취득결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기전환사채만기전취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6da697fcf95123279c11721c03bfed17d149e04db6fe3ab9dc6457aef94c4d11::210980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'SK디앤디 타인에대한담보제공결정 타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0244d750c936522576f0dbc2e357ede5229952259f8a882fa5a40e42ba1de353::052710",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아모텍 유상증자1차발행가액결정 유상증자1차발행가액결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자1차발행가액결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b08a17bcf35b9238e808eb858e781acda0f90f86f90c5b56ef7fdfd3fd9b909a::393970",
+        "review_note": "상장폐지 사유 발생 또는 상장폐지에 따른 정리매매가 확정되어 존속·거래 위험이 명시됨",
+        "reviewed_at": "2026-07-22T15:42:10+09:00",
+        "reviewer_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "38441d600925065fe45499fc0eab3f3c0bec6f44ed3c8fc5f52f9ac7585edf03::263050",
+        "review_note": "상장폐지 사유 발생 또는 상장폐지에 따른 정리매매가 확정되어 존속·거래 위험이 명시됨",
+        "reviewed_at": "2026-07-22T15:42:10+09:00",
+        "reviewer_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2bdfed588c0027d202c25f690b52706cd007cd6b369710faef824242d142bc9b::087260",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '모바일어플라이언스 타인에대한담보제공결정 타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "ec5df7ac43f91ce444e0af2c88673ffba83ecb98c55533b3d21471821ce9cb41::020710",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '시공테크 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a8ddb008c99a5e7b758192a113d158f9951829c38388ae658f4a0387f1951901::340810",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '시선AI 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "6aeb1b68b94a00f711ea34fcedd681a5d979211600188add569a65349ade8f5f::069620",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대웅제약 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1c6923cc4c1273908cf61867e704b39c92ea1ce25555f8dde6e294d103cadbd1::005720",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '넥센 타인에대한채무보증결정(자회사의 주요경영사항) 타인에대한채무보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "fa3d62f1b749c8abddf4cb421f211e7385b02b7e6a4e759a87b69fd636bf382e::288980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '데이타 [첨부정정]주요사항보고서(전환사채권발행결정) [첨부정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8e0d0372c3cb8207805dce7de285df700ead65949829d4d56851ba737c7a11bf::320000",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한울반도체 [기재정정]최대주주변경을수반하는주식담보제공계약체결 [기재정정]최대주주변경을수반하는주식담보'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "7c4f473837a32d118af7b3a90005b639d5b620ff4adcb24a42172f603911a292::086900",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '메디톡스 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c27a9eba36d03614cb57dcbd52feedcfb511ca0a4c982fcb717a5caed4542b07::286750",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '나노실리칸첨단소재 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ae875d39a759b9a27a20877893b26defd6b9604ca95e56860dc812c13c6131cb::005110",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한창 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "50a12402f723b734051c46bf7d41551c964f241087d642105694eeec2151670b::147830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '제룡산업 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "0f66ed499d830d026aa31461d2afa44f6c9681bcf8a975734bdd938f8f7c024e::293490",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '카카오게임즈 최대주주변경을수반하는주식담보제공계약체결 최대주주변경을수반하는주식담보제공계약체결'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "058dbfc31097314ef6857b5226a50465335149ccd64d98e96a8df037478ceae6::011300",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '리얼스 [첨부정정]주요사항보고서(유상증자결정) [첨부정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "439c9a9586d6663b8baee2fc3a0e7a2d343d11af532af0f384423fef19cb2212::023770",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이위드 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0a173abd4baf5eec03f2e02054f730ffc88a8745b15a5993f68054ebcdff5a46::019990",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에너토크 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2d08432f5bc95db3d017334485c91b6df629c3d8d1242ae3cf6dc1a0c1323dd8::023150",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'MH에탄올 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d25f724f6bdf279ed16f418a741939e3adcf33a751be2fa0e97b709f515346c1::000520",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼일제약 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "acf5b3f6bd1127a70fcabcc84fa40b9a1f98f0bdaa93bfc420badd994e2bc4fb::440110",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '파두 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "141fddd4d787006c6b69700e8071b2a17821077c1143acf0c5edebf438b23a88::279600",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '미디어젠 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "09493b5e8c30a933c6006f0fae03c976734f2689368980f921b17a8247dba940::455180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '지에이 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e036289cf8519b2d91d750ffd27360b8b0fb84944135dc77ed6f267b2ba77e51::037350",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '성도이엔지 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a6ea58f1dcef75b3eff8fc56c806cf54f64c09bd7d0d0311a76aab25520568ca::000720",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '현대건설 타인에대한채무보증결정 타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e2ec6de07d1d030ccdbecd44df01874fb37c76b9ab70ac871762ef1e204d352e::002870",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '신풍 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "007c76e17f2b1039bfe2006622561209ac77da1bfdbcdced0bd64fa7473454e0::419540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비스토스 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "49d158158a5976f841907d371040f0340fe8911c2daaa7a2af02c31af1540555::092230",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'KPX홀딩스 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "99aaf8628729a0a43dec37ff9043bedb43fa45643eddefd39631b33b4258851e::321370",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '센서뷰 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "bcbc7d61f2bbc21406da48ae551f71844401b964752565f9480b08ad2cdbc9aa::322780",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코퍼스코리아 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "1f0252c606c70165356dab4d08d36f0766607c7bc1006a4b685a60d518923674::071970",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'HD현대마린엔진 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "cc7c306ea6f461297ee33c7270168bdffb627c0d19f3b9e9ff61488a83c5cba7::267320",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '인테크 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "73e3e841d15ec7b469c9d7af665636e100c63326d6f9f4d3f15de0a87b4eda95::089860",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '롯데렌탈 타인에대한채무보증결정(자율공시) 타인에대한채무보증결정(자율공'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "f952a47f8646d57ddce8c46dd14c20ca24680f30c7a56499c164af7512f0cb8c::361610",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'SK아이이테크놀로지 유상증자결정(종속회사의주요경영사항) 유상증자결정(종'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "5ddbafdd179b0264856bb05264b30b5faaacff73d012c3d0773daffc803f3ba1::092040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아미코젠 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8f2a021aa8e74320e4b848f16161ae0be930a929494250c5adc2505c30abe3f0::348340",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '뉴로메카 권리락 (유상증자) 권리락 (유상증자)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '권리락(유상증자)' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2f6bd3897617378394a55bebad01b374033c57122ed29239792518f53cfb9ca8::064290",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '인텍플러스 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "553b774253d567043fa457b1ca623a4b071bbc03a5be1347719ff9ee27f1f4fa::026910",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '광진실업 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "81f7fde3fc339d8e73061c4541d72d7a7100120c7df9356db91a4113d3a03832::288980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '데이타 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEUTRAL",
+        "item_id": "628ccce584eef2fd333f67f1051e9edb1476d422e30d59bbb3263b848f3ac720::007120",
+        "review_note": "독립 검수 일치: 공시 제목과 스니펫에 대상 기업의 가치 방향을 확정할 손익·계약 성과 또는 제재 결과가 명시되지 않아 중립으로 판정. / 공시 제목만으로 대상 기업 가치의 확정적 상승·하락 방향을 책임 있게 판단할 수 없음",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "038d5d99e9f2b8d090769658e516316eae173dc2ab5e4d1d4541aa1d018428c2::012200",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '양전기 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0880852aafcede7428ec0e35b6d048e90d931674e6a31f0f7e593104fba65ab4::104700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한국철강 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "53525761b111034ccd1f7c6e5808d2be5cc56c0c42c7f2d407b0d6c2ba32f47c::240600",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '유진테크놀로지 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ddbc257fbf9eff6a44a09e63d02c410fde0cce7fc8f1578569d8e30a2f288820::006340",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대원전선 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "282f559e768b2b5ed6a8f7ab7cd98bdf5beda05cf318987823c5528c63cd26b1::006050",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '국영지앤엠 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "7f728f3e5890763f720df1ad02389b807ebe6de5718529a928d66f5f4b3eaa33::115450",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'HLB테라퓨틱스 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "87204a6b41b6bdeea15065593031b3efb65b8f8f5283f46a8a847b605c58de9a::092040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '미코젠 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a0af5c77bc83f4693125423be9258efa872d4783ffb8fbb1cb5907dbd124f987::001790",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대한제당 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1e651c99c0e042b6cf75b2249b967bb736fa64afb2eab5ed4d3b420e0dfd0949::025980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아난티 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4fd1b3807307cbb8d27594d56c1ddef72e717e30660c22b6be97cae8cf858463::296160",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '프로젠 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a817fd2625663368f5de6299b0ab94f84eb17fb1843b1efd1713d09f04885e18::004440",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼일씨엔에스 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2f2babbdcf595611af472a849744223091656091539f816f60af60b54e5b86a2::033340",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '좋은사람들 주요사항보고서(감자결정) 주요사항보고서(감자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '감자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2e945c62522e37b3d6194fad5727e0ae3e64c4ef8aea0899faf137cb29f7bd8a::347770",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '핌스 [기재정정]주요사항보고서(자기주식취득결정) [기재정정]주요사항보고서(자기주식취득'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "9411ceb85fbcbe8fdac2a85493f5b80b1fde17dff4f6dcf8e3a37f1d73291a52::310870",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디와이씨 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "eeaef96aa86ca74c1ab9850c6166ba0c59e366532932b1c065cf321c8941c476::081580",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '우전자 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9f0b5703b1e7835d0c1d13e0c180eeccb0c1a7cac348f3e6ec5c2df4ff5a621d::223310",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '사토시홀딩스 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3030f20bfe85c42bf1ab1f8dfb26ce71b0ecc7d276d8b50d4f75a8b5b6636da3::023150",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'MH에탄올 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "68d50d846f6898984b5b29f279e2b732b1a2d391aeea06e14830512184083884::376290",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '씨유테크 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "968d8ecffb47a1c915fe55201878a80db075cf0a3a871e98fb4af6b1f37bcff0::115610",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이미지스 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "30c11d18da8adbc644bb72f0ef52dd728f49ff5d013d453913e4ea90ffcc0287::267850",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아시아나IDT [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "339fe60a98b59c39895274704fe4a683b66b6a84b5c51efa5aad4590c9e2b4f3::223310",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '홀딩스 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "faf1758cd237578f1f78cd1e0cabe3afd91133ead845b37985b9cfe7eb8ef279::083660",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'CSA 코스믹 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "eed5d82aeaed126ac5105fad5b1bef9178ac75067496e61d2b8f67fc66e22d1b::065510",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '휴비츠 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3935601faa50d483cb7e34285a22ef1fa8df1d1450b5c450bdf94d4974a3f012::025860",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '남해화학 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "ec70307a3082199cb40879d90d0428fb9853da352b3931f5c95a9fe3b9f723ec::024880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '케이피에프 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "5d583529e1ee24e32c7b591db3e8f44e1f1354fcafa3f231b740f30cc650f5c2::009730",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이렘 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "63cbcf07c0f7183f5122b4e87de5dbf2ddf97b8176820ad87d297d9238a7c7ba::297890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'HB솔루션 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "936ce02d578e885ad8d7a779f8c1c0e96dad3c0551660f8d5a3a5f96ff855b6d::440110",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '파두 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b5fc4ab638efb8b51919691bb6b5385732b3d07b765f77c370fae8d8555f7657::214680",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디알텍 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "96522a120e11bf35f8ce15865a09525b5b766b65a398976fba4587dd8e568a98::460850",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '동국씨엠 타인에대한채무보증결정(자율공시) 타인에대한채무보증결정(자율공'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "1487190d27d1c138222e71f6114cba79722668c6f1acf6d58c1d14433e0897af::357550",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '석경에이티 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "01d1350146d33274b4c397861d8720ecd9ce30800f5063ca5bc3aa7447b587a8::290720",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '푸드나무 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0f92ca0f8bc3c4347cd8ebe5eb1c8d4028398bac0a31542a01dc715dbefe35a0::348340",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '뉴로메카 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "da45e63673bc4eaed27faccab35aabdb6f35b424176d4f3ea74bbc824244f9b2::123840",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '뉴온 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "7c2c981b19c291c959ecd81a5e9e4c7acdb1855a4b71716610d4c715e5f0dd95::001570",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '금양 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "915a6e823f07df17d30ef94f798052d4b5e8b12e9df314a8123290c93bd68d06::065170",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엘팜텍 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "8c4ac39f321d7bf667884f5f912351ae6df40a149f82f30ddcf2a0f9cc8cd177::464580",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '닷밀 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9733494c56d50c5827ce5f127d50603529289c7f6b9ee2c0c9fc431f92aa369b::002100",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '경농 주요사항보고서(교환사채권발행결정) 주요사항보고서(교환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '교환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "60d2eda191d9878b8fd0f1574606069193c42daa860f1c45ce8e3ca3024aae2a::054540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼영엠텍 신주인수권행사가액의조정 신주인수권행사가액의조정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "79bf392f40677a697088d547810b7da04f47ed78c6000dbbe39d71ae3e576748::039490",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '키움증권 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0bf2770d4c08efd8971cb24a0a08fe181b90f8f32260a2baa6fab28e8312979e::301300",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '컴퍼니 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "5c39a01f55ed25126bfadc727d3a007cbbb5a604f88fe185ad9fe513518628cb::006490",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '프리티 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0e6c45de1423a61d9191ae5039696bb94be9736685dd21bd558c8f0acefa0438::389260",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대명에너지 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "248537c31cfff8388b17f97b4e14b1e518b112652511b012e1b4269a0ee60f8e::153490",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '우리이앤엘하루틴 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "962f37af208d526fcf950b300c250af73fcb65212638a4b78ee14589c600cf02::199290",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '로테크 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "99fe32737c9c5b6fd15fa3b4e86e4eece85df4554ee7c8a4bf549746045c3aba::143210",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '핸즈코퍼레이션 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "9c70989de3f77c817c4091f987c8a6a2cde233703141796b765f12747398564e::051360",
+        "review_note": "주권매매거래정지가 확정되어 거래 가능성 훼손이 명시됨",
+        "reviewed_at": "2026-07-22T15:42:10+09:00",
+        "reviewer_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "659864c55f1311ad11a85f1e60f25b2a8eb262f29f2ed46e4655bec239f80675::163730",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '핑거 [기재정정]주요사항보고서(신주인수권부사채권발행결정) [기재정정]주요사항보고서(신주인수권부'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권부사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "630b4b122a31d76510a7bfabd8ddbfdce835b96b75a4ce44484c8fed00f08acc::179900",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '티아이 전환사채(해외전환사채포함)발행후만기전사채취득 (제2회차) 전환사채(해외전환사채포함)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "8ba9eb004e50296217bb49380c0aba64c04e39e86600beba1a0ac8f38b5414d6::365330",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에스와이스틸텍 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e1a12f04240772f6a9efc9ea870e6af39658bfc343fdd0053017af0cf564e1d3::159910",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '글로우 전환사채(해외전환사채포함)발행후만기전사채취득 (제11회차) 전환사채(해외전환사채포함'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "c99809738dad7503dfa5474b2b78fd9e6189b3052cb1f8d36be5e4b8653b3863::078890",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '가온그룹 금전대여결정 (대여기간 연장) 금전대여결정 (대여기'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '금전대여결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "67da5fc12772362d29c6b41034eef255b6ee28be062daf25fb0b5c3810f7474c::043100",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '알파AI 주요사항보고서(회생절차개시신청) 주요사항보고서(회생절차개시신청'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '회생절차개시신청' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "cdae1c8f4734831a5bccf27d8eaeef9bc0f55686a033a07b1f460d669925a06c::065650",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '하이퍼코퍼레이션 금전대여결정 금전대여결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '금전대여결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "33a74a5e0d417977d488674269dab64da7b6a326cafe68449d835f861ae2736a::187660",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '페니트리움바이오 권리락 (유상증자) 권리락 (유상증자)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '권리락(유상증자)' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "59c72fc3b7ddf91d2456046064f18f9a32ba793b2b6fe87bb8ca5c2b3c4fdb7d::091810",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '트리니티항공 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "03a67980597b30330dc1878ae52e0116e3772cb7a2aebc4524cd47e6e19552dd::417180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '핑거스토리 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "f5e0b3502390d7e244227ef4a7cc42f3837f62571f4ab4d5d0843a4a919c3983::139480",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이마트 횡령ㆍ배임사실확인 횡령ㆍ배임사실확인'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '횡령ㆍ배임사실확인' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5276b91c191972fce371bc701e6e515b1702b5da45296c6da60ae9d4fdd54420::004150",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한솔홀딩스 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2d788b3e03c736dd690e62f39aec83102ede198dcf3eb06b4f518e5e1493f7a7::332290",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '누보 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "f266901df5defa429fa71167102a149e4285ae82a589e34da689a435036c6602::241590",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '화승엔터프라이즈 [기재정정]불성실공시법인지정예고 [기재정정]불성실공시법인지정예고'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '불성실공시법인지정예고' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d3fe4dd7f3301fa3ffa6cbdd442fda4e217674aaaf9ccf9df4896cd47ce30267::356860",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '티엘비 유상증자최종발행가액확정 유상증자최종발행가액확정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자최종발행가액확정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "8e98e983a2a052656214875d0cd0c405c15c0236e38fa46800f5ad9e23aadc56::060900",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '트AI 전환사채(해외전환사채포함)발행후만기전사채취득 (제33회차) 전환사채(해외전환사채포함'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "0d8cb44fafe6607f34d2cbf3c6b578f5c253f017196e65769492badfaee4a519::071950",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '코아스 주요사항보고서(자기전환사채만기전취득결정) 주요사항보고서(자기전환사채만기전취득결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기전환사채만기전취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "f25f7094557666623d76913d2adc8c92487acb8c8534c9b6d387515b96980c51::417500",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이테크 전환사채(해외전환사채포함)발행후만기전사채취득 (제1회차) 전환사채(해외전환사채포함)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "3af83376b7bc1589ceb4a596823b045bd5fb7d78a106b4e693f5fbff745dc69d::006370",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대구백화점 [기재정정]타인에대한담보제공결정 [기재정정]타인에대한담보제공결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한담보제공결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "d14861ccc0c483c13cce50605f28d72b71886c957c4b4c4e966392e446528efa::032800",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '판타지오 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b424126dcf1ac0ded38e106bce55bb15eb95745f9527a114cde919604fce344c::001020",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '페이퍼코리아 전환가액ㆍ신주인수권행사가액ㆍ교환가액의조정(안내공시) 전환가액ㆍ'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "a2cd66de98f4c64e6104f18e80d25cb181f7af3e4ca207056a4f75e7ec1dcfed::013700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '까뮤이앤씨 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "5b067e577694d1b2cb35a496e9f4eda7a3f67c6737a0f7ad9ff0bceb2a3934a5::382800",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '지앤비에스 에코 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a681a26fb329deb7711ac3f9446b722919a3c7111745fe881ed35a24614388d6::148930",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에이치와이티씨 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "48e07aed68304a5d5cd15b980ac8f21e691527f9efa5e336f95e03b71f6e1011::251270",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '넷마블 신탁계약에의한취득상황보고서 신탁계약에의한취득상황보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '신탁계약에의한취득상황보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "10e762c8e3480a846ab31ba59989361a7e332060e5813a98f7024cdfa0350b23::214150",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '클래시스 최대주주변경을수반하는주식담보제공계약체결 최대주주변경을수반하는주식담보제공계약체결'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '최대주주변경을수반하는주식담보제공계약체결' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "1f72f48582091f4f9ccabe057f7b4ae1222f226d8bd39b897b0ae3f413f963ff::058820",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'G제약 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4e9ee1ed8b7ada987966c963609f2727b495178267ba4f434781f1f4f0fe90cd::271830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '팸텍 주요사항보고서(전환사채권발행결정) 주요사항보고서(전환사채권발행결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "95da472f838066db51e02cd7fdd387c2828b16f5abeb944f00bed5df8d5d750a::288620",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에스프리즘 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "c7622c76844289613aba47bd6b2c3a6b754e70acde4d0070c077d22e305285ed::060540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에스에이티 주식소각결정 주식소각결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '주식소각결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d7d7e4d10399c891176eb24e9740e5c21d2802a35ac437afb8846e8b8bc2e38f::086520",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '에코프로 유상증자결정(종속회사의주요경영사항) 유상증자결정(종'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6189226a221cf1384d9addbf80ca6471645be06c6d08180922fdc280f9f7fe41::258830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '(코스닥시장위원회 개최 결과 및 상장폐지 결정 안내) 기타시장안내 (코스닥시장위'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '상장폐지결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "73d470e51fbae05e380ea8f367401963abc8e4b028613977fcce203375368269::227610",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아우딘퓨쳐스 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6584a8ce96e51eeb8470d8e8b6df8c3f5f973111f17f3c645f00b10079ad83a2::258790",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '트캠프 [첨부정정]주요사항보고서(전환사채권발행결정) [첨부정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6cb9a47d46054a7f9b7f5511b37007aaf788d2c2a94c68b6fd491e63c3872a4f::377030",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비트맥스 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2e08a683c4d9e02ba2c022dee080e51177900f3a6867f3cb0603929bbed1a40c::002070",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '비비안 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "6cd1820d7865a83bdb829dc1ec1dd9b28b3c284dea9eac80dded877d91558751::105840",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '우진 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "357623ca10a2d8050d0e7b87521bf7408592141ef62109ea1d20148dd42dfbaf::119830",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아이텍 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "cc496527b88f71375e6a5145a72574dbbdf23db8aea65073cf5a3cb01a4bd1ce::123010",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '알엔티엑스 [기재정정]전환청구권행사 [기재정정]전환청구권행사'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환청구권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b04124b7e3e4f851877904a603836267c85e4e0c9f6617b81f325115f419b078::340810",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '시선AI 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "d11f8127e9770b82276e05f7327c8e9787cbc67a5ec83cbb48376a328c0e0567::432470",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '케이엔에스 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "011478361822de43153ac945fdf9c5219f4940fe1e30f32b8a1cdc73ff3c9bfe::178600",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '고려삼 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "752a9d3f35ce70677831500b21f12961d56c789a9513d79289a375165dd2823c::417840",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '저스템 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e767d2962515eca4951277536608b5be43443f65b394cc12fbeac72933de049d::012450",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한화에어로스페이스 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "dc50e88aa5bcaca4c43037f848e713b016efc3d785b2df5e46ef6fd37991cc44::344820",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '케이씨씨글라스 현금ㆍ현물배당결정 현금ㆍ현물배당결정'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '현금ㆍ현물배당결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "b49489f1b20376aca5050d04c029a37b34d0169979b974b5a8a5f7231cb2b93b::036630",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '세종텔레콤 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "4a03e89d4e11fb599a34190ae5a613bcad87dea57a8225a162ff7c4d2f75e630::217190",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '제너셈 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "2d9a7fbff3f5f4223bae7baf825272dd007fbda1e742d8c698049634c578eaa2::011000",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '진원생명과학 전환가액ㆍ신주인수권행사가액ㆍ교환가액의조정(안내공시) 전환가액ㆍ'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "f57b81c3284956d32b740a9fe146b12c5f119517b01f8168bfb5c649445de4da::017250",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '인터엠 자기주식취득결과보고서 자기주식취득결과보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결과보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "268c392906b86aeedf7540450b5f09d32448b7add899c6f191a08023e8f2a875::065650",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '레이션 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "61da89d87466ac2db8c5c78adeed7343ddd66d70a99623e43802a875eb57e812::006880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '신송홀딩스 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "7c1ed7fc2638e31479f8cbbe4e3ee6b190c90ea91a01d9719f32bd8d756070c4::473980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '노머스 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "96788dba265e33a862c17ab2015d23f0caee0edd783f5d12ba2fed292231280e::197140",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '디지캡 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "703e953b81f8e77a044b4cd5db4bcf171b7a482bdee34522bf26d63d17f931a5::366030",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '나인앤컴퍼니 금전대여결정 금전대여결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '금전대여결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "da078a6964ec992c3a5c88697633a00ca057ebbef9cbafa4ee3c2ad82965b514::455180",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '케이지에이 주요사항보고서(유상증자결정) 주요사항보고서(유상증자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e432757d90718f0cf172c414ad8852b9e2484d6cafe1b2551fb4391e0da4edc4::006800",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '미래에셋증권 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e12717ac2df2357301ce7616e215eee30f8a3b8f79d79bd35bb7bd8d8eabf871::333620",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '엔시스 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "374a1cbfc68bb4a36e7c7b979099896f95bcb160ad6fae153021d8a734cd2732::004150",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '홀딩스 [기재정정]주요사항보고서(유상증자결정)(자회사의 주요경영사항) [기재정정]주'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "d0bf7a6ca262a001be4e258a291c62e15c50928afc0a5adfbb2aaeaa827a7ce3::087260",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '이언스 [기재정정]주요사항보고서(전환사채권발행결정) [기재정정]주요사항보고서(전환사채권발'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환사채권발행결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "2c73a7971b328e9e6f7e9fbaca9cc75973fde493f475a162f5d468a4d201c564::020400",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '대동금속 신탁계약에의한취득상황보고서 신탁계약에의한취득상황보고서'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '신탁계약에의한취득상황보고서' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "20348b95f2c872da696795c0f67ef2a909776a230506c8f58775685d063ce87a::006740",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '업개발 [기재정정]주요사항보고서(유상증자결정) [기재정정]주요사항보고서(유상증자결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "POSITIVE"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "aab94ccae4eda0def2b18934f8d1b988219746dba6ecf9b2b9fee4113363b904::276040",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '스코넥 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "ecef2ed2b2bcc875e6a1c9104d041eeced0b7c999fdf86dd822713846f13c9c5::327610",
+        "review_note": "지정자문인 계약해지가 확정되어 대상 기업의 시장 지위 위험이 명시됨",
+        "reviewed_at": "2026-07-22T15:42:10+09:00",
+        "reviewer_id": "CODEX_ADJUDICATOR_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "8768285b6dcb6e9578bb0d76d5293a1013fe3f8aa9907142f9cccf22b4b3cba8::210980",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 'SK디앤디 단일판매ㆍ공급계약체결 단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "420298b9139d49215d8611934ab93a842c40861506f89e7365444047a47e7862::451250",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삐아 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "42725cbd0dd9b5224f8671ec0ffc458eb49fdfcd60ac0f62a1d96b182940679d::456010",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아이씨티케이 전환청구권행사 (제5회차) 전환청구권행사 (제5회차)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환청구권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "7c2ed8929817eaa78ae76d149c51db3494f8cb684a2ff8a9684a51f5369ce3a0::089140",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '넥스턴앤롤코리아 주요사항보고서(자기전환사채만기전취득결정) 주요사항보고서(자기전환사채만기전취득결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기전환사채만기전취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "a5d0e1a1b95b4b75cc54c7d6c2decb16b57f8a7b047b980da1281aabf38efd82::196700",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '웹스 주요사항보고서(자기주식취득신탁계약체결결정) 주요사항보고서(자기주식취득신탁계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득신탁계약체결결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "4df566ad69f7f1c9ccc384465b23df2a5f19c8de3acaba14ce349e891c326f36::080720",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '온제약 [기재정정]주요사항보고서(감자결정) [기재정정]주요사항보고서(감자결정)'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '감자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "e975eb3e2ab74264de11e79ef483e0fad23917e7d927be0e96797ee2625b73bf::053160",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '프리엠스 주요사항보고서(자기주식취득결정) 주요사항보고서(자기주식취득결정)'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '자기주식취득결정' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "21b533406da9b38444264e26b5b9f1d047efda1939b36b799144fa843de6ff01::013580",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '계룡건설산업 [기재정정]타인에대한채무보증결정 [기재정정]타인에대한채무보증결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '타인에대한채무보증결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "25ab913f5d0b453dc883c6b0db23e8c2ace3b2310a80cd3867a6c60c57518c90::187420",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '제넥스 전환사채(해외전환사채포함)발행후만기전사채취득 전환사채(해외전환사채포함)발행후만기전사'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '전환사채(해외전환사채포함)발행후만기전사채취득' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "4df896489cf07788779627c28c9beaa4c364fb16f84502e546193956f134dc58::058730",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '다스코 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "d832f52f7bd7ddb642be01e5fe0f6fe9d0a357ae5a92472ea76b377301c96e1e::174900",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '앱클론 [기재정정]단일판매ㆍ공급계약체결(자율공시) [기재정정]단일판매ㆍ공급계약'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "3ef7e868ffb47303836f3a42d3930cfead87f916b96a9922c5e8897ea38f926e::380540",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '옵티코어 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "8ee95432a2d01f179bcb80c534e1969c7613d986bb8738f51731b38a89fd030e::000880",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '한화 [기재정정]유상증자결정(종속회사의주요경영사항) [기재정정]유상'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '유상증자결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "809b74470763e9918eb1f302ea7df4e172bb6ff4664ac794d7d2212a4f361e61::033500",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '동성화인텍 단일판매ㆍ공급계약체결(자율공시) 단일판매ㆍ공급계약체결(자율공'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "POSITIVE",
+        "item_id": "deb541e55a9bc3fef41ce01446c242fb9acaceb199650df6f39173e9b2508a9b::056080",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '유진로봇 [기재정정]단일판매ㆍ공급계약체결 [기재정정]단일판매ㆍ공급계약체결'가 계약·환원·재무 개선을 직접 명시해 긍정으로 판정. / 대상 기업 공시 제목의 '단일판매ㆍ공급계약체결' 사건은 계약·주주환원 또는 재무개선 근거를 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "6fc088c6a4e78e7cbffe97576d14728e7a5b5606b5b48facaf84da471643515d::006400",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '삼성SDI 금전대여결정 금전대여결정'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '금전대여결정' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "3cf16e7149ae0710b95b8a550464c211053cb44ae475f3ce969f90631dd8ff23::139990",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '아주스틸 전환가액ㆍ신주인수권행사가액ㆍ교환가액의조정(안내공시) 전환가액ㆍ'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '신주인수권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      },
+      {
+        "final_sentiment": "NEGATIVE",
+        "item_id": "1ec86e4888c2e38af27c87b5da993fe7bfed43fa9fc761ed9a880d7466796d8f::212560",
+        "review_note": "독립 검수 일치: 대상 기업 공시의 '네오오토 전환청구권행사 전환청구권행사'가 희석·의무·제재·손실 위험을 직접 명시해 부정으로 판정. / 대상 기업 공시 제목의 '전환청구권행사' 사건은 희석·재무·법률·운영 위험을 직접 나타냄",
+        "reviewed_at": "2026-07-22T15:34:30+09:00",
+        "reviewer_id": "CODEX_REVIEWER_1_LOCKED_V3+CODEX_REVIEWER_2_LOCKED_V3",
+        "teacher_sentiment": "NEUTRAL"
+      }
+    ],
+    "transition_distribution": {
+      "NEUTRAL->NEGATIVE": 144,
+      "NEUTRAL->POSITIVE": 142,
+      "POSITIVE->NEGATIVE": 2,
+      "POSITIVE->NEUTRAL": 1
+    }
+  },
+  "reviewed_item_count": 600,
+  "sample_count": 600,
+  "schema_version": "k-fnspid-sentiment-gold-promotion-report/v1",
+  "status": "pass",
+  "unresolved_excluded_count": 0
+}

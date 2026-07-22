@@ -32,14 +32,25 @@ from hannah_montana_ai.services.market_impact_model import (
     KFnspidMarketImpactModel,
     blend_importance,
 )
-from hannah_montana_ai.services.model import MachineLearningFinancialNlpModel
+from hannah_montana_ai.services.model import (
+    MachineLearningFinancialNlpModel,
+    ModelArtifactInvalidError,
+)
 from hannah_montana_ai.services.news_summary_generator import (
     NewsSummaryContext,
     NewsSummaryGenerator,
 )
 from hannah_montana_ai.services.rule_engine import FinancialRuleEngine
+from hannah_montana_ai.services.sentiment_artifact_contract import (
+    MODEL_FAMILY as V6_SENTIMENT_MODEL_FAMILY,
+)
+from hannah_montana_ai.services.sentiment_input import sentiment_document_text
 from hannah_montana_ai.services.sentiment_policy import apply_financial_sentiment_policy
 from hannah_montana_ai.services.sentiment_stacker import load_sentiment_stacker
+from hannah_montana_ai.services.source_hierarchical_sentiment import (
+    SentimentPrediction,
+    prediction_from_probabilities,
+)
 from hannah_montana_ai.services.stock_linker import MachineLearningStockLinker
 from hannah_montana_ai.services.transformer_impact_model import (
     load_kf_deberta_impact_model,
@@ -381,6 +392,14 @@ class AlertAnalyzer:
             settings.sentiment_transformer_training_report_path,
             settings.sentiment_transformer_benchmark_report_path,
             settings.transformer_base_model_path,
+            release_current_path=settings.sentiment_release_current_path,
+            project_root=settings.sentiment_release_project_root,
+            runtime_environment=settings.runtime_environment,
+            release_attestation_mode=settings.sentiment_release_attestation_mode,
+            release_public_key_path=settings.sentiment_release_public_key_path,
+            release_signer_key_id=settings.sentiment_release_signer_key_id,
+            expected_release_id=settings.sentiment_release_expected_id,
+            expected_git_commit=settings.sentiment_release_expected_git_commit,
         )
         self.sentiment_stacker = load_sentiment_stacker(
             settings.sentiment_stacker_path,
@@ -438,9 +457,18 @@ class AlertAnalyzer:
             request.source_type,
             self.model.predict_event_tags(text, request.source_type),
         )
-        sentiment_probabilities = self._sentiment_probabilities(text, request.source_type)
-        sentiment = cast(Sentiment, self._top_label(sentiment_probabilities, fallback="NEUTRAL"))
-        sentiment = self._augment_sentiment(text, sentiment)
+        sentiment_prediction = self._sentiment_prediction(
+            sentiment_document_text(request.title, request.snippet),
+            request.source_type,
+            primary_stock.stock_name if primary_stock else "",
+        )
+        sentiment_probabilities = sentiment_prediction.calibrated_probabilities
+        sentiment: Sentiment = sentiment_prediction.label
+        if (
+            getattr(self.sentiment_transformer, "model_family", "")
+            != V6_SENTIMENT_MODEL_FAMILY
+        ):
+            sentiment = self._augment_sentiment(text, sentiment)
         disclosure_importance = (
             self.disclosure_importance_model.predict(
                 request.title,
@@ -622,7 +650,7 @@ class AlertAnalyzer:
         versions = [self.model.version]
         if self.sentiment_transformer.enabled:
             versions.append(f"sentiment:{self.sentiment_transformer.version}")
-        if self.sentiment_stacker.enabled:
+        if self.sentiment_stacker.enabled and not self.sentiment_transformer.release_id:
             versions.append(f"sentiment-stack:{self.sentiment_stacker.version}")
         if self.disclosure_importance_model.enabled:
             versions.append(f"disclosure-importance:{self.disclosure_importance_model.version}")
@@ -634,15 +662,67 @@ class AlertAnalyzer:
             versions.append(f"impact-{source_code}:{selected.version}")
         return "|".join(versions)
 
-    def _sentiment_probabilities(self, text: str, source_type: str = "NEWS") -> dict[str, float]:
-        baseline = self.model.sentiment_probabilities(text)
-        transformer = (
-            self.sentiment_transformer.probabilities(text, source_type)
-            if self.sentiment_transformer.enabled
-            else None
+    def _sentiment_probabilities(
+        self,
+        text: str,
+        source_type: str = "NEWS",
+        target_security: str = "",
+    ) -> dict[str, float]:
+        prediction = self._sentiment_prediction(text, source_type, target_security)
+        return {
+            str(label): probability
+            for label, probability in prediction.calibrated_probabilities.items()
+        }
+
+    def _sentiment_prediction(
+        self,
+        text: str,
+        source_type: str = "NEWS",
+        target_security: str = "",
+    ) -> SentimentPrediction:
+        transformer: dict[str, float] | None = None
+        explicit_prediction: SentimentPrediction | None = None
+        if self.sentiment_transformer.enabled:
+            predictor = getattr(self.sentiment_transformer, "predict", None)
+            if callable(predictor):
+                candidate = predictor(text, source_type, target_security)
+                if candidate is not None and not isinstance(candidate, SentimentPrediction):
+                    raise ModelArtifactInvalidError("sentiment model 추론 계약이 다릅니다.")
+                explicit_prediction = candidate
+                if candidate is not None:
+                    transformer = {
+                        str(label): probability
+                        for label, probability in candidate.calibrated_probabilities.items()
+                    }
+            else:
+                transformer = self.sentiment_transformer.probabilities(
+                    text,
+                    source_type,
+                    target_security,
+                )
+
+        authoritative = (
+            bool(getattr(self.sentiment_transformer, "release_id", ""))
+            or getattr(
+                self.sentiment_transformer,
+                "model_family",
+                "",
+            )
+            == V6_SENTIMENT_MODEL_FAMILY
         )
+        if explicit_prediction is not None and authoritative:
+            return explicit_prediction
+        if transformer is None and authoritative:
+            raise ModelArtifactInvalidError(
+                "활성 sentiment model이 추론 결과를 반환하지 않았습니다."
+            )
+
+        baseline = self.model.sentiment_probabilities(text)
         if transformer is None:
-            return baseline
+            return prediction_from_probabilities(baseline, source_type, target_security)
+        # 활성 release는 확증 평가한 Transformer 출력을 그대로 제공한다.
+        if getattr(self.sentiment_transformer, "release_id", ""):
+            return prediction_from_probabilities(transformer, source_type, target_security)
         stacked = self.sentiment_stacker.probabilities(
             transformer=transformer,
             baseline=baseline,
@@ -650,14 +730,15 @@ class AlertAnalyzer:
             source_type=source_type,
         )
         if stacked is not None:
-            return stacked
+            return prediction_from_probabilities(stacked, source_type, target_security)
         # 실제 금융 문장의 Transformer 성능을 유지하면서 기존 회귀 분포를 보정한다.
         transformer_weight = self.sentiment_transformer.transformer_weight
-        return {
+        blended = {
             label: transformer_weight * transformer[label]
             + (1.0 - transformer_weight) * baseline[label]
             for label in transformer
         }
+        return prediction_from_probabilities(blended, source_type, target_security)
 
     def _translate_analysis_text(
         self,

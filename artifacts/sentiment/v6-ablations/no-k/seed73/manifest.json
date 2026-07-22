@@ -1,0 +1,38 @@
+{
+  "schema_version": "kf-deberta-shared-residual-sentiment-manifest/v2",
+  "status": "ATOMIC_COMPLETE",
+  "generated_at": "2026-07-19T21:31:21.779916+00:00",
+  "artifact_files": {
+    "adapter/README.md": {
+      "bytes": 5414,
+      "sha256": "850c28949d054a19d8087c54b858035146cce8e2fe0800baa338e39482a9fd49"
+    },
+    "adapter/adapter_config.json": {
+      "bytes": 1312,
+      "sha256": "122327a3117d4ed59fa1b8a6935f2f0615834dc005f32c8f0d082287f1c1e3ee"
+    },
+    "adapter/adapter_model.safetensors": {
+      "bytes": 10636600,
+      "sha256": "4c64483b03597b8a08537a32ed3fee25d21459fd9fcd67445f0ba813556dcd05"
+    },
+    "hannah_metadata.json": {
+      "bytes": 16678,
+      "sha256": "f665b489e783ac8f16b285c09d308f7009e670d1e027c5af76721f2e56e8faf1"
+    },
+    "source_hierarchical_residual_heads.safetensors": {
+      "bytes": 35244,
+      "sha256": "5269bef978a155237672e7e5acace1aa63d2a5bfe6b96c2a7078ab2d1083c669"
+    },
+    "tokenizer.json": {
+      "bytes": 3191920,
+      "sha256": "0830fca076dacf4c107ebcaddcdc216fe5afa468c90b63b41b0b9f263fe74956"
+    },
+    "tokenizer_config.json": {
+      "bytes": 452,
+      "sha256": "f9051b19e43e2a1be479bc0ed9e27e1e40a43a2a32f4bd6d585b3e7045f62654"
+    }
+  },
+  "safe_serialization_only": true,
+  "symlinks_allowed": false,
+  "overwrite_allowed": false
+}

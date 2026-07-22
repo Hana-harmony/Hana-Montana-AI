@@ -2,15 +2,13 @@
   "schema_version": "1.0",
   "name_ko": "최성현",
   "name_en": "Sunghyun Choi",
-  "affiliation_ko": "한국공학대학교 SW대학 컴퓨터공학부 소프트웨어전공",
-  "affiliation_en": "College of SW, Computer Engineering (Major in Software), Tech University of Korea",
-  "academic_status_ko": "4학년 학부생",
-  "academic_status_en": "Fourth-year undergraduate student",
+  "affiliation_ko": "한국공학대학교 컴퓨터공학부 소프트웨어학과",
+  "affiliation_en": "Department of Software, School of Computer Engineering, Tech University of Korea",
   "email": null,
   "orcid": null,
   "notes": [
     "익명 심사용 PDF에는 저자 정보를 노출하지 않는다.",
-    "소속은 한국공학대학교 공식 국문·영문 학과 표기를 따른다.",
+    "소속은 저자가 제공한 국문·영문 학과 표기를 따른다.",
     "제출 시스템이 이메일 또는 ORCID를 요구하면 저자가 직접 보완한다."
   ]
 }

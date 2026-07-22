@@ -1,0 +1,157 @@
+{
+  "schema_version": "k-fnspid-dapt-pack-oracle-review/v1",
+  "status": "APPROVED_PENDING_SOURCE_LOCK",
+  "reviewed_at": "2026-07-17T00:20:02.596566+00:00",
+  "reviewer_id": "codex:dapt-pack-independent-review-v3-20260717",
+  "derivation_actor_id": "codex:dapt-pack-derivation-v3-20260717",
+  "review_note": "v1·v2·v3 후보 counts·4 hashes·candidate SHA·3908/196 schedule 일치, 현재 semantic recipe와 inventory v4 lock·receipt, scratch 제거와 prepared/pilot/training 미실행, DAPT 계약 테스트 44개 통과를 독립 확인했다.",
+  "derivation_report": {
+    "path": "reports/k-fnspid-v4-dapt-pack-oracle-derivation-v3.json",
+    "bytes": 7374,
+    "sha256": "106fb01f2fb9c2b61640ec863d5a1a258fc77dd737dd632d2bac11b39e443b67"
+  },
+  "input_artifacts": {
+    "documents": {
+      "path": "data/k_fnspid/v4/documents.parquet",
+      "bytes": 274855211,
+      "sha256": "045fb260f2145345f81f76f381d2631e884a1cbc8d6208758702b4564f582e03"
+    },
+    "dataset_manifest": {
+      "path": "data/k_fnspid/v4/manifest.json",
+      "bytes": 12648,
+      "sha256": "80b08190c538c1baeef418e4b50d5d9cb2ff9980ceb784a85b2988048ccc91c4"
+    },
+    "protected_k_fnspid_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_sentiment_development_gold.jsonl",
+      "bytes": 2011168,
+      "sha256": "f433e4cdc5372594d54de19083519278aae51b0385e310410b2e738d4c7d0f55"
+    },
+    "protected_k_fnspid_disclosure_sentiment_development_gold": {
+      "path": "data/evaluation/k_fnspid_disclosure_sentiment_development_gold.jsonl",
+      "bytes": 1842451,
+      "sha256": "8527d567c303d91c45d6e1dbe55a28e7725bef8bfb28f60f7962016c071c1e07"
+    },
+    "protected_confirmatory_sealed_test_review": {
+      "path": "data/gold/confirmatory_sealed_test_review.jsonl",
+      "bytes": 969809,
+      "sha256": "2d901eae6d7a84dd2e85fff74f4a942a8d5fe8ecbd2f569a3838bf2b9d28c8c5"
+    },
+    "protected_disclosure_confirmatory_sealed_test_review": {
+      "path": "data/gold/disclosure_confirmatory_sealed_test_review.jsonl",
+      "bytes": 680705,
+      "sha256": "0bd8258338bf1bc0f1a4c8cff832c5f1affe19e5d103c2032d56e602793879dd"
+    },
+    "base_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/config.json",
+      "bytes": 865,
+      "sha256": "4cba21a6fb53b5d75e2b7af83756eeb6d5e8a471164130999be395e1b8ff0848"
+    },
+    "base_pytorch_model.bin": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/pytorch_model.bin",
+      "bytes": 745694717,
+      "sha256": "3cd6cd7811b3c9190e97cae7eb41571c2bc0076431baae7d41d449a8c1c18c6c"
+    },
+    "base_special_tokens_map.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/special_tokens_map.json",
+      "bytes": 173,
+      "sha256": "311de3f4eed9d76a43bf0d71f10e62e086ca65ccce9f15d5da0d2098bf519ecc"
+    },
+    "base_tokenizer.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer.json",
+      "bytes": 3972816,
+      "sha256": "915388090e2d63e3869c54b5334d6005e453a51de12088d908175dd765fd8372"
+    },
+    "base_tokenizer_config.json": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/tokenizer_config.json",
+      "bytes": 374,
+      "sha256": "d9273237da0f2143974a8eccdc50a733fcda064528299f7295e6434226cdbda1"
+    },
+    "base_vocab.txt": {
+      "path": "hf://kakaobank/kf-deberta-base@363b171d71443b0874b0bf9cea053eb5b1650633/vocab.txt",
+      "bytes": 1090394,
+      "sha256": "f0b8ae70418060f22ec301511a6337ad49a7fb0f60a8bf9091b373aba9c0c3e0"
+    }
+  },
+  "oracle_recipe_artifacts": {
+    "pyproject": {
+      "path": "pyproject.toml",
+      "bytes": 1677,
+      "sha256": "b55742ccce4dd9d6637d7686dc41fb737ac794bb16844f911b158ac608ed953f"
+    },
+    "uv_lock": {
+      "path": "uv.lock",
+      "bytes": 644077,
+      "sha256": "0c1a5604adc8ce7d85fe2da01a4c4bafb37e145e9c647d024b46d32b0e59306c"
+    },
+    "trainer_semantic_without_oracle_values": {
+      "path": "scripts/train_k_fnspid_dapt.py",
+      "bytes": 243696,
+      "sha256": "4d62557b1c6c02d25b410de3e9bc827228b4a80607fdeef68f68d8928421e7c4"
+    },
+    "sentiment_protocol": {
+      "path": "src/hannah_montana_ai/training/sentiment_protocol.py",
+      "bytes": 14783,
+      "sha256": "96c7ce7c85ec8f29c1feb4e9d3ddb4a20c6ec64c103bd456896ff828aeabb576"
+    }
+  },
+  "oracle_software_fingerprint": {
+    "python": "3.12.13",
+    "unicode_database": "15.0.0",
+    "transformers": "5.13.1",
+    "tokenizers": "0.22.2",
+    "huggingface_hub": "1.21.0",
+    "pyarrow": "23.0.1",
+    "numpy": "2.4.6"
+  },
+  "candidate_expected_counts": {
+    "full_text_count": {
+      "NEWS": 3792,
+      "DISCLOSURE": 7104
+    },
+    "raw_token_count": {
+      "title": 18993463,
+      "snippet": 36556505,
+      "full": 28333791
+    },
+    "used_token_count": {
+      "title": 18991508,
+      "snippet": 36556460,
+      "full": 2183933
+    },
+    "pack_count": {
+      "TRAIN": {
+        "NEWS": 147532,
+        "DISCLOSURE": 102526
+      },
+      "VALIDATION": {
+        "NEWS": 1457,
+        "DISCLOSURE": 1050
+      }
+    },
+    "segment_token_count": 62215961,
+    "packed_non_padding_token_count": 62468526,
+    "padded_token_count": {
+      "TRAIN": 64014848,
+      "VALIDATION": 641792
+    }
+  },
+  "candidate_expected_hashes": {
+    "unmasked_packed_ids": "50087c5707dc03b00650ccf8e5d9a6bc498167da179d74a5e4cdda438364d63a",
+    "pack_lineage_jsonl": "89f21c7a4bd525623382e4b18348a9df87bfe5933a2f470683ce00202ecfe3e8",
+    "train_epoch0_masks": "0d169e23c920eb6533ed9a139ee0ed693525d712fd09110c68c92167707a4e36",
+    "validation_fixed_masks": "1b0a6d8103174288455c41c63aa202eff08ddd82af05aa117f37bc46ab5a5541"
+  },
+  "candidate_total_updates": 3908,
+  "candidate_warmup_updates": 196,
+  "candidate_sha256": "99d6070784fc9ccc141bab54d35100aae55a9ab24639e02e64684fd45dc689b4",
+  "review_checklist": {
+    "source_and_protected_hashes_verified": true,
+    "deterministic_counts_and_hashes_reviewed": true,
+    "semantic_pack_reread_reviewed": true,
+    "pack_mask_lineage_contract_reviewed": true,
+    "no_prepared_artifact_promoted": true,
+    "no_precision_pilot_or_training_executed": true,
+    "candidate_schedule_reviewed": true
+  },
+  "independent_review_declared": true
+}

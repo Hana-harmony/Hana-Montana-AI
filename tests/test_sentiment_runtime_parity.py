@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from scripts.generate_sentiment_cpu_runtime_parity import _validate_dapt_merged_base
 from hannah_montana_ai.services.sentiment_runtime_parity import (
     LOGITS_MAX_ABS_ERROR_TOLERANCE,
     base_encoder_evidence,
@@ -18,6 +17,7 @@ from hannah_montana_ai.services.sentiment_runtime_parity import (
 from hannah_montana_ai.training.sentiment_baseline_commitments import (
     canonical_json_sha256,
 )
+from scripts.generate_sentiment_cpu_runtime_parity import _validate_dapt_merged_base
 
 
 def test_cpu_batch16_and_packaged_batch1_parity_is_recomputed_from_logits(

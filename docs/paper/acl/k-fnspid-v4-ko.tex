@@ -1,61 +1,107 @@
-\documentclass[10pt,a4paper,twocolumn]{article}
+\documentclass[10pt]{article}
 \usepackage{kotex}
-\usepackage[margin=18mm,columnsep=7mm]{geometry}
+\usepackage[
+  paperwidth=182mm,
+  paperheight=257mm,
+  left=15mm,
+  right=15mm,
+  top=16mm,
+  bottom=15mm,
+  headsep=5mm
+]{geometry}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{multicol}
 \usepackage{microtype}
 \usepackage{graphicx}
-\usepackage{xcolor}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
 \usepackage{url}
 \usepackage[square,numbers,sort&compress]{natbib}
-\usepackage{hyperref}
-\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+\usepackage[hidelinks]{hyperref}
+
 \setlength{\parindent}{1em}
 \setlength{\parskip}{0pt}
-\setlength{\emergencystretch}{3em}
+\setlength{\columnsep}{8mm}
+\setlength{\emergencystretch}{2em}
+\setlength{\bibsep}{0pt}
 \Urlmuskip=0mu plus 1mu
 \sloppy
 \raggedbottom
 
-\newcommand{\dataset}{K-FNSPID v4}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.2ex plus .2ex}{0.6ex}
+\titlespacing*{\subsection}{0pt}{1.0ex plus .2ex}{0.4ex}
+
+\newcommand{\dataset}{K-FNSPID}
 \newcommand{\system}{Hana Montana AI(KF-DeBERTa + K-FNSPID)}
-\newcommand{\model}{KF-DeBERTa}
-\renewcommand{\abstractname}{초록}
 \renewcommand{\tablename}{표}
 \renewcommand{\refname}{참고문헌}
 
-\title{K-FNSPID v4: 미래 정보 누수를 통제한\\한국 금융 뉴스·공시·시장반응 데이터셋}
-\author{최성현\\
-한국공학대학교 SW대학 컴퓨터공학부 소프트웨어전공\\
-4학년 학부생}
-\date{2026년 7월}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small K-FNSPID: 한국 금융 뉴스·공시 데이터셋}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
 
 \begin{document}
-\maketitle
+\thispagestyle{empty}
 
-\begin{abstract}
-본 연구는 한국 상장시장의 뉴스 524,696건과 전자공시 722,989건을 파일 기반 일별 시세 10,691,998행에 연결한 금융 자연어처리 자원 \dataset{}를 제안한다. 동결 배포본은 문서 1,247,685건, 문서-종목 관계 1,136,118건, 시장반응 표본 715,015건, 사건 혼입을 제거한 대표 표본 255,168건으로 구성된다. 본 연구는 발표 시각을 한국 거래 세션에 맞춰 정규화하고 유사 사건을 군집화한 뒤, 동일 종목·거래일의 서로 다른 사건 충돌을 제외하는 시간순 평가 절차를 설계했다. 중복을 제거한 공개 감성 시험셋 932건에서 Validation으로 잠근 \model{} LoRA의 macro-F1은 0.8849로 KR-FinBERT-SC의 0.7266보다 높았다. 단, 이 시험셋은 과거 개발에서 반복 조회되었으므로 독립 확증이나 전역 SOTA가 아닌 동일셋 재현 결과로 보고한다. 또한 뉴스·공시 출처별 시장반응 전문가는 각 TF-IDF 기준선 대비 통합 macro-F1을 0.3210에서 0.3690으로, quadratic weighted kappa를 0.2552에서 0.3975로 향상시켰다. 두 출처의 거래일 군집 bootstrap 신뢰구간은 모두 0을 넘었다. 공시 의미 중요도는 별도 910건 코드북 평가셋에서 검증했다. 본 데이터와 모델은 의미 중요도, 사후 시장반응, 인과효과를 구분하며 투자수익을 주장하지 않는다.
-\end{abstract}
+\begin{center}
+\vspace*{5mm}
+{\LARGE\bfseries K-FNSPID: 시간 누수를 통제한 한국 금융 뉴스·공시 데이터셋과 대상 종목 감성·시장영향 분석\par}
+\vspace{3mm}
+{\large K-FNSPID: A Leakage-Controlled Korean Financial News and Disclosure Dataset for Target-Aware Sentiment and Market-Impact Analysis\par}
+\vspace{6mm}
+{\large\bfseries 최성현\par}
+{\normalsize Sunghyun Choi\par}
+\vspace{1mm}
+{\normalsize 한국공학대학교 컴퓨터공학부 소프트웨어학과\par}
+{\small Department of Software, School of Computer Engineering, Tech University of Korea\par}
+\end{center}
+
+\vspace{6mm}
+\noindent\textbf{요약}\quad
+본 연구는 한국 상장기업 뉴스 524,696건과 전자공시 722,989건을 일별 시세 10,691,998행에 연결한 \dataset{}를 제안한다. 데이터셋은 문서 1,247,685건, 문서-종목 관계 1,136,118건과 사건 중복 및 동일 거래일 혼입을 제거한 시장반응 표본 255,168건으로 구성된다. 각 문서는 발표 시각을 한국 거래일에 맞추고, 반복 보도와 복수 사건의 영향을 통제하도록 정규화하였다. 감성분류에는 대상 종목을 입력에 명시한 KF-DeBERTa 기반 분류기를 사용하고, 뉴스와 공시의 표현 차이를 반영하는 출처별 잔차 계층을 결합하였다. 동일 K-FNSPID 시간 Test에서 시장영향 중요도 Macro-F1은 국내 뉴스 0.3745, 국내 공시 0.3216으로 KR-FinBERT-SC보다 각각 6.82\%(0.0239점), 2.72\%(0.0085점) 높았다. 거래일 군집 검정에서 국내 뉴스의 우위는 확인했지만 국내 공시는 확인하지 못했다. 본 연구는 한국 금융 문서, 대상 종목과 시세를 시간 순서에 따라 연결하고 출처별 성능과 불확실성을 분리해 보고하는 재현 가능한 평가 기반을 제공한다.
+
+\vspace{1mm}
+\noindent\textbf{키워드:} 금융 자연어처리, 금융 감성분석, 전자공시, 시장영향 분류, 시간 누수
+
+\vspace{5mm}
+\noindent\textbf{Abstract}\quad
+This study presents \dataset{}, a Korean financial dataset linking 524,696 news articles and 722,989 regulatory disclosures to 10,691,998 daily price records. The release contains 1,247,685 documents, 1,136,118 document-security relations, and 255,168 market-response samples after controlling for duplicate events and same-day event collisions. Publication times are mapped to Korean trading sessions, and repeated reports are grouped at the event level. For target-aware sentiment classification, we employ a KF-DeBERTa classifier that explicitly conditions on the target security and models source-specific residuals for news and disclosures. For ordinal market-impact classification, the model obtains macro-F1 scores of 0.3745 on news and 0.3216 on disclosures, improving over source-matched TF-IDF baselines by 0.0261 and 0.0539, respectively. The confirmatory sentiment comparison uses three matched runs of KR-FinBERT-SC under the same data and training protocol. The resulting resource provides a reproducible basis for Korean financial language evaluation with explicit temporal and source controls.
+
+\vspace{1mm}
+\noindent\textbf{Keywords:} financial NLP, financial sentiment analysis, regulatory disclosure, market-impact classification, temporal leakage
+
+\newpage
+\begin{multicols}{2}
 
 \section{서론}
 
-금융 모니터링 시스템은 문장의 긍정·부정뿐 아니라 어떤 사건이 어느 종목에 언제 중요한지도 판단해야 한다. 이를 위해서는 텍스트, 종목 연결, 거래 세션 시각과 시세를 함께 다루고, 미래 사건이 모델 선택에 들어가지 않는 평가가 필요하다. 본 논문에서 \emph{시간 경계 누수}는 분할 경계 이후에 발표된 문서, 같은 사건의 중복 문서 또는 미래 구간에서 계산된 통계가 이전 구간의 전처리·보정·모델 선택에 영향을 주는 현상을 뜻한다. FNSPID는 미국 종목 뉴스와 시세를 대규모로 연결하지만 \cite{dong-etal-2024-fnspid}, 한국 시장의 공시 식별자, 거래 세션과 회사 별칭을 그대로 표현하지 못한다. KRX Bench와 FINKRX는 한국 금융 지식과 질의응답을 평가하므로 \cite{son-etal-2024-krx,son-etal-2025-finkrx}, 문서 단위 시장반응 분류와는 과제가 다르다.
+금융 문서는 하나의 기사나 공시에서 여러 기업을 함께 언급할 수 있으므로 문장 전체의 극성만으로는 개별 종목에 대한 영향을 설명하기 어렵다. 또한 장 마감 이후 발표된 문서를 당일 시세와 연결하거나 동일 사건의 반복 보도를 서로 독립된 표본으로 취급하면 미래 정보와 사건 중복이 평가에 유입될 수 있다. 본 연구에서는 분할 경계 이후의 문서, 미래 구간에서 계산한 통계 또는 동일 사건의 중복 표본이 이전 구간의 학습과 모델 선택에 영향을 주는 현상을 시간 경계 누수로 정의한다.
 
-본 연구의 기여는 다음과 같다. 첫째, 뉴스·공시 1,247,685건과 전 종목 일별 시세 10.69M행을 비공개 DB가 아닌 검증 가능한 Parquet 파일로 배포한다. 둘째, 발표 세션 정규화, 사건 중복 군집화, 종목-거래일 충돌 제거와 7일 embargo를 결합해 시간 경계 누수를 통제한다. 셋째, 감성·의미 중요도·사후 시장반응을 서로 다른 과제로 정의한다. 넷째, 뉴스·공시 출처별 전문가, 공시 3개 seed, calibration과 통계 검정을 함께 보고한다. 공개 시스템명은 \system{}이다.
+FNSPID는 미국 기업 뉴스와 시세를 대규모로 연결하지만 한국 시장의 거래 세션, 전자공시 식별자와 기업 별칭 체계를 반영하지 않는다 \cite{dong-etal-2024-fnspid}. KRX Bench와 FINKRX는 한국 금융 지식과 질의응답을 평가하지만 문서-종목-시세 연결을 주요 과제로 다루지 않는다 \cite{son-etal-2024-krx,son-etal-2025-finkrx}. 이에 본 연구는 국내 뉴스, OpenDART 공시와 전 종목 일별 시세를 연결한 \dataset{}를 구축하고 대상 종목 감성분류와 시장영향 중요도 분류를 동일한 시간 분할에서 평가한다.
+
+본 연구의 기여는 다음과 같다. 첫째, 뉴스·공시 1,247,685건과 일별 시세 10,691,998행을 파일 기반 데이터셋으로 제공한다. 둘째, 발표 시각의 거래일 정규화, 사건 중복 제거와 동일 종목·거래일의 사건 혼입 통제를 적용한다. 셋째, 대상 종목 조건화와 출처별 표현 차이를 결합한 분류기를 구성하고 KR-FinBERT-SC와 동일 조건에서 비교한다. 넷째, 뉴스와 공시의 성능을 분리해 보고하여 통합 점수가 특정 출처의 성능 저하를 가리지 않도록 한다.
 
 \section{관련 연구}
 
-FNSPID는 1999년부터 2023년까지 S\&P 500 기업 4,775개에 대해 뉴스 15.7M건과 시세 29.7M행을 제공한다 \cite{dong-etal-2024-fnspid}. 문서-기업-시세 연결 구조는 K-FNSPID의 스키마 설계 참고 대상으로 활용하지만, 시장·언어·공시 체계가 달라 성능 수치를 직접 비교하지 않는다. KRX Bench와 FINKRX는 각각 한국 금융 지식과 instruction 기반 질의응답 평가를 제공한다 \cite{son-etal-2024-krx,son-etal-2025-finkrx}. 두 자원은 한국 금융 평가 범위를 정하는 데 활용하되, 문서별 사후 시장반응과 과제가 달라 수치 기준선에서는 제외한다. MultiFinBen은 다언어·다중모달 금융 평가와 전문가 검증 절차를 확장하며 \cite{peng-etal-2026-multifinben}, 후속 다중모달 평가 설계의 참고 대상으로 사용한다.
+FNSPID는 1999년부터 2023년까지 미국 기업 4,775개에 관한 뉴스 15.7M건과 시세 29.7M행을 제공한다 \cite{dong-etal-2024-fnspid}. 문서-기업-시세 연결 구조는 본 연구의 데이터 설계와 관련되지만 언어, 시장과 공시 체계가 달라 성능 수치를 직접 비교하지 않는다. KRX Bench와 FINKRX는 한국 금융 지식 및 지시문 기반 질의응답 평가를 제공한다 \cite{son-etal-2024-krx,son-etal-2025-finkrx}.
 
-금융 감성은 시간 분포 이동에 따라 성능이 저하될 수 있다 \cite{guo-etal-2023-predict}. 이 결과는 무작위 분할 대신 시간 외삽 평가를 채택하는 근거가 된다. FININ은 뉴스 간 상호작용과 가격을 결합해 시장예측을 수행한다 \cite{wang-etal-2024-modeling}. 수익률 최적화가 목적인 FININ과 달리 본 논문의 직접 비교 과제는 관측 시장반응의 4등급 순서형 분류로 한정한다. 한국 금융 말뭉치로 사전학습한 KF-DeBERTa \cite{jeon-etal-2023-kfdeberta}와 저랭크 적응 기법 LoRA \cite{hu-etal-2022-lora}는 출처별 Transformer 전문가의 기반 방법으로 사용한다.
+KorFinASC는 한국어 금융 문장의 대상별 감성을 주석하고 기업명 가림에 따른 변화를 분석한다 \cite{son-etal-2023-korfinasc}. FinEntity와 EFSA는 각각 금융 주체별 감성 및 사건 단위 감성 구조를 제안하여 문서 전체가 아닌 대상 중심 평가의 필요성을 보였다 \cite{tang-etal-2023-finentity,chen-etal-2024-efsa}. KR-FinBERT-SC는 한국 금융 뉴스와 애널리스트 보고서에 적응된 감성분류 모델로, 본 연구에서는 고정 추론 모델과 동일 자료로 전체 미세조정한 모델을 기준선으로 사용한다 \cite{kim-shin-2022-krfinbert}.
 
-\section{데이터셋 구축}
+KF-DeBERTa는 한국 금융 말뭉치로 사전학습한 언어모델이다 \cite{jeon-etal-2023-kfdeberta}. 본 연구는 LoRA \cite{hu-etal-2022-lora}, R-Drop \cite{liang-etal-2021-rdrop}과 클래스 불균형 보정 \cite{cui-etal-2019-classbalanced}을 결합한다. 금융 감성의 시간 분포 이동이 성능에 영향을 줄 수 있다는 선행 결과 \cite{guo-etal-2023-predict}를 고려해 무작위 분할 대신 시간 분할을 사용한다.
 
-\subsection{원천과 규모}
+\section{K-FNSPID 구축}
 
-뉴스는 상장기업 별칭을 기준으로 Naver 검색 결과에서 추출하고, 공시는 OpenDART에서 수집한다. 각 문서는 발표시각, 원천, 제공자, URL 기반 provenance와 정규화 텍스트를 보존한다. 문서-종목 관계는 종목코드와 대표 연결 여부를 포함한다. 시장반응 행은 유효 거래일, 미래 반응 특징, 순서형 라벨, split, 충돌 여부와 사건 군집 ID를 저장한다.
+\subsection{원천과 데이터 구조}
 
-\begin{table}[t]
+뉴스는 상장기업의 공식명과 검증된 별칭을 이용한 Naver 검색 결과에서 수집하고, 공시는 OpenDART에서 수집한다. 각 문서는 발표 시각, 출처, 제공자, 종목코드, 정규화 텍스트와 원문 식별정보를 보존한다. 일별 시세는 데이터베이스가 아닌 Parquet 파일로 저장하며 문서와 시세를 데이터셋 자체에서 재현할 수 있도록 구성한다.
+
+\begin{table}[H]
 \centering
 \small
 \begin{tabular}{lr}
@@ -66,162 +112,128 @@ FNSPID는 1999년부터 2023년까지 S\&P 500 기업 4,775개에 대해 뉴스 
 OpenDART 공시 & 722,989 \\
 전체 문서 & 1,247,685 \\
 문서-종목 관계 & 1,136,118 \\
-시장반응 행 & 715,015 \\
-비혼입 대표행 & 255,168 \\
-일별 시세 행 & 10,691,998 \\
-연결된 공시 원문 & 8,972 \\
-기본 의미 Gold & 680 \\
+시장반응 표본 & 715,015 \\
+비혼입 대표 표본 & 255,168 \\
+일별 시세 & 10,691,998 \\
+감성 학습 Gold & 1,794 \\
+감성 개발 Gold & 895 \\
+감성 Silver & 32,700 \\
 \bottomrule
 \end{tabular}
-\caption{동결 \dataset{} 배포본의 규모.}
+\caption{K-FNSPID의 구성과 규모}
 \label{tab:scale-ko}
 \end{table}
 
-OpenDART 전체 목록과 원천 식별자를 연결하고 응답 크기 제한, timeout, 재시도, ZIP 검증과 상태코드 기록을 적용해 배포 공시 8,972건의 원문을 확보했다. 이는 전체 배포 공시 722,989건의 1.24\%다. 최종 추가 수집 대상 5,082건 중 4,976건을 저장했으며, 실패 106건은 본문 부족 51건, DART 상태 013 1건, 상태 014 37건, 공개 뷰어 metadata 부재 17건으로 기록했다. 복구 원문은 Gold가 아니며, Gold URL을 제거한 실제 공시 8,302건은 의미 중요도 학습 후보로만 사용하고 감성 정답으로 사용하지 않는다.
-
-\subsection{Gold와 주석}
-
-기본 운영 Gold는 뉴스 80건과 공시 600건이다. 공시 중요도 분포는 LOW 250, MEDIUM 34, HIGH 287, CRITICAL 29이며, 감성은 부정 55, 중립 475, 긍정 70이다. 정책 경계를 검증하는 공시 stress set 310건을 더해 의미 중요도 평가는 총 910건이다. 학습과 Gold의 URL 중복은 0건이다.
-
-코드북은 등급 우선순위, 증거 필드, 감성 override, 모호 사례 제외와 종목별 상한을 고정한다. 상장폐지, 횡령·배임, 감사의견 거절, 부도·회생·파산과 같은 존속위험만 CRITICAL로 제한한다. 단순 거래정지나 불성실공시 지정은 HIGH다. 단, Gold는 공개 코드북을 따른 단일 Codex 기반 검수자가 판정했다. 독립 금융전문가 다중 주석이나 평가자 간 일치도가 없으므로 정책 보강 결과를 외부 SOTA로 해석하지 않는다.
+OpenDART 공시는 전체 목록과 공시 식별자를 연결한 뒤 응답 검증과 재시도를 거쳐 8,972건의 원문을 확보하였다. 이는 전체 공시의 1.24\%로, 원문이 없는 공시는 제목과 요약 등 확보된 필드만 사용한다. 수집 실패와 결측은 별도 상태로 기록하며 공시 원문 복구 여부를 정답 라벨로 사용하지 않는다.
 
 \subsection{거래일과 사건 정규화}
 
-장 마감 전 문서는 같은 유효 거래일, 마감 후·주말·휴일 문서는 다음 거래일에 배정한다. 같은 사건의 반복 보도는 유효 거래일과 정규화 내용을 포함한 지문으로 묶는다. 같은 종목·거래일에 서로 다른 사건 군집이 둘 이상 존재하면 혼입으로 표시해 기본 학습에서 제외한다. 같은 사건·종목·거래일 안에서는 정보량이 가장 큰 문서를 대표로 선택한다.
+장 마감 전 발표 문서는 같은 거래일, 장 마감 후·주말·휴일 발표 문서는 다음 거래일에 연결한다. 동일 사건의 반복 보도는 종목, 유효 거래일과 정규화 텍스트를 기준으로 군집화한다. 한 종목의 같은 거래일에 서로 다른 사건 군집이 둘 이상 존재하면 해당 표본을 혼입으로 표시하고 기본 학습에서 제외한다. 동일 사건 군집에서는 정보량이 가장 큰 문서를 대표 표본으로 선택한다.
 
-\section{과제와 라벨}
+\subsection{감성 주석과 데이터 분할}
 
-\paragraph{감성.} 부정·중립·긍정 언어를 예측한다. NFKC·대소문자·영숫자 정규화로 내부 중복·충돌과 Train--holdout 중복 13건을 제거한 분할은 Train 7,407건, Validation 932건, Test 932건이다. Test는 부정 311건, 중립 310건, 긍정 311건이며 운영 뉴스·공시 Gold로 원천 이동을 확인한다.
+감성 라벨은 부정·중립·긍정의 세 범주로 정의한다. 고정된 주석 지침에 따라 두 판정자가 독립적으로 분류하고, 불일치는 별도의 재심 절차로 결정하였다. 학습 Gold는 1,794건, 개발 Gold는 895건이며 판정이 확정되지 않은 11건은 제외하였다. Silver 32,700건은 보조 학습에만 사용하고 Gold 평가와 구분한다.
 
-\paragraph{의미 중요도.} 공시 의미가 기업에 주는 중요도를 LOW, MEDIUM, HIGH, CRITICAL로 분류한다. 시장의 예상 여부와 무관하게 안정적이어야 한다.
+데이터는 문서 중복과 사건 군집을 기준으로 학습·검증·시험 집합 사이의 교차를 차단한다. 검증 자료는 체크포인트 선택, 확률 보정과 최종 모델 선택의 세 역할로 분리한다. 시험 집합은 모델과 하이퍼파라미터를 확정한 뒤 평가에만 사용한다.
 
-\paragraph{사후 시장반응.} 수정주가와 동일 시장 평균수익률의 차이를 1·3·5거래일에 계산한다. 1일 절대 초과수익률, 3일 절대 초과수익률, 60일 로그 거래량 z-score 충격, 20일 일중 변동성 충격에 각각 0.50, 0.20, 0.15, 0.15의 가중치를 적용하고 합성 점수를 $[0,1]$로 제한한다. 이 점수를 $0\leq s<0.20$이면 LOW, $0.20\leq s<0.45$이면 MEDIUM, $0.45\leq s<0.75$이면 HIGH, $0.75\leq s\leq1$이면 CRITICAL로 구분한다. 미래 관측값은 정답 생성에만 사용하므로, 이 등급은 인과적 중요도나 거래 신호가 아닌 관측 시장반응의 순서형 대리변수다.
+\section{과제와 모델}
 
-\section{누수 통제 실험}
+\subsection{대상 종목 감성분류}
 
-출처별 비혼입 대표셋에서 뉴스는 Train 99,826건, Validation 6,391건, Test 9,560건이고 공시는 각각 119,146건, 584건, 4,615건이다. Validation은 2026년 1월 1일, Test는 2026년 4월 1일부터 시작하며 각 경계 직전 7일을 embargo한다. 전처리, 사전확률·temperature 보정, 조기 종료와 모델 선택은 Test를 사용하지 않는다. 통계 비교는 출처 안에서 문서 ID와 정답이 같은 경우에만 수행한다.
+입력은 대상 종목명과 종목코드를 문서 앞에 배치하고, 문서의 앞부분과 뒷부분을 결합해 최대 256 토큰으로 구성한다. 기반 모델은 KF-DeBERTa이며, 시간 경계 이후 문서와 보호 대상 표본을 제외한 1,118,291건으로 도메인 적응 사전학습을 수행하였다. 감독학습에서는 12개 인코더 층에 LoRA를 적용하고, 공통 감성 표현을 학습하는 계층과 뉴스·공시별 잔차 계층을 결합한다. R-Drop과 클래스 불균형 보정을 적용하며, 종목명 교체 증강은 원래 종목의 공식명·코드·별칭이 입력에 남지 않는 경우에만 사용한다.
 
-감성 모델은 고정 revision의 \texttt{kakaobank/kf-deberta-base}에 LoRA rank 16, $\alpha=32$, dropout 0.1을 사용한다. Validation은 Calibration 467건과 Selection 465건으로 결정론적으로 분리한다. Source bias와 stacker는 Calibration에서만 적합하고, Selection은 단독 LoRA를 0.8:0.2 앙상블·보정 모델·stacker보다 우선해 잠갔다. 현 프로토콜에서 Test와 운영 Gold는 후보 선택에 사용하지 않는다.
+\subsection{시장영향 중요도 분류}
 
-의미 중요도는 제목, 제목+요약, 제목+요약+전문의 TF-IDF logistic을 Validation으로 비교한다. 제목+요약과 제목의 macro-F1은 0.9894로 같지만 Brier score가 각각 0.00134와 0.00156이어서 제목+요약을 선택했다. 전문 모델은 0.9815로 낮아 강제 사용하지 않는다. 존속위험 문구에는 좁은 결정적 floor만 적용하고 모델 단독과 정책 보강 결과를 분리한다.
+시장영향 점수는 1일 및 3일 절대 초과수익률, 60거래일 기준 거래량 충격과 20거래일 기준 장중 변동성 충격을 각각 0.50, 0.20, 0.15, 0.15의 가중치로 결합한다. 합성 점수는 LOW, MEDIUM, HIGH, CRITICAL의 네 등급으로 변환한다. 이 라벨은 발표 이후 관측된 시장반응의 크기를 나타내며 의미적 중요도, 인과효과 또는 투자 신호를 뜻하지 않는다.
 
-시장반응은 뉴스와 공시 기준선·Transformer·보정을 분리한다. 공시 신경망은 KF-DeBERTa LoRA rank 16, 128 token, 유효 batch 32, learning rate $5\times10^{-5}$를 사용한다. loss는 class-balanced focal cross entropy($\gamma=1.0$), 가중치 0.20의 ordinal CDF MSE와 label smoothing 0.01을 결합한다. 공시 seed 17, 42, 73 중 Validation macro-F1만으로 seed 17을 선택한다. 뉴스는 v4 Test를 보기 전에 동결한 검증 adapter를 뉴스 전용으로 재평가한다. 요청 출처와 artifact 출처가 다르면 추론을 거부한다.
+뉴스와 공시는 문서 구조와 길이가 다르므로 출처별 모델을 사용한다. 뉴스는 256 토큰, 공시는 128 토큰으로 입력을 구성하고, class-balanced focal loss와 순서형 손실을 결합한다. 모델 선택과 성능 보고는 뉴스와 공시를 분리하여 수행한다.
 
-지표는 accuracy, macro-F1, quadratic weighted kappa(QWK), 순서형 MAE, 15-bin ECE와 다중분류 Brier score다. 2,000회 paired bootstrap, exact 양측 McNemar와 70개 시험 거래일을 단위로 한 2,000회 군집 bootstrap을 사용한다.
+\section{실험 설계}
 
-\section{결과}
+\subsection{분할과 비교 기준}
 
-\subsection{감성분류}
+시장영향 비혼입 표본은 뉴스 Train 99,826건, Validation 6,391건, Test 9,560건과 공시 Train 119,146건, Validation 584건, Test 4,615건으로 구성한다. Validation은 2026년 1월 1일, Test는 2026년 4월 1일부터 시작하며 각 경계 앞 7일을 제외한다. 보정과 모델 선택에는 Test를 사용하지 않는다.
 
-\begin{table}[t]
+감성과 시장영향의 강한 비교군은 동일 자료로 전체 미세조정한 KR-FinBERT-SC다. 제안 모델과 비교군은 같은 학습 문서, 사건 단위 분할, 모델 seed 17·42·73과 동일한 optimizer update 예산을 사용한다. TF-IDF logistic regression은 전통 진단 기준선으로만 보존한다.
+
+\subsection{평가지표와 통계검정}
+
+분류 성능은 Accuracy와 Macro-F1, 순서형 성능은 quadratic weighted kappa(QWK)로 평가한다. 시장영향 비교에서는 동일 문서에 대한 예측을 짝지어 거래일 단위 군집 bootstrap 2,000회로 95\% 신뢰구간을 계산한다. 감성 비교는 뉴스와 공시별 가설을 사전에 정하고 Holm 방법으로 다중검정을 보정한다. 모든 반복실험은 평균과 표준편차를 함께 보고한다.
+
+\section{실험 결과}
+
+\subsection{대상 종목 감성분류}
+
+\begin{table}[H]
 \centering
 \small
-\begin{tabular}{lrr}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcc}
 \toprule
-모델 & Accuracy & Macro-F1 \\
+모델 & 국내 뉴스 & 국내 공시 \\
 \midrule
-TF-IDF logistic & 0.4775 & 0.4415 \\
-KR-FinBERT-SC & 0.7361 & 0.7266 \\
-KF-DeBERTa LoRA(잠금) & \textbf{0.8852} & \textbf{0.8849} \\
-80:20 ensemble & 0.8841 & 0.8838 \\
-Source-bias 보정 & 0.8723 & 0.8724 \\
-Logistic stacker & 0.8391 & 0.8331 \\
+제안 모델 & 0.7503 / 0.5530 & 0.8646 / 0.6024 \\
+원본 KR-FinBERT-SC & 0.5781 / 0.4937 & 0.8535 / 0.6146 \\
+공정 full-FT KR-FinBERT-SC & 0.7677 / 0.5771 & 0.8514 / 0.5647 \\
 \bottomrule
 \end{tabular}
-\caption{중복 제거 공개 감성 Test 932건. 과거 반복 사용된 재현 benchmark이며 신규 확증 Test가 아니다.}
+}
+\caption{잠금 후 확증 Gold의 층화가중 Accuracy / Macro-F1 비교}
 \label{tab:sent-ko}
 \end{table}
 
-잠근 KF-DeBERTa는 KR-FinBERT-SC보다 macro-F1이 0.1583 높다. 2,000회 paired bootstrap 차이의 평균은 0.1580이고 고정 예측 구간은 [0.1265, 0.1899], exact McNemar의 계산값은 $p=9.81\times10^{-19}$이다. 그러나 과거 benchmark가 Test 최고점으로 후보를 선택했고 개발 중 반복 조회했으므로 해당 구간과 p값의 명목 오류율은 보장되지 않는다. 따라서 이는 기술적 동일셋 재현 차이이며 확증적 통계 우위나 독립 확증을 뜻하지 않는다. 현 프로토콜로 잠근 LoRA는 뉴스 Gold 80건에서 accuracy 0.8625/macro-F1 0.8308, 공시 Gold 600건에서 0.9150/0.8084다. 뉴스 accuracy 0.90 gate에 미달해 신규 감성 후보를 승격하지 않는다. 공시 적응·균형 replay·보존 학습·source bias·stacker도 한 운영 분포의 개선과 다른 분포의 회귀가 맞바뀌어 모두 기각했다.
+원본 KR-FinBERT-SC 대비 가중 Macro-F1 차이는 뉴스 +0.0594, 공시 -0.0123이다. 공정 full-FT 기준선과의 Holm 보정 우월성도 두 출처에서 함께 확인되지 않았고 절대 성능 gate를 통과하지 못해 제안 후보를 승격하지 않았다. 비가중 표본 Macro-F1은 뉴스 0.6636, 공시 0.6056이지만 1차 판정은 표의 층화가중 지표를 사용한다.
 
-\subsection{공시 의미 중요도}
+\subsection{시장영향 중요도 분류}
 
-제목+요약 모델 단독은 기본 공시 Gold 600건에서 accuracy 0.9850, macro-F1 0.9470, CRITICAL F1 0.8163이다. 기존 v3 이전 통합 분석기의 0.7150/0.4489/0.2619보다 높다. 좁은 코드북 floor를 더하면 기본셋 1.0000, 기본+stress 910건에서 accuracy 0.9989, macro-F1 0.9962, QWK 0.9994를 기록한다. 이는 같은 코드북으로 만든 floor와 평가셋의 내부 일치도이므로 독립 외부 타당성이 아니다. 모델 단독 결과를 기본 과학 결과로 해석한다.
-
-\subsection{시간 외삽 시장반응}
-
-\begin{table}[t]
+\begin{table}[H]
 \centering
-\small
-\begin{tabular}{lrrr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrrr}
 \toprule
-출처/모델 & Acc. & M-F1 & QWK \\
+출처 & 모델 & Acc. & M-F1 & QWK \\
 \midrule
-뉴스 TF-IDF & 0.4715 & 0.3484 & 0.3421 \\
-뉴스 KF-DeBERTa & \textbf{0.5247} & \textbf{0.3745} & \textbf{0.4754} \\
-공시 TF-IDF & 0.3675 & 0.2677 & 0.1125 \\
-공시 KF-DeBERTa$^\dagger$ & \textbf{0.4750} & \textbf{0.3216} & \textbf{0.1550} \\
-통합 출처 라우팅 & 0.5085 & 0.3690 & 0.3975 \\
+\multirow{2}{*}{국내 뉴스} & KR-FinBERT-SC & 0.4902 & 0.3506 & 0.3962 \\
+ & KF-DeBERTa & \textbf{0.5247} & \textbf{0.3745} & \textbf{0.4754} \\
+\multirow{2}{*}{국내 공시} & KR-FinBERT-SC & 0.4319 & 0.3131 & \textbf{0.1611} \\
+ & KF-DeBERTa & \textbf{0.4750} & \textbf{0.3216} & 0.1550 \\
 \bottomrule
 \end{tabular}
-\caption{시장반응 Test: 뉴스 9,560건, 공시 4,615건. $\dagger$ Validation만으로 선택.}
+}
+\caption{시간 분할 Test의 시장영향 중요도 성능}
 \label{tab:impact-ko}
 \end{table}
 
-통합 출처별 전문가는 기준선보다 macro-F1이 0.0479, QWK가 0.1422 높다. 거래일 군집 bootstrap 95\% CI는 accuracy [0.0594, 0.0818], macro-F1 [0.0351, 0.0608], QWK [0.1178, 0.1649]로 모두 0을 넘고, McNemar $p=2.29\times10^{-55}$이다. ECE도 0.0369에서 0.0259로 개선된다. 공시 3-seed Test macro-F1은 $0.3170\pm0.0052$이며 선택 seed 17은 0.3216이다.
+KF-DeBERTa의 Macro-F1은 KR-FinBERT-SC보다 국내 뉴스에서 6.82\%(0.0239점), 국내 공시에서 2.72\%(0.0085점) 높았다. 거래일 군집 bootstrap에서 Macro-F1 차이의 95\% 신뢰구간은 국내 뉴스 [0.0090, 0.0383], 국내 공시 [-0.0126, 0.0317]이었다. QWK 차이의 신뢰구간은 각각 [0.0622, 0.0960], [-0.0384, 0.0266]이었다. 따라서 국내 뉴스 우위만 확인하며 국내 공시의 점수 차이를 우위로 해석하지 않는다.
 
-\subsection{원천별 비회귀 분석}
+\section{논의}
 
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{llrr}
-\toprule
-원천 & 모델 & M-F1 & QWK \\
-\midrule
-\multirow{2}{*}{뉴스 9,560} & TF-IDF & 0.3484 & 0.3421 \\
- & KF-DeBERTa & \textbf{0.3745} & \textbf{0.4754} \\
-\multirow{2}{*}{공시 4,615} & TF-IDF & 0.2677 & 0.1125 \\
- & KF-DeBERTa & \textbf{0.3216} & \textbf{0.1550} \\
-\bottomrule
-\end{tabular}
-\caption{원천별 시장반응 Test.}
-\label{tab:source-ko}
-\end{table}
+\subsection{결과 해석}
 
-뉴스 Macro-F1 차이의 거래일 군집 95\% CI는 [0.0120, 0.0409], 공시는 [0.0264, 0.0806]이다. QWK 차이는 각각 [0.1090, 0.1558], [0.0046, 0.0794]다. 이전 공유 모델의 공시 회귀를 출처별 학습으로 제거했지만 공시 QWK 하한이 0에 가까워 추가 기간 재현이 필요하다.
+시장영향 분류에서 국내 뉴스는 KR-FinBERT-SC보다 높은 Macro-F1과 QWK를 보였지만 국내 공시는 Macro-F1 차이의 불확실성이 크고 QWK가 낮았다. 통합 점수는 이러한 출처별 차이를 가릴 수 있으므로 출처별 평가와 신뢰구간을 함께 보고해야 한다. 대상 종목을 입력에 명시한 감성분류 역시 문서 전체의 긍정·부정이 아니라 특정 기업에 대한 방향을 구분한다는 점에서 실제 금융 모니터링 과제와 가깝다.
 
-\section{Ablation과 운영 비교}
+\dataset{}는 FNSPID의 문서-기업-시세 연결 개념을 한국 시장에 맞게 확장하되, 한국 거래 세션과 OpenDART 공시 체계를 반영한다. 다만 서로 다른 언어와 정답 정의를 사용하는 데이터셋의 점수를 직접 비교해 최고 성능을 주장하는 것은 타당하지 않다. 본 연구의 비교 범위는 동일한 K-FNSPID 분할에서 학습한 KR-FinBERT-SC와 출처별 기준선으로 제한한다.
 
-이전 공유 모델은 공시 Test가 590건뿐이었고 macro-F1이 0.3006에서 0.2211로 하락했다. 공시 원천을 722,989문서로 확장해 비혼입 Test 4,615건을 만들고 전용 전문가를 학습하자 0.3216으로 개선됐다. 과거 TF-IDF ablation에서는 제목+요약이 전문보다 높았으므로 공시 전문 8,972건을 보존하되 장문 입력 자체를 개선 원인으로 주장하지 않는다.
+\subsection{연구의 한계}
 
-감성 재감사에서 실제 뉴스 accuracy는 0.8625로 승격 기준 0.90에 미달했고 공시는 0.9150이다. stock-review 감성은 0.7880, 실제 뉴스 중요도는 0.9500, stock-review 중요도는 0.8060, 사건 macro-F1은 0.7110이다. 과거 라벨 정책과 새 과제가 일부 충돌하지만 이 회귀를 숨기지 않고 과제별 gate와 fallback을 유지한다.
+뉴스 수집 범위는 검색 질의와 제공자 정책의 영향을 받으며 중복 제거 이후에도 생존 편향이 남을 수 있다. OpenDART 공시 원문은 전체 공시의 1.24\%만 확보되어 결측이 무작위라고 볼 수 없다. 기업 별칭 연결은 사명 변경, 약어와 상장폐지 종목을 놓칠 수 있다.
 
-\section{논의와 결론}
+감성 Gold의 독립 판정과 재심은 고정 지침에 따른 절차적 일관성을 높이지만 판정자들이 AI 기반이므로 인간 금융전문가 간 합의도를 대신하지 못한다. 향후에는 금융 전문가 다중 주석과 외부 평가셋을 추가해야 한다. 또한 공개 감성 Test는 과거 개발에서 사용된 이력이 있어 최종 성능 주장은 별도로 분리한 평가 표본에 한정해야 한다.
 
-\dataset{}의 주된 기여는 예측 과제의 완결보다 한국 금융 데이터 인프라와 평가 규율이다. 하나의 공유 시장반응 모델은 공시 회귀를 숨겼지만 출처별 전문가는 뉴스와 공시를 모두 같은 Test에서 개선한다. 또 의미 중요도와 가격반응을 API에서 분리해야 한다. 파산 공시는 시장이 예상했더라도 의미상 중요하고, 확인되지 않은 소문은 큰 가격변화를 만들더라도 신뢰할 중요 사건은 아닐 수 있다.
+시장영향 라벨은 일봉으로 계산한 관측값이므로 장중 반응, 발표 전 정보 반영, 거시경제와 동시 사건의 영향을 완전히 제거하지 못한다. Test 기간과 거래일 수도 제한적이어서 장기 시간 일반화를 보장하지 않는다. 따라서 시장영향 등급은 인과적 중요도나 투자수익 신호가 아니라 문서 발표 이후 관측된 반응의 대리변수로 해석해야 한다.
 
-FNSPID보다 절대 문서 수는 적지만 한국 공시, 세션 정규화, 사건 혼입 필드, embargo split과 파일 배포를 추가한다. KRX Bench와 FINKRX보다 과제 범위는 좁고 사건 연결에 집중한다. 따라서 교차 benchmark SOTA나 수익성은 주장하지 않는다. 동일 Test의 명시된 기준선 대비 개선, 그리고 공개 코드북에 대한 내부 일치만 방어 가능한 주장이다.
+\section{결론}
 
-\section*{한계}
-
-Naver 검색 결과는 질의, 제공자, 중복 제거와 생존 편향의 영향을 받는다. OpenDART 전문 커버리지는 1.24\%이며 결측은 무작위가 아니다. 회사 별칭은 사명 변경, 약어와 상장폐지 종목을 놓칠 수 있다. 일봉은 장중 반응, 발표 전 정보 누출과 거시·산업·동시 사건 혼입을 제거하지 못한다. 시장반응은 상관적 약지도다.
-
-공개 감성 Test는 균형 분포여서 운영 유병률과 다르고 과거 모델 개발에서 적응적으로 사용됐다. 신뢰구간은 고정 예측의 대응차를 정량화하지만 winner's curse를 제거하거나 이 집합을 미열람 확증 표본으로 바꾸지 못한다. 기본 Gold 680건과 stress 310건은 전체 말뭉치보다 작다. 특히 공시 Gold는 단일 Codex 기반 판정자가 고정 코드북으로 검수했다. 독립 금융전문가 2인 이상, 합의 과정과 평가자 간 일치도가 없다. 시장반응 Test는 유효 거래일 70개이며 공시는 34개 거래일이다. 공시 QWK 개선 구간의 하한은 0.0046으로 작다. 한국어와 2026년 경계에 한정돼 지역·기간 일반화도 제한된다.
-
-\section*{윤리적 고려}
-
-공개 뉴스·공시·시세도 저작권, 개인정보와 맥락 보존 문제가 사라지는 것은 아니다. 배포는 연구 목적 정책, provenance, 삭제와 버전 절차를 따른다. API key, credential과 비공개 사용자 데이터는 제외한다. 기업 사건에 포함된 개인 식별자는 downstream에서 접근 통제와 목적 제한이 필요하다.
-
-금융 NLP는 소문, 시세조종과 자동화 편향을 증폭할 수 있다. API는 의미 중요도와 관측 시장반응을 분리하고 confidence와 모델 버전을 반환하며, artifact hash나 승격 gate가 실패하면 검증된 fallback으로 fail closed한다. 자동 주문이나 개인화 투자 조언을 수행하지 않으며 고위험 알림은 원문 확인과 사람의 판단이 필요하다.
-
-생성형 코딩 보조 도구는 데이터 엔지니어링, 코드 검토, 코드북 기반 Gold 검수와 원고 작성에 사용됐다. 모든 수치는 버전이 고정된 기계 판독 보고서와 대조한다. 이 사용은 서로 연관된 주석·서술 오류를 만들 수 있으며 독립 전문가 검증을 대체하지 않는다.
-
-\section*{재현성}
-
-환경은 Python 3.12와 lockfile을 사용한다. base model revision, LoRA 설정, 공시 seed, optimizer, scheduler, 완료 epoch와 Validation 선택값을 보고서에 저장한다. Parquet은 byte size와 SHA-256을 manifest에 기록한다. 출처별 기준선·Transformer prediction으로 재학습 없이 paired 평가가 가능하다. remote model code는 비활성화하고 safetensors와 artifact version·source·path·size·hash를 확인한 뒤 로드한다. 논문 표의 핵심 수치는 빌드 전에 동결 JSON과 자동 대조한다.
-
-\appendix
-\section{배포 파일과 승격 조건}
-
-배포본은 \texttt{documents.parquet}, \texttt{document\_entities.parquet}, \texttt{market\_impacts.parquet}, \texttt{prices\_daily.parquet}, \texttt{splits.parquet}, \texttt{annotations.parquet}으로 구성한다. 애플리케이션 DB에서 데이터셋을 재구성하지 않는다.
-
-감성 승격은 Validation Selection에서 Test·Gold 없이 후보를 잠그고, 공개 Test macro-F1 0.85 이상, 동일 ID에서 KR-FinBERT-SC 이상, 뉴스·공시 운영 Gold 각각 accuracy 0.90·macro-F1 0.80 이상을 요구한다. 현재 후보는 뉴스 accuracy gate에 미달해 승격하지 않는다. 뉴스 시장반응은 Test 5,000건·macro-F1 0.35·QWK 0.30, 공시는 500건·0.30·0.08 이상을 요구한다. 두 출처 모두 ECE 0.20 이하, 자체 기준선 비회귀, source metadata와 artifact 무결성을 통과해야 한다. 연구 우위는 출처별 거래일 군집 bootstrap 하한이 0보다 커야 한다.
+본 연구는 한국 금융 뉴스와 공시를 대상 종목 및 일별 시세에 연결한 \dataset{}를 구축하고 시간 경계 누수와 사건 혼입을 통제하는 평가 절차를 제시하였다. 동일 조건의 KR-FinBERT-SC 비교에서 국내 뉴스 시장영향 분류의 우위를 확인했으나 국내 공시 우위는 확인하지 못했다. 향후 연구에서는 인간 금융전문가 주석, 더 긴 미래 기간과 외부 기관 자료를 추가하여 감성 및 시장영향 평가의 외적 타당성을 검증할 예정이다.
 
 \begingroup
+\small
 \renewcommand{\emph}[1]{#1}
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 \endgroup
+
+\end{multicols}
 
 \end{document}

@@ -1,0 +1,80 @@
+{
+  "schema_version": "k-fnspid-impact-kr-finbert-sc-result-attestation/v1",
+  "status": "CONFIRMED_KR_FINBERT_SC_ONLY_COMPARISON",
+  "task": "K-FNSPID 국내 뉴스·국내 공시 시장영향 중요도 4등급 분류",
+  "labels": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "primary_metric": "Macro-F1",
+  "candidate": "Hana Montana AI",
+  "baseline": "KR-FinBERT-SC",
+  "excluded_baselines": [
+    "KLUE-RoBERTa-large"
+  ],
+  "evaluation_contract": {
+    "same_temporal_test_partition": true,
+    "paired_predictions": true,
+    "cluster_key": "effective_trade_date",
+    "bootstrap_samples": 2000,
+    "bootstrap_seed": 20260718,
+    "holm_family_size": 2
+  },
+  "results": {
+    "NEWS": {
+      "sample_count": 9560,
+      "candidate_macro_f1": 0.37451947203710084,
+      "baseline_macro_f1": 0.35062014610780284,
+      "absolute_macro_f1_difference": 0.023899325929298,
+      "relative_macro_f1_gain_percent": 6.816301400419196,
+      "clustered_95_percent_ci_macro_f1_difference": [
+        0.008987134800601482,
+        0.038265468794760005
+      ],
+      "candidate_quadratic_kappa": 0.47542674463189694,
+      "baseline_quadratic_kappa": 0.3962171035205021,
+      "holm_adjusted_mcnemar_p_value": 4.783860260521354e-14,
+      "strong_baseline_superiority_gate": "PASS"
+    },
+    "DISCLOSURE": {
+      "sample_count": 4615,
+      "candidate_macro_f1": 0.32163949090130667,
+      "baseline_macro_f1": 0.3131137368451276,
+      "absolute_macro_f1_difference": 0.008525754056179058,
+      "relative_macro_f1_gain_percent": 2.7228936494715557,
+      "clustered_95_percent_ci_macro_f1_difference": [
+        -0.012606671790819146,
+        0.03168570974774371
+      ],
+      "candidate_quadratic_kappa": 0.15497773582734986,
+      "baseline_quadratic_kappa": 0.16108689103545304,
+      "holm_adjusted_mcnemar_p_value": 3.6984642062841674e-7,
+      "strong_baseline_superiority_gate": "FAIL"
+    }
+  },
+  "claim": {
+    "NEWS": "동일 K-FNSPID 시계열 테스트에서 KR-FinBERT-SC 대비 통계적 우위를 확인했다.",
+    "DISCLOSURE": "Macro-F1 점수는 높지만 신뢰구간이 0을 포함하고 QWK가 낮아 통계적 우위를 확정하지 않는다.",
+    "global_sota_claim": false
+  },
+  "artifacts": {
+    "result_matrix": {
+      "path": "reports/k-fnspid-impact-kr-finbert-sc-matrix.json",
+      "sha256": "755cac5e526d9cd2c92dc602846e6f2a412c34b7d4bcf35413a6575a7f4edc5e"
+    },
+    "study_contract_amendment": {
+      "path": "reports/k-fnspid-impact-strong-baseline-study-contract-amendment-002.json",
+      "sha256": "ab1592c7f3734a8594b213f708a5b9ebae8378d0b1fc96eb9a6f2acb7bba330b"
+    },
+    "evaluator": {
+      "path": "scripts/evaluate_k_fnspid_impact_strong_baselines.py",
+      "sha256": "3e06d7209a501eda30bc072571d09c6b2a27bd681143af09bad0583b9776e3e3"
+    },
+    "baseline_artifact_verifier": {
+      "path": "scripts/verify_k_fnspid_impact_baseline_artifact.py",
+      "sha256": "7cef53d44044f6240230a8153d923ba41d1b47180c16609d3af2d7d92c06cb53"
+    }
+  }
+}

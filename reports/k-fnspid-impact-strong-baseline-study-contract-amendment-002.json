@@ -1,0 +1,36 @@
+{
+  "schema_version": "k-fnspid-impact-strong-baseline-study-contract-amendment/v1",
+  "state": "LOCKED_BEFORE_KR_FINBERT_SC_ONLY_PAIRED_EVALUATION",
+  "parent_amendment": {
+    "path": "reports/k-fnspid-impact-strong-baseline-study-contract-amendment-001.json",
+    "sha256": "5dd8b867f7d41f3dd9269c966a2bb488bbd3ea6af82a98a670e6fc58df323a38"
+  },
+  "scope": {
+    "included_model_presets": [
+      "KR_FINBERT_SC"
+    ],
+    "excluded_model_presets": [
+      "KLUE_ROBERTA_LARGE"
+    ],
+    "sources": [
+      "NEWS",
+      "DISCLOSURE"
+    ],
+    "bootstrap_samples": 2000,
+    "bootstrap_seed": 20260718,
+    "multiplicity_family_size": 2
+  },
+  "correction": {
+    "cause": "the evaluator used all-underscore replacement while the locked runner artifact namespace replaces only the first underscore",
+    "model_filter": "explicit repeated --model-preset argument; omitted argument preserves the original complete matrix behavior",
+    "evaluation_code_sha256": "3e06d7209a501eda30bc072571d09c6b2a27bd681143af09bad0583b9776e3e3",
+    "regression_test_sha256": "d0d0d91b9051a59f6eca8c6ac5e5333733494b6a5bc2771703ec212177c1a10f"
+  },
+  "locked_inputs": {
+    "candidate_news_report_sha256": "86f0957e4f4ee554a0b706bf1a3d888dc2cd3982e091338003af6f470874d468",
+    "candidate_disclosure_aggregate_sha256": "77a562d086777d96f2c783b26757af9780558dfb709aac9e9b5c2d9fad77cd14",
+    "baseline_news_report_sha256": "c8f9216a81dadecc7df8c935ee00c4815d69caf27fa604d227b8b6fc51c0df0d",
+    "baseline_disclosure_aggregate_sha256": "9336ced249bf335069253fc800771732df4b6e039ed9781eed925750527d2109"
+  },
+  "claim_scope": "same K-FNSPID temporal Test and KR-FinBERT-SC; not a global SOTA leaderboard"
+}

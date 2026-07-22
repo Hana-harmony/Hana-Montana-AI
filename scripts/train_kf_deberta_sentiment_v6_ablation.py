@@ -2197,11 +2197,6 @@ def main() -> None:
         )
         print(json.dumps(receipt, ensure_ascii=False))
         return
-    if output_dir.exists() or output_dir.is_symlink():
-        raise SystemExit(f"ablation artifact 출력이 이미 존재합니다: {output_dir}")
-    if report_path.exists() or report_path.is_symlink():
-        raise SystemExit(f"ablation report 출력이 이미 존재합니다: {report_path}")
-
     paths = _ablation_paths(args)
     input_paths = data_contract.input_paths(paths)
     input_paths.update(gold_provenance_paths(args))
@@ -2228,6 +2223,12 @@ def main() -> None:
         )
         print(json.dumps(protocol, ensure_ascii=False))
         return
+
+    # 검증 전용 실행은 산출물을 쓰지 않으므로 기존 학습 결과와 함께 재실행할 수 있다.
+    if output_dir.exists() or output_dir.is_symlink():
+        raise SystemExit(f"ablation artifact 출력이 이미 존재합니다: {output_dir}")
+    if report_path.exists() or report_path.is_symlink():
+        raise SystemExit(f"ablation report 출력이 이미 존재합니다: {report_path}")
 
     v6._set_seed(args.seed)
     base_source = v6.resolve_base_source(args.base_source, verify_pinned=True)

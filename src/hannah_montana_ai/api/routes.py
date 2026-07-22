@@ -56,6 +56,9 @@ from hannah_montana_ai.services.korean_translation_generator import (
     KoreanTranslationGenerator,
 )
 from hannah_montana_ai.services.model import ModelArtifactError
+from hannah_montana_ai.services.source_hierarchical_sentiment import (
+    SentimentInputContractError,
+)
 
 router = APIRouter(tags=["analysis"])
 logger = logging.getLogger(__name__)
@@ -152,6 +155,26 @@ def analyze_alert(request: AlertAnalysisRequest) -> ApiResponse[AlertAnalysisRes
         ) from exception
     try:
         response = analyzer.analyze(request)
+    except SentimentInputContractError as exception:
+        audit_logger.record_failure(
+            request=request,
+            latency_ms=_elapsed_ms(started_at),
+            failure_reason="sentiment_input_contract_error",
+        )
+        raise ApiException(
+            ErrorCode.VALIDATION_FAILED,
+            str(exception),
+        ) from exception
+    except ModelArtifactError as exception:
+        audit_logger.record_failure(
+            request=request,
+            latency_ms=_elapsed_ms(started_at),
+            failure_reason="sentiment_runtime_unavailable",
+        )
+        raise ApiException(
+            ErrorCode.MODEL_UNAVAILABLE,
+            "Sentiment model runtime is unavailable",
+        ) from exception
     except Exception:
         audit_logger.record_failure(
             request=request,
