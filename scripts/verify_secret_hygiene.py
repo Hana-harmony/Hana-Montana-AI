@@ -22,6 +22,9 @@ FORBIDDEN_ASSIGNMENT_PATTERNS = (
     re.compile(r"\bOMNI_CONNECT_API_KEY\s*=\s*\S+"),
     re.compile(r"\bX-HANNAH-AI-SERVICE-TOKEN\s*=\s*\S+"),
 )
+FORBIDDEN_INLINE_SECRET_PATTERNS = (
+    re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b"),
+)
 TEXT_FILE_SUFFIXES = {
     ".env",
     ".ini",
@@ -82,6 +85,10 @@ def tracked_secret_assignment_violations(paths: list[Path]) -> list[str]:
             if pattern.search(content):
                 relative_path = path.relative_to(PROJECT_ROOT).as_posix()
                 violations.append(f"Forbidden credential assignment found: {relative_path}")
+        for pattern in FORBIDDEN_INLINE_SECRET_PATTERNS:
+            if pattern.search(content):
+                relative_path = path.relative_to(PROJECT_ROOT).as_posix()
+                violations.append(f"Forbidden inline credential found: {relative_path}")
     return violations
 
 

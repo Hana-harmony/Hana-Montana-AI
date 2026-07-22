@@ -27,6 +27,8 @@ from hannah_montana_ai.services.korean_financial_terms import load_financial_ter
 KOREAN_TRANSLATION_PROMPT_VERSION = "ko-en-qwen3-financial-translation-v2"
 QWEN_ALERT_SUMMARY_PROMPT_VERSION = "ko-en-qwen3-grounded-alert-summary-v1"
 LOCAL_TRANSLATION_PROVIDER = "local-open-source-qwen3-translation"
+OPENAI_ALERT_SUMMARY_PROMPT_VERSION = "ko-en-openai-grounded-alert-summary-v1"
+OPENAI_BACKFILL_PROVIDER = "openai-initial-backfill"
 QWEN_4B_TRANSLATION_MODEL = "Qwen3-4B-GGUF-Q4"
 GROUNDED_TRANSLATION_PROVIDER = "article-grounded-ko-en-translation"
 STRUCTURED_DISCLOSURE_TRANSLATION_PROVIDER = "structured-dart-disclosure-ko-en-translation"
@@ -155,6 +157,84 @@ class QwenHttpKoreanTranslationClient:
                 time.sleep(float(2 ** (attempt - 1)))
         if last_exception is None:
             raise RuntimeError("LLM request retry loop completed without a result")
+        raise last_exception
+
+
+class OpenAIResponsesTranslationClient:
+    _MAX_TRANSIENT_ATTEMPTS = 4
+
+    def __init__(
+        self,
+        *,
+        endpoint: str,
+        api_key: str,
+        model: str,
+        timeout_seconds: float,
+    ) -> None:
+        self._endpoint = endpoint.rstrip("/")
+        self._api_key = api_key
+        self._model = model
+        self._timeout_seconds = timeout_seconds
+
+    def generate(self, messages: list[dict[str, str]], max_tokens: int) -> str:
+        parsed_url = urllib.parse.urlparse(self._endpoint)
+        if parsed_url.scheme != "https" or not parsed_url.netloc:
+            raise ValueError("OpenAI API endpoint must use https")
+        if not self._api_key:
+            raise ValueError("OPENAI_API_KEY is required")
+        payload = {
+            "model": self._model,
+            "input": messages,
+            "reasoning": {"effort": "low"},
+            "text": {
+                "verbosity": "low",
+                "format": {"type": "json_object"},
+            },
+            "max_output_tokens": max_tokens,
+            "store": False,
+        }
+        request = urllib.request.Request(  # noqa: S310
+            f"{self._endpoint}/v1/responses",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {self._api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        body = self._request_with_transient_retry(request)
+        for item in body.get("output", []):
+            if not isinstance(item, dict) or item.get("type") != "message":
+                continue
+            for content in item.get("content", []):
+                if not isinstance(content, dict) or content.get("type") != "output_text":
+                    continue
+                output_text = content.get("text")
+                if isinstance(output_text, str) and output_text.strip():
+                    return output_text
+        raise ValueError("OpenAI response output text is empty")
+
+    def _request_with_transient_retry(self, request: urllib.request.Request) -> dict[str, Any]:
+        last_exception: Exception | None = None
+        for attempt in range(1, self._MAX_TRANSIENT_ATTEMPTS + 1):
+            try:
+                with urllib.request.urlopen(  # noqa: S310  # nosec B310
+                    request,
+                    timeout=self._timeout_seconds,
+                ) as response:
+                    return cast(dict[str, Any], json.loads(response.read().decode("utf-8")))
+            except urllib.error.HTTPError as exception:
+                if exception.code not in {429, 502, 503, 504}:
+                    raise
+                last_exception = exception
+            except TimeoutError:
+                raise
+            except urllib.error.URLError as exception:
+                last_exception = exception
+            if attempt < self._MAX_TRANSIENT_ATTEMPTS:
+                time.sleep(float(2 ** (attempt - 1)))
+        if last_exception is None:
+            raise RuntimeError("OpenAI request retry loop completed without a result")
         raise last_exception
 
 
@@ -696,6 +776,8 @@ class KoreanTranslationGenerator:
         max_concurrency: int = 1,
         rule_based_repairs_enabled: bool = True,
         dictionary_glossary_terms: tuple[FinancialGlossaryTerm, ...] = (),
+        provider_name: str = LOCAL_TRANSLATION_PROVIDER,
+        summary_prompt_version: str = QWEN_ALERT_SUMMARY_PROMPT_VERSION,
     ) -> None:
         self._client = client
         self._model_name = model_name
@@ -703,6 +785,8 @@ class KoreanTranslationGenerator:
         self._max_concurrency = max(1, max_concurrency)
         self._rule_based_repairs_enabled = rule_based_repairs_enabled
         self._dictionary_glossary_terms = dictionary_glossary_terms
+        self._provider_name = provider_name
+        self._summary_prompt_version = summary_prompt_version
         self._client_slots = BoundedSemaphore(self._max_concurrency)
 
     @classmethod
@@ -734,6 +818,40 @@ class KoreanTranslationGenerator:
                 )
                 for surface in dict.fromkeys((entry.normalized_term, *entry.aliases))
             ),
+        )
+
+    @classmethod
+    def from_openai_settings(cls, settings: Settings) -> KoreanTranslationGenerator:
+        api_key = settings.openai_api_key.get_secret_value().strip()
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY is required")
+        client: TranslationClient = OpenAIResponsesTranslationClient(
+            endpoint=settings.openai_api_endpoint,
+            api_key=api_key,
+            model=settings.openai_backfill_model,
+            timeout_seconds=settings.openai_backfill_timeout_seconds,
+        )
+        return cls(
+            client=client,
+            model_name=f"openai:{settings.openai_backfill_model}",
+            max_tokens=settings.korean_translation_llm_max_tokens,
+            max_concurrency=settings.openai_backfill_max_concurrency,
+            rule_based_repairs_enabled=False,
+            dictionary_glossary_terms=tuple(
+                FinancialGlossaryTerm(
+                    source_term=surface,
+                    normalized_term=entry.normalized_term,
+                    english_term=entry.english_term,
+                    category=entry.category,
+                    description=entry.plain_explanation,
+                )
+                for entry in load_financial_term_entries(
+                    settings.korean_financial_terms_seed_path
+                )
+                for surface in dict.fromkeys((entry.normalized_term, *entry.aliases))
+            ),
+            provider_name=OPENAI_BACKFILL_PROVIDER,
+            summary_prompt_version=OPENAI_ALERT_SUMMARY_PROMPT_VERSION,
         )
 
     def generate_alert_summary(
@@ -980,9 +1098,9 @@ class KoreanTranslationGenerator:
                 why=cast(str, fields["why"]).strip(),
                 impact=cast(str, fields["impact"]).strip(),
             ),
-            provider=LOCAL_TRANSLATION_PROVIDER,
+            provider=self._provider_name,
             model_version=self._model_name,
-            prompt_version=QWEN_ALERT_SUMMARY_PROMPT_VERSION,
+            prompt_version=self._summary_prompt_version,
         )
 
     @staticmethod
@@ -1313,7 +1431,7 @@ class KoreanTranslationGenerator:
         ):
             return KoreanTranslationResult(
                 translated_text=translated,
-                provider=LOCAL_TRANSLATION_PROVIDER,
+                provider=self._provider_name,
                 model_version=self._model_name,
                 status=STATUS_TRANSLATED,
                 prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,
@@ -1324,7 +1442,7 @@ class KoreanTranslationGenerator:
             return self._fallback("", quality_flags)
         return KoreanTranslationResult(
             translated_text=translated,
-            provider=LOCAL_TRANSLATION_PROVIDER,
+            provider=self._provider_name,
             model_version=self._model_name,
             status=STATUS_TRANSLATED,
             prompt_version=KOREAN_TRANSLATION_PROMPT_VERSION,

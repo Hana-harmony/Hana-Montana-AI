@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 
 def _optional_path_env(name: str) -> Path | None:
@@ -151,6 +151,29 @@ class Settings(BaseModel):
     )
     korean_translation_max_concurrency: int = Field(
         default_factory=lambda: int(os.getenv("HANNAH_KOREAN_TRANSLATION_MAX_CONCURRENCY", "1")),
+        ge=1,
+        le=8,
+    )
+    openai_api_key: SecretStr = Field(
+        default_factory=lambda: SecretStr(os.getenv("OPENAI_API_KEY", ""))
+    )
+    openai_api_endpoint: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_OPENAI_API_ENDPOINT", "https://api.openai.com")
+    )
+    openai_backfill_model: str = Field(
+        default_factory=lambda: os.getenv("HANNAH_OPENAI_BACKFILL_MODEL", "gpt-5.6-luna")
+    )
+    openai_backfill_timeout_seconds: float = Field(
+        default_factory=lambda: float(
+            os.getenv("HANNAH_OPENAI_BACKFILL_TIMEOUT_SECONDS", "120.0")
+        ),
+        ge=10,
+        le=600,
+    )
+    openai_backfill_max_concurrency: int = Field(
+        default_factory=lambda: int(
+            os.getenv("HANNAH_OPENAI_BACKFILL_MAX_CONCURRENCY", "4")
+        ),
         ge=1,
         le=8,
     )

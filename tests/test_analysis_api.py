@@ -10,7 +10,9 @@ from fastapi.testclient import TestClient
 
 import hannah_montana_ai.main as main_module
 from hannah_montana_ai.api import routes
+from hannah_montana_ai.api.exceptions import ApiException, ErrorCode
 from hannah_montana_ai.api.routes import (
+    _select_alert_analyzer,
     get_analyzer,
     get_audit_logger,
     get_korean_translation_service,
@@ -178,6 +180,30 @@ def test_analysis_and_translation_routes_share_one_qwen_capacity_guard() -> None
     analyzer = get_analyzer()
 
     assert analyzer.translation_generator is get_korean_translation_service()
+
+
+def test_openai_backfill_provider_requires_shared_maintenance_token(monkeypatch) -> None:
+    expected_analyzer = object()
+    monkeypatch.setattr(
+        routes,
+        "get_settings",
+        lambda: SimpleNamespace(foreign_ownership_maintenance_token="shared-secret"),  # noqa: S106
+    )
+    monkeypatch.setattr(routes, "get_openai_backfill_analyzer", lambda: expected_analyzer)
+
+    assert (
+        _select_alert_analyzer("OPENAI_INITIAL_BACKFILL", "shared-secret")
+        is expected_analyzer
+    )
+    with pytest.raises(ApiException) as error:
+        _select_alert_analyzer("OPENAI_INITIAL_BACKFILL", "wrong-secret")
+    assert error.value.error_code is ErrorCode.UNAUTHORIZED
+
+
+def test_unknown_analysis_provider_is_rejected() -> None:
+    with pytest.raises(ApiException) as error:
+        _select_alert_analyzer("UNSUPPORTED", None)
+    assert error.value.error_code is ErrorCode.VALIDATION_FAILED
 
 
 def test_analyze_alert_accepts_full_disclosure_above_legacy_60000_chars() -> None:
